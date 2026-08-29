@@ -18,4 +18,20 @@ export default defineConfig({
     esbuild: {
         jsx: 'automatic',
     },
+    server: {
+        host: '0.0.0.0',
+        port: 5173,
+        strictPort: true,
+        origin: 'http://localhost:8080',
+        hmr: {
+            host: 'localhost',
+            protocol: 'ws',
+            clientPort: 8080,
+            path: '/__vite_hmr',
+        },
+        watch: {
+            usePolling: true,
+            interval: 300,
+        },
+    },
 });
