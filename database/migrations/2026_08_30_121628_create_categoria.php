@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nome');
             $table->tinyInteger('padrao')->default(0);
-            $table->foreignId('usuario_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('usuario_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->enum('tipo', ['receita', 'despesa']);
             $table->timestamps();
         });

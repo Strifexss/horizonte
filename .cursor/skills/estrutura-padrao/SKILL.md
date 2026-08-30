@@ -71,6 +71,45 @@ Leia [front.md](front.md). Aplique `inertia-react-development`. Com Tailwind, `t
 
 Page orquestra. Domínio em `resources/js/components/{plural}/` com nomes PT (`ContasForm`, `ContasCard`, `ContasEmpty`, `ContasSkeleton`). Reuse `padrões` e `ui`. `Inertia::defer` + `<Deferred>` + skeleton. `useForm` usa o **mesmo método da rota**.
 
+#### Lazy props (carregamento sob demanda)
+
+Quando uma prop for pesada ou desnecessária na carga inicial da página (listas de referência, coleções grandes, relacionamentos), prefira Inertia lazy props em vez de requisições AJAX manuais.
+
+- Backend (Controller): exponha a prop com `Inertia::lazy(fn () => /* consulta */)` ao renderizar a página. Exemplo:
+
+```php
+use Inertia\Inertia;
+use App\Models\Categoria;
+
+return Inertia::render('extrato/index', [
+    'categorias' => Inertia::lazy(fn () => Categoria::where('usuario_id', auth()->id())->get()),
+]);
+```
+
+- Frontend (Page / Component): não faça `fetch`/axios manual para essas props.
+  - Leia com `usePage()` (ou receba via props).
+  - Ao abrir a UI que precisa do dado (ex.: modal), chame `router.reload({ only: ['categorias'] })`.
+  - Controle loading com `onStart` / `onFinish` / `onError`.
+  - Após operações mutantes (store/update/destroy), recarregue a prop com `router.reload({ only: ['categorias'] })`.
+
+Exemplo (resumido):
+
+```tsx
+import { usePage, router } from '@inertiajs/react';
+
+const page = usePage<any>();
+const categorias = page.props.categorias;
+
+function openModal() {
+  router.reload({ only: ['categorias'], onStart: () => setLoading(true), onFinish: () => setLoading(false) });
+}
+```
+
+Observações:
+- `Inertia::lazy` é ideal para dados carregados sob demanda. Use `Inertia::defer` / `<Deferred>` quando quiser renderizar imediatamente com fallback UI e carregar depois.
+- Mantenha endpoints JSON apenas para APIs externas; prefira o fluxo Inertia para páginas internas.
+- Teste: abrir modal (carrega prop), adicionar/editar/excluir (chamar reload na onSuccess).
+
 Sidebar só se o intake pediu.
 
 Done: page sem markup de form/card/empty/skeleton (só importa); tipos TS = campos do DTO; método HTTP do form = rota.

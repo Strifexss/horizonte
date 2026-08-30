@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
-import React from 'react';
+import React, { useState } from 'react';
 import { CreditCard, ChevronDown, Plus, BarChart2, ArrowUpRight, ArrowDownRight, Grid, File} from 'lucide-react';
 import { PageTitle, KpisPanel, TableWithFilters } from '@/components/padrões';
 import ExtratoFilters from '@/components/extrato/Filters';
@@ -9,6 +9,13 @@ import ExtratoFooter from '@/components/extrato/Footer';
 import StatusBadge from '@/components/extrato/StatusBadge';
 import Amount from '@/components/extrato/Amount';
 import ActionsCell from '@/components/extrato/ActionsCell';
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
+import CategoriasModal from '../../components/categorias/CategoriasModal';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -57,6 +64,7 @@ function formatCurrency(value: number) {
 
 export default function Extrato() {
     const transactions = MOCK_TRANSACTIONS;
+    const [categoriasOpen, setCategoriasOpen] = useState(false);
 
     const totalCredits = transactions.filter((t) => t.type === 'credit').reduce((sum, t) => sum + t.amount, 0);
     const totalDebits = transactions.filter((t) => t.type === 'debit').reduce((sum, t) => sum + t.amount, 0);
@@ -68,6 +76,7 @@ export default function Extrato() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Extrato" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+                <CategoriasModal open={categoriasOpen} onOpenChange={setCategoriasOpen} />
                 <PageTitle
                     title="Extrato Financeiro de Contas"
                     subtitle="Visualize e gerencie os lançamentos da sua conta"
@@ -82,13 +91,20 @@ export default function Extrato() {
                             </button>
 
                             <div className="relative">
-                                <button
-                                    type="button"
-                                    className="inline-flex items-center gap-3 rounded-lg border border-sidebar-border/70 bg-white px-4 py-2 text-base font-medium text-muted-foreground hover:bg-sidebar-border/50 dark:bg-slate-800 dark:text-muted-foreground"
-                                >
-                                    Ações
-                                    <ChevronDown className="h-5 w-5" />
-                                </button>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <button
+                                            type="button"
+                                            className="inline-flex items-center gap-3 rounded-lg border border-sidebar-border/70 bg-white px-4 py-2 text-base font-medium text-muted-foreground hover:bg-sidebar-border/50 dark:bg-slate-800 dark:text-muted-foreground"
+                                        >
+                                            Ações
+                                            <ChevronDown className="h-5 w-5" />
+                                        </button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="start">
+                                        <DropdownMenuItem onSelect={() => setCategoriasOpen(true)}>Categorias</DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </div>
 
                             <button

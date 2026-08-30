@@ -14,7 +14,7 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
 
-    Route::get('extrato', [ExtratoController::class, 'index'])->name('extrato');
+    Route::get('extrato', [ExtratoController::class, 'index'])->name('extrato.index');
     
     Route::group(['prefix' => 'contas'], function () {
         Route::get('/', [ContasController::class, 'index'])->name('contas');

@@ -15,8 +15,8 @@ class CategoriaController extends Controller
 
     public function index()
     {
-        return Inertia::render('categorias/index', [
-            'categorias' => Inertia::defer(fn () => $this->categoriaService->index()),
+        return response()->json([
+            'categorias' => $this->categoriaService->index(),
         ]);
     }
 
@@ -24,8 +24,6 @@ class CategoriaController extends Controller
     {
         try {
             $dto = CategoriaDTO::fromArray($request->validated());
-            $this->categoriaService->store($dto);
-
             return redirect()->route('categorias')->with('success', 'Categoria criada com sucesso.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erro ao criar categoria: ' . $e->getMessage());
@@ -48,7 +46,7 @@ class CategoriaController extends Controller
     {
         try {
             $this->categoriaService->delete($id);
-            return redirect()->route('categorias')->with('success', 'Categoria excluída com sucesso.');
+            return redirect()->route('extrato.index')->with('success', 'Categoria excluída com sucesso.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erro ao excluir categoria: ' . $e->getMessage());
         }
