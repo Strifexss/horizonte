@@ -1,7 +1,7 @@
 import { Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type ExtratoStatusTab = 'todos' | 'em_aberto' | 'liquidado' | 'conferido' | 'conciliado';
+export type ExtratoStatusTab = 'todos' | 'aberto' | 'pago' | 'parcial';
 
 type Counts = Record<ExtratoStatusTab, number>;
 
@@ -15,10 +15,9 @@ type Props = {
 
 const TABS: { id: ExtratoStatusTab; label: string }[] = [
     { id: 'todos', label: 'Todos' },
-    { id: 'em_aberto', label: 'Em aberto' },
-    { id: 'liquidado', label: 'Liquidado' },
-    { id: 'conferido', label: 'Conferido' },
-    { id: 'conciliado', label: 'Conciliado' },
+    { id: 'aberto', label: 'Aberto' },
+    { id: 'pago', label: 'Pago' },
+    { id: 'parcial', label: 'Parcial' },
 ];
 
 export default function ExtratoTableToolbar({ busca, onBuscaChange, status, onStatusChange, counts }: Props) {

@@ -36,13 +36,19 @@ function formatCurrency(value: number) {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }
 
-function statusDaParcela(p: { status?: ExtratoStatusTab }): Exclude<ExtratoStatusTab, 'todos'> {
-    const status = p.status;
-    if (status === 'liquidado' || status === 'conferido' || status === 'conciliado' || status === 'em_aberto') {
-        return status;
+function statusDaParcela(p: { valor?: number | string | null; valor_pago?: number | string | null }): Exclude<ExtratoStatusTab, 'todos'> {
+    const valor = Number(p.valor ?? 0);
+    const valorPago = Number(p.valor_pago ?? 0);
+
+    if (!valorPago || valorPago === 0) {
+        return 'aberto';
     }
 
-    return 'em_aberto';
+    if (valorPago >= valor) {
+        return 'pago';
+    }
+
+    return 'parcial';
 }
 
 function tipoDaParcela(p: { financeiro?: { tipo?: string } | null }): string {
@@ -60,7 +66,7 @@ export default function Extrato() {
 
     const counts = useMemo(() => {
         const list = parcelasArray ?? [];
-        const next = { todos: list.length, em_aberto: 0, liquidado: 0, conferido: 0, conciliado: 0 };
+        const next = { todos: list.length, aberto: 0, pago: 0, parcial: 0 };
         for (const p of list) {
             next[statusDaParcela(p)] += 1;
         }
@@ -255,25 +261,17 @@ export default function Extrato() {
                                 label: 'STATUS',
                                 thClassName: 'w-32 text-center',
                                 render: (p: any) => {
-                                    const valor = Number(p.valor ?? 0);
-                                    const valorPago = Number(p.valor_pago ?? 0);
-                                    let status = '';
-                                    let colorClass = '';
-
-                                    if (!valorPago || valorPago === 0) {
-                                        status = 'ABERTO';
-                                        colorClass = 'bg-primary/10 text-primary';
-                                    } else if (valorPago >= valor) {
-                                        status = 'PAGO';
-                                        colorClass = 'bg-green-50 dark:bg-green-900/30 text-green-700';
-                                    } else {
-                                        status = 'PARCIAL';
-                                        colorClass = 'bg-blue-50 dark:bg-blue-900/30 text-blue-700';
-                                    }
+                                    const status = statusDaParcela(p);
+                                    const labels = { aberto: 'ABERTO', pago: 'PAGO', parcial: 'PARCIAL' } as const;
+                                    const colorClass = {
+                                        aberto: 'bg-primary/10 text-primary',
+                                        pago: 'bg-green-50 dark:bg-green-900/30 text-green-700',
+                                        parcial: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700',
+                                    }[status];
 
                                     return (
                                         <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${colorClass}`}>
-                                            {status}
+                                            {labels[status]}
                                         </span>
                                     );
                                 },
