@@ -22,6 +22,13 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{id}', [ContasController::class, 'update'])->name('contas.update');
         Route::delete('/{id}', [ContasController::class, 'destroy'])->name('contas.destroy');
     }); 
+    
+    Route::group(['prefix' => 'categorias'], function () {
+        Route::get('/', [\App\Http\Controllers\CategoriaController::class, 'index'])->name('categorias');
+        Route::post('/', [\App\Http\Controllers\CategoriaController::class, 'store'])->name('categorias.store');
+        Route::put('/{id}', [\App\Http\Controllers\CategoriaController::class, 'update'])->name('categorias.update');
+        Route::delete('/{id}', [\App\Http\Controllers\CategoriaController::class, 'destroy'])->name('categorias.destroy');
+    });
 });
 
 

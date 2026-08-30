@@ -6,6 +6,10 @@ use App\Repositories\ContaRepository;
 use App\Repositories\Interfaces\ContaRepositoryInterface;
 use App\Services\ContasService;
 use App\Services\Interfaces\ContasServiceInterface;
+use App\Repositories\CategoriaRepository;
+use App\Repositories\Interfaces\CategoriaRepositoryInterface;
+use App\Services\CategoriaService;
+use App\Services\Interfaces\CategoriaServiceInterface;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,6 +21,8 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(ContasServiceInterface::class, ContasService::class);
         $this->app->bind(ContaRepositoryInterface::class, ContaRepository::class);
+        $this->app->bind(CategoriaServiceInterface::class, CategoriaService::class);
+        $this->app->bind(CategoriaRepositoryInterface::class, CategoriaRepository::class);
     }
 
     /**

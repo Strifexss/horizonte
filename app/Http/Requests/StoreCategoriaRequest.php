@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreCategoriaRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if (! $this->has('usuario_id') && $this->user()) {
+            $this->merge(['usuario_id' => $this->user()->id]);
+        }
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string,mixed>
+     */
+    public function rules(): array
+    {
+        return [
+            'nome' => ['required', 'string', 'max:255'],
+            'padrao' => ['nullable', 'boolean'],
+            'usuario_id' => ['nullable', 'integer', 'exists:users,id'],
+            'tipo' => ['required', 'string', 'in:receita,despesa'],
+        ];
+    }
+}
+

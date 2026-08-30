@@ -34,6 +34,11 @@ class AbstractRepository implements AbstractRepositoryInterface
         return $query->get();
     }
 
+    public function find(int $id):Model
+    {
+        return $this->model->findOrFail($id);
+    }   
+
     public function update($id, $data)
     {
         if ($data instanceof Dto) {
