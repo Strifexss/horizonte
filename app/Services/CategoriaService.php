@@ -33,6 +33,20 @@ class CategoriaService extends ServiceAbstract implements CategoriaServiceInterf
     }
 
     /**
+     * Autocomplete de categorias delegando para o repositório.
+     *
+     * @param string|null $q
+     * @return mixed
+     */
+    public function autocomplete($q = null)
+    {
+        /** @var \App\Repositories\Interfaces\CategoriaRepositoryInterface $repo */
+        $repo = $this->repository;
+
+        return $repo->autocomplete($q);
+    }
+
+    /**
      * @param int $id
      */
     public function delete($id)

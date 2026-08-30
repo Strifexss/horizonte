@@ -56,4 +56,20 @@ class AbstractRepository implements AbstractRepositoryInterface
         $model = $this->model->findOrFail($id);
         return $model->delete();
     }
+
+    public function autocomplete($q = null)
+    {
+        $query = $this->model->newQuery();
+
+        if ($q !== null && $q !== '') {
+            $query->where('nome', 'like', '%' . $q . '%');
+        }
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn($this->model->getTable(), 'usuario_id') && \Illuminate\Support\Facades\Auth::check()) {
+            $query->where('usuario_id', \Illuminate\Support\Facades\Auth::id());
+        }
+
+        return $query->limit(20)->get(['id', 'nome']);
+    }
+
 }

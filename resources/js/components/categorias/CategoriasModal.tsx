@@ -9,14 +9,12 @@ import {
     DialogDescription,
     DialogFooter,
     DialogClose,
-    DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import CategoriaRow from './CategoriaRow';
-import { Plus } from 'lucide-react';
 
 type Categoria = {
     id: number | string;
@@ -103,7 +101,7 @@ export default function CategoriasModal({ open, onOpenChange }: { open: boolean;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="w-[700px] max-w-full overflow-hidden">
+            <DialogContent className="w-[100vw] h-[100vh] md:w-[700px] md:max-w-full md:h-auto overflow-hidden">
                 <DialogHeader>
                     <DialogTitle>Categorias</DialogTitle>
                     <DialogDescription>Gerencie categorias de receita e despesa.</DialogDescription>
@@ -140,13 +138,13 @@ export default function CategoriasModal({ open, onOpenChange }: { open: boolean;
                                 <InputError message={errors.nome} />
                             </div>
 
-                            <DialogFooter>
+                            <DialogFooter className='flex flex-row gap-2'>
                                 <DialogClose asChild>
-                                    <Button variant="secondary" type="button" onClick={() => { reset(); setEditingId(null); }}>
+                                    <Button className='w-full' variant="secondary" type="button" onClick={() => { reset(); setEditingId(null); }}>
                                         Cancelar
                                     </Button>
                                 </DialogClose>
-                                <Button type="submit" className="ml-2" disabled={processing} variant="confirm">
+                                <Button type="submit" className="w-full" disabled={processing} variant="confirm">
                                     {editingId ? 'Atualizar' : 'Adicionar'}
                                 </Button>
                             </DialogFooter>

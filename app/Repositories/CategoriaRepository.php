@@ -20,5 +20,26 @@ class CategoriaRepository extends AbstractRepository implements CategoriaReposit
     {
         return $categoria->delete();
     }
+
+    /**
+     * Retorna categorias filtradas pelo termo de busca.
+     *
+     * @param string|null $q
+     * @return \Illuminate\Support\Collection|array
+     */
+    public function autocomplete($q = null)
+    {
+        $query = $this->model->newQuery();
+
+        if ($q !== null && $q !== '') {
+            $query->where('nome', 'like', '%' . $q . '%');
+        }
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn($this->model->getTable(), 'usuario_id') && \Illuminate\Support\Facades\Auth::check()) {
+            $query->where('usuario_id', \Illuminate\Support\Facades\Auth::id());
+        }
+
+        return $query->limit(20)->get(['id', 'nome']);
+    }
 }
 

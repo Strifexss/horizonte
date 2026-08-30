@@ -8,4 +8,5 @@ interface AbstractServiceInterface
     public function index($data = null);
     public function update($id, $data);
     public function delete($id);
+    public function autocomplete($q = null);
 }

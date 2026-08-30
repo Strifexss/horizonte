@@ -11,4 +11,5 @@ interface AbstractRepositoryInterface
     public function update($id, $data);
     public function find(int $id):Model;
     public function delete($id);
+    public function autocomplete($q = null);
 }

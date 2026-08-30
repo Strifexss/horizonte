@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Financeiro extends Model
+class FinanceiroParcela extends Model
 {
     use HasFactory;
 
@@ -14,7 +14,7 @@ class Financeiro extends Model
      *
      * @var string
      */
-    protected $table = 'financeiro';
+    protected $table = 'financeiro_parcela';
 
     /**
      * The attributes that are mass assignable.
@@ -23,11 +23,12 @@ class Financeiro extends Model
      */
     protected $fillable = [
         'descricao',
+        'data_vencimento',
+        'data_competencia',
         'valor',
-        'tipo',
-        'categoria_id',
-        'conta_id',
-        'data_criacao',
+        'valor_pago',
+        'parcela',
+        'financeiro_id',
         'usuario_id',
     ];
 
@@ -41,17 +42,19 @@ class Financeiro extends Model
         return [
             'id' => 'integer',
             'descricao' => 'string',
+            'data_vencimento' => 'date',
+            'data_competencia' => 'date',
             'valor' => 'decimal:2',
-            'tipo' => 'string',
-            'categoria_id' => 'integer',
-            'conta_id' => 'integer',
-            'data_criacao' => 'datetime',
+            'valor_pago' => 'decimal:2',
+            'parcela' => 'integer',
+            'financeiro_id' => 'integer',
+            'usuario_id' => 'integer',
         ];
     }
 
-    public function categoria()
+    public function financeiro()
     {
-        return $this->belongsTo(Categoria::class);
+        return $this->belongsTo(Financeiro::class);
     }
 
     public function usuario()

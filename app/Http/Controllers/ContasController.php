@@ -6,6 +6,7 @@ use App\DTO\ContaDTO;
 use App\Http\Requests\StoreContaRequest;
 use App\Services\Interfaces\ContasServiceInterface;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 
 class ContasController extends Controller
 {
@@ -23,8 +24,9 @@ class ContasController extends Controller
     public function store(StoreContaRequest $request)
     {
         try {
-            $dto = ContaDTO::fromArray($request->validated());
-            $this->contasService->store($dto);
+            $this->contasService->store(
+                ContaDTO::fromArray($request->validated())
+            );
 
             return redirect()->route('contas')->with('success', 'Conta criada com sucesso.');
 
@@ -53,5 +55,13 @@ class ContasController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erro ao excluir conta: ' . $e->getMessage());
         }
+    }
+    
+    public function autocomplete(Request $request)
+    {
+        $q = (string) $request->query('q', '');
+        $result = $this->contasService->autocomplete($q);
+
+        return response()->json($result);
     }
 }

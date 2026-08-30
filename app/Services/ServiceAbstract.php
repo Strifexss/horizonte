@@ -29,4 +29,10 @@ class ServiceAbstract
     {
         return $this->repository->delete($id);
     }
+
+
+    public function autocomplete($q = null)
+    {
+        return $this->repository->autocomplete($q);
+    }
 }

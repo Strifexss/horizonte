@@ -5,7 +5,8 @@ description: >-
   Service aplica regra de negócio, Repository é o único acesso a banco e query;
   interfaces no AppServiceProvider; page Inertia fatiada (padrões + domínio).
   Use when creating or changing a rotina, CRUD, recurso, entidade, feature page,
-  controller, service, repository, DTO, FormRequest, or Inertia list/form screen.
+  controller, service, repository, DTO, FormRequest, Inertia list/form screen,
+  Dialog, or modal.
 ---
 
 # Estrutura padrão
@@ -71,6 +72,8 @@ Leia [front.md](front.md). Aplique `inertia-react-development`. Com Tailwind, `t
 
 Page orquestra. Domínio em `resources/js/components/{plural}/` com nomes PT (`ContasForm`, `ContasCard`, `ContasEmpty`, `ContasSkeleton`). Reuse `padrões` e `ui`. `Inertia::defer` + `<Deferred>` + skeleton. `useForm` usa o **mesmo método da rota**.
 
+Modal / `Dialog` (create, edit, lista embutida, confirm): leia **Modal no mobile** em [front.md](front.md) e aplique o mesmo contrato. Referência viva: `resources/js/components/categorias/CategoriasModal.tsx`.
+
 #### Lazy props (carregamento sob demanda)
 
 Quando uma prop for pesada ou desnecessária na carga inicial da página (listas de referência, coleções grandes, relacionamentos), prefira Inertia lazy props em vez de requisições AJAX manuais.
@@ -110,9 +113,33 @@ Observações:
 - Mantenha endpoints JSON apenas para APIs externas; prefira o fluxo Inertia para páginas internas.
 - Teste: abrir modal (carrega prop), adicionar/editar/excluir (chamar reload na onSuccess).
 
+#### Autocomplete / AsyncSelect
+
+Quando a UI precisa sugerir registros (conta, categoria, fornecedor, etc.), siga estas regras:
+
+- Backend
+  - Implemente `autocomplete(string|null $q = null)` no Repository: faça a busca por nome com `where('nome', 'like', "%{$q}%")`, aplique `where('usuario_id', Auth::id())` quando a coluna existir, limite (ex.: 20) e ordene por `nome`.
+  - Declare `autocomplete` nas interfaces do Repository e do Service; o Service delega para o Repository.
+  - Exponha rota `GET /{resource}/autocomplete` que retorne JSON simples: [{ "id": 1, "nome": "..." }, ...]. Evite envelopes desnecessários.
+  - Garanta comportamento previsível: ordenação por nome, paginação/limite, e documentação sobre collation (acentuação).
+
+- Frontend
+  - Use um componente `AsyncSelect` padrão (ex.: `components/ui/AsyncSelect`) que encapsule `react-select/async`, com debounce (200–300ms), cache e `defaultOptions`.
+  - AsyncSelect deve receber `loadOptions(q) => Promise<[{id,nome}]>` e mapear internamente para `{ value,label }`; ao selecionar, entregue o objeto cru ao formulário; submeta apenas o `id`.
+  - No formulário Inertia (`useForm`), mantenha `*_id` como número. Ao submeter, converta `valor`/ids para tipos corretos.
+  - Após mutações que alteram os conjuntos (store/update/delete), invalide o cache do select ou chame `router.reload({ only: ['propName'] })`.
+  - Lidagem de erros: exiba mensagens de validação do backend (`errors.categoria_id`, etc.) e fallback quando o autocomplete falhar (lista vazia, retry).
+
+- Testes e observabilidade
+  - Escreva testes de integração para o endpoint autocomplete (filtros por q, escopo por usuário, formato de retorno).
+  - No frontend, teste loading/UI (sem resultados, seleção, serialize id).
+  - Registre métricas simples (opcional): contagem de buscas, latência média.
+
+Estas regras mantêm separação de camadas, padrão de formato e boa UX para selects assíncronos.
+
 Sidebar só se o intake pediu.
 
-Done: page sem markup de form/card/empty/skeleton (só importa); tipos TS = campos do DTO; método HTTP do form = rota.
+Done: page sem markup de form/card/empty/skeleton (só importa); tipos TS = campos do DTO; método HTTP do form = rota; todo `Dialog` novo segue o contrato **Modal no mobile** de [front.md](front.md).
 
 ### 5. Fechar
 

@@ -27,4 +27,5 @@ class ContasService extends ServiceAbstract implements ContasServiceInterface
     {
         return parent::index($data);
     }
+    
 }

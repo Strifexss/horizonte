@@ -6,6 +6,7 @@ use App\DTO\CategoriaDTO;
 use App\Http\Requests\StoreCategoriaRequest;
 use App\Services\Interfaces\CategoriaServiceInterface;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 
 class CategoriaController extends Controller
 {
@@ -24,7 +25,8 @@ class CategoriaController extends Controller
     {
         try {
             $dto = CategoriaDTO::fromArray($request->validated());
-            return redirect()->route('categorias')->with('success', 'Categoria criada com sucesso.');
+            $this->categoriaService->store($dto);
+            return redirect()->route('extrato.index')->with('success', 'Categoria criada com sucesso.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erro ao criar categoria: ' . $e->getMessage());
         }
@@ -36,7 +38,7 @@ class CategoriaController extends Controller
             $dto = CategoriaDTO::fromArray($request->validated());
             $this->categoriaService->update($id, $dto);
 
-            return redirect()->route('categorias')->with('success', 'Categoria atualizada com sucesso.');
+            return redirect()->route('extrato.index')->with('success', 'Categoria atualizada com sucesso.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erro ao atualizar categoria: ' . $e->getMessage());
         }
@@ -50,5 +52,13 @@ class CategoriaController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erro ao excluir categoria: ' . $e->getMessage());
         }
+    }
+
+    public function autocomplete(Request $request)
+    {
+        $q = (string) $request->query('q', '');
+        $result = $this->categoriaService->autocomplete($q);
+
+        return response()->json($result);
     }
 }
