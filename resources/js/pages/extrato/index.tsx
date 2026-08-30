@@ -2,7 +2,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import React from 'react';
-import { CreditCard, ChevronDown, Plus, BarChart2, ArrowUpRight, ArrowDownRight, Grid} from 'lucide-react';
+import { CreditCard, ChevronDown, Plus, BarChart2, ArrowUpRight, ArrowDownRight, Grid, File} from 'lucide-react';
 import { PageTitle, KpisPanel, TableWithFilters } from '@/components/padrões';
 import ExtratoFilters from '@/components/extrato/Filters';
 import ExtratoFooter from '@/components/extrato/Footer';
@@ -77,8 +77,8 @@ export default function Extrato() {
                                 type="button"
                                 className="inline-flex items-center gap-3 rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-base font-medium text-teal-700 hover:bg-teal-100 dark:border-teal-800 dark:bg-teal-900/30 dark:text-teal-300"
                             >
-                                <CreditCard className="h-5 w-5" />
-                                Conciliação Bancária
+                                <File className="h-5 w-5" />
+                                Importar Extrato
                             </button>
 
                             <div className="relative">

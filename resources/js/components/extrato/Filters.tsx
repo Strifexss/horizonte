@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+import { Search } from 'lucide-react';
 import React from 'react';
 
 export default function ExtratoFilters() {
@@ -54,7 +56,7 @@ export default function ExtratoFilters() {
         </div>
 
         <div className="mt-3 flex justify-end md:col-span-8">
-          <button className="rounded bg-yellow-100 px-4 py-2 text-sm">Pesquisar</button>
+          <Button variant="primary" size="default" className="inline-flex items-center gap-2"><Search/>Pesquisar</Button>
         </div>
       </div>
     </div>

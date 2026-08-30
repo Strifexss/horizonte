@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('financeiro', function (Blueprint $table) {
+        Schema::create('conta', function (Blueprint $table) {
             $table->id();
-            $table->string('descricao');
-            $table->enum('tipo', ['RECEITA', 'DESPESA']);
-            $table->unsignedBigInteger('conta_id');
-            $table->integer('qtd_parcelas')->default(1);
-            $table->timestamp('data_criacao')->useCurrent();
+            $table->string('nome');
+            $table->text('descricao')->nullable();
+            $table->foreignId('usuario_id')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -27,6 +25,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('financeiro');
+        Schema::dropIfExists('conta');
     }
 };
+
