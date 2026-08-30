@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Financeiro extends Model
 {
@@ -27,7 +28,6 @@ class Financeiro extends Model
         'tipo',
         'categoria_id',
         'conta_id',
-        'data_criacao',
         'usuario_id',
     ];
 
@@ -45,13 +45,17 @@ class Financeiro extends Model
             'tipo' => 'string',
             'categoria_id' => 'integer',
             'conta_id' => 'integer',
-            'data_criacao' => 'datetime',
         ];
     }
 
-    public function categoria()
+    public function categoria(): BelongsTo
     {
         return $this->belongsTo(Categoria::class);
+    }
+
+    public function conta(): BelongsTo
+    {
+        return $this->belongsTo(Conta::class);
     }
 
     public function usuario()
@@ -59,4 +63,3 @@ class Financeiro extends Model
         return $this->belongsTo(User::class);
     }
 }
-

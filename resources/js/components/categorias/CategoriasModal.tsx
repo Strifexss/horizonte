@@ -124,7 +124,7 @@ export default function CategoriasModal({ open, onOpenChange }: { open: boolean;
                         </button>
                     </div>
 
-                    <div className="mt-4 flex flex-col gap-4 flex-1 overflow-hidden">
+                    <div className="mt-4 rounded-lg border border-sidebar-border/70 bg-white dark:bg-slate-900 p-4 shadow-sm">
                         <form onSubmit={submit} className="grid gap-2">
                             <div className="grid gap-2">
                                 <Label htmlFor="nome">Nome</Label>

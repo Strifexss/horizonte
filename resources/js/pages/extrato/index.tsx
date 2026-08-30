@@ -151,22 +151,26 @@ export default function Extrato() {
                 />
                 <ExtratoModal open={extratoOpen} onOpenChange={setExtratoOpen} />
 
-                {/* Main filters moved into table header via headerFilters prop */}
-                {/*
-                  Build KPIs items and pass to KpisPanel so the presentation is reusable.
-                */}
+                <ExtratoFilters />
                 <KpisPanel
                     items={[
                         { id: 'prev', label: 'Saldo Anterior', value: formatCurrency(openingBalance), hint: 'Antes do período', icon: <BarChart2 className="h-8 w-8 text-muted-foreground" /> },
                         { id: 'in', label: 'Entradas', value: <span className="text-green-600">{formatCurrency(totalCredits)}</span>, hint: '+85% do total', icon: <ArrowUpRight className="h-8 w-8 text-green-600" /> },
                         { id: 'out', label: 'Saídas', value: <span className="text-red-600">{formatCurrency(totalDebits)}</span>, hint: '-15% do total', icon: <ArrowDownRight className="h-8 w-8 text-red-600" /> },
-                        { id: 'total', label: 'Saldo Total', value: <span className="text-green-600">{formatCurrency(saldoTotal)}</span> , hint: 'Saldo positivo', icon: <Grid className="h-8 w-8 text-muted-foreground" /> },
+                        { 
+                            id: 'total', 
+                            label: 'Saldo Total', 
+                            value: (
+                                <span className={saldoTotal < 0 ? "text-red-600" : "text-green-600"}>
+                                    {formatCurrency(saldoTotal)}
+                                </span>
+                            ),
+                            hint: saldoTotal < 0 ? 'Saldo negativo' : 'Saldo positivo',
+                            icon: <Grid className="h-8 w-8 text-muted-foreground" /> 
+                        },
+                   
                     ]}
                 />
-
-                {/* Header filters (kept outside the generic table) */}
-                <ExtratoFilters />
-
                 {!parcelas ? (
                     <div className="space-y-3 animate-pulse">
                         <div className="h-6 w-1/4 rounded bg-gray-200 dark:bg-slate-700" />
@@ -214,27 +218,67 @@ export default function Extrato() {
                                     return nome ? <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${isReceita ? 'bg-green-50 dark:bg-green-900/30 text-green-700' : 'bg-red-50 dark:bg-red-900/30 text-red-700'}`}>{nome}</span> : '';
                                 },
                             },
+                            {
+                                key: 'conta',
+                                label: 'CONTA',
+                                thClassName: 'w-36',
+                                render: (p: any) => p.financeiro?.conta?.nome ?? '',
+                            },
                             { 
                                 key: 'valor', 
                                 label: 'VALOR', 
                                 thClassName: 'w-36 text-right', 
-                                render: (p: any) => (
-                                    <div className="w-full text-right color">
+                                render: (p: any) => {
+                                    const isReceita = tipoDaParcela(p) === 'RECEITA';
+                                    return (
+                                    <div className={`w-full text-right ${isReceita ? 'text-green-600' : 'text-red-600'}`}>
                                         {formatCurrency(Number(p.valor ?? 0))}
                                     </div>
                                 )
+                                }
                             },
                             { 
-                                key: 'saldo', 
-                                label: 'SALDO', 
+                                key: 'valor_pago', 
+                                label: 'Valor Pago', 
                                 thClassName: 'w-36 text-right', 
-                                render: (p: any) => (
-                                    <div className="w-full text-right">
-                                        {formatCurrency(Number(p.valor ?? 0))}
-                                    </div>
-                                )
+                                render: (p: any) => {
+                                    const isReceita = tipoDaParcela(p) === 'RECEITA';
+                                    return (
+                                        <div className={`w-full text-right ${isReceita ? 'text-green-600' : 'text-red-600'}`}>
+                                            {formatCurrency(Number(p.valor_pago ?? 0))}
+                                        </div>
+                                    );
+                                }
                             },
-                            { key: 'status', label: 'STATUS', thClassName: 'w-32 text-center', render: () => '' },
+                            {
+                                key: 'status',
+                                label: 'STATUS',
+                                thClassName: 'w-32 text-center',
+                                render: (p: any) => {
+                                    const valor = Number(p.valor ?? 0);
+                                    const valorPago = Number(p.valor_pago ?? 0);
+                                    let status = '';
+                                    let colorClass = '';
+
+                                    if (!valorPago || valorPago === 0) {
+                                        status = 'ABERTO';
+                                        colorClass = 'bg-primary/10 text-primary';
+                                    } else if (valorPago >= valor) {
+                                        status = 'PAGO';
+                                        colorClass = 'bg-green-50 dark:bg-green-900/30 text-green-700';
+                                    } else {
+                                        status = 'PARCIAL';
+                                        colorClass = 'bg-blue-50 dark:bg-blue-900/30 text-blue-700';
+                                    }
+
+                                    return (
+                                        <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${colorClass}`}>
+                                            {status}
+                                        </span>
+                                    );
+                                },
+                            },
+                       
                         ]}
                         data={parcelasFiltradas}
                     />

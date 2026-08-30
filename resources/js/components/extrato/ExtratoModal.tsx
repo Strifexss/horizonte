@@ -18,6 +18,15 @@ import AsyncSelect from '@/components/ui/AsyncSelect';
 
 type Option = { id: number | string; nome: string };
 
+function hojeISO(): string {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoje.getDate()).padStart(2, '0');
+
+    return `${ano}-${mes}-${dia}`;
+}
+
 export default function ExtratoModal({ open, onOpenChange }: { open: boolean; onOpenChange: (b: boolean) => void }) {
     const [activeTab, setActiveTab] = useState<'RECEITA' | 'DESPESA'>('DESPESA');
     const [selectedConta, setSelectedConta] = useState<Option | null>(null);
@@ -25,7 +34,10 @@ export default function ExtratoModal({ open, onOpenChange }: { open: boolean; on
 
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
         descricao: '',
+        data_vencimento: hojeISO(),
         valor: '',
+        valor_pago: '',
+        qtd_parcelas: 1,
         tipo: activeTab,
         categoria_id: null as number | null,
         conta_id: null as number | null,
@@ -37,11 +49,12 @@ export default function ExtratoModal({ open, onOpenChange }: { open: boolean; on
 
     useEffect(() => {
         if (!open) return;
-        // reset form when opening
         reset();
         clearErrors();
         setSelectedCategoria(null);
         setSelectedConta(null);
+        setData('data_vencimento', hojeISO());
+        setData('qtd_parcelas', 1);
     }, [open]);
 
     const loadContas = async (q: string) => {
@@ -60,7 +73,10 @@ export default function ExtratoModal({ open, onOpenChange }: { open: boolean; on
         e.preventDefault();
         const payload = {
             descricao: data.descricao,
+            data_vencimento: data.data_vencimento,
             valor: String(Number(data.valor || 0)),
+            valor_pago: String(Number(data.valor_pago || 0)),
+            qtd_parcelas: Number(data.qtd_parcelas || 1),
             tipo: activeTab,
             conta_id: selectedConta ? Number(selectedConta.id) : null,
             categoria_id: selectedCategoria ? Number(selectedCategoria.id) : null,
@@ -117,15 +133,15 @@ export default function ExtratoModal({ open, onOpenChange }: { open: boolean; on
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <Label htmlFor="valor">Valor</Label>
+                                    <Label htmlFor="data_vencimento">Data de vencimento</Label>
                                     <Input
-                                        id="valor"
-                                        value={data.valor}
-                                        onChange={(e) => setData('valor', e.target.value)}
-                                        placeholder="0.00"
+                                        id="data_vencimento"
+                                        type="date"
+                                        value={data.data_vencimento}
+                                        onChange={(e) => setData('data_vencimento', e.target.value)}
                                         disabled={processing}
                                     />
-                                    <InputError message={errors.valor} />
+                                    <InputError message={errors.data_vencimento} />
                                 </div>
                             </div>
 
@@ -159,6 +175,55 @@ export default function ExtratoModal({ open, onOpenChange }: { open: boolean; on
                                 </div>
                             </div>
 
+                            <div className="grid md:grid-cols-2 gap-2">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="valor">Valor</Label>
+                                    <Input
+                                        id="valor"
+                                        value={data.valor}
+                                        onChange={(e) => {
+                                            const valor = e.target.value;
+                                            setData({
+                                                ...data,
+                                                valor,
+                                                valor_pago: valor,
+                                            });
+                                        }}
+                                        placeholder="0.00"
+                                        disabled={processing}
+                                    />
+                                    <InputError message={errors.valor} />
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="valor_pago">Valor pago</Label>
+                                    <Input
+                                        id="valor_pago"
+                                        value={data.valor_pago}
+                                        onChange={(e) => setData('valor_pago', e.target.value)}
+                                        placeholder="0.00"
+                                        disabled={processing}
+                                    />
+                                    <InputError message={errors.valor_pago} />
+                                </div>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-2">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="qtd_parcelas">Quantidade de parcelas</Label>
+                                    <Input
+                                        id="qtd_parcelas"
+                                        type="number"
+                                        min={1}
+                                        step={1}
+                                        value={data.qtd_parcelas}
+                                        onChange={(e) => setData('qtd_parcelas', Number(e.target.value))}
+                                        disabled={processing}
+                                    />
+                                    <InputError message={errors.qtd_parcelas} />
+                                </div>
+                            </div>
+
                             <DialogFooter className='flex flex-row gap-2 mt-4'>
                                 <DialogClose asChild>
                                     <Button className='w-full' variant="secondary" type="button" onClick={() => { reset(); }}>
@@ -176,4 +241,3 @@ export default function ExtratoModal({ open, onOpenChange }: { open: boolean; on
         </Dialog>
     );
 }
-

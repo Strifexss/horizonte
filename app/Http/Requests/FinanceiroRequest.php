@@ -27,7 +27,9 @@ class FinanceiroRequest extends FormRequest
             'categoria_id' => ['nullable', 'integer', 'exists:categoria,id'],
             'conta_id' => ['required', 'integer', 'exists:conta,id'],
             'usuario_id' => ['nullable', 'integer', 'exists:users,id'],
+            'data_vencimento' => ['required', 'date'],
+            'valor_pago' => ['nullable', 'numeric', 'min:0'],
+            'qtd_parcelas' => ['required', 'integer', 'min:1'],
         ];
     }
 }
-

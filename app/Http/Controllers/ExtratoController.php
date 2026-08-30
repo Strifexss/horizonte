@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
+use App\DTO\FinanceiroDTO;
+use App\DTO\FinanceiroSearchDTO;
+use App\Http\Requests\FinanceiroRequest;
+use App\Http\Requests\FinanceiroSearchRequest;
+use App\Http\Resources\FinanceiroParcelaResource;
 use App\Services\Interfaces\CategoriaServiceInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
-use App\Http\Requests\FinanceiroRequest;
-use App\DTO\FinanceiroDTO;
-use App\Http\Resources\FinanceiroParcelaResource;
+use Inertia\Inertia;
 
 class ExtratoController extends FinanceiroAbstractController
 {
@@ -16,11 +18,14 @@ class ExtratoController extends FinanceiroAbstractController
         private ExtratoServiceInterface $extratoService
     ) {}
 
-    public function index()
+    public function index(FinanceiroSearchRequest $request)
     {
+        $filters = FinanceiroSearchDTO::fromArray($request->validated());
+
         return Inertia::render('extrato/index', [
+            'filters' => $filters->all(),
             'categorias' => Inertia::lazy(fn () => $this->categoriaService->index()),
-            'parcelas' => Inertia::defer(fn () => FinanceiroParcelaResource::collection($this->extratoService->index())),
+            'parcelas' => Inertia::defer(fn () => FinanceiroParcelaResource::collection($this->extratoService->index($filters))),
         ]);
     }
 
@@ -29,9 +34,10 @@ class ExtratoController extends FinanceiroAbstractController
         try {
             $dto = FinanceiroDTO::fromArray($request->validated());
             $this->extratoService->store($dto);
+
             return redirect()->route('extrato.index')->with('success', 'Lançamento criado.');
         } catch (\Exception $e) {
-            return redirect()->route('extrato.index')->with('error', 'Erro ao criar lançamento: ' . $e->getMessage());
+            return redirect()->route('extrato.index')->with('error', 'Erro ao criar lançamento: '.$e->getMessage());
         }
     }
 
@@ -45,9 +51,10 @@ class ExtratoController extends FinanceiroAbstractController
         try {
             $dto = FinanceiroDTO::fromArray($request->validated());
             $this->extratoService->update($id, $dto);
+
             return redirect()->route('extrato.index')->with('success', 'Lançamento atualizado.');
         } catch (\Exception $e) {
-            return redirect()->route('extrato.index')->with('error', 'Erro ao atualizar lançamento: ' . $e->getMessage());
+            return redirect()->route('extrato.index')->with('error', 'Erro ao atualizar lançamento: '.$e->getMessage());
         }
     }
 
@@ -55,10 +62,10 @@ class ExtratoController extends FinanceiroAbstractController
     {
         try {
             $this->extratoService->delete($id);
+
             return redirect()->route('extrato.index')->with('success', 'Lançamento removido.');
         } catch (\Exception $e) {
-            return redirect()->route('extrato.index')->with('error', 'Erro ao remover lançamento: ' . $e->getMessage());
+            return redirect()->route('extrato.index')->with('error', 'Erro ao remover lançamento: '.$e->getMessage());
         }
     }
 }
-

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\DTO\FinanceiroDTO;
 use App\DTO\FinanceiroParcelaDTO;
+use App\DTO\FinanceiroSearchDTO;
 use App\Repositories\Interfaces\FinanceiroRepositoryInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
 use Illuminate\Support\Facades\DB;
@@ -11,8 +12,8 @@ use Illuminate\Support\Facades\DB;
 class ExtratoService extends ServiceAbstract implements ExtratoServiceInterface
 {
     /**
-    * @property FinanceiroRepositoryInterface $repository
-    */ 
+     * @property FinanceiroRepositoryInterface $repository
+     */
     public function __construct(
         FinanceiroRepositoryInterface $repository
     ) {
@@ -21,7 +22,7 @@ class ExtratoService extends ServiceAbstract implements ExtratoServiceInterface
 
     public function index($data = null)
     {
-        return $this->repository->indexParcelas($data);
+        return $this->repository->indexParcelas($data instanceof FinanceiroSearchDTO ? $data : null);
     }
 
     public function show(int $id)
@@ -30,7 +31,7 @@ class ExtratoService extends ServiceAbstract implements ExtratoServiceInterface
     }
 
     /**
-     * @param FinanceiroDTO $dto
+     * @param  FinanceiroDTO  $dto
      */
     public function store($financeiroDto)
     {
@@ -40,7 +41,7 @@ class ExtratoService extends ServiceAbstract implements ExtratoServiceInterface
 
             $this->storeParcelas($financeiroDto);
 
-            return $financeiro;       
+            return $financeiro;
         });
     }
 
@@ -50,14 +51,13 @@ class ExtratoService extends ServiceAbstract implements ExtratoServiceInterface
             'financeiro_id' => $financeiroDto->id,
             'usuario_id' => $financeiroDto->usuario_id,
             'descricao' => $financeiroDto->descricao,
-            'data_vencimento' => now(),
+            'data_vencimento' => $financeiroDto->data_vencimento,
             'data_competencia' => now(),
             'valor' => $financeiroDto->valor,
-            'valor_pago' => $financeiroDto->valor,
+            'valor_pago' => $financeiroDto->valor_pago,
             'parcela' => 1,
         ]);
 
         return $this->repository->storeParcela($parcelaDto);
     }
 }
-
