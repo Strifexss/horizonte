@@ -25,7 +25,7 @@ export default function TableWithFilters({ columns, data, tableClassName, toolba
         </div>
       ) : null}
       <div className="overflow-x-auto p-4">
-        <table className="w-full min-w-[1000px] table-fixed text-sm border-collapse">
+        <table className="w-full table-fixed text-sm border-collapse">
           <thead>
             <tr className="text-left text-xs text-muted-foreground bg-transparent">
               {columns.map((c) => (

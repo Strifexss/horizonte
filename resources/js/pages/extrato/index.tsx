@@ -111,7 +111,7 @@ export default function Extrato() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Extrato" />
-            <div className="flex w-[100vw] md:w-auto h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <div className="flex w-full max-w-full h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <CategoriasModal open={categoriasOpen} onOpenChange={setCategoriasOpen} />
                 <PageTitle
                     title="Extrato Financeiro de Contas"
@@ -194,72 +194,70 @@ export default function Extrato() {
                             />
                         }
                         columns={[
-                            { key: 'data_competencia', label: 'DATA COMPETÊNCIA', thClassName: 'w-36', render: (p: any) => formatDateISO(p.data_competencia) },
-                            { key: 'data_vencimento', label: 'DATA VENCIMENTO', thClassName: 'w-36', render: (p: any) => formatDateISO(p.data_vencimento) },
+                            { key: 'data_competencia', label: 'COMP.', thClassName: 'w-24', render: (p: any) => formatDateISO(p.data_competencia) },
+                            { key: 'data_vencimento', label: 'VENC.', thClassName: 'w-24', render: (p: any) => formatDateISO(p.data_vencimento) },
                             {
                                 key: 'descricao',
                                 label: 'DESCRIÇÃO',
-                                thClassName: 'w-60',
+                                thClassName: 'min-w-0 flex-1',
                                 render: (p: any) => {
                                     const isReceita = tipoDaParcela(p) === 'RECEITA';
                                     return (
-                                        <div className="flex items-start gap-3">
-                                            <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full ${isReceita ? 'bg-green-50 dark:bg-green-900/30 text-green-600' : 'bg-red-50 dark:bg-red-900/30 text-red-600'}`}>
+                                        <div className="flex items-start gap-2 min-w-0">
+                                            <span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${isReceita ? 'bg-green-50 dark:bg-green-900/30 text-green-600' : 'bg-red-50 dark:bg-red-900/30 text-red-600'}`}>
                                                 {isReceita ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
                                             </span>
-                                            <div>
-                                                <div className="font-medium text-dark">{p.descricao}</div>
-                                            </div>
+                                            <span className="truncate font-medium text-dark">{p.descricao}</span>
                                         </div>
                                     );
                                 },
                             },
                             {
                                 key: 'categoria',
-                                label: 'CATEGORIA',
-                                thClassName: 'w-36',
+                                label: 'CAT.',
+                                thClassName: 'w-20',
                                 render: (p: any) => {
                                     const nome = p.financeiro?.categoria?.nome;
                                     const isReceita = tipoDaParcela(p) === 'RECEITA';
-                                    return nome ? <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${isReceita ? 'bg-green-50 dark:bg-green-900/30 text-green-700' : 'bg-red-50 dark:bg-red-900/30 text-red-700'}`}>{nome}</span> : '';
+                                    return nome ? <span className={`inline-block max-w-full truncate rounded px-1 py-0.5 text-xs font-medium ${isReceita ? 'bg-green-50 dark:bg-green-900/30 text-green-700' : 'bg-red-50 dark:bg-red-900/30 text-red-700'}`}>{nome}</span> : '';
                                 },
                             },
                             {
                                 key: 'conta',
                                 label: 'CONTA',
-                                thClassName: 'w-36',
-                                render: (p: any) => p.financeiro?.conta?.nome ?? '',
+                                thClassName: 'w-24',
+                                render: (p: any) => <span className="truncate">{p.financeiro?.conta?.nome ?? ''}</span>,
                             },
-                            { 
-                                key: 'valor', 
-                                label: 'VALOR', 
-                                thClassName: 'w-36 text-right', 
+                            {
+                                key: 'valor',
+                                label: 'VALOR',
+                                thClassName: 'w-28 text-right',
                                 render: (p: any) => {
                                     const isReceita = tipoDaParcela(p) === 'RECEITA';
                                     return (
-                                    <div className={`w-full text-right ${isReceita ? 'text-green-600' : 'text-red-600'}`}>
-                                        {formatCurrency(Number(p.valor ?? 0))}
-                                    </div>
-                                )
-                                }
+                                        <div className={`text-right ${isReceita ? 'text-green-600' : 'text-red-600'}`}>
+                                            {formatCurrency(Number(p.valor ?? 0))}
+                                        </div>
+                                    );
+                                },
                             },
-                            { 
-                                key: 'valor_pago', 
-                                label: 'Valor Pago', 
-                                thClassName: 'w-36 text-right', 
+                            {
+                                key: 'valor_pago',
+                                label: 'PAGO',
+                                thClassName: 'w-28 text-right',
                                 render: (p: any) => {
                                     const isReceita = tipoDaParcela(p) === 'RECEITA';
                                     return (
-                                        <div className={`w-full text-right ${isReceita ? 'text-green-600' : 'text-red-600'}`}>
+                                        <div className={`text-right ${isReceita ? 'text-green-600' : 'text-red-600'}`}>
                                             {formatCurrency(Number(p.valor_pago ?? 0))}
                                         </div>
                                     );
-                                }
+                                },
                             },
                             {
                                 key: 'status',
                                 label: 'STATUS',
-                                thClassName: 'w-32 text-center',
+                                thClassName: 'w-20 text-center',
                                 render: (p: any) => {
                                     const status = statusDaParcela(p);
                                     const labels = { aberto: 'ABERTO', pago: 'PAGO', parcial: 'PARCIAL' } as const;
@@ -270,13 +268,12 @@ export default function Extrato() {
                                     }[status];
 
                                     return (
-                                        <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${colorClass}`}>
+                                        <span className={`inline-block rounded px-1 py-0.5 text-xs font-medium ${colorClass}`}>
                                             {labels[status]}
                                         </span>
                                     );
                                 },
                             },
-                       
                         ]}
                         data={parcelasFiltradas}
                     />
