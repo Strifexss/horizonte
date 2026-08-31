@@ -4,7 +4,7 @@ import { Head } from '@inertiajs/react';
 import React, { useMemo, useState } from 'react';
 import { usePage } from '@inertiajs/react';
 import { CreditCard, ChevronDown, Plus, BarChart2, ArrowUpRight, ArrowDownRight, Grid, File} from 'lucide-react';
-import { PageTitle, KpisPanel, TableWithFilters } from '@/components/padrões';
+import { PageTitle, KpisPanel, CardList } from '@/components/padrões';
 import ExtratoFilters from '@/components/extrato/Filters';
 import ExtratoFooter from '@/components/extrato/Footer';
 import ExtratoTableToolbar, { type ExtratoStatusTab } from '@/components/extrato/ExtratoTableToolbar';
@@ -108,6 +108,89 @@ export default function Extrato() {
         };
     }, [parcelasArray]);
 
+    const columns = [
+        { key: 'data_competencia', label: 'COMP.', thClassName: 'w-24', render: (p: any) => formatDateISO(p.data_competencia) },
+        { key: 'data_vencimento', label: 'VENC.', thClassName: 'w-24', render: (p: any) => formatDateISO(p.data_vencimento) },
+        {
+            key: 'descricao',
+            label: 'DESCRIÇÃO',
+            thClassName: 'min-w-0 flex-1',
+            render: (p: any) => {
+                const isReceita = tipoDaParcela(p) === 'RECEITA';
+                return (
+                    <div className="flex items-start gap-2 min-w-0">
+                        <span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${isReceita ? 'bg-green-50 dark:bg-green-900/30 text-green-600' : 'bg-red-50 dark:bg-red-900/30 text-red-600'}`}>
+                            {isReceita ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+                        </span>
+                        <span className="truncate font-medium text-dark">{p.descricao}</span>
+                    </div>
+                );
+            },
+        },
+        {
+            key: 'categoria',
+            label: 'CAT.',
+            thClassName: 'w-20',
+            render: (p: any) => {
+                const nome = p.financeiro?.categoria?.nome;
+                const isReceita = tipoDaParcela(p) === 'RECEITA';
+                return nome ? <span className={`inline-block max-w-full truncate rounded px-1 py-0.5 text-xs font-medium ${isReceita ? 'bg-green-50 dark:bg-green-900/30 text-green-700' : 'bg-red-50 dark:bg-red-900/30 text-red-700'}`}>{nome}</span> : '';
+            },
+        },
+        {
+            key: 'conta',
+            label: 'CONTA',
+            thClassName: 'w-24',
+            render: (p: any) => <span className="truncate">{p.financeiro?.conta?.nome ?? ''}</span>,
+        },
+        {
+            key: 'valor',
+            label: 'VALOR',
+            thClassName: 'w-28 text-right',
+            render: (p: any) => {
+                const isReceita = tipoDaParcela(p) === 'RECEITA';
+                return (
+                    <div className={`text-right ${isReceita ? 'text-green-600' : 'text-red-600'}`}>
+                        {formatCurrency(Number(p.valor ?? 0))}
+                    </div>
+                );
+            },
+        },
+        {
+            key: 'valor_pago',
+            label: 'PAGO',
+            thClassName: 'w-28 text-right',
+            render: (p: any) => {
+                const isReceita = tipoDaParcela(p) === 'RECEITA';
+                return (
+                    <div className={`text-right ${isReceita ? 'text-green-600' : 'text-red-600'}`}>
+                        {formatCurrency(Number(p.valor_pago ?? 0))}
+                    </div>
+                );
+            },
+        },
+        {
+            key: 'status',
+            label: 'STATUS',
+            thClassName: 'w-20 text-center',
+            render: (p: any) => {
+                const status = statusDaParcela(p);
+                const labels = { aberto: 'ABERTO', pago: 'PAGO', parcial: 'PARCIAL' } as const;
+                const colorClass = {
+                    aberto: 'bg-primary/10 text-primary',
+                    pago: 'bg-green-50 dark:bg-green-900/30 text-green-700',
+                    parcial: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700',
+                }[status];
+
+                return (
+                    <span className={`inline-block rounded px-1 py-0.5 text-xs font-medium ${colorClass}`}>
+                        {labels[status]}
+                    </span>
+                );
+            },
+        },
+    ];
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Extrato" />
@@ -183,8 +266,8 @@ export default function Extrato() {
                         <div className="h-48 rounded bg-gray-100 dark:bg-slate-800" />
                     </div>
                 ) : (
-                    <TableWithFilters
-                        toolbar={
+                    <div className="rounded-xl border border-sidebar-border/70 bg-white shadow-sm dark:bg-slate-900">
+                        <div className="border-b border-sidebar-border/70 px-4 py-3">
                             <ExtratoTableToolbar
                                 busca={busca}
                                 onBuscaChange={setBusca}
@@ -192,92 +275,31 @@ export default function Extrato() {
                                 onStatusChange={setStatusTab}
                                 counts={counts}
                             />
-                        }
-                        columns={[
-                            { key: 'data_competencia', label: 'COMP.', thClassName: 'w-24', render: (p: any) => formatDateISO(p.data_competencia) },
-                            { key: 'data_vencimento', label: 'VENC.', thClassName: 'w-24', render: (p: any) => formatDateISO(p.data_vencimento) },
-                            {
-                                key: 'descricao',
-                                label: 'DESCRIÇÃO',
-                                thClassName: 'min-w-0 flex-1',
-                                render: (p: any) => {
-                                    const isReceita = tipoDaParcela(p) === 'RECEITA';
-                                    return (
-                                        <div className="flex items-start gap-2 min-w-0">
-                                            <span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${isReceita ? 'bg-green-50 dark:bg-green-900/30 text-green-600' : 'bg-red-50 dark:bg-red-900/30 text-red-600'}`}>
-                                                {isReceita ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
-                                            </span>
-                                            <span className="truncate font-medium text-dark">{p.descricao}</span>
-                                        </div>
-                                    );
-                                },
-                            },
-                            {
-                                key: 'categoria',
-                                label: 'CAT.',
-                                thClassName: 'w-20',
-                                render: (p: any) => {
-                                    const nome = p.financeiro?.categoria?.nome;
-                                    const isReceita = tipoDaParcela(p) === 'RECEITA';
-                                    return nome ? <span className={`inline-block max-w-full truncate rounded px-1 py-0.5 text-xs font-medium ${isReceita ? 'bg-green-50 dark:bg-green-900/30 text-green-700' : 'bg-red-50 dark:bg-red-900/30 text-red-700'}`}>{nome}</span> : '';
-                                },
-                            },
-                            {
-                                key: 'conta',
-                                label: 'CONTA',
-                                thClassName: 'w-24',
-                                render: (p: any) => <span className="truncate">{p.financeiro?.conta?.nome ?? ''}</span>,
-                            },
-                            {
-                                key: 'valor',
-                                label: 'VALOR',
-                                thClassName: 'w-28 text-right',
-                                render: (p: any) => {
-                                    const isReceita = tipoDaParcela(p) === 'RECEITA';
-                                    return (
-                                        <div className={`text-right ${isReceita ? 'text-green-600' : 'text-red-600'}`}>
-                                            {formatCurrency(Number(p.valor ?? 0))}
-                                        </div>
-                                    );
-                                },
-                            },
-                            {
-                                key: 'valor_pago',
-                                label: 'PAGO',
-                                thClassName: 'w-28 text-right',
-                                render: (p: any) => {
-                                    const isReceita = tipoDaParcela(p) === 'RECEITA';
-                                    return (
-                                        <div className={`text-right ${isReceita ? 'text-green-600' : 'text-red-600'}`}>
-                                            {formatCurrency(Number(p.valor_pago ?? 0))}
-                                        </div>
-                                    );
-                                },
-                            },
-                            {
-                                key: 'status',
-                                label: 'STATUS',
-                                thClassName: 'w-20 text-center',
-                                render: (p: any) => {
-                                    const status = statusDaParcela(p);
-                                    const labels = { aberto: 'ABERTO', pago: 'PAGO', parcial: 'PARCIAL' } as const;
-                                    const colorClass = {
-                                        aberto: 'bg-primary/10 text-primary',
-                                        pago: 'bg-green-50 dark:bg-green-900/30 text-green-700',
-                                        parcial: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700',
-                                    }[status];
-
-                                    return (
-                                        <span className={`inline-block rounded px-1 py-0.5 text-xs font-medium ${colorClass}`}>
-                                            {labels[status]}
-                                        </span>
-                                    );
-                                },
-                            },
-                        ]}
-                        data={parcelasFiltradas}
-                    />
-              
+                        </div>
+                        <div className="md:hidden p-4"><CardList columns={columns} data={parcelasFiltradas} /></div>
+                        <div className="hidden md:block overflow-x-auto p-4">
+                            <table className="w-full table-fixed text-sm border-collapse">
+                                <thead>
+                                    <tr className="text-left text-xs text-muted-foreground bg-transparent">
+                                        {columns.map((c) => (
+                                            <th key={c.key} className={`px-4 py-3 ${c.thClassName ?? ''}`}>{c.label}</th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {parcelasFiltradas.map((item: any, rowIndex: number) => (
+                                        <tr key={item.id ?? rowIndex} className="border-t hover:bg-slate-50/50 dark:hover:bg-slate-700/60">
+                                            {columns.map((c) => (
+                                                <td key={c.key} className="px-4 py-3 align-top">
+                                                    {c.render ? c.render(item, rowIndex) : String(item[c.key] ?? '')}
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 )}
 
                 <ExtratoFooter showing={parcelasArray ? parcelasArray.length : 0} total={83} />
