@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useForm, router } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 
 import {
     Dialog,
@@ -71,22 +71,13 @@ export default function ExtratoModal({ open, onOpenChange }: { open: boolean; on
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        const payload = {
-            descricao: data.descricao,
-            data_vencimento: data.data_vencimento,
-            valor: String(Number(data.valor || 0)),
-            valor_pago: String(Number(data.valor_pago || 0)),
-            qtd_parcelas: Number(data.qtd_parcelas || 1),
-            tipo: activeTab,
-            conta_id: selectedConta ? Number(selectedConta.id) : null,
-            categoria_id: selectedCategoria ? Number(selectedCategoria.id) : null,
-        };
-
-        router.post(route('extrato.store'), payload, {
+        post(route('extrato.store'), {
+            preserveState: true,
+            preserveScroll: true,
+            only: ['extratos', 'categoria'],
             onSuccess: () => {
                 reset();
                 onOpenChange(false);
-                router.reload({ only: ['extratos', 'categorias'] });
             },
         });
     };
@@ -152,6 +143,7 @@ export default function ExtratoModal({ open, onOpenChange }: { open: boolean; on
                                         value={selectedConta}
                                         onChange={(val) => {
                                             setSelectedConta(val);
+                                            setData('conta_id', val ? Number(val.id) : null);
                                         }}
                                         loadOptions={loadContas}
                                         placeholder="Selecione a conta..."
@@ -166,6 +158,7 @@ export default function ExtratoModal({ open, onOpenChange }: { open: boolean; on
                                         value={selectedCategoria}
                                         onChange={(val) => {
                                             setSelectedCategoria(val);
+                                            setData('categoria_id', val ? Number(val.id) : null);
                                         }}
                                         loadOptions={loadCategorias}
                                         placeholder="Selecione a categoria (opcional)"
@@ -230,9 +223,7 @@ export default function ExtratoModal({ open, onOpenChange }: { open: boolean; on
                                         Cancelar
                                     </Button>
                                 </DialogClose>
-                                <Button type="submit" className="ml-2 w-full" disabled={processing} variant="confirm">
-                                    Adicionar
-                                </Button>
+                                <Button type="submit" className="ml-2 w-full" loading={processing} variant="confirm">Adicionar</Button>
                             </DialogFooter>
                         </form>
                     </div>
