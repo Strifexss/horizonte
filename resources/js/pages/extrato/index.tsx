@@ -3,7 +3,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import React, { useMemo, useState } from 'react';
 import { usePage } from '@inertiajs/react';
-import { CreditCard, ChevronDown, Plus, BarChart2, ArrowUpRight, ArrowDownRight, Grid, File} from 'lucide-react';
+import { CreditCard, ChevronDown, Plus, BarChart2, ArrowUpRight, ArrowDownRight, Grid, File, MoreHorizontal, Pencil} from 'lucide-react';
 import { PageTitle, KpisPanel, CardList } from '@/components/padrões';
 import ExtratoFilters from '@/components/extrato/Filters';
 import ExtratoFooter from '@/components/extrato/Footer';
@@ -12,10 +12,10 @@ import {
     DropdownMenu,
     DropdownMenuTrigger,
     DropdownMenuContent,
+    DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
 import CategoriasModal from '../../components/categorias/CategoriasModal';
-import ExtratoModal from '@/components/extrato/ExtratoModal';
-import { DropdownMenuItem } from '@radix-ui/react-dropdown-menu';
+import ExtratoModal, { type ExtratoModalParcela } from '@/components/extrato/ExtratoModal';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -61,6 +61,8 @@ export default function Extrato() {
     const parcelasArray: any[] | null = Array.isArray(parcelas) ? parcelas : (parcelas && Array.isArray(parcelas.data) ? parcelas.data : null);
     const [categoriasOpen, setCategoriasOpen] = useState(false);
     const [extratoOpen, setExtratoOpen] = useState(false);
+    const [extratoMode, setExtratoMode] = useState<'create' | 'edit'>('create');
+    const [parcelaEdit, setParcelaEdit] = useState<ExtratoModalParcela | null>(null);
     const [busca, setBusca] = useState('');
     const [statusTab, setStatusTab] = useState<ExtratoStatusTab>('todos');
 
@@ -189,6 +191,38 @@ export default function Extrato() {
                 );
             },
         },
+        {
+            key: 'acoes',
+            label: 'AÇÃO',
+            thClassName: 'w-16 text-center',
+            render: (p: any) => (
+                <div className="flex justify-center">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <button
+                                type="button"
+                                className="inline-flex items-center justify-center rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <MoreHorizontal className="h-4 w-4" />
+                            </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                                onSelect={() => {
+                                    setExtratoMode('edit');
+                                    setParcelaEdit(p as ExtratoModalParcela);
+                                    setExtratoOpen(true);
+                                }}
+                            >
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Editar
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            ),
+        },
     ];
 
     return (
@@ -230,7 +264,11 @@ export default function Extrato() {
                             <button
                                 type="button"
                                 className="inline-flex items-center gap-3 rounded-lg bg-amber-500 px-4 py-2 text-base font-medium text-white hover:bg-amber-600"
-                                onClick={() => setExtratoOpen(true)}
+                                onClick={() => {
+                                    setExtratoMode('create');
+                                    setParcelaEdit(null);
+                                    setExtratoOpen(true);
+                                }}
                             >
                                 <Plus className="h-5 w-5" />
                                 Adicionar lançamento
@@ -238,7 +276,7 @@ export default function Extrato() {
                         </>
                     }
                 />
-                <ExtratoModal open={extratoOpen} onOpenChange={setExtratoOpen} />
+                <ExtratoModal open={extratoOpen} onOpenChange={setExtratoOpen} mode={extratoMode} parcela={parcelaEdit} />
 
                 <ExtratoFilters />
                 <KpisPanel
@@ -291,7 +329,7 @@ export default function Extrato() {
                                         <tr key={item.id ?? rowIndex} className="border-t hover:bg-slate-50/50 dark:hover:bg-slate-700/60">
                                             {columns.map((c) => (
                                                 <td key={c.key} className="px-4 py-3 align-top">
-                                                    {c.render ? c.render(item, rowIndex) : String(item[c.key] ?? '')}
+                                                    {c.render ? c.render(item) : String(item[c.key] ?? '')}
                                                 </td>
                                             ))}
                                         </tr>

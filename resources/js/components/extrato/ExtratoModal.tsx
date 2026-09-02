@@ -18,6 +18,27 @@ import AsyncSelect from '@/components/ui/AsyncSelect';
 
 type Option = { id: number | string; nome: string };
 
+export type ExtratoModalMode = 'create' | 'edit';
+
+export type ExtratoModalParcela = {
+    id?: number | string | null;
+    descricao?: string | null;
+    data_vencimento?: string | null;
+    valor?: number | string | null;
+    valor_pago?: number | string | null;
+    qtd_parcelas?: number | string | null;
+    tipo?: string | null;
+    categoria?: { id: number | string; nome: string } | null;
+    categoria_id?: number | string | null;
+    conta?: { id: number | string; nome: string } | null;
+    conta_id?: number | string | null;
+    financeiro?: {
+        tipo?: string | null;
+        categoria?: { id: number | string; nome: string } | null;
+        conta?: { id: number | string; nome: string } | null;
+    } | null;
+};
+
 function hojeISO(): string {
     const hoje = new Date();
     const ano = hoje.getFullYear();
@@ -27,20 +48,40 @@ function hojeISO(): string {
     return `${ano}-${mes}-${dia}`;
 }
 
-export default function ExtratoModal({ open, onOpenChange }: { open: boolean; onOpenChange: (b: boolean) => void }) {
-    const [activeTab, setActiveTab] = useState<'RECEITA' | 'DESPESA'>('DESPESA');
+function toInputValue(v: number | string | null | undefined): string {
+    if (v === null || v === undefined) return '';
+    return String(v);
+}
+
+export default function ExtratoModal({
+    open,
+    onOpenChange,
+    mode = 'create',
+    parcela = null,
+}: {
+    open: boolean;
+    onOpenChange: (b: boolean) => void;
+    mode?: ExtratoModalMode;
+    parcela?: ExtratoModalParcela | null;
+}) {
+    const initialTipo: 'RECEITA' | 'DESPESA' =
+        String(parcela?.tipo ?? parcela?.financeiro?.tipo ?? 'DESPESA').toUpperCase() === 'RECEITA'
+            ? 'RECEITA'
+            : 'DESPESA';
+
+    const [activeTab, setActiveTab] = useState<'RECEITA' | 'DESPESA'>(initialTipo);
     const [selectedConta, setSelectedConta] = useState<Option | null>(null);
     const [selectedCategoria, setSelectedCategoria] = useState<Option | null>(null);
 
-    const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
-        descricao: '',
-        data_vencimento: hojeISO(),
-        valor: '',
-        valor_pago: '',
-        qtd_parcelas: 1,
-        tipo: activeTab,
-        categoria_id: null as number | null,
-        conta_id: null as number | null,
+    const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
+        descricao: toInputValue(parcela?.descricao),
+        data_vencimento: toInputValue(parcela?.data_vencimento) || hojeISO(),
+        valor: toInputValue(parcela?.valor),
+        valor_pago: toInputValue(parcela?.valor_pago),
+        qtd_parcelas: Number(parcela?.qtd_parcelas ?? 1),
+        tipo: initialTipo,
+        categoria_id: (parcela?.categoria_id ?? parcela?.financeiro?.categoria?.id ?? null) as number | null,
+        conta_id: (parcela?.conta_id ?? parcela?.financeiro?.conta?.id ?? null) as number | null,
     });
 
     useEffect(() => {
@@ -49,13 +90,38 @@ export default function ExtratoModal({ open, onOpenChange }: { open: boolean; on
 
     useEffect(() => {
         if (!open) return;
-        reset();
-        clearErrors();
-        setSelectedCategoria(null);
-        setSelectedConta(null);
-        setData('data_vencimento', hojeISO());
-        setData('qtd_parcelas', 1);
-    }, [open]);
+
+        const isEdit = mode === 'edit' && parcela;
+        const tipoFromParcela = String(parcela?.tipo ?? parcela?.financeiro?.tipo ?? 'DESPESA').toUpperCase();
+        const initialTab: 'RECEITA' | 'DESPESA' = tipoFromParcela === 'RECEITA' ? 'RECEITA' : 'DESPESA';
+
+        const contaId = (parcela?.conta_id ?? parcela?.financeiro?.conta?.id ?? null) as number | string | null;
+        const categoriaId = (parcela?.categoria_id ?? parcela?.financeiro?.categoria?.id ?? null) as number | string | null;
+        const contaNome = parcela?.conta?.nome ?? parcela?.financeiro?.conta?.nome ?? null;
+        const categoriaNome = parcela?.categoria?.nome ?? parcela?.financeiro?.categoria?.nome ?? null;
+
+        setActiveTab(initialTab);
+        setSelectedConta(contaId ? { id: contaId, nome: contaNome ?? String(contaId) } : null);
+        setSelectedCategoria(categoriaId ? { id: categoriaId, nome: categoriaNome ?? String(categoriaId) } : null);
+
+        if (isEdit) {
+            setData({
+                descricao: toInputValue(parcela?.descricao),
+                data_vencimento: toInputValue(parcela?.data_vencimento) || hojeISO(),
+                valor: toInputValue(parcela?.valor),
+                valor_pago: toInputValue(parcela?.valor_pago),
+                qtd_parcelas: Number(parcela?.qtd_parcelas ?? 1),
+                tipo: initialTab,
+                categoria_id: categoriaId ? Number(categoriaId) : null,
+                conta_id: contaId ? Number(contaId) : null,
+            });
+        } else {
+            reset();
+            clearErrors();
+            setData('data_vencimento', hojeISO());
+            setData('qtd_parcelas', 1);
+        }
+    }, [open, mode, parcela?.id]);
 
     const loadContas = async (q: string) => {
         const res = await fetch(`/contas/autocomplete?q=${encodeURIComponent(q)}`);
@@ -71,7 +137,11 @@ export default function ExtratoModal({ open, onOpenChange }: { open: boolean; on
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('extrato.store'), {
+        const isEdit = mode === 'edit' && parcela?.id;
+        const url = isEdit ? route('extrato.update', { id: parcela.id }) : route('extrato.store');
+        const submitMethod = isEdit ? put : post;
+
+        submitMethod(url as any, {
             preserveState: true,
             preserveScroll: true,
             only: ['extratos', 'categoria'],
@@ -86,8 +156,12 @@ export default function ExtratoModal({ open, onOpenChange }: { open: boolean; on
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="md:h-auto md:w-[700px] max-w-full overflow-hidden flex flex-col">
                 <DialogHeader>
-                    <DialogTitle>Adicionar lançamento</DialogTitle>
-                    <DialogDescription>Crie um novo lançamento de receita ou despesa.</DialogDescription>
+                    <DialogTitle>{mode === 'edit' ? 'Editar lançamento' : 'Adicionar lançamento'}</DialogTitle>
+                    <DialogDescription>
+                        {mode === 'edit'
+                            ? 'Atualize os dados do lançamento de receita ou despesa.'
+                            : 'Crie um novo lançamento de receita ou despesa.'}
+                    </DialogDescription>
                 </DialogHeader>
 
                 <div className="flex flex-col md:h-full">
@@ -223,7 +297,9 @@ export default function ExtratoModal({ open, onOpenChange }: { open: boolean; on
                                         Cancelar
                                     </Button>
                                 </DialogClose>
-                                <Button type="submit" className="ml-2 w-full" loading={processing} variant="confirm">Adicionar</Button>
+                                <Button type="submit" className="ml-2 w-full" loading={processing} variant="confirm">
+                                    {mode === 'edit' ? 'Salvar alterações' : 'Adicionar'}
+                                </Button>
                             </DialogFooter>
                         </form>
                     </div>
