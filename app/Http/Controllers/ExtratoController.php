@@ -50,7 +50,7 @@ class ExtratoController extends FinanceiroAbstractController
     {
         try {
             $dto = FinanceiroDTO::fromArray($request->validated());
-            $this->extratoService->update($id, $dto);
+            $this->extratoService->storeParcelas($dto);
 
             return redirect()->route('extrato.index')->with('success', 'Lançamento atualizado.');
         } catch (\Exception $e) {

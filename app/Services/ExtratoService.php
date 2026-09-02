@@ -45,7 +45,7 @@ class ExtratoService extends ServiceAbstract implements ExtratoServiceInterface
         });
     }
 
-    private function storeParcelas(FinanceiroDTO $financeiroDto)
+    public function storeParcelas(FinanceiroDTO $financeiroDto)
     {
         $parcelaDto = FinanceiroParcelaDTO::fromArray([
             'financeiro_id' => $financeiroDto->id,

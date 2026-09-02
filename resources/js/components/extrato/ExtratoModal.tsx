@@ -34,8 +34,6 @@ export type ExtratoModalParcela = {
     conta_id?: number | string | null;
     financeiro?: {
         tipo?: string | null;
-        categoria?: { id: number | string; nome: string } | null;
-        conta?: { id: number | string; nome: string } | null;
     } | null;
 };
 
@@ -80,6 +78,7 @@ export default function ExtratoModal({
         valor_pago: toInputValue(parcela?.valor_pago),
         qtd_parcelas: Number(parcela?.qtd_parcelas ?? 1),
         tipo: initialTipo,
+        id: parcela?.id ?? null,
         categoria_id: (parcela?.categoria_id ?? parcela?.financeiro?.categoria?.id ?? null) as number | null,
         conta_id: (parcela?.conta_id ?? parcela?.financeiro?.conta?.id ?? null) as number | null,
     });
@@ -113,6 +112,7 @@ export default function ExtratoModal({
                 tipo: initialTab,
                 categoria_id: categoriaId ? Number(categoriaId) : null,
                 conta_id: contaId ? Number(contaId) : null,
+                id: parcela?.id ?? null,
             });
         } else {
             reset();
@@ -166,15 +166,17 @@ export default function ExtratoModal({
                 <div className="flex flex-col md:h-full">
                     <div className="flex gap-2">
                         <button
+                            disabled={!!parcela}
                             type="button"
-                            className={`rounded-md px-3 py-1 ${activeTab === 'RECEITA' ? 'bg-primary text-primary-foreground' : 'bg-muted/5'}`}
+                            className={`rounded-md px-3 py-1 cursor-pointer ${activeTab === 'RECEITA' ? 'bg-primary text-primary-foreground' : 'bg-muted/5'}`}
                             onClick={() => setActiveTab('RECEITA')}
                         >
                             Receita
                         </button>
                         <button
                             type="button"
-                            className={`rounded-md px-3 py-1 ${activeTab === 'DESPESA' ? 'bg-primary text-primary-foreground' : 'bg-muted/5'}`}
+                            disabled={!!parcela}
+                            className={`rounded-md px-3 py-1 cursor-pointer ${activeTab === 'DESPESA' ? 'bg-primary text-primary-foreground' : 'bg-muted/5'}`}
                             onClick={() => setActiveTab('DESPESA')}
                         >
                             Despesa
@@ -183,6 +185,7 @@ export default function ExtratoModal({
 
                     <div className="mt-4 rounded-lg border border-sidebar-border/70 bg-white dark:bg-slate-900 p-4 shadow-sm">
                         <form onSubmit={submit} className="grid gap-2">
+                            <Input type='hidden' name="id" />
                             <div className="grid md:grid-cols-2 gap-2">
                                 <div className="grid gap-2">
                                     <Label htmlFor="descricao">Descrição</Label>
@@ -273,7 +276,9 @@ export default function ExtratoModal({
                                     <InputError message={errors.valor_pago} />
                                 </div>
                             </div>
+                            {!parcela &&  (
 
+                            
                             <div className="grid md:grid-cols-2 gap-2">
                                 <div className="grid gap-2">
                                     <Label htmlFor="qtd_parcelas">Quantidade de parcelas</Label>
@@ -287,9 +292,9 @@ export default function ExtratoModal({
                                         disabled={processing}
                                     />
                                     <InputError message={errors.qtd_parcelas} />
+                                    </div>
                                 </div>
-                            </div>
-
+                            )}
                             <DialogFooter className='flex flex-row gap-2 mt-4'>
                                 <DialogClose asChild>
                                     <Button className='w-full' variant="secondary" type="button" onClick={() => { reset(); }}>
