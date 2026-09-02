@@ -19,7 +19,8 @@ return new class extends Migration
             $table->decimal('valor', 15, 2)->default(0);
             $table->decimal('valor_pago', 15, 2)->nullable()->default(0);
             $table->integer('parcela')->default(1);
-
+            $table->foreignId('categoria_id')->constrained('categoria')->cascadeOnDelete();
+            $table->foreignId('conta_id')->constrained('conta')->cascadeOnDelete();
             $table->foreignId('financeiro_id')->constrained('financeiro')->cascadeOnDelete();
             $table->foreignId('usuario_id')->constrained('users')->cascadeOnDelete();
 

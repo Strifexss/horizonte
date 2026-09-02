@@ -23,29 +23,9 @@ class FinanceiroParcelaResource extends JsonResource
             'valor' => $this->valor !== null ? number_format($this->valor, 2, '.', '') : null,
             'valor_pago' => $this->valor_pago !== null ? number_format($this->valor_pago, 2, '.', '') : null,
             'parcela' => $this->parcela,
-            'financeiro' => $this->whenLoaded('financeiro', function () {
-                $financeiro = $this->financeiro;
-                if (! $financeiro) {
-                    return null;
-                }
-
-                return [
-                    'id' => $financeiro->id,
-                    'tipo' => $financeiro->tipo,
-                    'categoria' => $financeiro->relationLoaded('categoria') && $financeiro->categoria
-                        ? [
-                            'id' => $financeiro->categoria->id,
-                            'nome' => $financeiro->categoria->nome,
-                        ]
-                        : null,
-                    'conta' => $financeiro->relationLoaded('conta') && $financeiro->conta
-                        ? [
-                            'id' => $financeiro->conta->id,
-                            'nome' => $financeiro->conta->nome,
-                        ]
-                        : null,
-                ];
-            }),
+            'categoria' => $this->categoria,
+            'conta' => $this->conta,
+            'financeiro' => $this->financeiro,
         ];
     }
 }

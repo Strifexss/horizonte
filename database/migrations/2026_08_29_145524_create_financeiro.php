@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('descricao');
             $table->enum('tipo', ['RECEITA', 'DESPESA']);
-            $table->unsignedBigInteger('conta_id');
             $table->integer('qtd_parcelas')->default(1);
             $table->timestamp('data_criacao')->useCurrent();
             $table->timestamps();

@@ -26,8 +26,6 @@ class Financeiro extends Model
         'descricao',
         'valor',
         'tipo',
-        'categoria_id',
-        'conta_id',
         'usuario_id',
     ];
 
@@ -46,16 +44,6 @@ class Financeiro extends Model
             'categoria_id' => 'integer',
             'conta_id' => 'integer',
         ];
-    }
-
-    public function categoria(): BelongsTo
-    {
-        return $this->belongsTo(Categoria::class);
-    }
-
-    public function conta(): BelongsTo
-    {
-        return $this->belongsTo(Conta::class);
     }
 
     public function usuario()

@@ -28,19 +28,7 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
     public function indexParcelas(?FinanceiroSearchDTO $data = null)
     {
         $query = FinanceiroParcela::query()
-            ->with([
-                'financeiro' => function ($query) {
-                    $query->select('id', 'tipo', 'categoria_id', 'conta_id')
-                        ->with([
-                            'categoria' => function ($q) {
-                                $q->select('id', 'nome');
-                            },
-                            'conta' => function ($q) {
-                                $q->select('id', 'nome');
-                            },
-                        ]);
-                },
-            ])
+            ->with('categoria', 'conta')
             ->where('usuario_id', Auth::id());
 
         if ($data instanceof FinanceiroSearchDTO) {

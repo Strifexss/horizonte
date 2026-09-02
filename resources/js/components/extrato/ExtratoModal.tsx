@@ -95,11 +95,10 @@ export default function ExtratoModal({
         const tipoFromParcela = String(parcela?.tipo ?? parcela?.financeiro?.tipo ?? 'DESPESA').toUpperCase();
         const initialTab: 'RECEITA' | 'DESPESA' = tipoFromParcela === 'RECEITA' ? 'RECEITA' : 'DESPESA';
 
-        const contaId = (parcela?.conta_id ?? parcela?.financeiro?.conta?.id ?? null) as number | string | null;
-        const categoriaId = (parcela?.categoria_id ?? parcela?.financeiro?.categoria?.id ?? null) as number | string | null;
-        const contaNome = parcela?.conta?.nome ?? parcela?.financeiro?.conta?.nome ?? null;
-        const categoriaNome = parcela?.categoria?.nome ?? parcela?.financeiro?.categoria?.nome ?? null;
-
+        const contaId = (parcela?.conta_id ?? parcela?.conta?.id ?? null) as number | string | null;
+        const categoriaId = (parcela?.categoria_id ?? parcela?.categoria?.id ?? null) as number | string | null;
+        const contaNome = parcela?.conta?.nome ?? parcela?.conta?.nome ?? null;
+        const categoriaNome = parcela?.categoria?.nome ?? parcela?.categoria?.nome ?? null;
         setActiveTab(initialTab);
         setSelectedConta(contaId ? { id: contaId, nome: contaNome ?? String(contaId) } : null);
         setSelectedCategoria(categoriaId ? { id: categoriaId, nome: categoriaNome ?? String(categoriaId) } : null);

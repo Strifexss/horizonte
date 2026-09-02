@@ -17,9 +17,8 @@ return new class extends Migration
                 $table->dropColumn('valor_total');
             }
             
-            $table->decimal('valor', 15, 2)->after('conta_id');
+            $table->decimal('valor', 15, 2);
         
-            $table->unsignedBigInteger('categoria_id')->nullable()->after('valor');
             if (Schema::hasColumn('financeiro', 'qtd_parcelas')) {
                 $table->dropColumn('qtd_parcelas');
             }
@@ -34,16 +33,12 @@ return new class extends Migration
         Schema::table('financeiro', function (Blueprint $table) {
             // restaurar qtd_parcelas
             if (! Schema::hasColumn('financeiro', 'qtd_parcelas')) {
-                $table->integer('qtd_parcelas')->default(1)->after('conta_id');
+                $table->integer('qtd_parcelas')->default(1);
             }
             // remover foreign keys e colunas adicionadas
             if (Schema::hasColumn('financeiro', 'usuario_id')) {
                 $table->dropForeign(['usuario_id']);
                 $table->dropColumn('usuario_id');
-            }
-
-            if (Schema::hasColumn('financeiro', 'categoria_id')) {
-                $table->dropColumn('categoria_id');
             }
 
             if (Schema::hasColumn('financeiro', 'valor')) {

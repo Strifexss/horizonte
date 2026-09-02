@@ -134,7 +134,7 @@ export default function Extrato() {
             label: 'CAT.',
             thClassName: 'w-20',
             render: (p: any) => {
-                const nome = p.financeiro?.categoria?.nome;
+                const nome = p.categoria?.nome;
                 const isReceita = tipoDaParcela(p) === 'RECEITA';
                 return nome ? <span className={`inline-block max-w-full truncate rounded px-1 py-0.5 text-xs font-medium ${isReceita ? 'bg-green-50 dark:bg-green-900/30 text-green-700' : 'bg-red-50 dark:bg-red-900/30 text-red-700'}`}>{nome}</span> : '';
             },
@@ -143,7 +143,7 @@ export default function Extrato() {
             key: 'conta',
             label: 'CONTA',
             thClassName: 'w-24',
-            render: (p: any) => <span className="truncate">{p.financeiro?.conta?.nome ?? ''}</span>,
+            render: (p: any) => <span className="truncate">{p.conta?.nome ?? ''}</span>,
         },
         {
             key: 'valor',
