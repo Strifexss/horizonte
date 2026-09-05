@@ -1,60 +1,40 @@
 ## Problem Statement
 
-A rotina de parcela financeira precisa de um serviço e repositório dedicados, separados da rotina de extrato, para permitir atualizações independentes de parcelas sem misturar com a criação de lançamentos financeiros completos.
+O DashboardController estava vazio (`//`) e a página `dashboard.tsx` só exibia `PlaceholderPattern`. A imagem de referência mostra um "Product Sales & Market Share Dashboard" com KPIs (receita, share, unidades, margem, preço, lojas, D2C) e cards de distribuição (canal, região). Precisamos replicar essa visualização com dados mocados, usando os componentes padrão do projeto (`KpisPanel`, `CardList`, `PageTitle`) e respeitando a arquitetura de camadas (controller = receber/responder, sem query/model no controller).
 
 ## Solution
 
-Criar `FinanceiroParcelaService`, `FinanceiroParcelaRepository` e suas interfaces, com bind no `AppServiceProvider`, e expor o método `update` no `ParcelaController`. A entidade já existe (`FinanceiroParcela`), a tabela `financeiro_parcela` está migrada e o DTO (`FinanceiroParcelaDTO`) já está definido.
+- Controller retorna `Inertia::render('dashboard', ['kpis' => ..., 'cards' => ...])` com dados mocados estáticos.
+- Page `dashboard.tsx` importa `PageTitle`, `KpisPanel`, `Card` e `Badge`; renderiza os KPIs e dois cards de distribuição.
+- Nenhuma alteração em repository/service/model; a rotina segue `estrutura-padrao` (controller recebe/responde, dados estáticos não precisam de service/repository).
 
 ## User Stories
 
-1. Como usuário autenticado, quero atualizar uma parcela financeira, para corrigir valores, datas ou categorias associadas.
-2. Como usuário autenticado, quero que a atualização de parcela use a mesma estrutura de camadas (Controller → Service → Repository) das demais rotinas do Horizonte, para manter consistência arquitetural.
-3. Como usuário autenticado, quero que a atualização de parcela retorne o recurso atualizado, para confirmar a alteração imediatamente.
+1. Como usuário do app, quero ver KPIs de vendas no dashboard, para acompanhar a performance FY2026.
+2. Como usuário, quero ver cards de share por canal e crescimento regional, para entender a distribuição da receita.
+3. Como dev, quero que o controller siga a arquitetura (sem query/model), para manter o corte de camadas.
 
 ## Implementation Decisions
 
-- Entidade singular `FinanceiroParcela` / tabela `financeiro_parcela`; controller, service e repository seguem o padrão existente (`ExtratoService` / `FinanceiroRepository`).
-- A interface `FinanceiroParcelaServiceInterface` estende `AbstractServiceInterface`; `FinanceiroParcelaRepositoryInterface` estende `AbstractRepositoryInterface`.
-- O bind das interfaces ocorre em `AppServiceProvider`, seguindo o padrão atual de `ContasService` / `CategoriaService`.
-- O `update` no `ParcelaController` usa `UpdateParcelaRequest` (FormRequest com `authorize: true` e `prepareForValidation` para `usuario_id`), `FinanceiroParcelaDTO` e retorna `FinanceiroParcelaResource` em JSON.
-- A rota `PUT /parcela/{id}` está registrada no grupo `auth` de `routes/web.php`, nomeada `parcela.update`.
-- O DTO `FinanceiroParcelaDTO` foi ajustado para que todos os campos sejam opcionais (`?int`, `?float`, `?string`), permitindo atualizações parciais.
-- O `Service` delega `update` ao `Repository`, que por sua vez usa `AbstractRepository::update` (persistência via Eloquent).
+- Controller `DashboardController::index()` retorna array estático via `Inertia::render`.
+- Page usa `usePage` para ler props `kpis` e `cards`.
+- Componentes reutilizados: `PageTitle`, `KpisPanel` (`padrões`); `Card`, `Badge` (`ui`).
+- Nenhum repository/service criado — dados são mockados, sem acesso a banco.
+- Rota atualizada para apontar para `DashboardController::index`.
 
 ## Testing Decisions
 
-- Testar o comportamento externo: chamada HTTP `PUT /parcela/{id}` retorna 200 com o recurso atualizado e 500 quando ocorre erro.
-- Não testar detalhes internos do Eloquent; testar apenas que o controller responde corretamente e que o service/repositório estão bindados.
-- Prior art: `ContasController::update` segue o mesmo padrão (FormRequest → DTO → Service → redirect/JSON).
+- Verificar visualmente a página `/dashboard` no browser.
+- Confirmar que `KpisPanel` exibe 7 KPIs e que `cards` exibe 2 cards.
+- Nenhum teste automatizado exigido (intake não pediu testes; dados estáticos).
 
 ## Out of Scope
 
-- Criação de novas parcelas (`store`) — já existe no `ExtratoService::storeParcelas`.
-- Exclusão de parcelas (`destroy`) — não solicitado.
-- Frontend Inertia / React para edição de parcela — não solicitado.
-- Autocomplete ou busca por parcela — não solicitado.
-- Testes automatizados — não solicitados no intake.
+- Dados dinâmicos de banco.
+- Gráficos interativos (apenas cards com barras de cor e porcentagens).
+- Filtros, exportação ou ações nos KPIs.
 
 ## Further Notes
 
-- A camada de repository (`FinanceiroParcelaRepository`) estende `AbstractRepository` e usa `FinanceiroParcela` como model. Nenhuma query customizada foi adicionada além do `update` herdado.
-- A rota e os arquivos criados seguem a convenção `PT` singular/plural: `ParcelaController`, `FinanceiroParcelaService`, `FinanceiroParcelaRepository`.
-
----
-
-## Atualização — refresh do extrato após update (2026-09-05)
-
-Problem Statement: o método `update` do `ParcelaController` (redirect para `extrato.index`) não refletia a atualização na UI do modal (`ExtratoModal`), pois o submit usava `only: ['extratos', 'categoria']` com `put`/`post` — opção inválida para redirect do Inertia e prop com nome errado (`parcelas` é a prop real, não `extratos`).
-
-Solution: remover `only` do `submitMethod` em `ExtratoModal.tsx`; o redirect do controller já força o recarregamento completo da página `extrato.index`.
-
-Implementation Decisions:
-- `ParcelaController::update` permanece com `redirect()->route('extrato.index')` (camada Controller responsiva, sem query/DB).
-- `ExtratoModal.tsx` (frente): `submit` agora usa apenas `preserveState`/`preserveScroll`; `only` removido.
-
-Testing Decisions:
-- Verificar no browser que após salvar uma parcela o modal fecha e a tabela do extrato reflete a alteração.
-- Nenhum teste automático adicionado (não solicitado no intake original); validação manual do fluxo.
-
-Out of Scope: refatorar o nome da prop `parcelas` para `extratos`; criar endpoint JSON separado; testes automatizados.
+- Se precisar de dados reais no futuro, criar um `DashboardService` e `DashboardRepository` para consultar agregados (respeitando `usuario_id` quando aplicável).
+- Os ícones dos KPIs são mapeados por string no `iconMap` do frontend; o controller passa o nome do ícone.
