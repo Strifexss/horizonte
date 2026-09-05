@@ -128,8 +128,9 @@ export default function ExtratoModal({
         return res.json();
     };
 
-    const loadCategorias = async (q: string) => {
-        const res = await fetch(`/categorias/autocomplete?q=${encodeURIComponent(q)}`);
+    const loadCategorias = async (q: string = '') => {
+        const tipo = activeTab.toLowerCase();
+        const res = await fetch(`/categorias/autocomplete?q=${encodeURIComponent(q)}&tipo=${encodeURIComponent(tipo)}`);
         if (!res.ok) return [];
         return res.json();
     };
@@ -137,13 +138,12 @@ export default function ExtratoModal({
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         const isEdit = mode === 'edit' && parcela?.id;
-        const url = isEdit ? route('extrato.update', { id: parcela.id }) : route('extrato.store');
+        const url = isEdit ? route('parcela.update', { id: parcela.id }) : route('extrato.store');
         const submitMethod = isEdit ? put : post;
 
         submitMethod(url as any, {
             preserveState: true,
             preserveScroll: true,
-            only: ['extratos', 'categoria'],
             onSuccess: () => {
                 reset();
                 onOpenChange(false);
@@ -231,6 +231,7 @@ export default function ExtratoModal({
                                 <div className="grid gap-2">
                                     <Label>Categoria</Label>
                                     <AsyncSelect
+                                        key={`categoria-${activeTab}`}
                                         value={selectedCategoria}
                                         onChange={(val) => {
                                             setSelectedCategoria(val);
@@ -239,6 +240,7 @@ export default function ExtratoModal({
                                         loadOptions={loadCategorias}
                                         placeholder="Selecione a categoria (opcional)"
                                         isClearable
+                                        defaultOptions
                                     />
                                     <InputError message={errors.categoria_id} />
                                 </div>

@@ -10,6 +10,6 @@ interface CategoriaRepositoryInterface extends AbstractRepositoryInterface
      * @param string|null $q
      * @return mixed
      */
-    public function autocomplete($q = null);
+    public function autocomplete($q = null, ?string $tipo = null);
 }
 

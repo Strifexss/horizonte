@@ -119,7 +119,7 @@ export default function AsyncSelect({ loadOptions, value, onChange, placeholder 
 
   return (
     <AsyncSelectBase<SelectOption, false>
-      cacheOptions
+      cacheOptions={false}
       defaultOptions
       loadOptions={wrappedLoad}
       onChange={handleChange}

@@ -25,14 +25,19 @@ class CategoriaRepository extends AbstractRepository implements CategoriaReposit
      * Retorna categorias filtradas pelo termo de busca.
      *
      * @param string|null $q
+     * @param string|null $tipo
      * @return \Illuminate\Support\Collection|array
      */
-    public function autocomplete($q = null)
+    public function autocomplete($q = null, ?string $tipo = null)
     {
         $query = $this->model->newQuery();
 
         if ($q !== null && $q !== '') {
             $query->where('nome', 'like', '%' . $q . '%');
+        }
+
+        if ($tipo !== null && $tipo !== '') {
+            $query->where('tipo', $tipo);
         }
 
         if (\Illuminate\Support\Facades\Schema::hasColumn($this->model->getTable(), 'usuario_id') && \Illuminate\Support\Facades\Auth::check()) {

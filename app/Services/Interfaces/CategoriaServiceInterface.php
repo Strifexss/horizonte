@@ -10,6 +10,6 @@ interface CategoriaServiceInterface extends AbstractServiceInterface
      * @param string|null $q
      * @return mixed
      */
-    public function autocomplete($q = null);
+    public function autocomplete($q = null, ?string $tipo = null);
 }
 

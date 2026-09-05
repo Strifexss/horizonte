@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ContasController;
 use App\Http\Controllers\ExtratoController;
+use App\Http\Controllers\ParcelaController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -19,6 +20,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [ExtratoController::class, 'store'])->name('extrato.store');
         Route::put('/{id}', [ExtratoController::class, 'update'])->name('extrato.update');
         Route::delete('/{id}', [ExtratoController::class, 'destroy'])->name('extrato.destroy');
+    });
+
+    Route::group(['prefix' => 'parcela'], function () {
+        Route::put('/{id}', [ParcelaController::class, 'update'])->name('parcela.update');
+        Route::delete('/{id}', [ParcelaController::class, 'destroy'])->name('parcela.destroy');
     });
     
     Route::group(['prefix' => 'contas'], function () {

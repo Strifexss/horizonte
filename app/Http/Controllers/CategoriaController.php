@@ -57,7 +57,9 @@ class CategoriaController extends Controller
     public function autocomplete(Request $request)
     {
         $q = (string) $request->query('q', '');
-        $result = $this->categoriaService->autocomplete($q);
+        $tipo = strtolower($request->query('tipo', ''));
+        $tipoParam = $tipo === 'receita' || $tipo === 'despesa' ? $tipo : null;
+        $result = $this->categoriaService->autocomplete($q, $tipoParam);
 
         return response()->json($result);
     }

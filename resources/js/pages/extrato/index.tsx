@@ -2,8 +2,8 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import React, { useMemo, useState } from 'react';
-import { usePage } from '@inertiajs/react';
-import { CreditCard, ChevronDown, Plus, BarChart2, ArrowUpRight, ArrowDownRight, Grid, File, MoreHorizontal, Pencil} from 'lucide-react';
+import { usePage, router } from '@inertiajs/react';
+import { CreditCard, ChevronDown, Plus, BarChart2, ArrowUpRight, ArrowDownRight, Grid, File, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { PageTitle, KpisPanel, CardList } from '@/components/padrões';
 import ExtratoFilters from '@/components/extrato/Filters';
 import ExtratoFooter from '@/components/extrato/Footer';
@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import CategoriasModal from '../../components/categorias/CategoriasModal';
 import ExtratoModal, { type ExtratoModalParcela } from '@/components/extrato/ExtratoModal';
+import ConfirmDeleteModal from '@/components/extrato/ConfirmDeleteModal';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -65,6 +66,9 @@ export default function Extrato() {
     const [parcelaEdit, setParcelaEdit] = useState<ExtratoModalParcela | null>(null);
     const [busca, setBusca] = useState('');
     const [statusTab, setStatusTab] = useState<ExtratoStatusTab>('todos');
+    const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+    const [parcelaToDelete, setParcelaToDelete] = useState<any>(null);
+    const [deleting, setDeleting] = useState(false);
 
     const counts = useMemo(() => {
         const list = parcelasArray ?? [];
@@ -218,6 +222,15 @@ export default function Extrato() {
                                 <Pencil className="mr-2 h-4 w-4" />
                                 Editar
                             </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onSelect={() => {
+                                    setParcelaToDelete(p);
+                                    setConfirmDeleteOpen(true);
+                                }}
+                            >
+                                <Trash2 className="mr-2 h-4 w-4 text-red-600" />
+                                Excluir
+                            </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -277,6 +290,29 @@ export default function Extrato() {
                     }
                 />
                 <ExtratoModal open={extratoOpen} onOpenChange={setExtratoOpen} mode={extratoMode} parcela={parcelaEdit} />
+                <ConfirmDeleteModal
+                    open={confirmDeleteOpen}
+                    onOpenChange={setConfirmDeleteOpen}
+                    title="Excluir parcela"
+                    description={`Deseja excluir a parcela "${parcelaToDelete?.descricao ?? ''}"? Esta ação não pode ser desfeita.`}
+                    processing={deleting}
+                    onConfirm={() => {
+                        if (!parcelaToDelete?.id) return;
+                        setDeleting(true);
+                        router.delete(route('parcela.destroy', { id: parcelaToDelete.id }), {
+                            preserveState: true,
+                            preserveScroll: true,
+                            onSuccess: () => {
+                                setDeleting(false);
+                                setConfirmDeleteOpen(false);
+                                setParcelaToDelete(null);
+                            },
+                            onError: () => {
+                                setDeleting(false);
+                            },
+                        });
+                    }}
+                />
 
                 <ExtratoFilters />
                 <KpisPanel
