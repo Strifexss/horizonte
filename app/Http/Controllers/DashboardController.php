@@ -34,24 +34,6 @@ class DashboardController extends Controller
                     'hint' => '+1,8pp vs FY2025',
                     'icon' => 'Percent',
                 ],
-                [
-                    'label' => 'Preço Médio',
-                    'value' => '$125,80',
-                    'hint' => '+3,6% vs FY2025',
-                    'icon' => 'Tag',
-                ],
-                [
-                    'label' => 'Lojas Varejo',
-                    'value' => '14.280',
-                    'hint' => '+1.120 novas portas 2026',
-                    'icon' => 'Store',
-                ],
-                [
-                    'label' => 'D2C E-Commerce',
-                    'value' => '$151,5M',
-                    'hint' => '+24,3% vs FY2025',
-                    'icon' => 'ShoppingCart',
-                ],
             ],
 
             // Regional Sales — barras verticais (barY)
