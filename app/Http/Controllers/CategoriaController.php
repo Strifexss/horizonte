@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\DTO\CategoriaDTO;
 use App\Http\Requests\StoreCategoriaRequest;
 use App\Services\Interfaces\CategoriaServiceInterface;
-use Inertia\Inertia;
 use Illuminate\Http\Request;
 
 class CategoriaController extends Controller
@@ -25,10 +24,19 @@ class CategoriaController extends Controller
     {
         try {
             $dto = CategoriaDTO::fromArray($request->validated());
-            $this->categoriaService->store($dto);
-            return redirect()->route('extrato.index')->with('success', 'Categoria criada com sucesso.');
+            $categoria = $this->categoriaService->store($dto);
+
+            return redirect()
+                ->route('extrato.index')
+                ->with('success', 'Categoria criada com sucesso.')
+                ->with('categoria_criada', [
+                    'id' => $categoria->id,
+                    'nome' => $categoria->nome,
+                    'tipo' => $categoria->tipo,
+                    'padrao' => $categoria->padrao,
+                ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Erro ao criar categoria: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Erro ao criar categoria: '.$e->getMessage());
         }
     }
 
@@ -40,7 +48,7 @@ class CategoriaController extends Controller
 
             return redirect()->route('extrato.index')->with('success', 'Categoria atualizada com sucesso.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Erro ao atualizar categoria: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Erro ao atualizar categoria: '.$e->getMessage());
         }
     }
 
@@ -48,9 +56,10 @@ class CategoriaController extends Controller
     {
         try {
             $this->categoriaService->delete($id);
+
             return redirect()->route('extrato.index')->with('success', 'Categoria excluída com sucesso.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Erro ao excluir categoria: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Erro ao excluir categoria: '.$e->getMessage());
         }
     }
 

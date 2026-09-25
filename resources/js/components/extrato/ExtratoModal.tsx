@@ -102,12 +102,15 @@ export default function ExtratoModal({
     const draftProdutoPrecoRef = useRef<HTMLInputElement | null>(null);
     const draftFuncionarioNomeRef = useRef<HTMLInputElement | null>(null);
     const draftFuncionarioSalarioRef = useRef<HTMLInputElement | null>(null);
+    const draftCategoriaNomeRef = useRef<HTMLInputElement | null>(null);
     const [draftProdutoNome, setDraftProdutoNome] = useState<string | null>(null);
     const [draftProdutoPreco, setDraftProdutoPreco] = useState('');
     const [draftFuncionarioNome, setDraftFuncionarioNome] = useState<string | null>(null);
     const [draftFuncionarioSalario, setDraftFuncionarioSalario] = useState('');
+    const [draftCategoriaNome, setDraftCategoriaNome] = useState<string | null>(null);
     const [draftProdutoFocus, setDraftProdutoFocus] = useState<'nome' | 'preco' | null>(null);
     const [draftFuncionarioFocus, setDraftFuncionarioFocus] = useState<'nome' | 'salario' | null>(null);
+    const [draftCategoriaFocus, setDraftCategoriaFocus] = useState<'nome' | null>(null);
     const [creatingInline, setCreatingInline] = useState(false);
 
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
@@ -184,6 +187,20 @@ export default function ExtratoModal({
 
         return () => window.clearTimeout(timer);
     }, [draftFuncionarioFocus, draftFuncionarioNome]);
+
+    useEffect(() => {
+        if (!draftCategoriaFocus || draftCategoriaNome === null) {
+            return;
+        }
+
+        const timer = window.setTimeout(() => {
+            draftCategoriaNomeRef.current?.focus();
+            draftCategoriaNomeRef.current?.select?.();
+            setDraftCategoriaFocus(null);
+        }, 50);
+
+        return () => window.clearTimeout(timer);
+    }, [draftCategoriaFocus, draftCategoriaNome]);
 
     useEffect(() => {
         if (!open) return;
@@ -264,6 +281,8 @@ export default function ExtratoModal({
 
     useEffect(() => {
         if (!open || mode === 'edit') return;
+        setDraftCategoriaNome(null);
+        setDraftCategoriaFocus(null);
         if (activeTab === 'DESPESA') {
             void applyProdutoPadrao();
         } else {
@@ -314,6 +333,17 @@ export default function ExtratoModal({
     };
 
     const handleCategoriaChange = (val: Option | null) => {
+        if (val && (val as Option & { __create?: boolean }).__create) {
+            const nome = String((val as Option & { __createName?: string }).__createName ?? val.nome).trim();
+            setDraftCategoriaNome(nome);
+            setSelectedCategoria({ id: '__draft__', nome });
+            setData('categoria_id', null);
+            setDraftCategoriaFocus('nome');
+            return;
+        }
+
+        setDraftCategoriaNome(null);
+        setDraftCategoriaFocus(null);
         setSelectedCategoria(val);
         setData('categoria_id', val ? Number(val.id) : null);
 
@@ -450,6 +480,49 @@ export default function ExtratoModal({
                 onError: () => setCreatingInline(false),
             },
         );
+    };
+
+    const confirmarCategoriaInline = () => {
+        const nome = draftCategoriaNome?.trim();
+        if (!nome) {
+            return;
+        }
+        setCreatingInline(true);
+        router.post(
+            route('categorias.store'),
+            { nome, tipo: activeTab.toLowerCase(), padrao: 0 },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: (page) => {
+                    setCreatingInline(false);
+                    const criado = (page.props as any)?.flash?.categoria_criada;
+                    if (criado) {
+                        setDraftCategoriaNome(null);
+                        handleCategoriaChange({
+                            id: criado.id,
+                            nome: criado.nome,
+                            padrao: criado.padrao ?? 0,
+                        });
+                    }
+                },
+                onError: () => setCreatingInline(false),
+            },
+        );
+    };
+
+    const iniciarCadastroCategoria = () => {
+        setSelectedCategoria(null);
+        setData('categoria_id', null);
+        setDraftCategoriaNome('');
+        setDraftCategoriaFocus('nome');
+    };
+
+    const cancelarCadastroCategoria = () => {
+        setDraftCategoriaNome(null);
+        setDraftCategoriaFocus(null);
+        setSelectedCategoria(null);
+        setData('categoria_id', null);
     };
 
     const iniciarCadastroProduto = () => {
@@ -776,14 +849,85 @@ export default function ExtratoModal({
 
                                     <div className="grid gap-2">
                                         <Label>Categoria</Label>
-                                        <AsyncSelect
-                                            key={`categoria-${activeTab}`}
-                                            value={selectedCategoria}
-                                            onChange={handleCategoriaChange}
-                                            loadOptions={loadCategorias}
-                                            placeholder="Selecione a categoria (opcional)"
-                                            isClearable
-                                        />
+                                        <div className="flex items-start gap-2">
+                                            <div className="min-w-0 flex-1">
+                                                <AsyncSelect
+                                                    key={`categoria-${activeTab}`}
+                                                    creatable
+                                                    value={selectedCategoria}
+                                                    onChange={handleCategoriaChange}
+                                                    loadOptions={loadCategorias}
+                                                    placeholder="Selecione a categoria (opcional)"
+                                                    isClearable
+                                                    formatCreateLabel={(input) =>
+                                                        `+ Cadastrar categoria de ${activeTab === 'RECEITA' ? 'receita' : 'despesa'} "${input}"`
+                                                    }
+                                                />
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                variant="secondary"
+                                                size="icon"
+                                                className="shrink-0"
+                                                aria-label="Cadastrar categoria"
+                                                title="Cadastrar categoria"
+                                                onClick={iniciarCadastroCategoria}
+                                            >
+                                                <Plus className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                        {draftCategoriaNome !== null ? (
+                                            <div className="grid gap-2 rounded-md border border-dashed border-violet-300 bg-violet-50/60 p-3 dark:border-violet-800 dark:bg-violet-950/30">
+                                                <div className="grid gap-2">
+                                                    <Label htmlFor="draft_categoria_nome">Nome da categoria</Label>
+                                                    <Input
+                                                        ref={draftCategoriaNomeRef}
+                                                        id="draft_categoria_nome"
+                                                        value={draftCategoriaNome}
+                                                        onChange={(e) => {
+                                                            setDraftCategoriaNome(e.target.value);
+                                                            setSelectedCategoria(
+                                                                e.target.value
+                                                                    ? { id: '__draft__', nome: e.target.value }
+                                                                    : null,
+                                                            );
+                                                        }}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter') {
+                                                                e.preventDefault();
+                                                                confirmarCategoriaInline();
+                                                            }
+                                                        }}
+                                                        placeholder={`Categoria de ${activeTab === 'RECEITA' ? 'receita' : 'despesa'}`}
+                                                    />
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Será cadastrada como categoria de{' '}
+                                                        {activeTab === 'RECEITA' ? 'receita' : 'despesa'}.
+                                                    </p>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        type="button"
+                                                        variant="secondary"
+                                                        className="flex-1"
+                                                        onClick={cancelarCadastroCategoria}
+                                                        disabled={creatingInline}
+                                                    >
+                                                        Cancelar
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        variant="confirm"
+                                                        className="flex-1"
+                                                        disabled={!draftCategoriaNome.trim() || creatingInline}
+                                                        loading={creatingInline}
+                                                        onClick={confirmarCategoriaInline}
+                                                    >
+                                                        Criar categoria
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ) : null}
                                         <InputError message={errors.categoria_id} />
                                     </div>
                                 </div>
