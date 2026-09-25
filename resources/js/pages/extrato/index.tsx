@@ -386,10 +386,6 @@ export default function Extrato() {
                                     setParcelaEdit(p as ExtratoModalParcela);
                                     setExtratoOpen(true);
                                 }}
-                                onDelete={(p) => {
-                                    setParcelaToDelete(p);
-                                    setConfirmDeleteOpen(true);
-                                }}
                             />
                         </div>
                         <div className="hidden md:block overflow-x-auto p-4">
