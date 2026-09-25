@@ -122,11 +122,11 @@ export default function Extrato() {
         {
             key: 'descricao',
             label: 'DESCRIÇÃO',
-            thClassName: 'min-w-0 flex-1',
+            thClassName: 'w-40',
             render: (p: any) => {
                 const isReceita = tipoDaParcela(p) === 'RECEITA';
                 return (
-                    <div className="flex items-start gap-2 min-w-0">
+                    <div className="flex items-center gap-2 min-w-0 max-w-full">
                         <span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${isReceita ? 'bg-green-50 dark:bg-green-900/30 text-green-600' : 'bg-red-50 dark:bg-red-900/30 text-red-600'}`}>
                             {isReceita ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
                         </span>
@@ -136,13 +136,22 @@ export default function Extrato() {
             },
         },
         {
+            key: 'produto',
+            label: 'PRODUTO',
+            thClassName: 'min-w-0 flex-1',
+            render: (p: any) => {
+                const nome = p.produto?.nome;
+                return nome ? <span className="truncate">{nome}</span> : '';
+            },
+        },
+        {
             key: 'categoria',
-            label: 'CAT.',
-            thClassName: 'w-20',
+            label: 'CATEGORIA',
+            thClassName: 'w-40',
             render: (p: any) => {
                 const nome = p.categoria?.nome;
                 const isReceita = tipoDaParcela(p) === 'RECEITA';
-                return nome ? <span className={`inline-block max-w-full truncate rounded px-1 py-0.5 text-xs font-medium ${isReceita ? 'bg-green-50 dark:bg-green-900/30 text-green-700' : 'bg-red-50 dark:bg-red-900/30 text-red-700'}`}>{nome}</span> : '';
+                return nome ? <span className={`inline-block max-w-full truncate rounded px-1.5 py-0.5 text-xs font-medium ${isReceita ? 'bg-green-50 dark:bg-green-900/30 text-green-700' : 'bg-red-50 dark:bg-red-900/30 text-red-700'}`}>{nome}</span> : '';
             },
         },
         {
