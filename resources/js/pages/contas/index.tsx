@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import InputError from '@/components/input-error';
 import {
     DropdownMenu,
@@ -55,6 +56,7 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         nome: '',
         descricao: '',
+        padrao: false,
     });
     
     const [editOpen, setEditOpen] = React.useState(false);
@@ -62,9 +64,10 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
     const [confirmOpen, setConfirmOpen] = React.useState(false);
     const [accountToDelete, setAccountToDelete] = React.useState<any | null>(null);
 
-    const { data: editData, setData: setEditData, patch, processing: editProcessing, errors: editErrors, reset: resetEdit } = useForm({
+    const { data: editData, setData: setEditData, put, processing: editProcessing, errors: editErrors, reset: resetEdit } = useForm({
         nome: '',
         descricao: '',
+        padrao: false,
     });
 
     const { delete: destroy } = useForm({});
@@ -74,7 +77,7 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
         post('/contas', {
             onSuccess: () => {
                 setOpen(false);
-                reset('nome', 'descricao');
+                reset('nome', 'descricao', 'padrao');
             },
         });
     };
@@ -83,6 +86,7 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
         setEditingAccount(acc);
         setEditData('nome', acc.nome ?? acc.name ?? '');
         setEditData('descricao', acc.descricao ?? '');
+        setEditData('padrao', Number(acc.padrao ?? 0) === 1);
         setEditOpen(true);
     };
 
@@ -90,7 +94,7 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
         e.preventDefault();
         if (!editingAccount) return;
 
-        patch(route('contas.update', editingAccount.id), {
+        put(route('contas.update', editingAccount.id), {
             onSuccess: () => {
                 setEditOpen(false);
                 resetEdit();
@@ -163,6 +167,17 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
                                         <InputError message={errors.descricao} />
                                     </div>
 
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox
+                                            id="padrao"
+                                            checked={!!data.padrao}
+                                            onCheckedChange={(checked) => setData('padrao', checked === true)}
+                                            disabled={processing}
+                                        />
+                                        <Label htmlFor="padrao">Definir como conta padrão</Label>
+                                    </div>
+                                    <InputError message={errors.padrao} />
+
                                     <DialogFooter>
                                         <DialogClose asChild>
                                             <Button variant="secondary" type="button" disabled={processing}>
@@ -211,6 +226,17 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
                                 />
                                 <InputError message={editErrors.descricao} />
                             </div>
+
+                            <div className="flex items-center gap-2">
+                                <Checkbox
+                                    id="edit-padrao"
+                                    checked={!!editData.padrao}
+                                    onCheckedChange={(checked) => setEditData('padrao', checked === true)}
+                                    disabled={editProcessing}
+                                />
+                                <Label htmlFor="edit-padrao">Definir como conta padrão</Label>
+                            </div>
+                            <InputError message={editErrors.padrao} />
 
                             <DialogFooter>
                                 <DialogClose asChild>
@@ -262,7 +288,14 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
                                                     </AvatarFallback>
                                                 </Avatar>
                                                 <div className="min-w-0">
-                                                    <CardTitle className="text-base truncate">{acc.nome ?? acc.name}</CardTitle>
+                                                    <div className="flex items-center gap-2 min-w-0">
+                                                        <CardTitle className="text-base truncate">{acc.nome ?? acc.name}</CardTitle>
+                                                        {Number(acc.padrao ?? 0) === 1 && (
+                                                            <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase text-muted-foreground">
+                                                                Padrão
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                     <CardDescription className="text-xs truncate">{acc.descricao ?? acc.type}</CardDescription>
                                                 </div>
                                             </div>

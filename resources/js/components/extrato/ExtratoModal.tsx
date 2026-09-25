@@ -126,6 +126,15 @@ export default function ExtratoModal({
         }
     };
 
+    const applyContaPadrao = async () => {
+        const contas = await loadContas('');
+        const contaPadrao = (contas as Option[]).find((c) => Number(c.padrao ?? 0) === 1);
+        if (contaPadrao) {
+            setSelectedConta(contaPadrao);
+            setData('conta_id', Number(contaPadrao.id));
+        }
+    };
+
     useEffect(() => {
         setData('tipo', activeTab);
     }, [activeTab]);
@@ -203,6 +212,7 @@ export default function ExtratoModal({
             if (initialTab === 'DESPESA') {
                 void applyProdutoPadrao();
             }
+            void applyContaPadrao();
         }
     }, [open, mode, parcela?.id]);
 

@@ -6,28 +6,24 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreContaRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Prepare the data for validation.
-     */
     protected function prepareForValidation(): void
     {
         if (! $this->has('usuario_id') && $this->user()) {
             $this->merge(['usuario_id' => $this->user()->id]);
         }
+
+        $this->merge([
+            'padrao' => filter_var($this->input('padrao', false), FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
+        ]);
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string,mixed>
+     * @return array<string, mixed>
      */
     public function rules(): array
     {
@@ -35,7 +31,7 @@ class StoreContaRequest extends FormRequest
             'nome' => ['required', 'string', 'max:255'],
             'descricao' => ['nullable', 'string'],
             'usuario_id' => ['nullable', 'integer', 'exists:users,id'],
+            'padrao' => ['nullable', 'integer', 'in:0,1'],
         ];
     }
 }
-

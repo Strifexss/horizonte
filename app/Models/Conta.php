@@ -26,6 +26,7 @@ class Conta extends Model
         'nome',
         'descricao',
         'usuario_id',
+        'padrao',
     ];
 
     /**
@@ -40,6 +41,7 @@ class Conta extends Model
             'nome' => 'string',
             'descricao' => 'string',
             'usuario_id' => 'integer',
+            'padrao' => 'integer',
         ];
     }
 
@@ -51,4 +53,3 @@ class Conta extends Model
         return $this->belongsTo(User::class, 'usuario_id');
     }
 }
-
