@@ -527,9 +527,6 @@ export default function ExtratoModal({
                                                 <Plus className="h-4 w-4" />
                                             </Button>
                                         </div>
-                                        <p className="text-xs text-muted-foreground">
-                                            Digite um nome inexistente e escolha “+ Cadastrar”, ou use o botão +.
-                                        </p>
                                         {draftProdutoNome !== null ? (
                                             <div className="grid gap-2 rounded-md border border-dashed border-amber-300 bg-amber-50/60 p-3 dark:border-amber-800 dark:bg-amber-950/30">
                                                 <div className="grid gap-2 md:grid-cols-2">
@@ -617,9 +614,6 @@ export default function ExtratoModal({
                                                 <Plus className="h-4 w-4" />
                                             </Button>
                                         </div>
-                                        <p className="text-xs text-muted-foreground">
-                                            Digite um nome inexistente e escolha “+ Cadastrar”, ou use o botão +.
-                                        </p>
                                         {draftFuncionarioNome !== null ? (
                                             <div className="grid gap-2 rounded-md border border-dashed border-sky-300 bg-sky-50/60 p-3 dark:border-sky-800 dark:bg-sky-950/30">
                                                 <div className="grid gap-2 md:grid-cols-2">

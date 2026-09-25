@@ -162,6 +162,7 @@ export default function AsyncSelect({
   return (
     <AsyncSelectBase<SelectOption, false>
       ref={selectRef as React.Ref<any>}
+      classNamePrefix="app-select"
       cacheOptions={false}
       defaultOptions
       loadOptions={wrappedLoad}
@@ -174,6 +175,8 @@ export default function AsyncSelect({
       filterOption={null}
       menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
       menuPosition="fixed"
+      blurInputOnSelect
+      closeMenuOnSelect
     />
   );
 }
