@@ -20,7 +20,6 @@ import FuncionariosModal from '@/components/funcionarios/FuncionariosModal';
 import ExtratoModal, { type ExtratoModalParcela } from '@/components/extrato/ExtratoModal';
 import ConfirmDeleteModal from '@/components/extrato/ConfirmDeleteModal';
 import ExtratoFab from '@/components/extrato/ExtratoFab';
-import QuickCadastroSheet, { type QuickCadastroKind } from '@/components/extrato/QuickCadastroSheet';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
