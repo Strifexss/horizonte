@@ -54,7 +54,7 @@ export default function ExtratoFab({
     ] as const;
 
     return (
-        <div className="pointer-events-none fixed right-4 bottom-[5.25rem] z-40 md:hidden">
+        <div className="pointer-events-none fixed right-4 bottom-24 z-40 md:hidden">
             {open ? (
                 <button
                     type="button"

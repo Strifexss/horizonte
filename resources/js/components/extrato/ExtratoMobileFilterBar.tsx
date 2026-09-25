@@ -13,7 +13,7 @@ import ExtratoFilterFields, {
     type ExtratoFilterValues,
     type FilterOption,
 } from '@/components/extrato/ExtratoFilterFields';
-import { CalendarDays, ChevronLeft, ChevronRight, ChevronUp, SlidersHorizontal, X } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -87,6 +87,7 @@ export default function ExtratoMobileFilterBar({
     const [draftFim, setDraftFim] = useState(values.dataFim);
     const [visible, setVisible] = useState(true);
     const lastScrollY = useRef(0);
+    const touchStartY = useRef<number | null>(null);
 
     useEffect(() => {
         if (periodOpen) {
@@ -129,16 +130,16 @@ export default function ExtratoMobileFilterBar({
     const chips: Chip[] = useMemo(() => {
         const next: Chip[] = [];
         if (values.conta) {
-            next.push({ key: 'conta', label: `Conta: ${values.conta.nome}` });
+            next.push({ key: 'conta', label: values.conta.nome });
         }
         if (values.categoria) {
-            next.push({ key: 'categoria', label: `Categoria: ${values.categoria.nome}` });
+            next.push({ key: 'categoria', label: values.categoria.nome });
         }
         if (values.status && values.status !== 'todos') {
-            next.push({ key: 'status', label: `Status: ${STATUS_LABELS[values.status] ?? values.status}` });
+            next.push({ key: 'status', label: STATUS_LABELS[values.status] ?? values.status });
         }
         if (values.tipoData && values.tipoData !== 'vencimento') {
-            next.push({ key: 'tipo_data', label: `Data: ${values.tipoData}` });
+            next.push({ key: 'tipo_data', label: values.tipoData });
         }
         return next;
     }, [values]);
@@ -157,81 +158,108 @@ export default function ExtratoMobileFilterBar({
         onApply(next);
     };
 
+    const onDockTouchStart = (e: React.TouchEvent) => {
+        touchStartY.current = e.touches[0]?.clientY ?? null;
+    };
+
+    const onDockTouchEnd = (e: React.TouchEvent) => {
+        if (touchStartY.current === null) {
+            return;
+        }
+
+        const endY = e.changedTouches[0]?.clientY;
+        if (endY === undefined) {
+            touchStartY.current = null;
+            return;
+        }
+
+        const swipeUpDistance = touchStartY.current - endY;
+        if (swipeUpDistance > 48) {
+            setSheetOpen(true);
+        }
+
+        touchStartY.current = null;
+    };
+
     return (
         <>
             <div
-                className={`fixed inset-x-0 bottom-0 z-30 border-t border-sidebar-border/70 bg-background/95 px-3 py-2 pr-20 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] backdrop-blur transition-transform duration-300 ease-out supports-backdrop-filter:bg-background/90 md:hidden ${
-                    visible ? 'translate-y-0' : 'translate-y-full'
-                }`}
+                className={`fixed inset-x-3 bottom-3 z-30 md:hidden ${
+                    visible ? 'translate-y-0' : 'translate-y-[calc(100%+1.25rem)]'
+                } transition-transform duration-300 ease-out`}
             >
-                <div className="mx-auto mb-1 flex justify-center">
+                <div
+                    className="rounded-2xl border border-white/40 bg-white/95 p-2 pr-16 shadow-xl backdrop-blur-md dark:border-slate-700/50 dark:bg-slate-900/95"
+                    onTouchStart={onDockTouchStart}
+                    onTouchEnd={onDockTouchEnd}
+                >
                     <button
                         type="button"
-                        className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium text-muted-foreground hover:bg-muted/40"
+                        className="mx-auto mb-2 flex w-full flex-col items-center py-1"
+                        aria-label="Abrir filtros"
                         onClick={() => setSheetOpen(true)}
-                        aria-label="Expandir filtros"
                     >
-                        <ChevronUp className="h-3.5 w-3.5" />
-                        Expandir
+                        <span className="h-1 w-10 rounded-full bg-slate-300 dark:bg-slate-600" />
                     </button>
-                </div>
-                <div className="flex min-w-0 items-center gap-2">
-                    <div className="flex shrink-0 items-center gap-0.5 rounded-full border border-sidebar-border/70 bg-white dark:bg-slate-900">
-                        <button
-                            type="button"
-                            className="rounded-l-full p-2 text-muted-foreground hover:bg-muted/40"
-                            aria-label="Mês anterior"
-                            onClick={() => shiftMonth(-1)}
-                        >
-                            <ChevronLeft className="h-4 w-4" />
-                        </button>
-                        <button
-                            type="button"
-                            className="inline-flex max-w-[7.5rem] items-center gap-1 px-1 py-1.5 text-xs font-medium"
-                            onClick={() => setPeriodOpen(true)}
-                        >
-                            <CalendarDays className="h-3.5 w-3.5 shrink-0 text-amber-600" />
-                            <span className="truncate">{formatPeriodPill(values.dataInicio, values.dataFim)}</span>
-                        </button>
-                        <button
-                            type="button"
-                            className="rounded-r-full p-2 text-muted-foreground hover:bg-muted/40"
-                            aria-label="Próximo mês"
-                            onClick={() => shiftMonth(1)}
-                        >
-                            <ChevronRight className="h-4 w-4" />
-                        </button>
-                    </div>
 
-                    <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                        {chips.map((chip) => (
+                    <div className="flex min-w-0 items-center gap-2">
+                        <div className="flex shrink-0 items-center gap-0.5 rounded-full border border-slate-200/80 bg-white dark:border-slate-700 dark:bg-slate-800">
                             <button
-                                key={chip.key}
                                 type="button"
-                                className="inline-flex shrink-0 items-center gap-1 rounded-full border border-sidebar-border/70 bg-white px-2.5 py-1 text-xs font-medium dark:bg-slate-900"
-                                onClick={() => onClearChip(chip.key)}
+                                className="rounded-l-full p-2 text-muted-foreground hover:bg-muted/40"
+                                aria-label="Mês anterior"
+                                onClick={() => shiftMonth(-1)}
                             >
-                                <span className="max-w-[9rem] truncate">{chip.label}</span>
-                                <X className="h-3 w-3 text-muted-foreground" />
+                                <ChevronLeft className="h-4 w-4" />
                             </button>
-                        ))}
-                    </div>
+                            <button
+                                type="button"
+                                className="inline-flex max-w-[7.5rem] items-center gap-1 px-1 py-1.5 text-xs font-medium"
+                                onClick={() => setPeriodOpen(true)}
+                            >
+                                <CalendarDays className="h-3.5 w-3.5 shrink-0 text-amber-600" />
+                                <span className="truncate">{formatPeriodPill(values.dataInicio, values.dataFim)}</span>
+                            </button>
+                            <button
+                                type="button"
+                                className="rounded-r-full p-2 text-muted-foreground hover:bg-muted/40"
+                                aria-label="Próximo mês"
+                                onClick={() => shiftMonth(1)}
+                            >
+                                <ChevronRight className="h-4 w-4" />
+                            </button>
+                        </div>
 
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="shrink-0 gap-1 rounded-full px-2.5"
-                        onClick={() => setSheetOpen(true)}
-                    >
-                        <SlidersHorizontal className="h-3.5 w-3.5" />
-                        <span>Filtros</span>
-                        {activeCount > 0 ? (
-                            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-semibold text-white">
-                                {activeCount}
-                            </span>
-                        ) : null}
-                    </Button>
+                        <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                            {chips.map((chip) => (
+                                <button
+                                    key={chip.key}
+                                    type="button"
+                                    className="inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200/80 bg-slate-50 px-2.5 py-1 text-xs font-medium dark:border-slate-700 dark:bg-slate-800"
+                                    onClick={() => onClearChip(chip.key)}
+                                >
+                                    <span className="max-w-[7rem] truncate">{chip.label}</span>
+                                    <X className="h-3 w-3 text-muted-foreground" />
+                                </button>
+                            ))}
+                        </div>
+
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="shrink-0 gap-1 rounded-full border-slate-200/80 bg-white px-2.5 dark:border-slate-700 dark:bg-slate-800"
+                            onClick={() => setSheetOpen(true)}
+                        >
+                            <SlidersHorizontal className="h-3.5 w-3.5" />
+                            <span>Filtros</span>
+                            {activeCount > 0 ? (
+                                <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-semibold text-white">
+                                    {activeCount}
+                                </span>
+                            ) : null}
+                        </Button>
+                    </div>
                 </div>
             </div>
 
