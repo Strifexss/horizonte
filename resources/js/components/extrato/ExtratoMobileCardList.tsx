@@ -76,6 +76,11 @@ export default function ExtratoMobileCardList({ data, onEdit }: Props) {
                 const isReceita = tipoDaParcela(item) === 'RECEITA';
                 const status = statusDaParcela(item);
                 const statusMeta = STATUS_META[status];
+                const isCategoriaProduto = String(item.categoria?.nome ?? '').toUpperCase() === 'PRODUTO';
+                const titulo =
+                    isCategoriaProduto && item.produto?.nome
+                        ? item.produto.nome
+                        : item.descricao || 'Sem descrição';
                 const metaParts = [
                     formatDateISO(item.data_vencimento),
                     item.conta?.nome,
@@ -91,7 +96,7 @@ export default function ExtratoMobileCardList({ data, onEdit }: Props) {
                     >
                         <div className="flex min-w-0 items-start justify-between gap-3">
                             <span className="min-w-0 truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
-                                {item.descricao || 'Sem descrição'}
+                                {titulo}
                             </span>
                             <span
                                 className={`shrink-0 text-sm font-bold ${
