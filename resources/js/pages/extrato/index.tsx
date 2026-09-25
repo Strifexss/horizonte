@@ -19,6 +19,8 @@ import ProdutosModal from '@/components/produtos/ProdutosModal';
 import FuncionariosModal from '@/components/funcionarios/FuncionariosModal';
 import ExtratoModal, { type ExtratoModalParcela } from '@/components/extrato/ExtratoModal';
 import ConfirmDeleteModal from '@/components/extrato/ConfirmDeleteModal';
+import ExtratoFab from '@/components/extrato/ExtratoFab';
+import QuickCadastroSheet, { type QuickCadastroKind } from '@/components/extrato/QuickCadastroSheet';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -73,6 +75,8 @@ export default function Extrato() {
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [parcelaToDelete, setParcelaToDelete] = useState<any>(null);
     const [deleting, setDeleting] = useState(false);
+    const [quickCadastroOpen, setQuickCadastroOpen] = useState(false);
+    const [quickCadastroKind, setQuickCadastroKind] = useState<QuickCadastroKind>('produto');
 
     const counts = useMemo(() => {
         const list = parcelasArray ?? [];
@@ -254,18 +258,19 @@ export default function Extrato() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Extrato" />
-            <div className="flex w-full max-w-full h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <div className="flex h-full w-full min-w-0 max-w-full flex-1 flex-col gap-4 overflow-x-hidden rounded-xl p-4 pb-24 md:pb-4">
                 <CategoriasModal open={categoriasOpen} onOpenChange={setCategoriasOpen} />
                 <ProdutosModal open={produtosOpen} onOpenChange={setProdutosOpen} />
                 <FuncionariosModal open={funcionariosOpen} onOpenChange={setFuncionariosOpen} />
                 <PageTitle
                     title="Extrato Financeiro de Contas"
+                    mobileTitle="Extrato"
                     subtitle="Visualize e gerencie os lançamentos da sua conta"
                     actions={
                         <>
                             <button
                                 type="button"
-                                className="hidden md:inline-flex items-center gap-3 rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-base font-medium text-teal-700 hover:bg-teal-100 dark:border-teal-800 dark:bg-teal-900/30 dark:text-teal-300"
+                                className="inline-flex items-center gap-3 rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-base font-medium text-teal-700 hover:bg-teal-100 dark:border-teal-800 dark:bg-teal-900/30 dark:text-teal-300"
                             >
                                 <File className="h-5 w-5" />
                                 Importar Extrato
@@ -286,7 +291,6 @@ export default function Extrato() {
                                         <DropdownMenuItem onSelect={() => setCategoriasOpen(true)}>Categorias</DropdownMenuItem>
                                         <DropdownMenuItem onSelect={() => setProdutosOpen(true)}>Produtos</DropdownMenuItem>
                                         <DropdownMenuItem onSelect={() => setFuncionariosOpen(true)}>Funcionários</DropdownMenuItem>
-                                        <DropdownMenuItem onSelect={() => setExtratoOpen(true)}><span className="md:hidden flex items-center gap-2 mt-2"><File className="h-5 w-5" />Importar Extrato</span></DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
@@ -305,6 +309,26 @@ export default function Extrato() {
                             </button>
                         </>
                     }
+                />
+                <ExtratoFab
+                    onNovoLancamento={() => {
+                        setExtratoMode('create');
+                        setParcelaEdit(null);
+                        setExtratoOpen(true);
+                    }}
+                    onCadastrarFuncionario={() => {
+                        setQuickCadastroKind('funcionario');
+                        setQuickCadastroOpen(true);
+                    }}
+                    onCadastrarProduto={() => {
+                        setQuickCadastroKind('produto');
+                        setQuickCadastroOpen(true);
+                    }}
+                />
+                <QuickCadastroSheet
+                    open={quickCadastroOpen}
+                    onOpenChange={setQuickCadastroOpen}
+                    kind={quickCadastroKind}
                 />
                 <ExtratoModal open={extratoOpen} onOpenChange={setExtratoOpen} mode={extratoMode} parcela={parcelaEdit} />
                 <ConfirmDeleteModal

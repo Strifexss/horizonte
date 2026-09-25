@@ -12,9 +12,12 @@ interface AsyncSelectProps {
   isClearable?: boolean;
   autoFocus?: boolean;
   selectRef?: React.Ref<{ focus: () => void } | null>;
+  /** When set, prepends a "+ Cadastrar" option if the typed text has no exact match. */
+  creatable?: boolean;
+  formatCreateLabel?: (input: string) => string;
 }
 
-type SelectOption = { value: number | string; label: string; __raw: Option };
+type SelectOption = { value: number | string; label: string; __raw: Option; __isCreate?: boolean };
 
 const selectStyles: StylesConfig<SelectOption, false> = {
   control: (base, state) => ({
@@ -85,6 +88,7 @@ const selectStyles: StylesConfig<SelectOption, false> = {
     color: state.isFocused || state.isSelected ? 'var(--accent-foreground)' : 'var(--popover-foreground)',
     borderRadius: 'calc(var(--radius) - 4px)',
     cursor: 'pointer',
+    fontWeight: state.data?.__isCreate ? 600 : base.fontWeight,
     '&:active': {
       backgroundColor: 'var(--accent)',
     },
@@ -107,11 +111,35 @@ export default function AsyncSelect({
   isClearable = true,
   autoFocus = false,
   selectRef,
+  creatable = false,
+  formatCreateLabel = (input: string) => `+ Cadastrar "${input}"`,
 }: AsyncSelectProps) {
   const wrappedLoad = async (inputValue: string) => {
     try {
       const opts = await loadOptions(inputValue);
-      return opts.map((o) => ({ value: o.id, label: o.nome, __raw: o }));
+      const mapped = opts.map((o) => ({ value: o.id, label: o.nome, __raw: o }));
+      const trimmed = inputValue.trim();
+
+      if (
+        creatable &&
+        trimmed &&
+        !opts.some((o) => String(o.nome).trim().toLowerCase() === trimmed.toLowerCase())
+      ) {
+        const createOption: SelectOption = {
+          value: `__create__:${trimmed}`,
+          label: formatCreateLabel(trimmed),
+          __isCreate: true,
+          __raw: {
+            id: `__create__`,
+            nome: trimmed,
+            __create: true,
+            __createName: trimmed,
+          },
+        };
+        return [createOption, ...mapped];
+      }
+
+      return mapped;
     } catch {
       return [];
     }
@@ -139,6 +167,7 @@ export default function AsyncSelect({
       placeholder={placeholder}
       styles={selectStyles}
       autoFocus={autoFocus}
+      filterOption={null}
     />
   );
 }

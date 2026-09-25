@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useForm } from '@inertiajs/react';
+import { useForm, router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 
 import {
@@ -98,6 +98,11 @@ export default function ExtratoModal({
     const [produtosModalOpen, setProdutosModalOpen] = useState(false);
     const [funcionariosModalOpen, setFuncionariosModalOpen] = useState(false);
     const produtoSelectRef = useRef<{ focus: () => void } | null>(null);
+    const [draftProdutoNome, setDraftProdutoNome] = useState<string | null>(null);
+    const [draftProdutoPreco, setDraftProdutoPreco] = useState('');
+    const [draftFuncionarioNome, setDraftFuncionarioNome] = useState<string | null>(null);
+    const [draftFuncionarioSalario, setDraftFuncionarioSalario] = useState('');
+    const [creatingInline, setCreatingInline] = useState(false);
 
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
         descricao: toInputValue(parcela?.descricao),
@@ -284,12 +289,25 @@ export default function ExtratoModal({
     };
 
     const handleProdutoChange = (val: Option | null) => {
+        if (val && (val as Option & { __create?: boolean }).__create) {
+            const nome = String((val as Option & { __createName?: string }).__createName ?? val.nome);
+            setDraftProdutoNome(nome);
+            setDraftProdutoPreco('');
+            setSelectedProduto({ id: '__draft__', nome });
+            setData('produto_id', null);
+            setData('descricao', 'Compra');
+            return;
+        }
+
+        setDraftProdutoNome(null);
+        setDraftProdutoPreco('');
         setSelectedProduto(val);
         if (val) {
             const preco = val.preco_compra !== undefined && val.preco_compra !== null ? String(val.preco_compra) : null;
             setData('produto_id', Number(val.id));
             setData('funcionario_id', null);
             setSelectedFuncionario(null);
+            setDraftFuncionarioNome(null);
             setData('descricao', 'Compra');
             if (preco !== null) {
                 setData('valor', preco);
@@ -301,12 +319,25 @@ export default function ExtratoModal({
     };
 
     const handleFuncionarioChange = (val: Option | null) => {
+        if (val && (val as Option & { __create?: boolean }).__create) {
+            const nome = String((val as Option & { __createName?: string }).__createName ?? val.nome);
+            setDraftFuncionarioNome(nome);
+            setDraftFuncionarioSalario('');
+            setSelectedFuncionario({ id: '__draft__', nome });
+            setData('funcionario_id', null);
+            setData('descricao', `Salário - ${nome}`);
+            return;
+        }
+
+        setDraftFuncionarioNome(null);
+        setDraftFuncionarioSalario('');
         setSelectedFuncionario(val);
         if (val) {
             const salario = val.salario !== undefined && val.salario !== null ? String(val.salario) : null;
             setData('funcionario_id', Number(val.id));
             setData('produto_id', null);
             setSelectedProduto(null);
+            setDraftProdutoNome(null);
             setData('descricao', `Salário - ${val.nome}`);
             if (salario !== null) {
                 setData('valor', salario);
@@ -315,6 +346,64 @@ export default function ExtratoModal({
         } else {
             setData('funcionario_id', null);
         }
+    };
+
+    const confirmarProdutoInline = () => {
+        if (!draftProdutoNome || !draftProdutoPreco) {
+            return;
+        }
+        setCreatingInline(true);
+        router.post(
+            route('produtos.store'),
+            { nome: draftProdutoNome, preco_compra: draftProdutoPreco },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: (page) => {
+                    setCreatingInline(false);
+                    const criado = (page.props as any)?.flash?.produto_criado;
+                    if (criado) {
+                        setDraftProdutoNome(null);
+                        setDraftProdutoPreco('');
+                        handleProdutoChange({
+                            id: criado.id,
+                            nome: criado.nome,
+                            preco_compra: criado.preco_compra,
+                        });
+                    }
+                },
+                onError: () => setCreatingInline(false),
+            },
+        );
+    };
+
+    const confirmarFuncionarioInline = () => {
+        if (!draftFuncionarioNome || !draftFuncionarioSalario) {
+            return;
+        }
+        setCreatingInline(true);
+        router.post(
+            route('funcionarios.store'),
+            { nome: draftFuncionarioNome, salario: draftFuncionarioSalario },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: (page) => {
+                    setCreatingInline(false);
+                    const criado = (page.props as any)?.flash?.funcionario_criado;
+                    if (criado) {
+                        setDraftFuncionarioNome(null);
+                        setDraftFuncionarioSalario('');
+                        handleFuncionarioChange({
+                            id: criado.id,
+                            nome: criado.nome,
+                            salario: criado.salario,
+                        });
+                    }
+                },
+                onError: () => setCreatingInline(false),
+            },
+        );
     };
 
     const submit = (e: React.FormEvent) => {
@@ -378,6 +467,7 @@ export default function ExtratoModal({
                                                 <AsyncSelect
                                                     selectRef={produtoSelectRef}
                                                     autoFocus
+                                                    creatable
                                                     value={selectedProduto}
                                                     onChange={handleProdutoChange}
                                                     loadOptions={loadProdutos}
@@ -396,6 +486,32 @@ export default function ExtratoModal({
                                                 <Plus className="h-4 w-4" />
                                             </Button>
                                         </div>
+                                        {draftProdutoNome ? (
+                                            <div className="grid gap-2 rounded-md border border-dashed border-amber-300 bg-amber-50/60 p-3 dark:border-amber-800 dark:bg-amber-950/30">
+                                                <Label htmlFor="draft_preco_compra">Preço de Compra — {draftProdutoNome}</Label>
+                                                <div className="flex gap-2">
+                                                    <Input
+                                                        id="draft_preco_compra"
+                                                        type="number"
+                                                        min={0.01}
+                                                        step="0.01"
+                                                        value={draftProdutoPreco}
+                                                        onChange={(e) => setDraftProdutoPreco(e.target.value)}
+                                                        placeholder="0.00"
+                                                        autoFocus
+                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        variant="confirm"
+                                                        disabled={!draftProdutoPreco || creatingInline}
+                                                        loading={creatingInline}
+                                                        onClick={confirmarProdutoInline}
+                                                    >
+                                                        Criar
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ) : null}
                                         <InputError message={errors.produto_id} />
                                     </div>
                                 )}
@@ -406,6 +522,7 @@ export default function ExtratoModal({
                                         <div className="flex items-start gap-2">
                                             <div className="min-w-0 flex-1">
                                                 <AsyncSelect
+                                                    creatable
                                                     value={selectedFuncionario}
                                                     onChange={handleFuncionarioChange}
                                                     loadOptions={loadFuncionarios}
@@ -424,6 +541,32 @@ export default function ExtratoModal({
                                                 <Plus className="h-4 w-4" />
                                             </Button>
                                         </div>
+                                        {draftFuncionarioNome ? (
+                                            <div className="grid gap-2 rounded-md border border-dashed border-sky-300 bg-sky-50/60 p-3 dark:border-sky-800 dark:bg-sky-950/30">
+                                                <Label htmlFor="draft_salario">Salário — {draftFuncionarioNome}</Label>
+                                                <div className="flex gap-2">
+                                                    <Input
+                                                        id="draft_salario"
+                                                        type="number"
+                                                        min={0.01}
+                                                        step="0.01"
+                                                        value={draftFuncionarioSalario}
+                                                        onChange={(e) => setDraftFuncionarioSalario(e.target.value)}
+                                                        placeholder="0.00"
+                                                        autoFocus
+                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        variant="confirm"
+                                                        disabled={!draftFuncionarioSalario || creatingInline}
+                                                        loading={creatingInline}
+                                                        onClick={confirmarFuncionarioInline}
+                                                    >
+                                                        Criar
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ) : null}
                                         <InputError message={errors.funcionario_id} />
                                     </div>
                                 )}
