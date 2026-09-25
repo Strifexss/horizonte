@@ -98,10 +98,16 @@ export default function ExtratoModal({
     const [produtosModalOpen, setProdutosModalOpen] = useState(false);
     const [funcionariosModalOpen, setFuncionariosModalOpen] = useState(false);
     const produtoSelectRef = useRef<{ focus: () => void } | null>(null);
+    const draftProdutoNomeRef = useRef<HTMLInputElement | null>(null);
+    const draftProdutoPrecoRef = useRef<HTMLInputElement | null>(null);
+    const draftFuncionarioNomeRef = useRef<HTMLInputElement | null>(null);
+    const draftFuncionarioSalarioRef = useRef<HTMLInputElement | null>(null);
     const [draftProdutoNome, setDraftProdutoNome] = useState<string | null>(null);
     const [draftProdutoPreco, setDraftProdutoPreco] = useState('');
     const [draftFuncionarioNome, setDraftFuncionarioNome] = useState<string | null>(null);
     const [draftFuncionarioSalario, setDraftFuncionarioSalario] = useState('');
+    const [draftProdutoFocus, setDraftProdutoFocus] = useState<'nome' | 'preco' | null>(null);
+    const [draftFuncionarioFocus, setDraftFuncionarioFocus] = useState<'nome' | 'salario' | null>(null);
     const [creatingInline, setCreatingInline] = useState(false);
 
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
@@ -144,6 +150,40 @@ export default function ExtratoModal({
     useEffect(() => {
         setData('tipo', activeTab);
     }, [activeTab]);
+
+    useEffect(() => {
+        if (!draftProdutoFocus || draftProdutoNome === null) {
+            return;
+        }
+
+        const timer = window.setTimeout(() => {
+            const el =
+                draftProdutoFocus === 'preco' ? draftProdutoPrecoRef.current : draftProdutoNomeRef.current;
+            el?.focus();
+            el?.select?.();
+            setDraftProdutoFocus(null);
+        }, 50);
+
+        return () => window.clearTimeout(timer);
+    }, [draftProdutoFocus, draftProdutoNome]);
+
+    useEffect(() => {
+        if (!draftFuncionarioFocus || draftFuncionarioNome === null) {
+            return;
+        }
+
+        const timer = window.setTimeout(() => {
+            const el =
+                draftFuncionarioFocus === 'salario'
+                    ? draftFuncionarioSalarioRef.current
+                    : draftFuncionarioNomeRef.current;
+            el?.focus();
+            el?.select?.();
+            setDraftFuncionarioFocus(null);
+        }, 50);
+
+        return () => window.clearTimeout(timer);
+    }, [draftFuncionarioFocus, draftFuncionarioNome]);
 
     useEffect(() => {
         if (!open) return;
@@ -290,17 +330,19 @@ export default function ExtratoModal({
 
     const handleProdutoChange = (val: Option | null) => {
         if (val && (val as Option & { __create?: boolean }).__create) {
-            const nome = String((val as Option & { __createName?: string }).__createName ?? val.nome);
+            const nome = String((val as Option & { __createName?: string }).__createName ?? val.nome).trim();
             setDraftProdutoNome(nome);
             setDraftProdutoPreco('');
             setSelectedProduto({ id: '__draft__', nome });
             setData('produto_id', null);
             setData('descricao', 'Compra');
+            setDraftProdutoFocus('preco');
             return;
         }
 
         setDraftProdutoNome(null);
         setDraftProdutoPreco('');
+        setDraftProdutoFocus(null);
         setSelectedProduto(val);
         if (val) {
             const preco = val.preco_compra !== undefined && val.preco_compra !== null ? String(val.preco_compra) : null;
@@ -320,17 +362,19 @@ export default function ExtratoModal({
 
     const handleFuncionarioChange = (val: Option | null) => {
         if (val && (val as Option & { __create?: boolean }).__create) {
-            const nome = String((val as Option & { __createName?: string }).__createName ?? val.nome);
+            const nome = String((val as Option & { __createName?: string }).__createName ?? val.nome).trim();
             setDraftFuncionarioNome(nome);
             setDraftFuncionarioSalario('');
             setSelectedFuncionario({ id: '__draft__', nome });
             setData('funcionario_id', null);
             setData('descricao', `Salário - ${nome}`);
+            setDraftFuncionarioFocus('salario');
             return;
         }
 
         setDraftFuncionarioNome(null);
         setDraftFuncionarioSalario('');
+        setDraftFuncionarioFocus(null);
         setSelectedFuncionario(val);
         if (val) {
             const salario = val.salario !== undefined && val.salario !== null ? String(val.salario) : null;
@@ -411,24 +455,28 @@ export default function ExtratoModal({
     const iniciarCadastroProduto = () => {
         setDraftFuncionarioNome(null);
         setDraftFuncionarioSalario('');
+        setDraftFuncionarioFocus(null);
         setSelectedFuncionario(null);
         setData('funcionario_id', null);
         setSelectedProduto(null);
         setData('produto_id', null);
         setDraftProdutoNome('');
         setDraftProdutoPreco('');
+        setDraftProdutoFocus('nome');
         setData('descricao', 'Compra');
     };
 
     const iniciarCadastroFuncionario = () => {
         setDraftProdutoNome(null);
         setDraftProdutoPreco('');
+        setDraftProdutoFocus(null);
         setSelectedProduto(null);
         setData('produto_id', null);
         setSelectedFuncionario(null);
         setData('funcionario_id', null);
         setDraftFuncionarioNome('');
         setDraftFuncionarioSalario('');
+        setDraftFuncionarioFocus('nome');
         setData('descricao', 'Salário');
     };
 
@@ -533,6 +581,7 @@ export default function ExtratoModal({
                                                     <div className="grid gap-2">
                                                         <Label htmlFor="draft_produto_nome">Nome do produto</Label>
                                                         <Input
+                                                            ref={draftProdutoNomeRef}
                                                             id="draft_produto_nome"
                                                             value={draftProdutoNome}
                                                             onChange={(e) => {
@@ -545,12 +594,12 @@ export default function ExtratoModal({
                                                                 setData('descricao', 'Compra');
                                                             }}
                                                             placeholder="Nome do produto"
-                                                            autoFocus
                                                         />
                                                     </div>
                                                     <div className="grid gap-2">
                                                         <Label htmlFor="draft_preco_compra">Preço de Compra</Label>
                                                         <Input
+                                                            ref={draftProdutoPrecoRef}
                                                             id="draft_preco_compra"
                                                             type="number"
                                                             min={0.01}
@@ -620,6 +669,7 @@ export default function ExtratoModal({
                                                     <div className="grid gap-2">
                                                         <Label htmlFor="draft_funcionario_nome">Nome do funcionário</Label>
                                                         <Input
+                                                            ref={draftFuncionarioNomeRef}
                                                             id="draft_funcionario_nome"
                                                             value={draftFuncionarioNome}
                                                             onChange={(e) => {
@@ -635,12 +685,12 @@ export default function ExtratoModal({
                                                                 );
                                                             }}
                                                             placeholder="Nome do funcionário"
-                                                            autoFocus
                                                         />
                                                     </div>
                                                     <div className="grid gap-2">
                                                         <Label htmlFor="draft_salario">Salário / Remuneração</Label>
                                                         <Input
+                                                            ref={draftFuncionarioSalarioRef}
                                                             id="draft_salario"
                                                             type="number"
                                                             min={0.01}
