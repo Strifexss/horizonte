@@ -349,13 +349,14 @@ export default function ExtratoModal({
     };
 
     const confirmarProdutoInline = () => {
-        if (!draftProdutoNome || !draftProdutoPreco) {
+        const nome = draftProdutoNome?.trim();
+        if (!nome || !draftProdutoPreco) {
             return;
         }
         setCreatingInline(true);
         router.post(
             route('produtos.store'),
-            { nome: draftProdutoNome, preco_compra: draftProdutoPreco },
+            { nome, preco_compra: draftProdutoPreco },
             {
                 preserveScroll: true,
                 preserveState: true,
@@ -378,13 +379,14 @@ export default function ExtratoModal({
     };
 
     const confirmarFuncionarioInline = () => {
-        if (!draftFuncionarioNome || !draftFuncionarioSalario) {
+        const nome = draftFuncionarioNome?.trim();
+        if (!nome || !draftFuncionarioSalario) {
             return;
         }
         setCreatingInline(true);
         router.post(
             route('funcionarios.store'),
-            { nome: draftFuncionarioNome, salario: draftFuncionarioSalario },
+            { nome, salario: draftFuncionarioSalario },
             {
                 preserveScroll: true,
                 preserveState: true,
@@ -404,6 +406,44 @@ export default function ExtratoModal({
                 onError: () => setCreatingInline(false),
             },
         );
+    };
+
+    const iniciarCadastroProduto = () => {
+        setDraftFuncionarioNome(null);
+        setDraftFuncionarioSalario('');
+        setSelectedFuncionario(null);
+        setData('funcionario_id', null);
+        setSelectedProduto(null);
+        setData('produto_id', null);
+        setDraftProdutoNome('');
+        setDraftProdutoPreco('');
+        setData('descricao', 'Compra');
+    };
+
+    const iniciarCadastroFuncionario = () => {
+        setDraftProdutoNome(null);
+        setDraftProdutoPreco('');
+        setSelectedProduto(null);
+        setData('produto_id', null);
+        setSelectedFuncionario(null);
+        setData('funcionario_id', null);
+        setDraftFuncionarioNome('');
+        setDraftFuncionarioSalario('');
+        setData('descricao', 'Salário');
+    };
+
+    const cancelarCadastroProduto = () => {
+        setDraftProdutoNome(null);
+        setDraftProdutoPreco('');
+        setSelectedProduto(null);
+        setData('produto_id', null);
+    };
+
+    const cancelarCadastroFuncionario = () => {
+        setDraftFuncionarioNome(null);
+        setDraftFuncionarioSalario('');
+        setSelectedFuncionario(null);
+        setData('funcionario_id', null);
     };
 
     const submit = (e: React.FormEvent) => {
@@ -461,7 +501,16 @@ export default function ExtratoModal({
 
                                 {showProdutoField && (
                                     <div className="grid gap-2">
-                                        <Label>Produto</Label>
+                                        <div className="flex items-center justify-between gap-2">
+                                            <Label>Produto</Label>
+                                            <button
+                                                type="button"
+                                                className="text-xs font-medium text-amber-700 hover:underline dark:text-amber-300"
+                                                onClick={() => setProdutosModalOpen(true)}
+                                            >
+                                                Ver todos
+                                            </button>
+                                        </div>
                                         <div className="flex items-start gap-2">
                                             <div className="min-w-0 flex-1">
                                                 <AsyncSelect
@@ -471,7 +520,7 @@ export default function ExtratoModal({
                                                     value={selectedProduto}
                                                     onChange={handleProdutoChange}
                                                     loadOptions={loadProdutos}
-                                                    placeholder="Buscar produto..."
+                                                    placeholder="Buscar ou digitar novo produto..."
                                                     isClearable
                                                 />
                                             </div>
@@ -481,33 +530,68 @@ export default function ExtratoModal({
                                                 size="icon"
                                                 className="shrink-0"
                                                 aria-label="Cadastrar produto"
-                                                onClick={() => setProdutosModalOpen(true)}
+                                                title="Cadastrar produto"
+                                                onClick={iniciarCadastroProduto}
                                             >
                                                 <Plus className="h-4 w-4" />
                                             </Button>
                                         </div>
-                                        {draftProdutoNome ? (
+                                        <p className="text-xs text-muted-foreground">
+                                            Digite um nome inexistente e escolha “+ Cadastrar”, ou use o botão +.
+                                        </p>
+                                        {draftProdutoNome !== null ? (
                                             <div className="grid gap-2 rounded-md border border-dashed border-amber-300 bg-amber-50/60 p-3 dark:border-amber-800 dark:bg-amber-950/30">
-                                                <Label htmlFor="draft_preco_compra">Preço de Compra — {draftProdutoNome}</Label>
+                                                <div className="grid gap-2 md:grid-cols-2">
+                                                    <div className="grid gap-2">
+                                                        <Label htmlFor="draft_produto_nome">Nome do produto</Label>
+                                                        <Input
+                                                            id="draft_produto_nome"
+                                                            value={draftProdutoNome}
+                                                            onChange={(e) => {
+                                                                setDraftProdutoNome(e.target.value);
+                                                                setSelectedProduto(
+                                                                    e.target.value
+                                                                        ? { id: '__draft__', nome: e.target.value }
+                                                                        : null,
+                                                                );
+                                                                setData('descricao', 'Compra');
+                                                            }}
+                                                            placeholder="Nome do produto"
+                                                            autoFocus
+                                                        />
+                                                    </div>
+                                                    <div className="grid gap-2">
+                                                        <Label htmlFor="draft_preco_compra">Preço de Compra</Label>
+                                                        <Input
+                                                            id="draft_preco_compra"
+                                                            type="number"
+                                                            min={0.01}
+                                                            step="0.01"
+                                                            value={draftProdutoPreco}
+                                                            onChange={(e) => setDraftProdutoPreco(e.target.value)}
+                                                            placeholder="0.00"
+                                                        />
+                                                    </div>
+                                                </div>
                                                 <div className="flex gap-2">
-                                                    <Input
-                                                        id="draft_preco_compra"
-                                                        type="number"
-                                                        min={0.01}
-                                                        step="0.01"
-                                                        value={draftProdutoPreco}
-                                                        onChange={(e) => setDraftProdutoPreco(e.target.value)}
-                                                        placeholder="0.00"
-                                                        autoFocus
-                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        variant="secondary"
+                                                        className="flex-1"
+                                                        onClick={cancelarCadastroProduto}
+                                                        disabled={creatingInline}
+                                                    >
+                                                        Cancelar
+                                                    </Button>
                                                     <Button
                                                         type="button"
                                                         variant="confirm"
-                                                        disabled={!draftProdutoPreco || creatingInline}
+                                                        className="flex-1"
+                                                        disabled={!draftProdutoNome.trim() || !draftProdutoPreco || creatingInline}
                                                         loading={creatingInline}
                                                         onClick={confirmarProdutoInline}
                                                     >
-                                                        Criar
+                                                        Criar produto
                                                     </Button>
                                                 </div>
                                             </div>
@@ -518,7 +602,16 @@ export default function ExtratoModal({
 
                                 {showFuncionarioField && (
                                     <div className="grid gap-2">
-                                        <Label>Funcionário</Label>
+                                        <div className="flex items-center justify-between gap-2">
+                                            <Label>Funcionário</Label>
+                                            <button
+                                                type="button"
+                                                className="text-xs font-medium text-sky-700 hover:underline dark:text-sky-300"
+                                                onClick={() => setFuncionariosModalOpen(true)}
+                                            >
+                                                Ver todos
+                                            </button>
+                                        </div>
                                         <div className="flex items-start gap-2">
                                             <div className="min-w-0 flex-1">
                                                 <AsyncSelect
@@ -526,7 +619,7 @@ export default function ExtratoModal({
                                                     value={selectedFuncionario}
                                                     onChange={handleFuncionarioChange}
                                                     loadOptions={loadFuncionarios}
-                                                    placeholder="Buscar funcionário..."
+                                                    placeholder="Buscar ou digitar novo funcionário..."
                                                     isClearable
                                                 />
                                             </div>
@@ -536,33 +629,75 @@ export default function ExtratoModal({
                                                 size="icon"
                                                 className="shrink-0"
                                                 aria-label="Cadastrar funcionário"
-                                                onClick={() => setFuncionariosModalOpen(true)}
+                                                title="Cadastrar funcionário"
+                                                onClick={iniciarCadastroFuncionario}
                                             >
                                                 <Plus className="h-4 w-4" />
                                             </Button>
                                         </div>
-                                        {draftFuncionarioNome ? (
+                                        <p className="text-xs text-muted-foreground">
+                                            Digite um nome inexistente e escolha “+ Cadastrar”, ou use o botão +.
+                                        </p>
+                                        {draftFuncionarioNome !== null ? (
                                             <div className="grid gap-2 rounded-md border border-dashed border-sky-300 bg-sky-50/60 p-3 dark:border-sky-800 dark:bg-sky-950/30">
-                                                <Label htmlFor="draft_salario">Salário — {draftFuncionarioNome}</Label>
+                                                <div className="grid gap-2 md:grid-cols-2">
+                                                    <div className="grid gap-2">
+                                                        <Label htmlFor="draft_funcionario_nome">Nome do funcionário</Label>
+                                                        <Input
+                                                            id="draft_funcionario_nome"
+                                                            value={draftFuncionarioNome}
+                                                            onChange={(e) => {
+                                                                setDraftFuncionarioNome(e.target.value);
+                                                                setSelectedFuncionario(
+                                                                    e.target.value
+                                                                        ? { id: '__draft__', nome: e.target.value }
+                                                                        : null,
+                                                                );
+                                                                setData(
+                                                                    'descricao',
+                                                                    e.target.value ? `Salário - ${e.target.value}` : 'Salário',
+                                                                );
+                                                            }}
+                                                            placeholder="Nome do funcionário"
+                                                            autoFocus
+                                                        />
+                                                    </div>
+                                                    <div className="grid gap-2">
+                                                        <Label htmlFor="draft_salario">Salário / Remuneração</Label>
+                                                        <Input
+                                                            id="draft_salario"
+                                                            type="number"
+                                                            min={0.01}
+                                                            step="0.01"
+                                                            value={draftFuncionarioSalario}
+                                                            onChange={(e) => setDraftFuncionarioSalario(e.target.value)}
+                                                            placeholder="0.00"
+                                                        />
+                                                    </div>
+                                                </div>
                                                 <div className="flex gap-2">
-                                                    <Input
-                                                        id="draft_salario"
-                                                        type="number"
-                                                        min={0.01}
-                                                        step="0.01"
-                                                        value={draftFuncionarioSalario}
-                                                        onChange={(e) => setDraftFuncionarioSalario(e.target.value)}
-                                                        placeholder="0.00"
-                                                        autoFocus
-                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        variant="secondary"
+                                                        className="flex-1"
+                                                        onClick={cancelarCadastroFuncionario}
+                                                        disabled={creatingInline}
+                                                    >
+                                                        Cancelar
+                                                    </Button>
                                                     <Button
                                                         type="button"
                                                         variant="confirm"
-                                                        disabled={!draftFuncionarioSalario || creatingInline}
+                                                        className="flex-1"
+                                                        disabled={
+                                                            !draftFuncionarioNome.trim() ||
+                                                            !draftFuncionarioSalario ||
+                                                            creatingInline
+                                                        }
                                                         loading={creatingInline}
                                                         onClick={confirmarFuncionarioInline}
                                                     >
-                                                        Criar
+                                                        Criar funcionário
                                                     </Button>
                                                 </div>
                                             </div>

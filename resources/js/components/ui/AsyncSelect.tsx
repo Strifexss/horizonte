@@ -78,6 +78,10 @@ const selectStyles: StylesConfig<SelectOption, false> = {
     overflow: 'hidden',
     zIndex: 50,
   }),
+  menuPortal: (base) => ({
+    ...base,
+    zIndex: 80,
+  }),
   menuList: (base) => ({
     ...base,
     padding: 4,
@@ -168,6 +172,8 @@ export default function AsyncSelect({
       styles={selectStyles}
       autoFocus={autoFocus}
       filterOption={null}
+      menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+      menuPosition="fixed"
     />
   );
 }
