@@ -142,7 +142,7 @@ export default function AsyncSelect({
             __createName: trimmed,
           },
         };
-        return [createOption, ...mapped];
+        return [...mapped, createOption];
       }
 
       return mapped;
