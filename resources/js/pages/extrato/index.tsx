@@ -255,7 +255,7 @@ export default function Extrato() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Extrato" />
-            <div className="flex h-full w-full min-w-0 max-w-full flex-1 flex-col gap-4 overflow-x-hidden rounded-xl p-4 pb-24 md:pb-4">
+            <div className="flex h-full w-full min-w-0 max-w-full flex-1 flex-col gap-4 overflow-x-hidden rounded-xl p-4 pb-28 md:pb-4">
                 <CategoriasModal open={categoriasOpen} onOpenChange={setCategoriasOpen} />
                 <ProdutosModal open={produtosOpen} onOpenChange={setProdutosOpen} />
                 <FuncionariosModal open={funcionariosOpen} onOpenChange={setFuncionariosOpen} />

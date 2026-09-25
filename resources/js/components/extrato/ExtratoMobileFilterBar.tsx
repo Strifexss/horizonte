@@ -13,8 +13,8 @@ import ExtratoFilterFields, {
     type ExtratoFilterValues,
     type FilterOption,
 } from '@/components/extrato/ExtratoFilterFields';
-import { CalendarDays, ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
+import { CalendarDays, ChevronLeft, ChevronRight, ChevronUp, SlidersHorizontal, X } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 const STATUS_LABELS: Record<string, string> = {
     aberto: 'Em Aberto',
@@ -85,6 +85,8 @@ export default function ExtratoMobileFilterBar({
     const [periodOpen, setPeriodOpen] = useState(false);
     const [draftInicio, setDraftInicio] = useState(values.dataInicio);
     const [draftFim, setDraftFim] = useState(values.dataFim);
+    const [visible, setVisible] = useState(true);
+    const lastScrollY = useRef(0);
 
     useEffect(() => {
         if (periodOpen) {
@@ -92,6 +94,37 @@ export default function ExtratoMobileFilterBar({
             setDraftFim(values.dataFim);
         }
     }, [periodOpen, values.dataInicio, values.dataFim]);
+
+    useEffect(() => {
+        lastScrollY.current = window.scrollY;
+        let ticking = false;
+
+        const onScroll = () => {
+            if (ticking) {
+                return;
+            }
+
+            ticking = true;
+            window.requestAnimationFrame(() => {
+                const currentY = window.scrollY;
+                const delta = currentY - lastScrollY.current;
+
+                if (sheetOpen || periodOpen || currentY < 16) {
+                    setVisible(true);
+                } else if (delta > 6) {
+                    setVisible(false);
+                } else if (delta < -6) {
+                    setVisible(true);
+                }
+
+                lastScrollY.current = currentY;
+                ticking = false;
+            });
+        };
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, [sheetOpen, periodOpen]);
 
     const chips: Chip[] = useMemo(() => {
         const next: Chip[] = [];
@@ -125,64 +158,81 @@ export default function ExtratoMobileFilterBar({
     };
 
     return (
-        <div className="sticky top-0 z-20 -mx-4 border-b border-sidebar-border/70 bg-background/95 px-4 py-2 backdrop-blur supports-backdrop-filter:bg-background/80 md:hidden">
-            <div className="flex min-w-0 items-center gap-2">
-                <div className="flex shrink-0 items-center gap-0.5 rounded-full border border-sidebar-border/70 bg-white dark:bg-slate-900">
+        <>
+            <div
+                className={`fixed inset-x-0 bottom-0 z-30 border-t border-sidebar-border/70 bg-background/95 px-3 py-2 pr-20 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] backdrop-blur transition-transform duration-300 ease-out supports-backdrop-filter:bg-background/90 md:hidden ${
+                    visible ? 'translate-y-0' : 'translate-y-full'
+                }`}
+            >
+                <div className="mx-auto mb-1 flex justify-center">
                     <button
                         type="button"
-                        className="rounded-l-full p-2 text-muted-foreground hover:bg-muted/40"
-                        aria-label="Mês anterior"
-                        onClick={() => shiftMonth(-1)}
+                        className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium text-muted-foreground hover:bg-muted/40"
+                        onClick={() => setSheetOpen(true)}
+                        aria-label="Expandir filtros"
                     >
-                        <ChevronLeft className="h-4 w-4" />
-                    </button>
-                    <button
-                        type="button"
-                        className="inline-flex max-w-[7.5rem] items-center gap-1 px-1 py-1.5 text-xs font-medium"
-                        onClick={() => setPeriodOpen(true)}
-                    >
-                        <CalendarDays className="h-3.5 w-3.5 shrink-0 text-amber-600" />
-                        <span className="truncate">{formatPeriodPill(values.dataInicio, values.dataFim)}</span>
-                    </button>
-                    <button
-                        type="button"
-                        className="rounded-r-full p-2 text-muted-foreground hover:bg-muted/40"
-                        aria-label="Próximo mês"
-                        onClick={() => shiftMonth(1)}
-                    >
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronUp className="h-3.5 w-3.5" />
+                        Expandir
                     </button>
                 </div>
-
-                <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                    {chips.map((chip) => (
+                <div className="flex min-w-0 items-center gap-2">
+                    <div className="flex shrink-0 items-center gap-0.5 rounded-full border border-sidebar-border/70 bg-white dark:bg-slate-900">
                         <button
-                            key={chip.key}
                             type="button"
-                            className="inline-flex shrink-0 items-center gap-1 rounded-full border border-sidebar-border/70 bg-white px-2.5 py-1 text-xs font-medium dark:bg-slate-900"
-                            onClick={() => onClearChip(chip.key)}
+                            className="rounded-l-full p-2 text-muted-foreground hover:bg-muted/40"
+                            aria-label="Mês anterior"
+                            onClick={() => shiftMonth(-1)}
                         >
-                            <span className="max-w-[9rem] truncate">{chip.label}</span>
-                            <X className="h-3 w-3 text-muted-foreground" />
+                            <ChevronLeft className="h-4 w-4" />
                         </button>
-                    ))}
-                </div>
+                        <button
+                            type="button"
+                            className="inline-flex max-w-[7.5rem] items-center gap-1 px-1 py-1.5 text-xs font-medium"
+                            onClick={() => setPeriodOpen(true)}
+                        >
+                            <CalendarDays className="h-3.5 w-3.5 shrink-0 text-amber-600" />
+                            <span className="truncate">{formatPeriodPill(values.dataInicio, values.dataFim)}</span>
+                        </button>
+                        <button
+                            type="button"
+                            className="rounded-r-full p-2 text-muted-foreground hover:bg-muted/40"
+                            aria-label="Próximo mês"
+                            onClick={() => shiftMonth(1)}
+                        >
+                            <ChevronRight className="h-4 w-4" />
+                        </button>
+                    </div>
 
-                <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="shrink-0 gap-1 rounded-full px-2.5"
-                    onClick={() => setSheetOpen(true)}
-                >
-                    <SlidersHorizontal className="h-3.5 w-3.5" />
-                    <span>Filtros</span>
-                    {activeCount > 0 ? (
-                        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-semibold text-white">
-                            {activeCount}
-                        </span>
-                    ) : null}
-                </Button>
+                    <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                        {chips.map((chip) => (
+                            <button
+                                key={chip.key}
+                                type="button"
+                                className="inline-flex shrink-0 items-center gap-1 rounded-full border border-sidebar-border/70 bg-white px-2.5 py-1 text-xs font-medium dark:bg-slate-900"
+                                onClick={() => onClearChip(chip.key)}
+                            >
+                                <span className="max-w-[9rem] truncate">{chip.label}</span>
+                                <X className="h-3 w-3 text-muted-foreground" />
+                            </button>
+                        ))}
+                    </div>
+
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="shrink-0 gap-1 rounded-full px-2.5"
+                        onClick={() => setSheetOpen(true)}
+                    >
+                        <SlidersHorizontal className="h-3.5 w-3.5" />
+                        <span>Filtros</span>
+                        {activeCount > 0 ? (
+                            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-semibold text-white">
+                                {activeCount}
+                            </span>
+                        ) : null}
+                    </Button>
+                </div>
             </div>
 
             <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -279,6 +329,6 @@ export default function ExtratoMobileFilterBar({
                     </SheetFooter>
                 </SheetContent>
             </Sheet>
-        </div>
+        </>
     );
 }
