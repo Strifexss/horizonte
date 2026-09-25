@@ -16,6 +16,10 @@ class FinanceiroSearchDTO extends Dto
 
     public ?string $status = null;
 
+    public ?string $busca = null;
+
+    public int $per_page = 20;
+
     /**
      * @param  array<string, mixed>  $data
      */
@@ -31,6 +35,16 @@ class FinanceiroSearchDTO extends Dto
             $data['categoria_id'] = (int) $data['categoria_id'];
         } else {
             $data['categoria_id'] = null;
+        }
+
+        $perPage = isset($data['per_page']) ? (int) $data['per_page'] : 20;
+        $data['per_page'] = in_array($perPage, [10, 20, 25, 50], true) ? $perPage : 20;
+
+        if (array_key_exists('busca', $data)) {
+            $busca = is_string($data['busca']) ? trim($data['busca']) : '';
+            $data['busca'] = $busca !== '' ? $busca : null;
+        } else {
+            $data['busca'] = null;
         }
 
         return parent::fromArray($data);

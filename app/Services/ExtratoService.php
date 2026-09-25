@@ -25,6 +25,14 @@ class ExtratoService extends ServiceAbstract implements ExtratoServiceInterface
         return $this->repository->indexParcelas($data instanceof FinanceiroSearchDTO ? $data : null);
     }
 
+    public function resumo($data = null): array
+    {
+        /** @var FinanceiroRepositoryInterface $repo */
+        $repo = $this->repository;
+
+        return $repo->resumoParcelas($data instanceof FinanceiroSearchDTO ? $data : null);
+    }
+
     public function show(int $id)
     {
         return $this->repository->find($id);

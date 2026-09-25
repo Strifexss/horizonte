@@ -45,12 +45,17 @@ function queryNome(key: string): string {
     return new URLSearchParams(window.location.search).get(key) ?? '';
 }
 
-function buildPayload(values: ExtratoFilterValues): Record<string, string | number> {
+function buildPayload(
+    values: ExtratoFilterValues,
+    extras: { busca?: string; per_page?: number } = {},
+): Record<string, string | number> {
     const payload: Record<string, string | number> = {
         tipo_data: values.tipoData,
         data_inicio: values.dataInicio,
         data_fim: values.dataFim,
         status: values.status,
+        per_page: extras.per_page ?? 20,
+        page: 1,
     };
 
     if (values.conta) {
@@ -63,12 +68,17 @@ function buildPayload(values: ExtratoFilterValues): Record<string, string | numb
         payload.categoria_nome = values.categoria.nome;
     }
 
+    if (extras.busca) {
+        payload.busca = extras.busca;
+    }
+
     return payload;
 }
 
 export default function ExtratoFilters() {
     const { props } = usePage();
-    const filters = ((props as { filters?: FiltersProps }).filters ?? {}) as FiltersProps;
+    const filters = ((props as { filters?: FiltersProps & { busca?: string; per_page?: number } }).filters ??
+        {}) as FiltersProps & { busca?: string; per_page?: number };
 
     const initialValues = useMemo<ExtratoFilterValues>(
         () => ({
@@ -113,9 +123,14 @@ export default function ExtratoFilters() {
         return res.json();
     };
 
+    const extras = () => ({
+        busca: filters.busca,
+        per_page: filters.per_page ?? 20,
+    });
+
     const apply = (override?: ExtratoFilterValues) => {
         const next = override ?? values;
-        router.get(route('extrato.index'), buildPayload(next), { preserveScroll: true });
+        router.get(route('extrato.index'), buildPayload(next, extras()), { preserveScroll: true });
     };
 
     const clearAll = () => {
@@ -128,7 +143,9 @@ export default function ExtratoFilters() {
             status: 'todos',
         };
         setValues(next);
-        router.get(route('extrato.index'), buildPayload(next), { preserveScroll: true });
+        router.get(route('extrato.index'), buildPayload(next, { per_page: extras().per_page }), {
+            preserveScroll: true,
+        });
     };
 
     const clearChip = (key: string) => {
@@ -146,7 +163,7 @@ export default function ExtratoFilters() {
             next.tipoData = 'vencimento';
         }
         setValues(next);
-        router.get(route('extrato.index'), buildPayload(next), { preserveScroll: true });
+        router.get(route('extrato.index'), buildPayload(next, extras()), { preserveScroll: true });
     };
 
     return (

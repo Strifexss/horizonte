@@ -23,6 +23,9 @@ class FinanceiroSearchRequest extends FormRequest
             'status' => $this->filled('status') ? $this->input('status') : 'todos',
             'conta_id' => $this->filled('conta_id') ? $this->input('conta_id') : null,
             'categoria_id' => $this->filled('categoria_id') ? $this->input('categoria_id') : null,
+            'busca' => $this->filled('busca') ? $this->input('busca') : null,
+            'per_page' => $this->filled('per_page') ? $this->input('per_page') : 20,
+            'page' => $this->filled('page') ? $this->input('page') : 1,
         ]);
     }
 
@@ -38,6 +41,9 @@ class FinanceiroSearchRequest extends FormRequest
             'conta_id' => ['nullable', 'integer', 'exists:conta,id'],
             'categoria_id' => ['nullable', 'integer', 'exists:categoria,id'],
             'status' => ['required', 'string', 'in:todos,aberto,pago,parcial'],
+            'busca' => ['nullable', 'string', 'max:255'],
+            'per_page' => ['required', 'integer', 'in:10,20,25,50'],
+            'page' => ['nullable', 'integer', 'min:1'],
         ];
     }
 }

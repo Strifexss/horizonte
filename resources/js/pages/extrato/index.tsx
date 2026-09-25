@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { usePage, router } from '@inertiajs/react';
 import { CreditCard, ChevronDown, Plus, BarChart2, ArrowUpRight, ArrowDownRight, Grid, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 // import { File } from 'lucide-react';
@@ -63,63 +63,103 @@ function tipoDaParcela(p: { financeiro?: { tipo?: string } | null }): string {
 
 export default function Extrato() {
     const { props } = usePage();
+    const filters = ((props as any).filters ?? {}) as {
+        tipo_data?: string;
+        data_inicio?: string;
+        data_fim?: string;
+        conta_id?: number;
+        categoria_id?: number;
+        status?: string;
+        busca?: string;
+        per_page?: number;
+    };
+    const resumo = (props as any).resumo as
+        | {
+              counts?: { todos: number; aberto: number; pago: number; parcial: number };
+              total_credits?: number;
+              total_debits?: number;
+          }
+        | undefined;
     const parcelas = (props as any).parcelas;
-    const parcelasArray: any[] | null = Array.isArray(parcelas) ? parcelas : (parcelas && Array.isArray(parcelas.data) ? parcelas.data : null);
+    const parcelasArray: any[] | null = Array.isArray(parcelas)
+        ? parcelas
+        : parcelas && Array.isArray(parcelas.data)
+          ? parcelas.data
+          : null;
+    const paginationMeta = parcelas && !Array.isArray(parcelas) ? (parcelas.meta ?? null) : null;
     const [categoriasOpen, setCategoriasOpen] = useState(false);
     const [produtosOpen, setProdutosOpen] = useState(false);
     const [funcionariosOpen, setFuncionariosOpen] = useState(false);
     const [extratoOpen, setExtratoOpen] = useState(false);
     const [extratoMode, setExtratoMode] = useState<'create' | 'edit'>('create');
     const [parcelaEdit, setParcelaEdit] = useState<ExtratoModalParcela | null>(null);
-    const [busca, setBusca] = useState('');
-    const [statusTab, setStatusTab] = useState<ExtratoStatusTab>('todos');
+    const [busca, setBusca] = useState(String(filters.busca ?? ''));
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [parcelaToDelete, setParcelaToDelete] = useState<any>(null);
     const [deleting, setDeleting] = useState(false);
 
-    const counts = useMemo(() => {
-        const list = parcelasArray ?? [];
-        const next = { todos: list.length, aberto: 0, pago: 0, parcial: 0 };
-        for (const p of list) {
-            next[statusDaParcela(p)] += 1;
+    const statusTab = (filters.status as ExtratoStatusTab) || 'todos';
+    const perPage = Number(paginationMeta?.per_page ?? filters.per_page ?? 20);
+
+    React.useEffect(() => {
+        setBusca(String(filters.busca ?? ''));
+    }, [filters.busca]);
+
+    const buildQuery = (override: Record<string, string | number | null | undefined> = {}) => {
+        const payload: Record<string, string | number> = {
+            tipo_data: String(override.tipo_data ?? filters.tipo_data ?? 'vencimento'),
+            data_inicio: String(override.data_inicio ?? filters.data_inicio ?? ''),
+            data_fim: String(override.data_fim ?? filters.data_fim ?? ''),
+            status: String(override.status ?? filters.status ?? 'todos'),
+            per_page: Number(override.per_page ?? filters.per_page ?? 20),
+            page: Number(override.page ?? 1),
+        };
+
+        const contaId = override.conta_id !== undefined ? override.conta_id : filters.conta_id;
+        const categoriaId = override.categoria_id !== undefined ? override.categoria_id : filters.categoria_id;
+        const buscaValue = override.busca !== undefined ? override.busca : filters.busca;
+
+        if (contaId) {
+            payload.conta_id = Number(contaId);
+        }
+        if (categoriaId) {
+            payload.categoria_id = Number(categoriaId);
+        }
+        if (buscaValue) {
+            payload.busca = String(buscaValue);
         }
 
-        return next;
-    }, [parcelasArray]);
+        return payload;
+    };
 
-    const parcelasFiltradas = useMemo(() => {
-        const list = parcelasArray ?? [];
-        const q = busca.trim().toLowerCase();
-
-        return list.filter((p: any) => {
-            if (statusTab !== 'todos' && statusDaParcela(p) !== statusTab) {
-                return false;
-            }
-            if (q && !String(p.descricao ?? '').toLowerCase().includes(q)) {
-                return false;
-            }
-
-            return true;
+    const visitExtrato = (override: Record<string, string | number | null | undefined> = {}) => {
+        router.get(route('extrato.index'), buildQuery(override), {
+            preserveScroll: true,
+            preserveState: true,
+            replace: true,
         });
-    }, [parcelasArray, busca, statusTab]);
+    };
 
-    const { totalCredits, totalDebits, openingBalance, saldoTotal } = useMemo(() => {
-        const list = parcelasArray ?? [];
-        const entradas = list
-            .filter((p: any) => tipoDaParcela(p) === 'RECEITA')
-            .reduce((sum: number, p: any) => sum + Number(p.valor ?? 0), 0);
-        const saidas = list
-            .filter((p: any) => tipoDaParcela(p) === 'DESPESA')
-            .reduce((sum: number, p: any) => sum + Number(p.valor ?? 0), 0);
-        const anterior = 0;
+    React.useEffect(() => {
+        const trimmed = busca.trim();
+        const current = String(filters.busca ?? '').trim();
+        if (trimmed === current) {
+            return;
+        }
 
-        return {
-            totalCredits: entradas,
-            totalDebits: saidas,
-            openingBalance: anterior,
-            saldoTotal: anterior + entradas - saidas,
-        };
-    }, [parcelasArray]);
+        const timer = window.setTimeout(() => {
+            visitExtrato({ busca: trimmed || null, page: 1 });
+        }, 400);
+
+        return () => window.clearTimeout(timer);
+    }, [busca]);
+
+    const counts = resumo?.counts ?? { todos: 0, aberto: 0, pago: 0, parcial: 0 };
+
+    const totalCredits = Number(resumo?.total_credits ?? 0);
+    const totalDebits = Number(resumo?.total_debits ?? 0);
+    const openingBalance = 0;
+    const saldoTotal = openingBalance + totalCredits - totalDebits;
 
     const columns = [
         { key: 'data_competencia', label: 'COMP.', thClassName: 'w-24', render: (p: any) => formatDateISO(p.data_competencia) },
@@ -375,13 +415,13 @@ export default function Extrato() {
                                 busca={busca}
                                 onBuscaChange={setBusca}
                                 status={statusTab}
-                                onStatusChange={setStatusTab}
+                                onStatusChange={(status) => visitExtrato({ status, page: 1 })}
                                 counts={counts}
                             />
                         </div>
                         <div className="md:hidden p-3">
                             <ExtratoMobileCardList
-                                data={parcelasFiltradas}
+                                data={parcelasArray ?? []}
                                 onEdit={(p) => {
                                     setExtratoMode('edit');
                                     setParcelaEdit(p as ExtratoModalParcela);
@@ -399,7 +439,7 @@ export default function Extrato() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {parcelasFiltradas.map((item: any, rowIndex: number) => (
+                                    {(parcelasArray ?? []).map((item: any, rowIndex: number) => (
                                         <tr key={item.id ?? rowIndex} className="border-t hover:bg-slate-50/50 dark:hover:bg-slate-700/60">
                                             {columns.map((c) => (
                                                 <td key={c.key} className="px-4 py-3 align-top">
@@ -414,7 +454,16 @@ export default function Extrato() {
                     </div>
                 )}
 
-                <ExtratoFooter showing={parcelasArray ? parcelasArray.length : 0} total={83} />
+                <ExtratoFooter
+                    from={paginationMeta?.from ?? null}
+                    to={paginationMeta?.to ?? null}
+                    total={Number(paginationMeta?.total ?? counts.todos ?? 0)}
+                    currentPage={Number(paginationMeta?.current_page ?? 1)}
+                    lastPage={Number(paginationMeta?.last_page ?? 1)}
+                    perPage={perPage}
+                    onPageChange={(page) => visitExtrato({ page })}
+                    onPerPageChange={(nextPerPage) => visitExtrato({ per_page: nextPerPage, page: 1 })}
+                />
             </div>
         </AppLayout>
     );

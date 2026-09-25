@@ -31,6 +31,7 @@ class ExtratoController extends FinanceiroAbstractController
             'categorias' => Inertia::lazy(fn () => $this->categoriaService->index()),
             'produtos' => Inertia::lazy(fn () => $this->produtosService->index()),
             'funcionarios' => Inertia::lazy(fn () => $this->funcionariosService->index()),
+            'resumo' => Inertia::defer(fn () => $this->extratoService->resumo($filters)),
             'parcelas' => Inertia::defer(fn () => FinanceiroParcelaResource::collection($this->extratoService->index($filters))),
         ]);
     }
