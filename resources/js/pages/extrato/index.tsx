@@ -167,11 +167,11 @@ export default function Extrato() {
         {
             key: 'descricao',
             label: 'DESCRIÇÃO',
-            thClassName: 'w-40',
+            thClassName: 'min-w-[12rem] w-auto',
             render: (p: any) => {
                 const isReceita = tipoDaParcela(p) === 'RECEITA';
                 return (
-                    <div className="flex items-center gap-2 min-w-0 max-w-full">
+                    <div className="flex min-w-0 items-center gap-2">
                         <span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${isReceita ? 'bg-green-50 dark:bg-green-900/30 text-green-600' : 'bg-red-50 dark:bg-red-900/30 text-red-600'}`}>
                             {isReceita ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
                         </span>
@@ -183,7 +183,7 @@ export default function Extrato() {
         {
             key: 'produto',
             label: 'PRODUTO',
-            thClassName: 'min-w-0 flex-1',
+            thClassName: 'w-36',
             render: (p: any) => {
                 const nome = p.produto?.nome;
                 return nome ? <span className="truncate">{nome}</span> : '';
@@ -192,7 +192,7 @@ export default function Extrato() {
         {
             key: 'categoria',
             label: 'CATEGORIA',
-            thClassName: 'w-40',
+            thClassName: 'w-36',
             render: (p: any) => {
                 const nome = p.categoria?.nome;
                 const isReceita = tipoDaParcela(p) === 'RECEITA';
@@ -430,7 +430,7 @@ export default function Extrato() {
                             />
                         </div>
                         <div className="hidden md:block overflow-x-auto p-4">
-                            <table className="w-full table-fixed text-sm border-collapse">
+                            <table className="w-full table-auto text-sm border-collapse">
                                 <thead>
                                     <tr className="text-left text-xs text-muted-foreground bg-transparent">
                                         {columns.map((c) => (
@@ -442,7 +442,7 @@ export default function Extrato() {
                                     {(parcelasArray ?? []).map((item: any, rowIndex: number) => (
                                         <tr key={item.id ?? rowIndex} className="border-t hover:bg-slate-50/50 dark:hover:bg-slate-700/60">
                                             {columns.map((c) => (
-                                                <td key={c.key} className="px-4 py-3 align-top">
+                                                <td key={c.key} className={`px-4 py-3 align-top ${c.thClassName ?? ''}`}>
                                                     {c.render ? c.render(item) : String(item[c.key] ?? '')}
                                                 </td>
                                             ))}
