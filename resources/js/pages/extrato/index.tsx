@@ -74,8 +74,6 @@ export default function Extrato() {
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [parcelaToDelete, setParcelaToDelete] = useState<any>(null);
     const [deleting, setDeleting] = useState(false);
-    const [quickCadastroOpen, setQuickCadastroOpen] = useState(false);
-    const [quickCadastroKind, setQuickCadastroKind] = useState<QuickCadastroKind>('produto');
 
     const counts = useMemo(() => {
         const list = parcelasArray ?? [];
@@ -315,19 +313,8 @@ export default function Extrato() {
                         setParcelaEdit(null);
                         setExtratoOpen(true);
                     }}
-                    onCadastrarFuncionario={() => {
-                        setQuickCadastroKind('funcionario');
-                        setQuickCadastroOpen(true);
-                    }}
-                    onCadastrarProduto={() => {
-                        setQuickCadastroKind('produto');
-                        setQuickCadastroOpen(true);
-                    }}
-                />
-                <QuickCadastroSheet
-                    open={quickCadastroOpen}
-                    onOpenChange={setQuickCadastroOpen}
-                    kind={quickCadastroKind}
+                    onCadastrarFuncionario={() => setFuncionariosOpen(true)}
+                    onCadastrarProduto={() => setProdutosOpen(true)}
                 />
                 <ExtratoModal open={extratoOpen} onOpenChange={setExtratoOpen} mode={extratoMode} parcela={parcelaEdit} />
                 <ConfirmDeleteModal
