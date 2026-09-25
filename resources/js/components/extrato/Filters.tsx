@@ -109,7 +109,7 @@ export default function ExtratoFilters() {
 
     return (
         <div className="rounded-lg border border-sidebar-border/70 bg-white p-4 shadow-sm dark:bg-slate-900">
-            <div className="grid items-end gap-3 md:grid-cols-8">
+            <div className="grid min-w-0 items-end gap-3 md:grid-cols-8">
                 <div className="flex flex-col gap-1">
                     <Label htmlFor="tipo-data">Tipo de data</Label>
                     <Select value={tipoData} onValueChange={setTipoData}>
@@ -123,19 +123,21 @@ export default function ExtratoFilters() {
                     </Select>
                 </div>
 
-                <div className="flex flex-col gap-1 md:col-span-3">
+                <div className="flex min-w-0 flex-col gap-1 md:col-span-3">
                     <Label>Período</Label>
-                    <div className="flex items-center gap-2">
+                    <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
                         <Input
                             id="data-inicio"
                             type="date"
+                            className="min-w-0 w-full"
                             value={dataInicio}
                             onChange={(e) => setDataInicio(e.target.value)}
                         />
-                        <span className="text-sm text-muted-foreground">-</span>
+                        <span className="hidden text-sm text-muted-foreground sm:inline">-</span>
                         <Input
                             id="data-fim"
                             type="date"
+                            className="min-w-0 w-full"
                             value={dataFim}
                             onChange={(e) => setDataFim(e.target.value)}
                         />
