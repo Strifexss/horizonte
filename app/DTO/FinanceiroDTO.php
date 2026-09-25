@@ -25,4 +25,6 @@ class FinanceiroDTO extends Dto
     public int $qtd_parcelas;
 
     public ?int $produto_id = null;
+
+    public ?int $funcionario_id = null;
 }

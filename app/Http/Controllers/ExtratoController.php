@@ -9,6 +9,7 @@ use App\Http\Requests\FinanceiroSearchRequest;
 use App\Http\Resources\FinanceiroParcelaResource;
 use App\Services\Interfaces\CategoriaServiceInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
+use App\Services\Interfaces\FuncionariosServiceInterface;
 use App\Services\Interfaces\ProdutosServiceInterface;
 use Inertia\Inertia;
 
@@ -17,7 +18,8 @@ class ExtratoController extends FinanceiroAbstractController
     public function __construct(
         private CategoriaServiceInterface $categoriaService,
         private ExtratoServiceInterface $extratoService,
-        private ProdutosServiceInterface $produtosService
+        private ProdutosServiceInterface $produtosService,
+        private FuncionariosServiceInterface $funcionariosService
     ) {}
 
     public function index(FinanceiroSearchRequest $request)
@@ -28,6 +30,7 @@ class ExtratoController extends FinanceiroAbstractController
             'filters' => $filters->all(),
             'categorias' => Inertia::lazy(fn () => $this->categoriaService->index()),
             'produtos' => Inertia::lazy(fn () => $this->produtosService->index()),
+            'funcionarios' => Inertia::lazy(fn () => $this->funcionariosService->index()),
             'parcelas' => Inertia::defer(fn () => FinanceiroParcelaResource::collection($this->extratoService->index($filters))),
         ]);
     }

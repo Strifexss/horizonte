@@ -26,6 +26,7 @@ class FinanceiroRequest extends FormRequest
             'tipo' => ['required', 'string', 'in:RECEITA,DESPESA'],
             'categoria_id' => ['nullable', 'exists:categoria,id'],
             'produto_id' => ['nullable', 'integer', 'exists:produto,id'],
+            'funcionario_id' => ['nullable', 'integer', 'exists:funcionario,id'],
             'conta_id' => ['required', 'exists:conta,id'],
             'usuario_id' => ['nullable', 'exists:users,id'],
             'data_vencimento' => ['required', 'date'],

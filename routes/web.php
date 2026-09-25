@@ -4,6 +4,7 @@ use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ContasController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExtratoController;
+use App\Http\Controllers\FuncionariosController;
 use App\Http\Controllers\ParcelaController;
 use App\Http\Controllers\ProdutosController;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +51,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [ProdutosController::class, 'store'])->name('produtos.store');
         Route::put('/{id}', [ProdutosController::class, 'update'])->name('produtos.update');
         Route::delete('/{id}', [ProdutosController::class, 'destroy'])->name('produtos.destroy');
+    });
+
+    Route::group(['prefix' => 'funcionarios'], function () {
+        Route::get('/', [FuncionariosController::class, 'index'])->name('funcionarios');
+        Route::get('/autocomplete', [FuncionariosController::class, 'autocomplete'])->name('funcionarios.autocomplete');
+        Route::post('/', [FuncionariosController::class, 'store'])->name('funcionarios.store');
+        Route::put('/{id}', [FuncionariosController::class, 'update'])->name('funcionarios.update');
+        Route::delete('/{id}', [FuncionariosController::class, 'destroy'])->name('funcionarios.destroy');
     });
 });
 

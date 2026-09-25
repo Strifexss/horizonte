@@ -16,6 +16,7 @@ class CategoriaSeeder extends Seeder
             ['nome' => 'Receita', 'tipo' => 'receita'],
             ['nome' => 'Despesa', 'tipo' => 'despesa'],
             ['nome' => 'PRODUTO', 'tipo' => 'despesa'],
+            ['nome' => 'SALÁRIO', 'tipo' => 'despesa'],
         ];
 
         foreach ($padroes as $padrao) {

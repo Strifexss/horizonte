@@ -26,6 +26,8 @@ class FinanceiroParcelaResource extends JsonResource
             'categoria' => $this->categoria,
             'produto' => $this->produto,
             'produto_id' => $this->produto_id,
+            'funcionario' => $this->funcionario,
+            'funcionario_id' => $this->funcionario_id,
             'conta' => $this->conta,
             'financeiro' => $this->financeiro,
         ];

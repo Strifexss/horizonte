@@ -21,8 +21,9 @@ class FinanceiroParcelaService extends ServiceAbstract implements FinanceiroParc
     public function update($id, $dto)
     {
         $data = $dto->all();
-        // all() remove nulls; produto_id precisa poder ser limpo explicitamente.
+        // all() remove nulls; FKs opcionais precisam poder ser limpas explicitamente.
         $data['produto_id'] = $dto->produto_id;
+        $data['funcionario_id'] = $dto->funcionario_id;
 
         return $this->repository->update($id, $data);
     }

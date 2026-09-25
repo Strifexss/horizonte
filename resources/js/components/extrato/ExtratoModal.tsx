@@ -17,8 +17,15 @@ import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import AsyncSelect from '@/components/ui/AsyncSelect';
 import ProdutosModal from '@/components/produtos/ProdutosModal';
+import FuncionariosModal from '@/components/funcionarios/FuncionariosModal';
 
-type Option = { id: number | string; nome: string; preco_compra?: number | string; padrao?: number | null };
+type Option = {
+    id: number | string;
+    nome: string;
+    preco_compra?: number | string;
+    salario?: number | string;
+    padrao?: number | null;
+};
 
 export type ExtratoModalMode = 'create' | 'edit';
 
@@ -34,6 +41,8 @@ export type ExtratoModalParcela = {
     categoria_id?: number | string | null;
     produto?: { id: number | string; nome: string; preco_compra?: number | string } | null;
     produto_id?: number | string | null;
+    funcionario?: { id: number | string; nome: string; salario?: number | string } | null;
+    funcionario_id?: number | string | null;
     conta?: { id: number | string; nome: string } | null;
     conta_id?: number | string | null;
     financeiro?: {
@@ -60,6 +69,11 @@ function isCategoriaProduto(cat: Option | null | undefined): boolean {
     return String(cat.nome).toUpperCase() === 'PRODUTO' && Number(cat.padrao ?? 0) === 1;
 }
 
+function isCategoriaSalario(cat: Option | null | undefined): boolean {
+    if (!cat) return false;
+    return String(cat.nome).toUpperCase() === 'SALÁRIO' && Number(cat.padrao ?? 0) === 1;
+}
+
 export default function ExtratoModal({
     open,
     onOpenChange,
@@ -80,7 +94,9 @@ export default function ExtratoModal({
     const [selectedConta, setSelectedConta] = useState<Option | null>(null);
     const [selectedCategoria, setSelectedCategoria] = useState<Option | null>(null);
     const [selectedProduto, setSelectedProduto] = useState<Option | null>(null);
+    const [selectedFuncionario, setSelectedFuncionario] = useState<Option | null>(null);
     const [produtosModalOpen, setProdutosModalOpen] = useState(false);
+    const [funcionariosModalOpen, setFuncionariosModalOpen] = useState(false);
 
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
         descricao: toInputValue(parcela?.descricao),
@@ -92,10 +108,12 @@ export default function ExtratoModal({
         id: parcela?.id ?? null,
         categoria_id: (parcela?.categoria_id ?? null) as number | null,
         produto_id: (parcela?.produto_id ?? null) as number | null,
+        funcionario_id: (parcela?.funcionario_id ?? null) as number | null,
         conta_id: (parcela?.conta_id ?? null) as number | null,
     });
 
     const showProdutoField = isCategoriaProduto(selectedCategoria);
+    const showFuncionarioField = isCategoriaSalario(selectedCategoria);
 
     const applyProdutoPadrao = async () => {
         const categorias = await loadCategorias('');
@@ -122,9 +140,11 @@ export default function ExtratoModal({
         const contaId = (parcela?.conta_id ?? parcela?.conta?.id ?? null) as number | string | null;
         const categoriaId = (parcela?.categoria_id ?? parcela?.categoria?.id ?? null) as number | string | null;
         const produtoId = (parcela?.produto_id ?? parcela?.produto?.id ?? null) as number | string | null;
+        const funcionarioId = (parcela?.funcionario_id ?? parcela?.funcionario?.id ?? null) as number | string | null;
         const contaNome = parcela?.conta?.nome ?? null;
         const categoriaNome = parcela?.categoria?.nome ?? null;
         const produtoNome = parcela?.produto?.nome ?? null;
+        const funcionarioNome = parcela?.funcionario?.nome ?? null;
 
         setActiveTab(initialTab);
         setSelectedConta(contaId ? { id: contaId, nome: contaNome ?? String(contaId) } : null);
@@ -146,6 +166,15 @@ export default function ExtratoModal({
                   }
                 : null,
         );
+        setSelectedFuncionario(
+            funcionarioId
+                ? {
+                      id: funcionarioId,
+                      nome: funcionarioNome ?? String(funcionarioId),
+                      salario: parcela?.funcionario?.salario,
+                  }
+                : null,
+        );
 
         if (isEdit) {
             setData({
@@ -157,6 +186,7 @@ export default function ExtratoModal({
                 tipo: initialTab,
                 categoria_id: categoriaId ? Number(categoriaId) : null,
                 produto_id: produtoId ? Number(produtoId) : null,
+                funcionario_id: funcionarioId ? Number(funcionarioId) : null,
                 conta_id: contaId ? Number(contaId) : null,
                 id: parcela?.id ?? null,
             });
@@ -167,7 +197,9 @@ export default function ExtratoModal({
             setData('qtd_parcelas', 1);
             setData('tipo', initialTab);
             setData('produto_id', null);
+            setData('funcionario_id', null);
             setSelectedProduto(null);
+            setSelectedFuncionario(null);
             if (initialTab === 'DESPESA') {
                 void applyProdutoPadrao();
             }
@@ -183,6 +215,8 @@ export default function ExtratoModal({
             setData('categoria_id', null);
             setSelectedProduto(null);
             setData('produto_id', null);
+            setSelectedFuncionario(null);
+            setData('funcionario_id', null);
         }
     }, [activeTab]);
 
@@ -205,6 +239,12 @@ export default function ExtratoModal({
         return res.json();
     };
 
+    const loadFuncionarios = async (q: string = '') => {
+        const res = await fetch(`/funcionarios/autocomplete?q=${encodeURIComponent(q)}`);
+        if (!res.ok) return [];
+        return res.json();
+    };
+
     const handleCategoriaChange = (val: Option | null) => {
         setSelectedCategoria(val);
         setData('categoria_id', val ? Number(val.id) : null);
@@ -213,6 +253,11 @@ export default function ExtratoModal({
             setSelectedProduto(null);
             setData('produto_id', null);
         }
+
+        if (!isCategoriaSalario(val)) {
+            setSelectedFuncionario(null);
+            setData('funcionario_id', null);
+        }
     };
 
     const handleProdutoChange = (val: Option | null) => {
@@ -220,6 +265,8 @@ export default function ExtratoModal({
         if (val) {
             const preco = val.preco_compra !== undefined && val.preco_compra !== null ? String(val.preco_compra) : null;
             setData('produto_id', Number(val.id));
+            setData('funcionario_id', null);
+            setSelectedFuncionario(null);
             setData('descricao', 'Compra');
             if (preco !== null) {
                 setData('valor', preco);
@@ -227,6 +274,23 @@ export default function ExtratoModal({
             }
         } else {
             setData('produto_id', null);
+        }
+    };
+
+    const handleFuncionarioChange = (val: Option | null) => {
+        setSelectedFuncionario(val);
+        if (val) {
+            const salario = val.salario !== undefined && val.salario !== null ? String(val.salario) : null;
+            setData('funcionario_id', Number(val.id));
+            setData('produto_id', null);
+            setSelectedProduto(null);
+            setData('descricao', `Salário - ${val.nome}`);
+            if (salario !== null) {
+                setData('valor', salario);
+                setData('valor_pago', salario);
+            }
+        } else {
+            setData('funcionario_id', null);
         }
     };
 
@@ -308,6 +372,34 @@ export default function ExtratoModal({
                                             </Button>
                                         </div>
                                         <InputError message={errors.produto_id} />
+                                    </div>
+                                )}
+
+                                {showFuncionarioField && (
+                                    <div className="grid gap-2">
+                                        <Label>Funcionário</Label>
+                                        <div className="flex items-start gap-2">
+                                            <div className="min-w-0 flex-1">
+                                                <AsyncSelect
+                                                    value={selectedFuncionario}
+                                                    onChange={handleFuncionarioChange}
+                                                    loadOptions={loadFuncionarios}
+                                                    placeholder="Buscar funcionário..."
+                                                    isClearable
+                                                />
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                variant="secondary"
+                                                size="icon"
+                                                className="shrink-0"
+                                                aria-label="Cadastrar funcionário"
+                                                onClick={() => setFuncionariosModalOpen(true)}
+                                            >
+                                                <Plus className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                        <InputError message={errors.funcionario_id} />
                                     </div>
                                 )}
 
@@ -447,6 +539,17 @@ export default function ExtratoModal({
                         id: produto.id,
                         nome: produto.nome,
                         preco_compra: produto.preco_compra,
+                    });
+                }}
+            />
+            <FuncionariosModal
+                open={funcionariosModalOpen}
+                onOpenChange={setFuncionariosModalOpen}
+                onCreated={(funcionario) => {
+                    handleFuncionarioChange({
+                        id: funcionario.id,
+                        nome: funcionario.nome,
+                        salario: funcionario.salario,
                     });
                 }}
             />
