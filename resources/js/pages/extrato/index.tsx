@@ -4,7 +4,7 @@ import { Head } from '@inertiajs/react';
 import React, { useMemo, useState } from 'react';
 import { usePage, router } from '@inertiajs/react';
 import { CreditCard, ChevronDown, Plus, BarChart2, ArrowUpRight, ArrowDownRight, Grid, File, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import { PageTitle, KpisPanel, CardList } from '@/components/padrões';
+import { PageTitle, KpisPanel } from '@/components/padrões';
 import ExtratoFilters from '@/components/extrato/Filters';
 import ExtratoFooter from '@/components/extrato/Footer';
 import ExtratoTableToolbar, { type ExtratoStatusTab } from '@/components/extrato/ExtratoTableToolbar';
