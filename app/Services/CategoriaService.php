@@ -8,6 +8,8 @@ use App\Services\Interfaces\CategoriaServiceInterface;
 
 class CategoriaService extends ServiceAbstract implements CategoriaServiceInterface
 {
+    private const SISTEMA_BLOQUEIO_MSG = 'Categorias do sistema não podem ser alteradas ou excluídas.';
+
     public function __construct(
         CategoriaRepositoryInterface $categoriaRepository
     ) {
@@ -15,7 +17,7 @@ class CategoriaService extends ServiceAbstract implements CategoriaServiceInterf
     }
 
     /**
-     * @param CategoriaDTO|array|null $data
+     * @param  CategoriaDTO|array|null  $data
      */
     public function store($data)
     {
@@ -29,40 +31,41 @@ class CategoriaService extends ServiceAbstract implements CategoriaServiceInterf
 
     public function update($id, $data)
     {
+        $categoria = $this->repository->find((int) $id);
+        $this->assertNaoEhCategoriaDoSistema($categoria);
+
         return parent::update($id, $data);
     }
 
     /**
      * Autocomplete de categorias delegando para o repositório.
      *
-     * @param string|null $q
-     * @param string|null $tipo
+     * @param  string|null  $q
      * @return mixed
      */
     public function autocomplete($q = null, ?string $tipo = null)
     {
-        /** @var \App\Repositories\Interfaces\CategoriaRepositoryInterface $repo */
+        /** @var CategoriaRepositoryInterface $repo */
         $repo = $this->repository;
 
         return $repo->autocomplete($q, $tipo);
     }
 
     /**
-     * @param int $id
+     * @param  int  $id
      */
     public function delete($id)
     {
-        $categoria = $this->repository->find($id);
-
-        if (!$categoria) {
-            throw new \Exception('Categoria não encontrada.');
-        }
-
-        if ((int) $categoria->padrao === 1) {
-            throw new \Exception('Categorias padrão não podem ser excluídas.');
-        }
+        $categoria = $this->repository->find((int) $id);
+        $this->assertNaoEhCategoriaDoSistema($categoria);
 
         return parent::delete($categoria);
     }
-}
 
+    private function assertNaoEhCategoriaDoSistema(mixed $categoria): void
+    {
+        if ((int) $categoria->padrao === 1 || $categoria->usuario_id === null) {
+            throw new \Exception(self::SISTEMA_BLOQUEIO_MSG);
+        }
+    }
+}

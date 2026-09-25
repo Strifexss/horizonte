@@ -22,12 +22,10 @@ export default defineConfig({
         host: '0.0.0.0',
         port: 5173,
         strictPort: true,
-        origin: 'http://localhost:8080',
         hmr: {
             host: 'localhost',
             protocol: 'ws',
-            clientPort: 8080,
-            path: '/__vite_hmr',
+            clientPort: 5173,
         },
         watch: {
             usePolling: true,

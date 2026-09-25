@@ -12,7 +12,7 @@ class FinanceiroDTO extends Dto
 
     public string $tipo;
 
-    public int $categoria_id;
+    public ?int $categoria_id = null;
 
     public int $conta_id;
 
@@ -23,4 +23,6 @@ class FinanceiroDTO extends Dto
     public float $valor_pago;
 
     public int $qtd_parcelas;
+
+    public ?int $produto_id = null;
 }

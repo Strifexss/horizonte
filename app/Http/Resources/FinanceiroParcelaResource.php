@@ -24,6 +24,8 @@ class FinanceiroParcelaResource extends JsonResource
             'valor_pago' => $this->valor_pago !== null ? number_format($this->valor_pago, 2, '.', '') : null,
             'parcela' => $this->parcela,
             'categoria' => $this->categoria,
+            'produto' => $this->produto,
+            'produto_id' => $this->produto_id,
             'conta' => $this->conta,
             'financeiro' => $this->financeiro,
         ];

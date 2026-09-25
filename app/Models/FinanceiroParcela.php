@@ -30,6 +30,7 @@ class FinanceiroParcela extends Model
         'parcela',
         'financeiro_id',
         'categoria_id',
+        'produto_id',
         'conta_id',
         'usuario_id',
     ];
@@ -50,6 +51,7 @@ class FinanceiroParcela extends Model
             'valor_pago' => 'decimal:2',
             'parcela' => 'integer',
             'categoria_id' => 'integer',
+            'produto_id' => 'integer',
             'conta_id' => 'integer',
             'financeiro_id' => 'integer',
             'usuario_id' => 'integer',
@@ -71,9 +73,13 @@ class FinanceiroParcela extends Model
         return $this->belongsTo(Categoria::class);
     }
 
+    public function produto()
+    {
+        return $this->belongsTo(Produto::class);
+    }
+
     public function conta()
     {
         return $this->belongsTo(Conta::class);
     }
 }
-

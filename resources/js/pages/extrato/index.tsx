@@ -15,6 +15,7 @@ import {
     DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
 import CategoriasModal from '../../components/categorias/CategoriasModal';
+import ProdutosModal from '@/components/produtos/ProdutosModal';
 import ExtratoModal, { type ExtratoModalParcela } from '@/components/extrato/ExtratoModal';
 import ConfirmDeleteModal from '@/components/extrato/ConfirmDeleteModal';
 
@@ -61,6 +62,7 @@ export default function Extrato() {
     const parcelas = (props as any).parcelas;
     const parcelasArray: any[] | null = Array.isArray(parcelas) ? parcelas : (parcelas && Array.isArray(parcelas.data) ? parcelas.data : null);
     const [categoriasOpen, setCategoriasOpen] = useState(false);
+    const [produtosOpen, setProdutosOpen] = useState(false);
     const [extratoOpen, setExtratoOpen] = useState(false);
     const [extratoMode, setExtratoMode] = useState<'create' | 'edit'>('create');
     const [parcelaEdit, setParcelaEdit] = useState<ExtratoModalParcela | null>(null);
@@ -243,6 +245,7 @@ export default function Extrato() {
             <Head title="Extrato" />
             <div className="flex w-full max-w-full h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <CategoriasModal open={categoriasOpen} onOpenChange={setCategoriasOpen} />
+                <ProdutosModal open={produtosOpen} onOpenChange={setProdutosOpen} />
                 <PageTitle
                     title="Extrato Financeiro de Contas"
                     subtitle="Visualize e gerencie os lançamentos da sua conta"
@@ -269,6 +272,7 @@ export default function Extrato() {
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="start">
                                         <DropdownMenuItem onSelect={() => setCategoriasOpen(true)}>Categorias</DropdownMenuItem>
+                                        <DropdownMenuItem onSelect={() => setProdutosOpen(true)}>Produtos</DropdownMenuItem>
                                         <DropdownMenuItem onSelect={() => setExtratoOpen(true)}><span className="md:hidden flex items-center gap-2 mt-2"><File className="h-5 w-5" />Importar Extrato</span></DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>

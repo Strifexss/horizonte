@@ -4,8 +4,10 @@ namespace App\Repositories;
 
 use App\Models\Categoria;
 use App\Repositories\Interfaces\CategoriaRepositoryInterface;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 
-class CategoriaRepository extends AbstractRepository implements CategoriaRepositoryInterface 
+class CategoriaRepository extends AbstractRepository implements CategoriaRepositoryInterface
 {
     public function __construct(
         Categoria $categoria
@@ -13,8 +15,25 @@ class CategoriaRepository extends AbstractRepository implements CategoriaReposit
         parent::__construct($categoria);
     }
 
+    public function index($data = null)
+    {
+        $query = $this->model->newQuery();
+
+        if (Auth::check()) {
+            $query->where(function ($q) {
+                $q->where('usuario_id', Auth::id())
+                    ->orWhere('padrao', 1);
+            });
+        }
+
+        return $query
+            ->orderByDesc('padrao')
+            ->orderBy('nome')
+            ->get();
+    }
+
     /**
-     * @param Categoria $categoria
+     * @param  Categoria  $categoria
      */
     public function delete($categoria)
     {
@@ -22,29 +41,34 @@ class CategoriaRepository extends AbstractRepository implements CategoriaReposit
     }
 
     /**
-     * Retorna categorias filtradas pelo termo de busca.
+     * Retorna categorias do usuário e do sistema filtradas pelo termo de busca.
      *
-     * @param string|null $q
-     * @param string|null $tipo
-     * @return \Illuminate\Support\Collection|array
+     * @param  string|null  $q
+     * @return Collection|array
      */
     public function autocomplete($q = null, ?string $tipo = null)
     {
         $query = $this->model->newQuery();
 
         if ($q !== null && $q !== '') {
-            $query->where('nome', 'like', '%' . $q . '%');
+            $query->where('nome', 'like', '%'.$q.'%');
         }
 
         if ($tipo !== null && $tipo !== '') {
             $query->where('tipo', $tipo);
         }
 
-        if (\Illuminate\Support\Facades\Schema::hasColumn($this->model->getTable(), 'usuario_id') && \Illuminate\Support\Facades\Auth::check()) {
-            $query->where('usuario_id', \Illuminate\Support\Facades\Auth::id());
+        if (Auth::check()) {
+            $query->where(function ($q) {
+                $q->where('usuario_id', Auth::id())
+                    ->orWhere('padrao', 1);
+            });
         }
 
-        return $query->limit(20)->get(['id', 'nome']);
+        return $query
+            ->orderByDesc('padrao')
+            ->orderBy('nome')
+            ->limit(20)
+            ->get(['id', 'nome', 'padrao']);
     }
 }
-

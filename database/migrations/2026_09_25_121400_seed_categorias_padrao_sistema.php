@@ -1,16 +1,14 @@
 <?php
 
-namespace Database\Seeders;
-
 use App\Models\Categoria;
-use Illuminate\Database\Seeder;
+use Illuminate\Database\Migrations\Migration;
 
-class CategoriaSeeder extends Seeder
+return new class extends Migration
 {
     /**
-     * Run the database seeds.
+     * Run the migrations.
      */
-    public function run(): void
+    public function up(): void
     {
         $padroes = [
             ['nome' => 'Receita', 'tipo' => 'receita'],
@@ -35,4 +33,16 @@ class CategoriaSeeder extends Seeder
             );
         }
     }
-}
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Categoria::query()
+            ->where('padrao', 1)
+            ->whereNull('usuario_id')
+            ->whereIn('nome', ['Receita', 'Despesa', 'PRODUTO'])
+            ->delete();
+    }
+};

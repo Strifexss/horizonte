@@ -54,6 +54,7 @@ class ExtratoService extends ServiceAbstract implements ExtratoServiceInterface
             'data_vencimento' => $financeiroDto->data_vencimento,
             'data_competencia' => now(),
             'categoria_id' => $financeiroDto->categoria_id,
+            'produto_id' => $financeiroDto->produto_id,
             'conta_id' => $financeiroDto->conta_id,
             'valor' => $financeiroDto->valor,
             'valor_pago' => $financeiroDto->valor_pago,

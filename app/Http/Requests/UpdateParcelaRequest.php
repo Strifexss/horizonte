@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 class UpdateParcelaRequest extends FormRequest
 {
     /**
-    * Determine if the user is authorized to make this request.
+     * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
@@ -39,6 +39,7 @@ class UpdateParcelaRequest extends FormRequest
             'valor_pago' => ['nullable', 'numeric', 'min:0'],
             'parcela' => ['nullable', 'integer', 'min:1'],
             'categoria_id' => ['nullable', 'integer', 'exists:categoria,id'],
+            'produto_id' => ['nullable', 'integer', 'exists:produto,id'],
             'conta_id' => ['nullable', 'integer', 'exists:conta,id'],
             'financeiro_id' => ['nullable', 'integer', 'exists:financeiro,id'],
             'usuario_id' => ['nullable', 'integer', 'exists:users,id'],

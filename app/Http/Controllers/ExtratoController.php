@@ -9,13 +9,15 @@ use App\Http\Requests\FinanceiroSearchRequest;
 use App\Http\Resources\FinanceiroParcelaResource;
 use App\Services\Interfaces\CategoriaServiceInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
+use App\Services\Interfaces\ProdutosServiceInterface;
 use Inertia\Inertia;
 
 class ExtratoController extends FinanceiroAbstractController
 {
     public function __construct(
         private CategoriaServiceInterface $categoriaService,
-        private ExtratoServiceInterface $extratoService
+        private ExtratoServiceInterface $extratoService,
+        private ProdutosServiceInterface $produtosService
     ) {}
 
     public function index(FinanceiroSearchRequest $request)
@@ -25,6 +27,7 @@ class ExtratoController extends FinanceiroAbstractController
         return Inertia::render('extrato/index', [
             'filters' => $filters->all(),
             'categorias' => Inertia::lazy(fn () => $this->categoriaService->index()),
+            'produtos' => Inertia::lazy(fn () => $this->produtosService->index()),
             'parcelas' => Inertia::defer(fn () => FinanceiroParcelaResource::collection($this->extratoService->index($filters))),
         ]);
     }
