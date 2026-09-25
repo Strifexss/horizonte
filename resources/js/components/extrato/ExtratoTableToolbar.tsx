@@ -22,8 +22,8 @@ const TABS: { id: ExtratoStatusTab; label: string }[] = [
 
 export default function ExtratoTableToolbar({ busca, onBuscaChange, status, onStatusChange, counts }: Props) {
     return (
-        <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="relative w-full max-w-xs">
+        <div className="flex min-w-0 flex-col gap-3">
+            <div className="relative w-full min-w-0">
                 <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[#aaaaaa]">
                     <Search className="h-4 w-4" aria-hidden="true" />
                 </span>
@@ -37,35 +37,39 @@ export default function ExtratoTableToolbar({ busca, onBuscaChange, status, onSt
                 />
             </div>
 
-            <div className="flex flex-wrap items-center gap-1">
-                {TABS.map((tab) => {
-                    const active = status === tab.id;
+            <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex w-max items-center gap-1.5 pb-0.5">
+                    {TABS.map((tab) => {
+                        const active = status === tab.id;
 
-                    return (
-                        <button
-                            key={tab.id}
-                            type="button"
-                            aria-pressed={active}
-                            onClick={() => onStatusChange(tab.id)}
-                            className={cn(
-                                'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors',
-                                active
-                                    ? 'border-amber-500 bg-amber-500 text-white'
-                                    : 'border-input bg-white text-foreground hover:bg-slate-50 dark:bg-slate-900',
-                            )}
-                        >
-                            {tab.label}
-                            <span
+                        return (
+                            <button
+                                key={tab.id}
+                                type="button"
+                                aria-pressed={active}
+                                onClick={() => onStatusChange(tab.id)}
                                 className={cn(
-                                    'inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-xs font-medium',
-                                    active ? 'bg-amber-400 text-white' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
+                                    'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors',
+                                    active
+                                        ? 'border-amber-500 bg-amber-500 text-white'
+                                        : 'border-input bg-white text-foreground hover:bg-slate-50 dark:bg-slate-900',
                                 )}
                             >
-                                {counts[tab.id]}
-                            </span>
-                        </button>
-                    );
-                })}
+                                {tab.label}
+                                <span
+                                    className={cn(
+                                        'inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-xs font-medium',
+                                        active
+                                            ? 'bg-amber-400 text-white'
+                                            : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
+                                    )}
+                                >
+                                    {counts[tab.id]}
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );
