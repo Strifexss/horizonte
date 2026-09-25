@@ -10,6 +10,8 @@ interface AsyncSelectProps {
   onChange: (option: Option | null) => void;
   placeholder?: string;
   isClearable?: boolean;
+  autoFocus?: boolean;
+  selectRef?: React.Ref<{ focus: () => void } | null>;
 }
 
 type SelectOption = { value: number | string; label: string; __raw: Option };
@@ -97,7 +99,15 @@ const selectStyles: StylesConfig<SelectOption, false> = {
   }),
 };
 
-export default function AsyncSelect({ loadOptions, value, onChange, placeholder = '', isClearable = true }: AsyncSelectProps) {
+export default function AsyncSelect({
+  loadOptions,
+  value,
+  onChange,
+  placeholder = '',
+  isClearable = true,
+  autoFocus = false,
+  selectRef,
+}: AsyncSelectProps) {
   const wrappedLoad = async (inputValue: string) => {
     try {
       const opts = await loadOptions(inputValue);
@@ -119,6 +129,7 @@ export default function AsyncSelect({ loadOptions, value, onChange, placeholder 
 
   return (
     <AsyncSelectBase<SelectOption, false>
+      ref={selectRef as React.Ref<any>}
       cacheOptions={false}
       defaultOptions
       loadOptions={wrappedLoad}
@@ -127,6 +138,7 @@ export default function AsyncSelect({ loadOptions, value, onChange, placeholder 
       isClearable={isClearable}
       placeholder={placeholder}
       styles={selectStyles}
+      autoFocus={autoFocus}
     />
   );
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 
@@ -97,6 +97,7 @@ export default function ExtratoModal({
     const [selectedFuncionario, setSelectedFuncionario] = useState<Option | null>(null);
     const [produtosModalOpen, setProdutosModalOpen] = useState(false);
     const [funcionariosModalOpen, setFuncionariosModalOpen] = useState(false);
+    const produtoSelectRef = useRef<{ focus: () => void } | null>(null);
 
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
         descricao: toInputValue(parcela?.descricao),
@@ -229,6 +230,18 @@ export default function ExtratoModal({
             setData('funcionario_id', null);
         }
     }, [activeTab]);
+
+    useEffect(() => {
+        if (!open || !showProdutoField || activeTab !== 'DESPESA') {
+            return;
+        }
+
+        const timeoutId = window.setTimeout(() => {
+            produtoSelectRef.current?.focus();
+        }, 50);
+
+        return () => window.clearTimeout(timeoutId);
+    }, [open, showProdutoField, activeTab]);
 
     const loadContas = async (q: string) => {
         const res = await fetch(`/contas/autocomplete?q=${encodeURIComponent(q)}`);
@@ -363,6 +376,8 @@ export default function ExtratoModal({
                                         <div className="flex items-start gap-2">
                                             <div className="min-w-0 flex-1">
                                                 <AsyncSelect
+                                                    selectRef={produtoSelectRef}
+                                                    autoFocus
                                                     value={selectedProduto}
                                                     onChange={handleProdutoChange}
                                                     loadOptions={loadProdutos}
