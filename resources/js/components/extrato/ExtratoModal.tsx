@@ -346,7 +346,7 @@ export default function ExtratoModal({
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="flex flex-col md:h-full">
+                    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto md:h-auto">
                         <div className="flex gap-2">
                             <button
                                 disabled={!!parcela}

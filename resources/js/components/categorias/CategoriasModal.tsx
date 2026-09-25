@@ -101,12 +101,12 @@ export default function CategoriasModal({ open, onOpenChange }: { open: boolean;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="w-[100vw] h-[100vh] md:w-[700px] md:max-w-full md:h-auto overflow-hidden">
+            <DialogContent className="w-[100vw] h-[100dvh] md:w-[700px] md:max-w-full md:h-auto overflow-hidden">
                 <DialogHeader>
                     <DialogTitle>Categorias</DialogTitle>
                     <DialogDescription>Gerencie categorias de receita e despesa.</DialogDescription>
                 </DialogHeader>
-                <div className="flex flex-col h-full">
+                <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
                     <div className="flex gap-2">
                         <button
                             type="button"

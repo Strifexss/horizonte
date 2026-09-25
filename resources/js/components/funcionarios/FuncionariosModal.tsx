@@ -108,12 +108,12 @@ export default function FuncionariosModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="w-[100vw] h-[100vh] md:w-[700px] md:max-w-full md:h-auto overflow-hidden">
+            <DialogContent className="w-[100vw] h-[100dvh] md:w-[700px] md:max-w-full md:h-auto overflow-hidden">
                 <DialogHeader>
                     <DialogTitle>Funcionários</DialogTitle>
                     <DialogDescription>Gerencie os funcionários vinculados aos lançamentos de salário.</DialogDescription>
                 </DialogHeader>
-                <div className="flex flex-col h-full">
+                <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
                     <div className="mt-4 rounded-lg border border-sidebar-border/70 bg-white dark:bg-slate-900 p-4 shadow-sm">
                         <form onSubmit={submit} className="grid gap-2">
                             <div className="grid md:grid-cols-2 gap-2">
