@@ -501,16 +501,7 @@ export default function ExtratoModal({
 
                                 {showProdutoField && (
                                     <div className="grid gap-2">
-                                        <div className="flex items-center justify-between gap-2">
-                                            <Label>Produto</Label>
-                                            <button
-                                                type="button"
-                                                className="text-xs font-medium text-amber-700 hover:underline dark:text-amber-300"
-                                                onClick={() => setProdutosModalOpen(true)}
-                                            >
-                                                Ver todos
-                                            </button>
-                                        </div>
+                                        <Label>Produto</Label>
                                         <div className="flex items-start gap-2">
                                             <div className="min-w-0 flex-1">
                                                 <AsyncSelect
@@ -520,7 +511,7 @@ export default function ExtratoModal({
                                                     value={selectedProduto}
                                                     onChange={handleProdutoChange}
                                                     loadOptions={loadProdutos}
-                                                    placeholder="Buscar ou digitar novo produto..."
+                                                    placeholder="Buscar produto..."
                                                     isClearable
                                                 />
                                             </div>
@@ -602,16 +593,7 @@ export default function ExtratoModal({
 
                                 {showFuncionarioField && (
                                     <div className="grid gap-2">
-                                        <div className="flex items-center justify-between gap-2">
-                                            <Label>Funcionário</Label>
-                                            <button
-                                                type="button"
-                                                className="text-xs font-medium text-sky-700 hover:underline dark:text-sky-300"
-                                                onClick={() => setFuncionariosModalOpen(true)}
-                                            >
-                                                Ver todos
-                                            </button>
-                                        </div>
+                                        <Label>Funcionário</Label>
                                         <div className="flex items-start gap-2">
                                             <div className="min-w-0 flex-1">
                                                 <AsyncSelect
@@ -619,7 +601,7 @@ export default function ExtratoModal({
                                                     value={selectedFuncionario}
                                                     onChange={handleFuncionarioChange}
                                                     loadOptions={loadFuncionarios}
-                                                    placeholder="Buscar ou digitar novo funcionário..."
+                                                    placeholder="Buscar funcionário..."
                                                     isClearable
                                                 />
                                             </div>
