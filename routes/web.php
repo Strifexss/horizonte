@@ -8,10 +8,9 @@ use App\Http\Controllers\FuncionariosController;
 use App\Http\Controllers\ParcelaController;
 use App\Http\Controllers\ProdutosController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('welcome');
+    return redirect()->route('login');
 })->name('home');
 
 Route::middleware(['auth'])->group(function () {
