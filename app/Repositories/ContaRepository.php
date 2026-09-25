@@ -19,7 +19,7 @@ class ContaRepository extends AbstractRepository implements ContaRepositoryInter
         $query = $this->model->newQuery();
 
         if ($q !== null && $q !== '') {
-            $query->where('nome', 'like', '%'.$q.'%');
+            $this->applyAccentInsensitiveLike($query, 'nome', $q);
         }
 
         if (Auth::check()) {

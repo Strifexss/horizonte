@@ -51,7 +51,7 @@ class CategoriaRepository extends AbstractRepository implements CategoriaReposit
         $query = $this->model->newQuery();
 
         if ($q !== null && $q !== '') {
-            $query->where('nome', 'like', '%'.$q.'%');
+            $this->applyAccentInsensitiveLike($query, 'nome', $q);
         }
 
         if ($tipo !== null && $tipo !== '') {

@@ -19,7 +19,7 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
         $query = $this->model->newQuery();
 
         if ($q !== null && $q !== '') {
-            $query->where('nome', 'like', '%'.$q.'%');
+            $this->applyAccentInsensitiveLike($query, 'nome', $q);
         }
 
         if (Auth::check()) {
