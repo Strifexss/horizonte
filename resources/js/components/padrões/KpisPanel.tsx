@@ -10,7 +10,7 @@ export default function KpisPanel({ items }: Props) {
             <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain md:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 <div className="flex w-max gap-2 pb-1">
                     {items.map((it) => (
-                        <div key={String(it.id ?? it.label)} className="w-36 shrink-0">
+                        <div key={String(it.id ?? it.label)} className="w-[8.75rem] shrink-0">
                             <KpiCard label={it.label} value={it.value} hint={it.hint} icon={it.icon} />
                         </div>
                     ))}

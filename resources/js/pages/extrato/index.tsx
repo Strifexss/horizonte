@@ -20,6 +20,7 @@ import FuncionariosModal from '@/components/funcionarios/FuncionariosModal';
 import ExtratoModal, { type ExtratoModalParcela } from '@/components/extrato/ExtratoModal';
 import ConfirmDeleteModal from '@/components/extrato/ConfirmDeleteModal';
 import ExtratoFab from '@/components/extrato/ExtratoFab';
+import ExtratoMobileCardList from '@/components/extrato/ExtratoMobileCardList';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -377,7 +378,20 @@ export default function Extrato() {
                                 counts={counts}
                             />
                         </div>
-                        <div className="md:hidden p-4"><CardList columns={columns} data={parcelasFiltradas} /></div>
+                        <div className="md:hidden p-3">
+                            <ExtratoMobileCardList
+                                data={parcelasFiltradas}
+                                onEdit={(p) => {
+                                    setExtratoMode('edit');
+                                    setParcelaEdit(p as ExtratoModalParcela);
+                                    setExtratoOpen(true);
+                                }}
+                                onDelete={(p) => {
+                                    setParcelaToDelete(p);
+                                    setConfirmDeleteOpen(true);
+                                }}
+                            />
+                        </div>
                         <div className="hidden md:block overflow-x-auto p-4">
                             <table className="w-full table-fixed text-sm border-collapse">
                                 <thead>
