@@ -81,6 +81,8 @@ const selectStyles: StylesConfig<SelectOption, false> = {
   menuPortal: (base) => ({
     ...base,
     zIndex: 80,
+    // Radix Dialog sets pointer-events:none on body; portaled menus must opt back in.
+    pointerEvents: 'auto',
   }),
   menuList: (base) => ({
     ...base,
