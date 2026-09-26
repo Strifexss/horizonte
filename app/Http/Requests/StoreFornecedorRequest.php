@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreProdutoRequest extends FormRequest
+class StoreFornecedorRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -25,9 +25,8 @@ class StoreProdutoRequest extends FormRequest
     {
         return [
             'nome' => ['required', 'string', 'max:255'],
-            'preco_compra' => ['required', 'numeric', 'min:0.01'],
             'usuario_id' => ['nullable', 'integer', 'exists:users,id'],
-            'fornecedor_id' => ['nullable', 'integer', 'exists:fornecedor,id'],
         ];
     }
 }
+

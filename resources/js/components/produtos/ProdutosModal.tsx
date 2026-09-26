@@ -10,8 +10,10 @@ import {
     DialogFooter,
     DialogClose,
 } from '@/components/ui/dialog';
+import AsyncSelect from '@/components/ui/AsyncSelect';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import MoneyInput from '@/components/ui/money-input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import ProdutoRow from './ProdutoRow';
@@ -39,6 +41,7 @@ export default function ProdutosModal({
 }) {
     const [loading, setLoading] = useState(false);
     const [produtos, setProdutos] = useState<Produto[]>([]);
+    const [selectedFornecedor, setSelectedFornecedor] = useState<{ id: number | string; nome: string } | null>(null);
     const page = usePage<any>();
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [produtoToDelete, setProdutoToDelete] = useState<Produto | null>(null);
@@ -47,6 +50,7 @@ export default function ProdutosModal({
     const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
         nome: '',
         preco_compra: '',
+        fornecedor_id: null,
     });
 
     useEffect(() => {
@@ -59,6 +63,15 @@ export default function ProdutosModal({
     }, [page.props?.produtos]);
 
     useEffect(() => {
+        const f = page.props?.fornecedores;
+        if (!f) {
+            return;
+        }
+        // nothing to store locally; AsyncSelect will load via endpoint, but keep for reactivity if needed
+    }, [page.props?.fornecedores]);
+    
+
+    useEffect(() => {
         if (!open) return;
         setLoading(true);
         router.reload({
@@ -68,6 +81,7 @@ export default function ProdutosModal({
         reset();
         clearErrors();
         setEditingId(null);
+        setSelectedFornecedor(null);
     }, [open]);
 
     const submit = (e: React.FormEvent) => {
@@ -78,6 +92,7 @@ export default function ProdutosModal({
                     router.reload({ only: ['produtos'] });
                     reset();
                     setEditingId(null);
+                    setSelectedFornecedor(null);
                 },
             });
         } else {
@@ -85,6 +100,7 @@ export default function ProdutosModal({
                 onSuccess: (pageResult) => {
                     router.reload({ only: ['produtos'] });
                     reset();
+                    setSelectedFornecedor(null);
                     const criado = (pageResult.props as any)?.flash?.produto_criado as ProdutoCriado | undefined;
                     if (criado && onCreated) {
                         onCreated(criado);
@@ -98,7 +114,16 @@ export default function ProdutosModal({
     const startEdit = (produto: Produto) => {
         setEditingId(produto.id);
         setData('nome', produto.nome);
-        setData('preco_compra', String(produto.preco_compra));
+        setData('preco_compra', produto.preco_compra !== undefined && produto.preco_compra !== null ? Number(produto.preco_compra) : '');
+        setData('fornecedor_id', (produto as any)?.fornecedor_id ?? null);
+        const f = (produto as any)?.fornecedor;
+        setSelectedFornecedor(f ? { id: f.id, nome: f.nome } : null);
+    };
+
+    const loadFornecedores = async (q: string = '') => {
+        const res = await fetch(`/fornecedores/autocomplete?q=${encodeURIComponent(q)}`);
+        if (!res.ok) return [];
+        return res.json();
     };
 
     const doDelete = (produto: Produto) => {
@@ -130,17 +155,28 @@ export default function ProdutosModal({
                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="preco_compra">Preço de Compra</Label>
-                                    <Input
+                                    <MoneyInput
                                         id="preco_compra"
-                                        type="number"
-                                        min={0.01}
-                                        step="0.01"
-                                        value={data.preco_compra}
-                                        onChange={(e) => setData('preco_compra', e.target.value)}
-                                        placeholder="0.00"
+                                        value={data.preco_compra ? Number(data.preco_compra) : null}
+                                        onValueChange={(v) => setData('preco_compra', v ?? '')}
+                                        placeholder="0,00"
                                         disabled={processing}
                                     />
                                     <InputError message={errors.preco_compra} />
+                                </div>
+                                <div className="grid gap-2 md:col-span-2">
+                                    <Label>Fornecedor</Label>
+                                    <AsyncSelect
+                                        value={selectedFornecedor}
+                                        onChange={(val) => {
+                                            setSelectedFornecedor(val ? { id: val.id, nome: val.nome } : null);
+                                            setData('fornecedor_id', val ? Number(val.id) : null);
+                                        }}
+                                        loadOptions={loadFornecedores}
+                                        placeholder="Buscar fornecedor..."
+                                        isClearable
+                                    />
+                                    <InputError message={errors.fornecedor_id} />
                                 </div>
                             </div>
 

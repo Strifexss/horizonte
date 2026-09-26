@@ -27,6 +27,7 @@ class FinanceiroRequest extends FormRequest
             'categoria_id' => ['nullable', 'exists:categoria,id'],
             'produto_id' => ['nullable', 'integer', 'exists:produto,id'],
             'funcionario_id' => ['nullable', 'integer', 'exists:funcionario,id'],
+            'fornecedor_id' => ['nullable', 'integer', 'exists:fornecedor,id'],
             'conta_id' => ['required', 'exists:conta,id'],
             'data_competencia' => ['nullable', 'date'],
             'usuario_id' => ['nullable', 'exists:users,id'],

@@ -23,6 +23,7 @@ class Produto extends Model
         'nome',
         'preco_compra',
         'usuario_id',
+        'fornecedor_id',
     ];
 
     /**
@@ -35,6 +36,7 @@ class Produto extends Model
             'nome' => 'string',
             'preco_compra' => 'decimal:2',
             'usuario_id' => 'integer',
+            'fornecedor_id' => 'integer',
         ];
     }
 
@@ -46,5 +48,10 @@ class Produto extends Model
     public function parcelas(): HasMany
     {
         return $this->hasMany(FinanceiroParcela::class, 'produto_id');
+    }
+    
+    public function fornecedor(): BelongsTo
+    {
+        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
     }
 }

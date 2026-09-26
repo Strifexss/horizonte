@@ -19,6 +19,10 @@ use App\Services\ContasService;
 use App\Services\ExtratoService;
 use App\Services\FinanceiroParcelaService;
 use App\Services\FuncionariosService;
+use App\Repositories\FornecedorRepository;
+use App\Repositories\Interfaces\FornecedorRepositoryInterface;
+use App\Services\FornecedoresService;
+use App\Services\Interfaces\FornecedoresServiceInterface;
 use App\Services\Interfaces\CategoriaServiceInterface;
 use App\Services\Interfaces\ContasServiceInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
@@ -47,6 +51,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ProdutoRepositoryInterface::class, ProdutoRepository::class);
         $this->app->bind(FuncionariosServiceInterface::class, FuncionariosService::class);
         $this->app->bind(FuncionarioRepositoryInterface::class, FuncionarioRepository::class);
+        $this->app->bind(FornecedoresServiceInterface::class, FornecedoresService::class);
+        $this->app->bind(FornecedorRepositoryInterface::class, FornecedorRepository::class);
     }
 
     /**

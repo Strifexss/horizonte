@@ -32,7 +32,7 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
         $perPage = $data?->per_page ?? 20;
 
         return $this->parcelasFiltradasQuery($data)
-            ->with(['categoria', 'conta', 'produto', 'funcionario', 'financeiro'])
+            ->with(['categoria', 'conta', 'produto.fornecedor', 'fornecedor', 'funcionario', 'financeiro'])
             ->orderBy('data_vencimento', 'desc')
             ->paginate($perPage)
             ->withQueryString();

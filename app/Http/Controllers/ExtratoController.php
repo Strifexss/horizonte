@@ -11,6 +11,7 @@ use App\Services\Interfaces\CategoriaServiceInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
 use App\Services\Interfaces\FuncionariosServiceInterface;
 use App\Services\Interfaces\ProdutosServiceInterface;
+use App\Services\Interfaces\FornecedoresServiceInterface;
 use Inertia\Inertia;
 
 class ExtratoController extends FinanceiroAbstractController
@@ -19,7 +20,8 @@ class ExtratoController extends FinanceiroAbstractController
         private CategoriaServiceInterface $categoriaService,
         private ExtratoServiceInterface $extratoService,
         private ProdutosServiceInterface $produtosService,
-        private FuncionariosServiceInterface $funcionariosService
+        private FuncionariosServiceInterface $funcionariosService,
+        private FornecedoresServiceInterface $fornecedoresService
     ) {}
 
     public function index(FinanceiroSearchRequest $request)
@@ -31,6 +33,7 @@ class ExtratoController extends FinanceiroAbstractController
             'categorias' => Inertia::lazy(fn () => $this->categoriaService->index()),
             'produtos' => Inertia::lazy(fn () => $this->produtosService->index()),
             'funcionarios' => Inertia::lazy(fn () => $this->funcionariosService->index()),
+            'fornecedores' => Inertia::lazy(fn () => $this->fornecedoresService->index()),
             'resumo' => Inertia::defer(fn () => $this->extratoService->resumo($filters)),
             'parcelas' => Inertia::defer(fn () => FinanceiroParcelaResource::collection($this->extratoService->index($filters))),
         ]);

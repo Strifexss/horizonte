@@ -13,11 +13,13 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import MoneyInput from '@/components/ui/money-input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import AsyncSelect from '@/components/ui/AsyncSelect';
 import ProdutosModal from '@/components/produtos/ProdutosModal';
 import FuncionariosModal from '@/components/funcionarios/FuncionariosModal';
+import FornecedoresModal from '@/components/fornecedores/FornecedoresModal';
 
 type Option = {
     id: number | string;
@@ -98,20 +100,25 @@ export default function ExtratoModal({
     const [selectedFuncionario, setSelectedFuncionario] = useState<Option | null>(null);
     const [produtosModalOpen, setProdutosModalOpen] = useState(false);
     const [funcionariosModalOpen, setFuncionariosModalOpen] = useState(false);
+    const [fornecedoresModalOpen, setFornecedoresModalOpen] = useState(false);
+    const [selectedFornecedor, setSelectedFornecedor] = useState<Option | null>(null);
     const produtoSelectRef = useRef<{ focus: () => void } | null>(null);
     const draftProdutoNomeRef = useRef<HTMLInputElement | null>(null);
     const draftProdutoPrecoRef = useRef<HTMLInputElement | null>(null);
     const draftFuncionarioNomeRef = useRef<HTMLInputElement | null>(null);
     const draftFuncionarioSalarioRef = useRef<HTMLInputElement | null>(null);
     const draftCategoriaNomeRef = useRef<HTMLInputElement | null>(null);
+    const draftFornecedorNomeRef = useRef<HTMLInputElement | null>(null);
     const [draftProdutoNome, setDraftProdutoNome] = useState<string | null>(null);
     const [draftProdutoPreco, setDraftProdutoPreco] = useState('');
     const [draftFuncionarioNome, setDraftFuncionarioNome] = useState<string | null>(null);
     const [draftFuncionarioSalario, setDraftFuncionarioSalario] = useState('');
     const [draftCategoriaNome, setDraftCategoriaNome] = useState<string | null>(null);
+    const [draftFornecedorNome, setDraftFornecedorNome] = useState<string | null>(null);
     const [draftProdutoFocus, setDraftProdutoFocus] = useState<'nome' | 'preco' | null>(null);
     const [draftFuncionarioFocus, setDraftFuncionarioFocus] = useState<'nome' | 'salario' | null>(null);
     const [draftCategoriaFocus, setDraftCategoriaFocus] = useState<'nome' | null>(null);
+    const [draftFornecedorFocus, setDraftFornecedorFocus] = useState<'nome' | null>(null);
     const [creatingInline, setCreatingInline] = useState(false);
 
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
@@ -125,6 +132,7 @@ export default function ExtratoModal({
         id: parcela?.id ?? null,
         categoria_id: (parcela?.categoria_id ?? null) as number | null,
         produto_id: (parcela?.produto_id ?? null) as number | null,
+        fornecedor_id: (parcela?.fornecedor_id ?? null) as number | null,
         funcionario_id: (parcela?.funcionario_id ?? null) as number | null,
         conta_id: (parcela?.conta_id ?? null) as number | null,
     });
@@ -205,6 +213,20 @@ export default function ExtratoModal({
     }, [draftCategoriaFocus, draftCategoriaNome]);
 
     useEffect(() => {
+        if (!draftFornecedorFocus || draftFornecedorNome === null) {
+            return;
+        }
+
+        const timer = window.setTimeout(() => {
+            draftFornecedorNomeRef.current?.focus();
+            draftFornecedorNomeRef.current?.select?.();
+            setDraftFornecedorFocus(null);
+        }, 50);
+
+        return () => window.clearTimeout(timer);
+    }, [draftFornecedorFocus, draftFornecedorNome]);
+
+    useEffect(() => {
         if (!open) return;
 
         const isEdit = mode === 'edit' && parcela;
@@ -215,10 +237,12 @@ export default function ExtratoModal({
         const categoriaId = (parcela?.categoria_id ?? parcela?.categoria?.id ?? null) as number | string | null;
         const produtoId = (parcela?.produto_id ?? parcela?.produto?.id ?? null) as number | string | null;
         const funcionarioId = (parcela?.funcionario_id ?? parcela?.funcionario?.id ?? null) as number | string | null;
+        const fornecedorId = (parcela?.fornecedor_id ?? parcela?.produto?.fornecedor?.id ?? null) as number | string | null;
         const contaNome = parcela?.conta?.nome ?? null;
         const categoriaNome = parcela?.categoria?.nome ?? null;
         const produtoNome = parcela?.produto?.nome ?? null;
         const funcionarioNome = parcela?.funcionario?.nome ?? null;
+        const fornecedorNome = parcela?.fornecedor?.nome ?? parcela?.produto?.fornecedor?.nome ?? null;
 
         setActiveTab(initialTab);
         setSelectedConta(contaId ? { id: contaId, nome: contaNome ?? String(contaId) } : null);
@@ -240,6 +264,7 @@ export default function ExtratoModal({
                   }
                 : null,
         );
+        setSelectedFornecedor(fornecedorId ? { id: fornecedorId, nome: fornecedorNome ?? String(fornecedorId) } : null);
         setSelectedFuncionario(
             funcionarioId
                 ? {
@@ -261,6 +286,7 @@ export default function ExtratoModal({
                 tipo: initialTab,
                 categoria_id: categoriaId ? Number(categoriaId) : null,
                 produto_id: produtoId ? Number(produtoId) : null,
+                fornecedor_id: fornecedorId ? Number(fornecedorId) : null,
                 funcionario_id: funcionarioId ? Number(funcionarioId) : null,
                 conta_id: contaId ? Number(contaId) : null,
                 id: parcela?.id ?? null,
@@ -330,6 +356,12 @@ export default function ExtratoModal({
         return res.json();
     };
 
+    const loadFornecedores = async (q: string = '') => {
+        const res = await fetch(`/fornecedores/autocomplete?q=${encodeURIComponent(q)}`);
+        if (!res.ok) return [];
+        return res.json();
+    };
+
     const loadFuncionarios = async (q: string = '') => {
         const res = await fetch(`/funcionarios/autocomplete?q=${encodeURIComponent(q)}`);
         if (!res.ok) return [];
@@ -386,12 +418,36 @@ export default function ExtratoModal({
             setDraftFuncionarioNome(null);
             setData('descricao', 'Compra');
             if (preco !== null) {
-                setData('valor', preco);
-                setData('valor_pago', preco);
+                const n = Number(preco);
+                setData('valor', Number.isNaN(n) ? preco : n);
+                setData('valor_pago', Number.isNaN(n) ? preco : n);
+            }
+            // if product has fornecedor, prefill
+            const fornecedor = (val as any).fornecedor ?? (val as any).fornecedor_id ? { id: (val as any).fornecedor_id, nome: null } : null;
+            if (fornecedor && fornecedor.id) {
+                setSelectedFornecedor(fornecedor as Option);
+                setData('fornecedor_id', Number(fornecedor.id));
+            } else {
+                setSelectedFornecedor(null);
+                setData('fornecedor_id', null);
             }
         } else {
             setData('produto_id', null);
         }
+    };
+
+    const handleFornecedorChange = (val: Option | null) => {
+        if (val && (val as Option & { __create?: boolean }).__create) {
+            const nome = String((val as Option & { __createName?: string }).__createName ?? val.nome).trim();
+            setDraftFornecedorNome(nome);
+            setSelectedFornecedor({ id: '__draft__', nome });
+            setData('fornecedor_id', null);
+            setDraftFornecedorFocus('nome');
+            return;
+        }
+
+        setSelectedFornecedor(val);
+        setData('fornecedor_id', val ? Number(val.id) : null);
     };
 
     const handleFuncionarioChange = (val: Option | null) => {
@@ -418,8 +474,9 @@ export default function ExtratoModal({
             setDraftProdutoNome(null);
             setData('descricao', `Salário - ${val.nome}`);
             if (salario !== null) {
-                setData('valor', salario);
-                setData('valor_pago', salario);
+                const n = Number(salario);
+                setData('valor', Number.isNaN(n) ? salario : n);
+                setData('valor_pago', Number.isNaN(n) ? salario : n);
             }
         } else {
             setData('funcionario_id', null);
@@ -479,6 +536,35 @@ export default function ExtratoModal({
                             nome: criado.nome,
                             salario: criado.salario,
                         });
+                    }
+                },
+                onError: () => setCreatingInline(false),
+            },
+        );
+    };
+
+    const confirmarFornecedorInline = () => {
+        const nome = draftFornecedorNome?.trim() ?? null;
+        if (!nome) return;
+        setCreatingInline(true);
+        router.post(
+            route('fornecedores.store'),
+            { nome },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: (page) => {
+                    setCreatingInline(false);
+                    // Sempre limpar o rascunho ao receber sucesso,
+                    // mesmo que o flash não venha por algum motivo.
+                    setDraftFornecedorNome(null);
+                    setDraftFornecedorFocus(null);
+                    const criado = (page.props as any)?.flash?.fornecedor_criado;
+                    if (criado) {
+                        handleFornecedorChange({
+                            id: criado.id,
+                            nome: criado.nome,
+                        } as Option);
                     }
                 },
                 onError: () => setCreatingInline(false),
@@ -675,15 +761,12 @@ export default function ExtratoModal({
                                                     </div>
                                                     <div className="grid gap-2">
                                                         <Label htmlFor="draft_preco_compra">Preço de Compra</Label>
-                                                        <Input
+                                                        <MoneyInput
                                                             ref={draftProdutoPrecoRef}
                                                             id="draft_preco_compra"
-                                                            type="number"
-                                                            min={0.01}
-                                                            step="0.01"
-                                                            value={draftProdutoPreco}
-                                                            onChange={(e) => setDraftProdutoPreco(e.target.value)}
-                                                            placeholder="0.00"
+                                                            value={draftProdutoPreco ? Number(draftProdutoPreco) : null}
+                                                            onValueChange={(v) => setDraftProdutoPreco(v !== null ? String(v) : '')}
+                                                            placeholder="0,00"
                                                         />
                                                     </div>
                                                 </div>
@@ -711,6 +794,90 @@ export default function ExtratoModal({
                                             </div>
                                         ) : null}
                                         <InputError message={errors.produto_id} />
+                                    </div>
+                                )}
+
+                                {showProdutoField && (
+                                    <div className="grid gap-2">
+                                        <Label>Fornecedor</Label>
+                                        <div className="flex items-start gap-2">
+                                            <div className="min-w-0 flex-1">
+                                                <AsyncSelect
+                                                    creatable
+                                                    value={selectedFornecedor}
+                                                    onChange={(val) => handleFornecedorChange(val)}
+                                                    loadOptions={loadFornecedores}
+                                                    placeholder="Buscar fornecedor..."
+                                                    isClearable
+                                                />
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                variant="secondary"
+                                                size="icon"
+                                                className="shrink-0"
+                                                aria-label="Cadastrar fornecedor"
+                                                title="Cadastrar fornecedor"
+                                                onClick={() => {
+                                                    setDraftFornecedorNome('');
+                                                    setDraftFornecedorFocus('nome');
+                                                }}
+                                            >
+                                                <Plus className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                        {draftFornecedorNome !== null ? (
+                                            <div className="grid gap-2 rounded-md border border-dashed border-emerald-300 bg-emerald-50/60 p-3 dark:border-emerald-800 dark:bg-emerald-950/30">
+                                                <div className="grid gap-2">
+                                                    <Label htmlFor="draft_fornecedor_nome">Nome do fornecedor</Label>
+                                                    <Input
+                                                        ref={draftFornecedorNomeRef}
+                                                        id="draft_fornecedor_nome"
+                                                        value={draftFornecedorNome}
+                                                        onChange={(e) => {
+                                                            setDraftFornecedorNome(e.target.value);
+                                                            setSelectedFornecedor(
+                                                                e.target.value
+                                                                    ? { id: '__draft__', nome: e.target.value }
+                                                                    : null,
+                                                            );
+                                                        }}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter') {
+                                                                e.preventDefault();
+                                                                confirmarFornecedorInline();
+                                                            }
+                                                        }}
+                                                        placeholder="Nome do fornecedor"
+                                                    />
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        type="button"
+                                                        variant="secondary"
+                                                        className="flex-1"
+                                                        onClick={() => {
+                                                            setDraftFornecedorNome(null);
+                                                            setDraftFornecedorFocus(null);
+                                                        }}
+                                                        disabled={creatingInline}
+                                                    >
+                                                        Cancelar
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        variant="confirm"
+                                                        className="flex-1"
+                                                        disabled={!draftFornecedorNome?.trim() || creatingInline}
+                                                        loading={creatingInline}
+                                                        onClick={confirmarFornecedorInline}
+                                                    >
+                                                        Criar fornecedor
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ) : null}
+                                        <InputError message={errors.fornecedor_id} />
                                     </div>
                                 )}
 
@@ -766,15 +933,12 @@ export default function ExtratoModal({
                                                     </div>
                                                     <div className="grid gap-2">
                                                         <Label htmlFor="draft_salario">Salário / Remuneração</Label>
-                                                        <Input
+                                                        <MoneyInput
                                                             ref={draftFuncionarioSalarioRef}
                                                             id="draft_salario"
-                                                            type="number"
-                                                            min={0.01}
-                                                            step="0.01"
-                                                            value={draftFuncionarioSalario}
-                                                            onChange={(e) => setDraftFuncionarioSalario(e.target.value)}
-                                                            placeholder="0.00"
+                                                            value={draftFuncionarioSalario ? Number(draftFuncionarioSalario) : null}
+                                                            onValueChange={(v) => setDraftFuncionarioSalario(v !== null ? String(v) : '')}
+                                                            placeholder="0,00"
                                                         />
                                                     </div>
                                                 </div>
@@ -953,18 +1117,17 @@ export default function ExtratoModal({
                                 <div className="grid md:grid-cols-2 gap-2">
                                     <div className="grid gap-2">
                                         <Label htmlFor="valor">Valor</Label>
-                                        <Input
+                                        <MoneyInput
                                             id="valor"
-                                            value={data.valor}
-                                            onChange={(e) => {
-                                                const valor = e.target.value;
+                                            value={data.valor ? Number(data.valor as any) : null}
+                                            onValueChange={(v) => {
                                                 setData({
                                                     ...data,
-                                                    valor,
-                                                    valor_pago: valor,
+                                                    valor: v ?? '',
+                                                    valor_pago: v ?? '',
                                                 });
                                             }}
-                                            placeholder="0.00"
+                                            placeholder="0,00"
                                             disabled={processing}
                                         />
                                         <InputError message={errors.valor} />
@@ -972,11 +1135,11 @@ export default function ExtratoModal({
 
                                     <div className="grid gap-2">
                                         <Label htmlFor="valor_pago">Valor pago</Label>
-                                        <Input
+                                        <MoneyInput
                                             id="valor_pago"
-                                            value={data.valor_pago}
-                                            onChange={(e) => setData('valor_pago', e.target.value)}
-                                            placeholder="0.00"
+                                            value={data.valor_pago ? Number(data.valor_pago as any) : null}
+                                            onValueChange={(v) => setData('valor_pago', v ?? '')}
+                                            placeholder="0,00"
                                             disabled={processing}
                                         />
                                         <InputError message={errors.valor_pago} />
@@ -1042,6 +1205,13 @@ export default function ExtratoModal({
                         nome: funcionario.nome,
                         salario: funcionario.salario,
                     });
+                }}
+            />
+            <FornecedoresModal
+                open={fornecedoresModalOpen}
+                onOpenChange={setFornecedoresModalOpen}
+                onCreated={(fornecedor) => {
+                    // nothing to auto-select here; fornecedores are used in product modal
                 }}
             />
         </>

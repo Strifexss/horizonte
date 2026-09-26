@@ -14,7 +14,9 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', function () {
+        return redirect()->route('extrato.index');
+    })->name('dashboard');
 
     Route::group(['prefix' => 'extrato'], function () {
         Route::get('/', [ExtratoController::class, 'index'])->name('extrato.index');
@@ -50,6 +52,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [ProdutosController::class, 'store'])->name('produtos.store');
         Route::put('/{id}', [ProdutosController::class, 'update'])->name('produtos.update');
         Route::delete('/{id}', [ProdutosController::class, 'destroy'])->name('produtos.destroy');
+    });
+
+    Route::group(['prefix' => 'fornecedores'], function () {
+        Route::get('/', [\App\Http\Controllers\FornecedoresController::class, 'index'])->name('fornecedores');
+        Route::get('/autocomplete', [\App\Http\Controllers\FornecedoresController::class, 'autocomplete'])->name('fornecedores.autocomplete');
+        Route::post('/', [\App\Http\Controllers\FornecedoresController::class, 'store'])->name('fornecedores.store');
+        Route::put('/{id}', [\App\Http\Controllers\FornecedoresController::class, 'update'])->name('fornecedores.update');
+        Route::delete('/{id}', [\App\Http\Controllers\FornecedoresController::class, 'destroy'])->name('fornecedores.destroy');
     });
 
     Route::group(['prefix' => 'funcionarios'], function () {

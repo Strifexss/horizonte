@@ -63,6 +63,7 @@ class ExtratoService extends ServiceAbstract implements ExtratoServiceInterface
             'data_competencia' => now(),
             'categoria_id' => $financeiroDto->categoria_id,
             'produto_id' => $financeiroDto->produto_id,
+            'fornecedor_id' => $financeiroDto->fornecedor_id,
             'funcionario_id' => $financeiroDto->funcionario_id,
             'conta_id' => $financeiroDto->conta_id,
             'valor' => $financeiroDto->valor,

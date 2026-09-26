@@ -27,9 +27,24 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
         }
 
         return $query
+            ->with('fornecedor')
             ->orderBy('nome')
             ->limit(20)
-            ->get(['id', 'nome', 'preco_compra']);
+            ->get(['id', 'nome', 'preco_compra', 'fornecedor_id']);
+    }
+
+    /**
+     * Retorna lista de produtos do usuário com relação de fornecedor carregada.
+     */
+    public function index($data = null)
+    {
+        $query = $this->model->newQuery();
+
+        if (Auth::check()) {
+            $query->where('usuario_id', Auth::id());
+        }
+
+        return $query->with('fornecedor')->orderBy('nome')->get();
     }
 
     public function nullifyProdutoIdOnParcelas(int $produtoId): int

@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import MoneyInput from '@/components/ui/money-input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import FuncionarioRow from './FuncionarioRow';
@@ -98,7 +99,7 @@ export default function FuncionariosModal({
     const startEdit = (funcionario: Funcionario) => {
         setEditingId(funcionario.id);
         setData('nome', funcionario.nome);
-        setData('salario', String(funcionario.salario));
+        setData('salario', funcionario.salario !== undefined && funcionario.salario !== null ? Number(funcionario.salario) : '');
     };
 
     const doDelete = (funcionario: Funcionario) => {
@@ -130,14 +131,11 @@ export default function FuncionariosModal({
                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="salario">Salário / Remuneração</Label>
-                                    <Input
+                                    <MoneyInput
                                         id="salario"
-                                        type="number"
-                                        min={0.01}
-                                        step="0.01"
-                                        value={data.salario}
-                                        onChange={(e) => setData('salario', e.target.value)}
-                                        placeholder="0.00"
+                                        value={data.salario ? Number(data.salario) : null}
+                                        onValueChange={(v) => setData('salario', v ?? '')}
+                                        placeholder="0,00"
                                         disabled={processing}
                                     />
                                     <InputError message={errors.salario} />

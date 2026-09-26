@@ -18,6 +18,7 @@ import {
 import CategoriasModal from '../../components/categorias/CategoriasModal';
 import ProdutosModal from '@/components/produtos/ProdutosModal';
 import FuncionariosModal from '@/components/funcionarios/FuncionariosModal';
+import FornecedoresModal from '@/components/fornecedores/FornecedoresModal';
 import ExtratoModal, { type ExtratoModalParcela } from '@/components/extrato/ExtratoModal';
 import ConfirmDeleteModal from '@/components/extrato/ConfirmDeleteModal';
 import ExtratoFab from '@/components/extrato/ExtratoFab';
@@ -90,6 +91,7 @@ export default function Extrato() {
     const [categoriasOpen, setCategoriasOpen] = useState(false);
     const [produtosOpen, setProdutosOpen] = useState(false);
     const [funcionariosOpen, setFuncionariosOpen] = useState(false);
+    const [fornecedoresOpen, setFornecedoresOpen] = useState(false);
     const [extratoOpen, setExtratoOpen] = useState(false);
     const [extratoMode, setExtratoMode] = useState<'create' | 'edit'>('create');
     const [parcelaEdit, setParcelaEdit] = useState<ExtratoModalParcela | null>(null);
@@ -162,7 +164,6 @@ export default function Extrato() {
     const saldoTotal = openingBalance + totalCredits - totalDebits;
 
     const columns = [
-        { key: 'data_competencia', label: 'COMP.', thClassName: 'w-24', render: (p: any) => formatDateISO(p.data_competencia) },
         { key: 'data', label: 'DATA', thClassName: 'w-24', render: (p: any) => formatDateISO(p.data_competencia) },
         { key: 'data_vencimento', label: 'VENC.', thClassName: 'w-24', render: (p: any) => formatDateISO(p.data_vencimento) },
         {
@@ -187,6 +188,15 @@ export default function Extrato() {
             thClassName: 'w-36',
             render: (p: any) => {
                 const nome = p.produto?.nome;
+                return nome ? <span className="truncate">{nome}</span> : '';
+            },
+        },
+        {
+            key: 'fornecedor',
+            label: 'FORNECEDOR',
+            thClassName: 'w-36',
+            render: (p: any) => {
+                const nome = p.produto?.fornecedor?.nome ?? p.fornecedor?.nome ?? null;
                 return nome ? <span className="truncate">{nome}</span> : '';
             },
         },
@@ -302,6 +312,7 @@ export default function Extrato() {
                 <CategoriasModal open={categoriasOpen} onOpenChange={setCategoriasOpen} />
                 <ProdutosModal open={produtosOpen} onOpenChange={setProdutosOpen} />
                 <FuncionariosModal open={funcionariosOpen} onOpenChange={setFuncionariosOpen} />
+                <FornecedoresModal open={fornecedoresOpen} onOpenChange={setFornecedoresOpen} />
                 <PageTitle
                     title="Extrato Financeiro de Contas"
                     mobileTitle="Extrato"
@@ -331,6 +342,7 @@ export default function Extrato() {
                                         <DropdownMenuItem onSelect={() => setCategoriasOpen(true)}>Categorias</DropdownMenuItem>
                                         <DropdownMenuItem onSelect={() => setProdutosOpen(true)}>Produtos</DropdownMenuItem>
                                         <DropdownMenuItem onSelect={() => setFuncionariosOpen(true)}>Funcionários</DropdownMenuItem>
+                                        <DropdownMenuItem onSelect={() => setFornecedoresOpen(true)}>Fornecedores</DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>

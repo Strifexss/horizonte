@@ -6,6 +6,7 @@ use App\DTO\ProdutoDTO;
 use App\Http\Requests\StoreProdutoRequest;
 use App\Services\Interfaces\ProdutosServiceInterface;
 use Illuminate\Http\Request;
+use App\Http\Resources\ProdutoAutocompleteResource;
 
 class ProdutosController extends Controller
 {
@@ -69,7 +70,10 @@ class ProdutosController extends Controller
     {
         $q = (string) $request->query('q', '');
         $result = $this->produtosService->autocomplete($q);
+        $resource = ProdutoAutocompleteResource::collection($result);
+        $data = $resource->response()->getData(true);
 
-        return response()->json($result);
+        // Return plain array expected by the frontend autocomplete.
+        return response()->json($data['data'] ?? []);
     }
 }
