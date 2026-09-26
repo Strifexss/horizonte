@@ -422,10 +422,17 @@ export default function ExtratoModal({
                 setData('valor', Number.isNaN(n) ? preco : n);
                 setData('valor_pago', Number.isNaN(n) ? preco : n);
             }
-            // if product has fornecedor, prefill
-            const fornecedor = (val as any).fornecedor ?? (val as any).fornecedor_id ? { id: (val as any).fornecedor_id, nome: null } : null;
+            // if product has fornecedor, prefill (prefer full fornecedor object; fallback to fornecedor_id with readable name)
+            let fornecedor: Option | null = null;
+            const prodForne = (val as any).fornecedor;
+            const prodForneId = (val as any).fornecedor_id ?? (val as any).fornecedorId ?? null;
+            if (prodForne) {
+                fornecedor = { id: prodForne.id, nome: prodForne.nome ?? String(prodForne.id) };
+            } else if (prodForneId) {
+                fornecedor = { id: prodForneId, nome: String(prodForneId) };
+            }
             if (fornecedor && fornecedor.id) {
-                setSelectedFornecedor(fornecedor as Option);
+                setSelectedFornecedor(fornecedor);
                 setData('fornecedor_id', Number(fornecedor.id));
             } else {
                 setSelectedFornecedor(null);
