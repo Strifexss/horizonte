@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import MoneyInput from '@/components/ui/money-input';
+import MoneyInput, { parseMoneyValue } from '@/components/ui/money-input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import FuncionarioRow from './FuncionarioRow';
@@ -99,7 +99,10 @@ export default function FuncionariosModal({
     const startEdit = (funcionario: Funcionario) => {
         setEditingId(funcionario.id);
         setData('nome', funcionario.nome);
-        setData('salario', funcionario.salario !== undefined && funcionario.salario !== null ? Number(funcionario.salario) : '');
+        setData('salario', (() => {
+            const parsed = parseMoneyValue((funcionario as any).salario);
+            return parsed === null ? '' : parsed.toFixed(2);
+        })());
     };
 
     const doDelete = (funcionario: Funcionario) => {
@@ -116,7 +119,7 @@ export default function FuncionariosModal({
                 </DialogHeader>
                 <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
                     <div className="mt-4 rounded-lg border border-sidebar-border/70 bg-white dark:bg-slate-900 p-4 shadow-sm">
-                        <form onSubmit={submit} className="grid gap-2">
+                        <form onSubmit={submit} noValidate className="grid gap-2">
                             <div className="grid md:grid-cols-2 gap-2">
                                 <div className="grid gap-2">
                                     <Label htmlFor="funcionario_nome">Nome do Funcionário</Label>
@@ -134,7 +137,7 @@ export default function FuncionariosModal({
                                     <MoneyInput
                                         id="salario"
                                         value={data.salario ? Number(data.salario) : null}
-                                        onValueChange={(v) => setData('salario', v ?? '')}
+                                        onValueChange={(v) => setData('salario', v === null ? '' : v.toFixed(2))}
                                         placeholder="0,00"
                                         disabled={processing}
                                     />

@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import MoneyInput from '@/components/ui/money-input';
+import MoneyInput, { parseMoneyValue } from '@/components/ui/money-input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import AsyncSelect from '@/components/ui/AsyncSelect';
@@ -42,8 +42,16 @@ export type ExtratoModalParcela = {
     tipo?: string | null;
     categoria?: { id: number | string; nome: string; padrao?: number | null } | null;
     categoria_id?: number | string | null;
-    produto?: { id: number | string; nome: string; preco_compra?: number | string } | null;
+    produto?: {
+        id: number | string;
+        nome: string;
+        preco_compra?: number | string;
+        fornecedor?: { id: number | string; nome?: string | null } | null;
+        fornecedor_id?: number | string | null;
+    } | null;
     produto_id?: number | string | null;
+    fornecedor?: { id: number | string; nome?: string | null } | null;
+    fornecedor_id?: number | string | null;
     funcionario?: { id: number | string; nome: string; salario?: number | string } | null;
     funcionario_id?: number | string | null;
     conta?: { id: number | string; nome: string } | null;
@@ -65,6 +73,17 @@ function hojeISO(): string {
 function toInputValue(v: number | string | null | undefined): string {
     if (v === null || v === undefined) return '';
     return String(v);
+}
+
+function toMoneyFormValue(input: unknown): string {
+    const parsed = parseMoneyValue(input);
+    if (parsed !== null) {
+        return parsed.toFixed(2);
+    }
+    if (input === null || input === undefined) {
+        return '';
+    }
+    return String(input);
 }
 
 function isCategoriaProduto(cat: Option | null | undefined): boolean {
@@ -280,8 +299,8 @@ export default function ExtratoModal({
                 descricao: toInputValue(parcela?.descricao),
                 data_competencia: toInputValue(parcela?.data_competencia) || hojeISO(),
                 data_vencimento: toInputValue(parcela?.data_vencimento) || hojeISO(),
-                valor: toInputValue(parcela?.valor),
-                valor_pago: toInputValue(parcela?.valor_pago),
+                valor: toMoneyFormValue(parcela?.valor),
+                valor_pago: toMoneyFormValue(parcela?.valor_pago),
                 qtd_parcelas: Number(parcela?.qtd_parcelas ?? 1),
                 tipo: initialTab,
                 categoria_id: categoriaId ? Number(categoriaId) : null,
@@ -418,9 +437,9 @@ export default function ExtratoModal({
             setDraftFuncionarioNome(null);
             setData('descricao', 'Compra');
             if (preco !== null) {
-                const n = Number(preco);
-                setData('valor', Number.isNaN(n) ? preco : n);
-                setData('valor_pago', Number.isNaN(n) ? preco : n);
+                const valor = toMoneyFormValue(preco);
+                setData('valor', valor);
+                setData('valor_pago', valor);
             }
             // if product has fornecedor, prefill (prefer full fornecedor object; fallback to fornecedor_id with readable name)
             let fornecedor: Option | null = null;
@@ -481,9 +500,9 @@ export default function ExtratoModal({
             setDraftProdutoNome(null);
             setData('descricao', `Salário - ${val.nome}`);
             if (salario !== null) {
-                const n = Number(salario);
-                setData('valor', Number.isNaN(n) ? salario : n);
-                setData('valor_pago', Number.isNaN(n) ? salario : n);
+                const valor = toMoneyFormValue(salario);
+                setData('valor', valor);
+                setData('valor_pago', valor);
             }
         } else {
             setData('funcionario_id', null);
@@ -670,6 +689,15 @@ export default function ExtratoModal({
         const url = isEdit ? route('parcela.update', { id: parcela.id }) : route('extrato.store');
         const submitMethod = isEdit ? put : post;
 
+        // sanitize numeric fields to backend-friendly floats (dot decimal)
+        const cleaned = {
+            ...data,
+            valor: toMoneyFormValue(data.valor),
+            valor_pago: toMoneyFormValue(data.valor_pago),
+        };
+
+        // update form data then submit (avoid passing unknown 'data' option to Inertia types)
+        setData(cleaned);
         submitMethod(url as any, {
             preserveState: true,
             preserveScroll: true,
@@ -714,7 +742,7 @@ export default function ExtratoModal({
                         </div>
 
                         <div className="mt-4 rounded-lg border border-sidebar-border/70 bg-white dark:bg-slate-900 p-4 shadow-sm">
-                            <form onSubmit={submit} className="grid gap-2">
+                            <form onSubmit={submit} noValidate className="grid gap-2">
                                 <Input type="hidden" name="id" />
 
                                 {showProdutoField && (
@@ -1128,10 +1156,11 @@ export default function ExtratoModal({
                                             id="valor"
                                             value={data.valor ? Number(data.valor as any) : null}
                                             onValueChange={(v) => {
+                                                const valor = v === null ? '' : v.toFixed(2);
                                                 setData({
                                                     ...data,
-                                                    valor: v ?? '',
-                                                    valor_pago: v ?? '',
+                                                    valor,
+                                                    valor_pago: valor,
                                                 });
                                             }}
                                             placeholder="0,00"
@@ -1145,7 +1174,7 @@ export default function ExtratoModal({
                                         <MoneyInput
                                             id="valor_pago"
                                             value={data.valor_pago ? Number(data.valor_pago as any) : null}
-                                            onValueChange={(v) => setData('valor_pago', v ?? '')}
+                                            onValueChange={(v) => setData('valor_pago', v === null ? '' : v.toFixed(2))}
                                             placeholder="0,00"
                                             disabled={processing}
                                         />

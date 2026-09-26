@@ -112,7 +112,6 @@ const MoneyInput = React.forwardRef<HTMLInputElement, MoneyInputProps>(
                 onPaste={onPaste}
                 onChange={onChange}
                 inputMode="numeric"
-                pattern="[0-9]*"
                 readOnly={false}
                 disabled={disabled}
                 className={cn(
@@ -125,6 +124,24 @@ const MoneyInput = React.forwardRef<HTMLInputElement, MoneyInputProps>(
 );
 
 MoneyInput.displayName = 'MoneyInput';
+
+export function parseMoneyValue(input: unknown): number | null {
+    if (input === null || input === undefined || input === '') return null;
+    if (typeof input === 'number' && Number.isFinite(input)) return Number(Number(input).toFixed(2));
+    let s = String(input).trim();
+    if (!s) return null;
+    // remove currency symbols and spaces, keep digits, dot, comma, minus
+    s = s.replace(/[^\d\-,.]/g, '');
+    // if both dot and comma present, assume dot is thousand separator and comma is decimal
+    if (s.indexOf('.') !== -1 && s.indexOf(',') !== -1) {
+        s = s.replace(/\./g, '').replace(',', '.');
+    } else if (s.indexOf(',') !== -1 && s.indexOf('.') === -1) {
+        s = s.replace(',', '.');
+    }
+    const n = Number(s);
+    if (!Number.isFinite(n)) return null;
+    return Number(n.toFixed(2));
+}
 
 export default MoneyInput;
 

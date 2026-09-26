@@ -13,7 +13,7 @@ import {
 import AsyncSelect from '@/components/ui/AsyncSelect';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import MoneyInput from '@/components/ui/money-input';
+import MoneyInput, { parseMoneyValue } from '@/components/ui/money-input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import ProdutoRow from './ProdutoRow';
@@ -114,7 +114,10 @@ export default function ProdutosModal({
     const startEdit = (produto: Produto) => {
         setEditingId(produto.id);
         setData('nome', produto.nome);
-        setData('preco_compra', produto.preco_compra !== undefined && produto.preco_compra !== null ? Number(produto.preco_compra) : '');
+        setData('preco_compra', (() => {
+            const parsed = parseMoneyValue((produto as any).preco_compra);
+            return parsed === null ? '' : parsed.toFixed(2);
+        })());
         setData('fornecedor_id', (produto as any)?.fornecedor_id ?? null);
         const f = (produto as any)?.fornecedor;
         setSelectedFornecedor(f ? { id: f.id, nome: f.nome } : null);
@@ -140,7 +143,7 @@ export default function ProdutosModal({
                 </DialogHeader>
                 <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
                     <div className="mt-4 rounded-lg border border-sidebar-border/70 bg-white dark:bg-slate-900 p-4 shadow-sm">
-                        <form onSubmit={submit} className="grid gap-2">
+                        <form onSubmit={submit} noValidate className="grid gap-2">
                             <div className="grid md:grid-cols-2 gap-2">
                                 <div className="grid gap-2">
                                     <Label htmlFor="produto_nome">Nome do Produto</Label>
@@ -158,7 +161,7 @@ export default function ProdutosModal({
                                     <MoneyInput
                                         id="preco_compra"
                                         value={data.preco_compra ? Number(data.preco_compra) : null}
-                                        onValueChange={(v) => setData('preco_compra', v ?? '')}
+                                        onValueChange={(v) => setData('preco_compra', v === null ? '' : v.toFixed(2))}
                                         placeholder="0,00"
                                         disabled={processing}
                                     />
