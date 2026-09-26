@@ -32,6 +32,7 @@ export type ExtratoModalMode = 'create' | 'edit';
 export type ExtratoModalParcela = {
     id?: number | string | null;
     descricao?: string | null;
+    data_competencia?: string | null;
     data_vencimento?: string | null;
     valor?: number | string | null;
     valor_pago?: number | string | null;
@@ -115,6 +116,7 @@ export default function ExtratoModal({
 
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
         descricao: toInputValue(parcela?.descricao),
+        data_competencia: toInputValue(parcela?.data_competencia) || hojeISO(),
         data_vencimento: toInputValue(parcela?.data_vencimento) || hojeISO(),
         valor: toInputValue(parcela?.valor),
         valor_pago: toInputValue(parcela?.valor_pago),
@@ -251,6 +253,7 @@ export default function ExtratoModal({
         if (isEdit) {
             setData({
                 descricao: toInputValue(parcela?.descricao),
+                data_competencia: toInputValue(parcela?.data_competencia) || hojeISO(),
                 data_vencimento: toInputValue(parcela?.data_vencimento) || hojeISO(),
                 valor: toInputValue(parcela?.valor),
                 valor_pago: toInputValue(parcela?.valor_pago),
@@ -265,6 +268,7 @@ export default function ExtratoModal({
         } else {
             reset();
             clearErrors();
+            setData('data_competencia', hojeISO());
             setData('data_vencimento', hojeISO());
             setData('qtd_parcelas', 1);
             setData('tipo', initialTab);
@@ -805,7 +809,7 @@ export default function ExtratoModal({
                                     </div>
                                 )}
 
-                                <div className="grid md:grid-cols-2 gap-2">
+                                <div className="grid gap-2">
                                     <div className="grid gap-2">
                                         <Label htmlFor="descricao">Descrição</Label>
                                         <Input
@@ -818,16 +822,30 @@ export default function ExtratoModal({
                                         <InputError message={errors.descricao} />
                                     </div>
 
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="data_vencimento">Data de vencimento</Label>
-                                        <Input
-                                            id="data_vencimento"
-                                            type="date"
-                                            value={data.data_vencimento}
-                                            onChange={(e) => setData('data_vencimento', e.target.value)}
-                                            disabled={processing}
-                                        />
-                                        <InputError message={errors.data_vencimento} />
+                                    <div className="grid md:grid-cols-2 gap-2">
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="data_competencia">Data</Label>
+                                            <Input
+                                                id="data_competencia"
+                                                type="date"
+                                                value={data.data_competencia}
+                                                onChange={(e) => setData('data_competencia', e.target.value)}
+                                                disabled={processing}
+                                            />
+                                            <InputError message={errors.data_competencia} />
+                                        </div>
+
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="data_vencimento">Data de vencimento</Label>
+                                            <Input
+                                                id="data_vencimento"
+                                                type="date"
+                                                value={data.data_vencimento}
+                                                onChange={(e) => setData('data_vencimento', e.target.value)}
+                                                disabled={processing}
+                                            />
+                                            <InputError message={errors.data_vencimento} />
+                                        </div>
                                     </div>
                                 </div>
 

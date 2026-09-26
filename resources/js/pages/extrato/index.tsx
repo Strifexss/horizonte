@@ -163,6 +163,7 @@ export default function Extrato() {
 
     const columns = [
         { key: 'data_competencia', label: 'COMP.', thClassName: 'w-24', render: (p: any) => formatDateISO(p.data_competencia) },
+        { key: 'data', label: 'DATA', thClassName: 'w-24', render: (p: any) => formatDateISO(p.data_competencia) },
         { key: 'data_vencimento', label: 'VENC.', thClassName: 'w-24', render: (p: any) => formatDateISO(p.data_vencimento) },
         {
             key: 'descricao',
