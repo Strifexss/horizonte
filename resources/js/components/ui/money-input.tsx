@@ -92,6 +92,15 @@ const MoneyInput = React.forwardRef<HTMLInputElement, MoneyInputProps>(
             propagate(next);
         };
 
+        const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+            if (disabled) return;
+            const text = e.target.value || '';
+            // extract digits from any input (handles mobile keyboards)
+            const onlyDigits = text.replace(/\D/g, '');
+            const next = onlyDigits.replace(/^0+(?=\d)/, '');
+            propagate(next);
+        };
+
         const display = digits ? formatFromDigits(digits, showSymbol) : '';
 
         return (
@@ -101,6 +110,9 @@ const MoneyInput = React.forwardRef<HTMLInputElement, MoneyInputProps>(
                 value={display}
                 onKeyDown={onKeyDown}
                 onPaste={onPaste}
+                onChange={onChange}
+                inputMode="numeric"
+                pattern="[0-9]*"
                 readOnly={false}
                 disabled={disabled}
                 className={cn(
