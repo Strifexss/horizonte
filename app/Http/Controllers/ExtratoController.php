@@ -50,12 +50,12 @@ class ExtratoController extends FinanceiroAbstractController
     {
         try {
             $dto = FinanceiroDTO::fromArray($request->validated());
-            $this->extratoService->store($dto);
-
+            $store = $this->extratoService->store($dto);
             return redirect()->route('extrato.index')->with('success', 'Lançamento criado.');
         } catch (\Exception $e) {
             return redirect()->route('extrato.index')->with('error', 'Erro ao criar lançamento: '.$e->getMessage());
         }
+        
     }
 
     public function show(int $id)

@@ -141,7 +141,7 @@ export default function ExtratoModal({
     const [draftFornecedorFocus, setDraftFornecedorFocus] = useState<'nome' | null>(null);
     const [creatingInline, setCreatingInline] = useState(false);
 
-    const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
+    const { data, setData, post, put, processing, errors, reset, clearErrors, transform } = useForm({
         descricao: toInputValue(parcela?.descricao),
         data_competencia: toInputValue(parcela?.data_competencia) || hojeISO(),
         valor: toInputValue(parcela?.valor),
@@ -693,17 +693,19 @@ export default function ExtratoModal({
         const url = isEdit ? route('parcela.update', { id: parcela.id }) : route('extrato.store');
         const submitMethod = isEdit ? put : post;
 
-        // sanitize numeric fields to backend-friendly floats (dot decimal)
-        const cleaned = {
-            ...data,
-            valor: toMoneyFormValue(data.valor),
-            valor_pago: toMoneyFormValue(data.valor_pago),
-        };
+        transform((current) => ({
+            ...current,
+            valor: toMoneyFormValue(current.valor),
+            valor_pago: toMoneyFormValue(current.valor_pago),
+            ...(isEdit
+                ? {}
+                : {
+                      data_vencimento: current.data_competencia,
+                      qtd_parcelas: 1,
+                  }),
+        }));
 
-        // update form data then submit (avoid passing unknown 'data' option to Inertia types)
-        setData(cleaned);
-        submitMethod(url as any, {
-            preserveState: true,
+        submitMethod(url, {
             preserveScroll: true,
             onSuccess: () => {
                 reset();
@@ -1169,7 +1171,12 @@ export default function ExtratoModal({
                                             onChange={(e) => setData('data_competencia', e.target.value)}
                                             disabled={processing}
                                         />
-                                        <InputError message={errors.data_competencia} />
+                                        <InputError
+                                            message={
+                                                errors.data_competencia ||
+                                                (errors as { data_vencimento?: string }).data_vencimento
+                                            }
+                                        />
                                     </div>
                                 </div>
                                 <DialogFooter className="flex flex-row gap-2 mt-4">
