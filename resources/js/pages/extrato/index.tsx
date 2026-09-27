@@ -397,8 +397,8 @@ export default function Extrato() {
                 <KpisPanel
                     items={[
                         { id: 'prev', label: 'Saldo Anterior', value: formatCurrency(openingBalance), hint: 'Antes do período', icon: <BarChart2 className="h-8 w-8 text-muted-foreground" /> },
-                        { id: 'in', label: 'Entradas', value: <span className="text-green-600">{formatCurrency(totalCredits)}</span>, hint: '+85% do total', icon: <ArrowUpRight className="h-8 w-8 text-green-600" /> },
-                        { id: 'out', label: 'Saídas', value: <span className="text-red-600">{formatCurrency(totalDebits)}</span>, hint: '-15% do total', icon: <ArrowDownRight className="h-8 w-8 text-red-600" /> },
+                        { id: 'in', label: 'Entradas', value: <span className="text-green-600">{formatCurrency(totalCredits)}</span>, hint: '', icon: <ArrowUpRight className="h-8 w-8 text-green-600" /> },
+                        { id: 'out', label: 'Saídas', value: <span className="text-red-600">{formatCurrency(totalDebits)}</span>, hint: '', icon: <ArrowDownRight className="h-8 w-8 text-red-600" /> },
                         { 
                             id: 'total', 
                             label: 'Saldo Total', 
