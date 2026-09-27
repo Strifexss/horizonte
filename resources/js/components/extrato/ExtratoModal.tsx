@@ -156,6 +156,7 @@ export default function ExtratoModal({
         fornecedor_id: (parcela?.fornecedor_id ?? null) as number | null,
         funcionario_id: (parcela?.funcionario_id ?? null) as number | null,
         conta_id: (parcela?.conta_id ?? null) as number | null,
+        quantidade: toInputValue(parcela?.quantidade ?? 1),
     });
 
     const showProdutoField = isCategoriaProduto(selectedCategoria);
@@ -452,7 +453,9 @@ export default function ExtratoModal({
             if (preco !== null) {
                 const valor = toMoneyFormValue(preco);
                 setData('valor', valor);
-                setData('valor_pago', valor);
+                const qtd = Number(data.quantidade) || 1;
+                const total = (parseFloat(preco.replace(',', '.') || preco) * qtd).toFixed(2);
+                setData('valor_pago', total);
             }
             // if product has fornecedor, prefill (prefer full fornecedor object; fallback to fornecedor_id with readable name)
             let fornecedor: Option | null = null;
@@ -1138,7 +1141,33 @@ export default function ExtratoModal({
                                     </div>
                                 </div>
 
-                                <div className="grid md:grid-cols-2 gap-2">
+                                <div className="grid md:grid-cols-3 gap-2">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="quantidade">Quantidade</Label>
+                                        <Input
+                                            id="quantidade"
+                                            type="number"
+                                            min={1}
+                                            value={data.quantidade}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setData('quantidade', val);
+                                                const qtdStr = val === '' ? '1' : val;
+                                                const qtd = Math.max(1, parseFloat(qtdStr) || 1);
+                                                const precoStr = selectedProduto?.preco_compra !== undefined && selectedProduto?.preco_compra !== null ? String(selectedProduto.preco_compra) : null;
+                                                if (precoStr !== null) {
+                                                    const precoNum = parseFloat(precoStr.replace(',', '.') || precoStr);
+                                                        if (!isNaN(precoNum)) {
+                                                            const total = (precoNum * qtd).toFixed(2);
+                                                            setData('valor', total);
+                                                            setData('valor_pago', total);
+                                                        }
+                                                }
+                                            }}
+                                            disabled={processing}
+                                        />
+                                    </div>
+
                                     <div className="grid gap-2">
                                         <Label>Valor <span className="text-red-500">*</span></Label>
                                         <MoneyInput
