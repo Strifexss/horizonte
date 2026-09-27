@@ -43,6 +43,11 @@ class CategoriaService extends ServiceAbstract implements CategoriaServiceInterf
      * @param  string|null  $q
      * @return mixed
      */
+    public function padraoPorTipo(?string $tipo = null)
+    {
+        return $this->repository->padraoPorTipo($tipo);
+    }
+
     public function autocomplete($q = null, ?string $tipo = null)
     {
         /** @var CategoriaRepositoryInterface $repo */

@@ -46,6 +46,17 @@ class CategoriaRepository extends AbstractRepository implements CategoriaReposit
      * @param  string|null  $q
      * @return Collection|array
      */
+    public function padraoPorTipo(?string $tipo = null): Collection
+    {
+        $query = $this->model->newQuery()->where('padrao', 1);
+
+        if ($tipo !== null && $tipo !== '') {
+            $query->where('tipo', $tipo);
+        }
+
+        return $query->get(['id', 'nome', 'tipo', 'padrao']);
+    }
+
     public function autocomplete($q = null, ?string $tipo = null)
     {
         $query = $this->model->newQuery();

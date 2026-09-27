@@ -11,5 +11,7 @@ interface CategoriaServiceInterface extends AbstractServiceInterface
      * @return mixed
      */
     public function autocomplete($q = null, ?string $tipo = null);
+
+    public function padraoPorTipo(?string $tipo = null);
 }
 

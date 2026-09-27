@@ -100,11 +100,13 @@ export default function ExtratoModal({
     onOpenChange,
     mode = 'create',
     parcela = null,
+    categoriasPadrao,
 }: {
     open: boolean;
     onOpenChange: (b: boolean) => void;
     mode?: ExtratoModalMode;
     parcela?: ExtratoModalParcela | null;
+    categoriasPadrao?: { receita?: Option | null; despesa?: Option | null };
 }) {
     const initialTipo: 'RECEITA' | 'DESPESA' =
         String(parcela?.tipo ?? parcela?.financeiro?.tipo ?? 'DESPESA').toUpperCase() === 'RECEITA'
@@ -164,6 +166,14 @@ export default function ExtratoModal({
         if (produtoCat) {
             setSelectedCategoria(produtoCat);
             setData('categoria_id', Number(produtoCat.id));
+        }
+    };
+
+    const applyReceitaPadrao = () => {
+        const receitaCat = categoriasPadrao?.receita ?? null;
+        if (receitaCat) {
+            setSelectedCategoria(receitaCat);
+            setData('categoria_id', Number(receitaCat.id));
         }
     };
 
@@ -316,6 +326,8 @@ export default function ExtratoModal({
             setSelectedFuncionario(null);
             if (initialTab === 'DESPESA') {
                 void applyProdutoPadrao();
+            } else {
+                void applyReceitaPadrao();
             }
             void applyContaPadrao();
         }
@@ -328,8 +340,7 @@ export default function ExtratoModal({
         if (activeTab === 'DESPESA') {
             void applyProdutoPadrao();
         } else {
-            setSelectedCategoria(null);
-            setData('categoria_id', null);
+            void applyReceitaPadrao();
             setSelectedProduto(null);
             setData('produto_id', null);
             setSelectedFuncionario(null);
@@ -349,7 +360,7 @@ export default function ExtratoModal({
         return () => window.clearTimeout(timeoutId);
     }, [open, showProdutoField, activeTab]);
 
-    const loadContas = async (q: string) => {
+    const loadContas = async (q: string = '') => {
         const res = await fetch(`/contas/autocomplete?q=${encodeURIComponent(q)}`);
         if (!res.ok) return [];
         return res.json();

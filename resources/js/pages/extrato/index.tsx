@@ -371,7 +371,7 @@ export default function Extrato() {
                     onCadastrarFuncionario={() => setFuncionariosOpen(true)}
                     onCadastrarProduto={() => setProdutosOpen(true)}
                 />
-                <ExtratoModal open={extratoOpen} onOpenChange={setExtratoOpen} mode={extratoMode} parcela={parcelaEdit} />
+                <ExtratoModal open={extratoOpen} onOpenChange={setExtratoOpen} mode={extratoMode} parcela={parcelaEdit} categoriasPadrao={(props as any).categorias_padrao ?? null} />
                 <ConfirmDeleteModal
                     open={confirmDeleteOpen}
                     onOpenChange={setConfirmDeleteOpen}

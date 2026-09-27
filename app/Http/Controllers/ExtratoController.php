@@ -7,6 +7,7 @@ use App\DTO\FinanceiroSearchDTO;
 use App\Http\Requests\FinanceiroRequest;
 use App\Http\Requests\FinanceiroSearchRequest;
 use App\Http\Resources\FinanceiroParcelaResource;
+use App\Services\Interfaces\ContasServiceInterface;
 use App\Services\Interfaces\CategoriaServiceInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
 use App\Services\Interfaces\FuncionariosServiceInterface;
@@ -17,6 +18,7 @@ use Inertia\Inertia;
 class ExtratoController extends FinanceiroAbstractController
 {
     public function __construct(
+        private ContasServiceInterface $contaService,
         private CategoriaServiceInterface $categoriaService,
         private ExtratoServiceInterface $extratoService,
         private ProdutosServiceInterface $produtosService,
@@ -30,6 +32,11 @@ class ExtratoController extends FinanceiroAbstractController
 
         return Inertia::render('extrato/index', [
             'filters' => $filters->all(),
+            'categorias_padrao' => [
+                'receita' => ($cat = $this->categoriaService->padraoPorTipo('receita')->first()) ? ['id' => $cat->id, 'nome' => $cat->nome, 'padrao' => $cat->padrao] : null,
+                'despesa' => ($cat = $this->categoriaService->padraoPorTipo('despesa')->first()) ? ['id' => $cat->id, 'nome' => $cat->nome, 'padrao' => $cat->padrao] : null,
+            ],
+            'conta_padrao' => ($conta = $this->contaService->index()->sortByDesc('padrao')->first()) ? ['id' => $conta->id, 'nome' => $conta->nome, 'padrao' => $conta->padrao] : null,
             'categorias' => Inertia::lazy(fn () => $this->categoriaService->index()),
             'produtos' => Inertia::lazy(fn () => $this->produtosService->index()),
             'funcionarios' => Inertia::lazy(fn () => $this->funcionariosService->index()),

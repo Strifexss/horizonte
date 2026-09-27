@@ -1,6 +1,7 @@
-import React from 'react';
-import { StylesConfig } from 'react-select';
-import AsyncSelectBase from 'react-select/async';
+import React, { useEffect, useRef, useState } from 'react';
+import Select, { StylesConfig } from 'react-select';
+
+const SEARCH_DEBOUNCE_MS = 800;
 
 type Option = { id: number | string; nome: string; [key: string]: any };
 
@@ -120,35 +121,80 @@ export default function AsyncSelect({
   creatable = false,
   formatCreateLabel = (input: string) => `+ Cadastrar "${input}"`,
 }: AsyncSelectProps) {
-  const wrappedLoad = async (inputValue: string) => {
-    try {
-      const opts = await loadOptions(inputValue);
-      const mapped = opts.map((o) => ({ value: o.id, label: o.nome, __raw: o }));
-      const trimmed = inputValue.trim();
+  const [options, setOptions] = useState<SelectOption[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const requestId = useRef(0);
+  const debounceTimer = useRef<number | null>(null);
 
-      if (
-        creatable &&
-        trimmed &&
-        !opts.some((o) => String(o.nome).trim().toLowerCase() === trimmed.toLowerCase())
-      ) {
-        const createOption: SelectOption = {
-          value: `__create__:${trimmed}`,
-          label: formatCreateLabel(trimmed),
-          __isCreate: true,
-          __raw: {
-            id: `__create__`,
-            nome: trimmed,
-            __create: true,
-            __createName: trimmed,
-          },
-        };
-        return [...mapped, createOption];
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current !== null) {
+        window.clearTimeout(debounceTimer.current);
       }
+      requestId.current += 1;
+    };
+  }, []);
 
-      return mapped;
-    } catch {
-      return [];
+  const fetchOptions = (inputValue: string) => {
+    const id = ++requestId.current;
+    setIsLoading(true);
+
+    void (async () => {
+      try {
+        const opts = await loadOptions(inputValue);
+        if (id !== requestId.current) {
+          return;
+        }
+
+        const mapped = opts.map((o) => ({ value: o.id, label: o.nome, __raw: o }));
+        const trimmed = inputValue.trim();
+
+        if (
+          creatable &&
+          trimmed &&
+          !opts.some((o) => String(o.nome).trim().toLowerCase() === trimmed.toLowerCase())
+        ) {
+          const createOption: SelectOption = {
+            value: `__create__:${trimmed}`,
+            label: formatCreateLabel(trimmed),
+            __isCreate: true,
+            __raw: {
+              id: `__create__`,
+              nome: trimmed,
+              __create: true,
+              __createName: trimmed,
+            },
+          };
+          setOptions([...mapped, createOption]);
+          return;
+        }
+
+        setOptions(mapped);
+      } catch {
+        if (id !== requestId.current) {
+          return;
+        }
+        setOptions([]);
+      } finally {
+        if (id === requestId.current) {
+          setIsLoading(false);
+        }
+      }
+    })();
+  };
+
+  const scheduleFetch = (inputValue: string) => {
+    if (debounceTimer.current !== null) {
+      window.clearTimeout(debounceTimer.current);
     }
+
+    requestId.current += 1;
+    setIsLoading(false);
+
+    debounceTimer.current = window.setTimeout(() => {
+      debounceTimer.current = null;
+      fetchOptions(inputValue);
+    }, SEARCH_DEBOUNCE_MS);
   };
 
   const handleChange = (selected: SelectOption | null) => {
@@ -162,19 +208,31 @@ export default function AsyncSelect({
   const selected = value ? { value: value.id, label: value.nome, __raw: value } : null;
 
   return (
-    <AsyncSelectBase<SelectOption, false>
+    <Select<SelectOption, false>
       ref={selectRef as React.Ref<any>}
       classNamePrefix="app-select"
-      cacheOptions={false}
-      defaultOptions
-      loadOptions={wrappedLoad}
+      options={options}
+      isLoading={isLoading}
+      filterOption={null}
+      openMenuOnClick
+      onMenuOpen={() => {
+        if (debounceTimer.current !== null) {
+          window.clearTimeout(debounceTimer.current);
+          debounceTimer.current = null;
+        }
+        fetchOptions('');
+      }}
+      onInputChange={(input, meta) => {
+        if (meta.action === 'input-change') {
+          scheduleFetch(input);
+        }
+      }}
       onChange={handleChange}
       value={selected}
       isClearable={isClearable}
       placeholder={placeholder}
       styles={selectStyles}
       autoFocus={autoFocus}
-      filterOption={null}
       menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
       menuPosition="fixed"
       blurInputOnSelect
