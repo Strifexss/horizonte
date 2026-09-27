@@ -16,6 +16,7 @@ type FiltersProps = {
     categoria_id?: number;
     produto_id?: number;
     grupo_id?: number;
+    fornecedor_id?: number;
     status?: string;
 };
 
@@ -80,6 +81,11 @@ function buildPayload(
         payload.grupo_nome = values.grupo.nome;
     }
 
+    if (values.fornecedor) {
+        payload.fornecedor_id = Number(values.fornecedor.id);
+        payload.fornecedor_nome = values.fornecedor.nome;
+    }
+
     if (extras.busca) {
         payload.busca = extras.busca;
     }
@@ -94,7 +100,7 @@ export default function ExtratoFilters() {
 
     const initialValues = useMemo<ExtratoFilterValues>(
         () => ({
-            tipoData: filters.tipo_data ?? 'vencimento',
+            tipoData: filters.tipo_data ?? 'competencia',
             dataInicio: filters.data_inicio ?? inicioMesISO(),
             dataFim: filters.data_fim ?? fimMesISO(),
             conta: filters.conta_id
@@ -118,9 +124,15 @@ export default function ExtratoFilters() {
                       nome: queryNome('grupo_nome') || String(filters.grupo_id),
                   }
                 : null,
+            fornecedor: filters.fornecedor_id
+                ? {
+                      id: filters.fornecedor_id,
+                      nome: queryNome('fornecedor_nome') || String(filters.fornecedor_id),
+                  }
+                : null,
             status: filters.status ?? 'todos',
         }),
-        [filters.tipo_data, filters.data_inicio, filters.data_fim, filters.conta_id, filters.categoria_id, filters.produto_id, filters.grupo_id, filters.status],
+        [filters.tipo_data, filters.data_inicio, filters.data_fim, filters.conta_id, filters.categoria_id, filters.produto_id, filters.grupo_id, filters.fornecedor_id, filters.status],
     );
 
     const [values, setValues] = useState<ExtratoFilterValues>(initialValues);
@@ -163,6 +175,14 @@ export default function ExtratoFilters() {
         return res.json();
     };
 
+    const loadFornecedores = async (q: string): Promise<FilterOption[]> => {
+        const res = await fetch(`/fornecedores/autocomplete?q=${encodeURIComponent(q)}`);
+        if (!res.ok) {
+            return [];
+        }
+        return res.json();
+    };
+
     const extras = () => ({
         busca: filters.busca,
         per_page: filters.per_page ?? 20,
@@ -175,13 +195,14 @@ export default function ExtratoFilters() {
 
     const clearAll = () => {
         const next: ExtratoFilterValues = {
-            tipoData: 'vencimento',
+            tipoData: 'competencia',
             dataInicio: inicioMesISO(),
             dataFim: fimMesISO(),
             conta: null,
             categoria: null,
             produto: null,
             grupo: null,
+            fornecedor: null,
             status: 'todos',
         };
         setValues(next);
@@ -203,6 +224,9 @@ export default function ExtratoFilters() {
         }
         if (key === 'grupo') {
             next.grupo = null;
+        }
+        if (key === 'fornecedor') {
+            next.fornecedor = null;
         }
         if (key === 'status') {
             next.status = 'todos';
@@ -226,6 +250,7 @@ export default function ExtratoFilters() {
                 loadCategorias={loadCategorias}
                 loadProdutos={loadProdutos}
                 loadGrupos={loadGrupos}
+                loadFornecedores={loadFornecedores}
             />
 
             <div className="hidden rounded-lg border border-sidebar-border/70 bg-white p-4 shadow-sm md:block dark:bg-slate-900">
@@ -236,6 +261,7 @@ export default function ExtratoFilters() {
                     loadCategorias={loadCategorias}
                     loadProdutos={loadProdutos}
                     loadGrupos={loadGrupos}
+                    loadFornecedores={loadFornecedores}
                 />
                 <div className="mt-3 flex justify-end md:col-span-8">
                     <Button

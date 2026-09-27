@@ -138,6 +138,10 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
             });
         }
 
+        if ($data->fornecedor_id !== null) {
+            $query->where('fornecedor_id', $data->fornecedor_id);
+        }
+
         if ($data->busca !== null && $data->busca !== '') {
             $this->applyAccentInsensitiveLike($query, 'descricao', $data->busca);
         }

@@ -22,6 +22,8 @@ class FinanceiroSearchDTO extends Dto
 
     public ?int $grupo_id = null;
 
+    public ?int $fornecedor_id = null;
+
     public int $per_page = 20;
 
     /**
@@ -51,6 +53,12 @@ class FinanceiroSearchDTO extends Dto
             $data['grupo_id'] = (int) $data['grupo_id'];
         } else {
             $data['grupo_id'] = null;
+        }
+
+        if (array_key_exists('fornecedor_id', $data) && $data['fornecedor_id'] !== null && $data['fornecedor_id'] !== '') {
+            $data['fornecedor_id'] = (int) $data['fornecedor_id'];
+        } else {
+            $data['fornecedor_id'] = null;
         }
 
         $perPage = isset($data['per_page']) ? (int) $data['per_page'] : 20;

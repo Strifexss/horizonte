@@ -72,6 +72,7 @@ type Props = {
     loadCategorias: (q: string) => Promise<FilterOption[]>;
     loadProdutos: (q: string) => Promise<FilterOption[]>;
     loadGrupos: (q: string) => Promise<FilterOption[]>;
+    loadFornecedores: (q: string) => Promise<FilterOption[]>;
 };
 
 export default function ExtratoMobileFilterBar({
@@ -84,6 +85,7 @@ export default function ExtratoMobileFilterBar({
     loadCategorias,
     loadProdutos,
     loadGrupos,
+    loadFornecedores,
 }: Props) {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [periodOpen, setPeriodOpen] = useState(false);
@@ -144,6 +146,9 @@ export default function ExtratoMobileFilterBar({
         }
         if (values.grupo) {
             next.push({ key: 'grupo', label: values.grupo.nome });
+        }
+        if (values.fornecedor) {
+            next.push({ key: 'fornecedor', label: values.fornecedor.nome });
         }
         if (values.status && values.status !== 'todos') {
             next.push({ key: 'status', label: STATUS_LABELS[values.status] ?? values.status });
@@ -291,6 +296,7 @@ export default function ExtratoMobileFilterBar({
                             loadCategorias={loadCategorias}
                             loadProdutos={loadProdutos}
                             loadGrupos={loadGrupos}
+                            loadFornecedores={loadFornecedores}
                         />
                     </div>
                     <SheetFooter className="shrink-0 flex-row gap-2 border-t border-sidebar-border/70 bg-background px-4 py-3">

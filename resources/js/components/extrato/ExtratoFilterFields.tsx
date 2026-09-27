@@ -20,6 +20,7 @@ export type ExtratoFilterValues = {
     categoria: FilterOption | null;
     produto: FilterOption | null;
     grupo: FilterOption | null;
+    fornecedor: FilterOption | null;
     status: string;
 };
 
@@ -30,6 +31,7 @@ type Props = {
     loadCategorias: (q: string) => Promise<FilterOption[]>;
     loadProdutos: (q: string) => Promise<FilterOption[]>;
     loadGrupos: (q: string) => Promise<FilterOption[]>;
+    loadFornecedores: (q: string) => Promise<FilterOption[]>;
     idPrefix?: string;
 };
 
@@ -40,6 +42,7 @@ export default function ExtratoFilterFields({
     loadCategorias,
     loadProdutos,
     loadGrupos,
+    loadFornecedores,
     idPrefix = '',
 }: Props) {
     return (
@@ -51,13 +54,12 @@ export default function ExtratoFilterFields({
                         <SelectValue placeholder="Tipo de data" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="vencimento">Vencimento</SelectItem>
                         <SelectItem value="competencia">Competência</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
 
-            <div className="flex min-w-0 flex-col gap-1 md:col-span-3">
+            <div className="flex min-w-0 flex-col gap-1 md:col-span-2">
                 <Label>Período</Label>
                 <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
                     <Input
@@ -117,6 +119,17 @@ export default function ExtratoFilterFields({
                     value={values.grupo}
                     onChange={(grupo) => onChange({ grupo })}
                     loadOptions={loadGrupos}
+                    placeholder="Todos"
+                    isClearable
+                />
+            </div>
+
+            <div className="flex flex-col gap-1 md:col-span-1">
+                <Label>Fornecedor</Label>
+                <AsyncSelect
+                    value={values.fornecedor}
+                    onChange={(fornecedor) => onChange({ fornecedor })}
+                    loadOptions={loadFornecedores}
                     placeholder="Todos"
                     isClearable
                 />
