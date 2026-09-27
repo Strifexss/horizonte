@@ -17,6 +17,8 @@ import MoneyInput, { parseMoneyValue } from '@/components/ui/money-input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import ProdutoRow from './ProdutoRow';
+import { Plus } from 'lucide-react';
+import GruposModal from '../grupos/GruposModal';
 
 type Produto = {
     id: number | string;
@@ -45,12 +47,15 @@ export default function ProdutosModal({
     const page = usePage<any>();
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [produtoToDelete, setProdutoToDelete] = useState<Produto | null>(null);
+    const [gruposModalOpen, setGruposModalOpen] = useState(false);
+    const [selectedGrupo, setSelectedGrupo] = useState<{ id: number | string; nome: string } | null>(null);
     const [editingId, setEditingId] = useState<number | string | null>(null);
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
         nome: '',
         preco_compra: '',
         fornecedor_id: null,
+        grupo_id: null,
     });
 
     useEffect(() => {
@@ -82,6 +87,7 @@ export default function ProdutosModal({
         clearErrors();
         setEditingId(null);
         setSelectedFornecedor(null);
+        setSelectedGrupo(null);
     }, [open]);
 
     const submit = (e: React.FormEvent) => {
@@ -93,6 +99,7 @@ export default function ProdutosModal({
                     reset();
                     setEditingId(null);
                     setSelectedFornecedor(null);
+                    setSelectedGrupo(null);
                 },
             });
         } else {
@@ -101,6 +108,7 @@ export default function ProdutosModal({
                     router.reload({ only: ['produtos'] });
                     reset();
                     setSelectedFornecedor(null);
+                    setSelectedGrupo(null);
                     const criado = (pageResult.props as any)?.flash?.produto_criado as ProdutoCriado | undefined;
                     if (criado && onCreated) {
                         onCreated(criado);
@@ -121,6 +129,9 @@ export default function ProdutosModal({
         setData('fornecedor_id', (produto as any)?.fornecedor_id ?? null);
         const f = (produto as any)?.fornecedor;
         setSelectedFornecedor(f ? { id: f.id, nome: f.nome } : null);
+        const g = (produto as any)?.grupo;
+        setData('grupo_id', (produto as any)?.grupo_id ?? g?.id ?? null);
+        setSelectedGrupo(g ? { id: g.id, nome: g.nome } : null);
     };
 
     const loadFornecedores = async (q: string = '') => {
@@ -180,6 +191,31 @@ export default function ProdutosModal({
                                         isClearable
                                     />
                                     <InputError message={errors.fornecedor_id} />
+                                </div>
+                                <div className="grid gap-2 md:col-span-2">
+                                    <Label>Grupo</Label>
+                                    <div className="flex items-start gap-2">
+                                        <div className="min-w-0 flex-1">
+                                            <AsyncSelect
+                                                value={selectedGrupo}
+                                                onChange={(val: any) => {
+                                                    setSelectedGrupo(val ? { id: val.id, nome: val.nome } : null);
+                                                    setData('grupo_id', val ? Number(val.id) : null);
+                                                }}
+                                                loadOptions={async (q: string = '') => {
+                                                    const res = await fetch(`/grupos?q=${encodeURIComponent(q)}`);
+                                                    if (!res.ok) return [];
+                                                    return (await res.json()).grupos ?? [];
+                                                }}
+                                                placeholder="Buscar grupo..."
+                                                isClearable
+                                            />
+                                        </div>
+                                        <Button type="button" variant="secondary" size="icon" className="shrink-0" onClick={() => setGruposModalOpen(true)} aria-label="Cadastrar grupo" title="Cadastrar grupo">
+                                            <Plus className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                    <InputError message={errors.grupo_id} />
                                 </div>
                             </div>
 
@@ -260,6 +296,14 @@ export default function ProdutosModal({
                         </DialogContent>
                     </Dialog>
                 </div>
+                <GruposModal
+                    open={gruposModalOpen}
+                    onOpenChange={setGruposModalOpen}
+                    onCreated={(grupo) => {
+                        setData('grupo_id', grupo.id);
+                        setSelectedGrupo({ id: grupo.id, nome: grupo.nome });
+                    }}
+                />
             </DialogContent>
         </Dialog>
     );

@@ -20,6 +20,8 @@ use App\Services\ExtratoService;
 use App\Services\FinanceiroParcelaService;
 use App\Services\FuncionariosService;
 use App\Repositories\FornecedorRepository;
+use App\Repositories\Interfaces\GrupoRepositoryInterface;
+use App\Repositories\GrupoRepository;
 use App\Repositories\Interfaces\FornecedorRepositoryInterface;
 use App\Services\FornecedoresService;
 use App\Services\Interfaces\FornecedoresServiceInterface;
@@ -28,6 +30,8 @@ use App\Services\Interfaces\ContasServiceInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
 use App\Services\Interfaces\FinanceiroParcelaServiceInterface;
 use App\Services\Interfaces\FuncionariosServiceInterface;
+use App\Services\GruposService;
+use App\Services\Interfaces\GruposServiceInterface;
 use App\Services\Interfaces\ProdutosServiceInterface;
 use App\Services\ProdutosService;
 use Illuminate\Support\ServiceProvider;
@@ -53,6 +57,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(FuncionarioRepositoryInterface::class, FuncionarioRepository::class);
         $this->app->bind(FornecedoresServiceInterface::class, FornecedoresService::class);
         $this->app->bind(FornecedorRepositoryInterface::class, FornecedorRepository::class);
+        $this->app->bind(GruposServiceInterface::class, GruposService::class);
+        $this->app->bind(GrupoRepositoryInterface::class, GrupoRepository::class);
     }
 
     /**

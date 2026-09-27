@@ -5,6 +5,7 @@ use App\Http\Controllers\ContasController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExtratoController;
 use App\Http\Controllers\FuncionariosController;
+use App\Http\Controllers\GruposController;
 use App\Http\Controllers\ParcelaController;
 use App\Http\Controllers\ProdutosController;
 use Illuminate\Support\Facades\Route;
@@ -60,6 +61,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [\App\Http\Controllers\FornecedoresController::class, 'store'])->name('fornecedores.store');
         Route::put('/{id}', [\App\Http\Controllers\FornecedoresController::class, 'update'])->name('fornecedores.update');
         Route::delete('/{id}', [\App\Http\Controllers\FornecedoresController::class, 'destroy'])->name('fornecedores.destroy');
+    });
+
+    Route::group(['prefix' => 'grupos'], function () {
+        Route::get('/', [GruposController::class, 'index'])->name('grupos');
+        Route::post('/', [GruposController::class, 'store'])->name('grupos.store');
+        Route::put('/{id}', [GruposController::class, 'update'])->name('grupos.update');
+        Route::delete('/{id}', [GruposController::class, 'destroy'])->name('grupos.destroy');
     });
 
     Route::group(['prefix' => 'funcionarios'], function () {

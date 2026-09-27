@@ -20,6 +20,7 @@ import AsyncSelect from '@/components/ui/AsyncSelect';
 import ProdutosModal from '@/components/produtos/ProdutosModal';
 import FuncionariosModal from '@/components/funcionarios/FuncionariosModal';
 import FornecedoresModal from '@/components/fornecedores/FornecedoresModal';
+import GruposModal from '@/components/grupos/GruposModal';
 
 type Option = {
     id: number | string;
@@ -121,6 +122,8 @@ export default function ExtratoModal({
     const [produtosModalOpen, setProdutosModalOpen] = useState(false);
     const [funcionariosModalOpen, setFuncionariosModalOpen] = useState(false);
     const [fornecedoresModalOpen, setFornecedoresModalOpen] = useState(false);
+    const [gruposModalOpen, setGruposModalOpen] = useState(false);
+    const [selectedGrupo, setSelectedGrupo] = useState<Option | null>(null);
     const [selectedFornecedor, setSelectedFornecedor] = useState<Option | null>(null);
     const produtoSelectRef = useRef<{ focus: () => void } | null>(null);
     const draftProdutoNomeRef = useRef<HTMLInputElement | null>(null);
@@ -383,6 +386,12 @@ export default function ExtratoModal({
         const res = await fetch(`/fornecedores/autocomplete?q=${encodeURIComponent(q)}`);
         if (!res.ok) return [];
         return res.json();
+    };
+
+    const loadGrupos = async (q: string = '') => {
+        const res = await fetch(`/grupos?q=${encodeURIComponent(q)}`);
+        if (!res.ok) return [];
+        return (await res.json()).grupos ?? [];
     };
 
     const loadFuncionarios = async (q: string = '') => {
@@ -1229,6 +1238,14 @@ export default function ExtratoModal({
                 onOpenChange={setFornecedoresModalOpen}
                 onCreated={(fornecedor) => {
                     // nothing to auto-select here; fornecedores are used in product modal
+                }}
+            />
+            <GruposModal
+                open={gruposModalOpen}
+                onOpenChange={setGruposModalOpen}
+                onCreated={(grupo) => {
+                    setSelectedGrupo({ id: grupo.id, nome: grupo.nome });
+                    setData('grupo_id', grupo.id);
                 }}
             />
         </>

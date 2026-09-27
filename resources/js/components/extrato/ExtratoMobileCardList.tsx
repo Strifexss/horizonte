@@ -9,7 +9,7 @@ type ExtratoItem = {
     valor_pago?: number | string | null;
     categoria?: { nome?: string | null } | null;
     conta?: { nome?: string | null } | null;
-    produto?: { nome?: string | null } | null;
+    produto?: { nome?: string | null; grupo?: { nome?: string | null } | null } | null;
     funcionario?: { nome?: string | null } | null;
     financeiro?: { tipo?: string | null } | null;
 };
@@ -78,9 +78,12 @@ export default function ExtratoMobileCardList({ data, onEdit }: Props) {
                 const status = statusDaParcela(item);
                 const statusMeta = STATUS_META[status];
                 const isCategoriaProduto = String(item.categoria?.nome ?? '').toUpperCase() === 'PRODUTO';
+                const produtoNome = item.produto?.nome;
+                const grupoNome = item.produto?.grupo?.nome;
+                const produtoLabel = produtoNome && grupoNome ? `${produtoNome} - ${grupoNome}` : produtoNome;
                 const titulo =
-                    isCategoriaProduto && item.produto?.nome
-                        ? item.produto.nome
+                    isCategoriaProduto && produtoLabel
+                        ? produtoLabel
                         : item.descricao || 'Sem descrição';
                 const metaParts = [
                     formatDateISO(item.data_vencimento),

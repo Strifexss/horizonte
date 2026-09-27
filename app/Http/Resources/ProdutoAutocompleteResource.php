@@ -27,12 +27,27 @@ class ProdutoAutocompleteResource extends JsonResource
             ];
         }
 
+        $grupo = null;
+        if ($this->relationLoaded('grupo') && $this->grupo) {
+            $grupo = [
+                'id' => $this->grupo->id,
+                'nome' => $this->grupo->nome,
+            ];
+        } elseif (isset($this->grupo_id) && $this->grupo_id) {
+            $grupo = [
+                'id' => $this->grupo_id,
+                'nome' => null,
+            ];
+        }
+
         return [
             'id' => $this->id,
             'nome' => $this->nome,
             'preco_compra' => $this->preco_compra ?? null,
             'fornecedor' => $fornecedor,
             'fornecedor_id' => $this->fornecedor_id ?? null,
+            'grupo' => $grupo,
+            'grupo_id' => $this->grupo_id ?? null,
         ];
     }
 }

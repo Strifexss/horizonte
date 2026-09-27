@@ -27,10 +27,10 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
         }
 
         return $query
-            ->with('fornecedor')
+            ->with('fornecedor', 'grupo')
             ->orderBy('nome')
             ->limit(20)
-            ->get(['id', 'nome', 'preco_compra', 'fornecedor_id']);
+            ->get(['id', 'nome', 'preco_compra', 'fornecedor_id', 'grupo_id']);
     }
 
     /**
@@ -44,7 +44,7 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
             $query->where('usuario_id', Auth::id());
         }
 
-        return $query->with('fornecedor')->orderBy('nome')->get();
+        return $query->with('fornecedor', 'grupo')->orderBy('nome')->get();
     }
 
     public function nullifyProdutoIdOnParcelas(int $produtoId): int

@@ -52,6 +52,7 @@ class HandleInertiaRequests extends Middleware
                 'produto_criado' => session('produto_criado'),
                 'funcionario_criado' => session('funcionario_criado'),
                 'categoria_criada' => session('categoria_criada'),
+                'grupo_criado' => session('grupo_criado'),
             ],
         ];
     }

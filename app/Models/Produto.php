@@ -24,6 +24,7 @@ class Produto extends Model
         'preco_compra',
         'usuario_id',
         'fornecedor_id',
+        'grupo_id',
     ];
 
     /**
@@ -37,6 +38,7 @@ class Produto extends Model
             'preco_compra' => 'decimal:2',
             'usuario_id' => 'integer',
             'fornecedor_id' => 'integer',
+            'grupo_id' => 'integer',
         ];
     }
 
@@ -53,5 +55,10 @@ class Produto extends Model
     public function fornecedor(): BelongsTo
     {
         return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+    }
+
+    public function grupo(): BelongsTo
+    {
+        return $this->belongsTo(Grupo::class, 'grupo_id');
     }
 }

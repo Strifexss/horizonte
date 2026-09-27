@@ -188,7 +188,12 @@ export default function Extrato() {
             thClassName: 'w-36',
             render: (p: any) => {
                 const nome = p.produto?.nome;
-                return nome ? <span className="truncate">{nome}</span> : '';
+                if (!nome) {
+                    return '';
+                }
+                const grupo = p.produto?.grupo?.nome;
+                const label = grupo ? `${nome} - ${grupo}` : nome;
+                return <span className="truncate">{label}</span>;
             },
         },
         {
