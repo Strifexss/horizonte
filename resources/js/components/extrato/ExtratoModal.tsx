@@ -144,7 +144,6 @@ export default function ExtratoModal({
         data_competencia: toInputValue(parcela?.data_competencia) || hojeISO(),
         valor: toInputValue(parcela?.valor),
         valor_pago: toInputValue(parcela?.valor_pago),
-        qtd_parcelas: Number(parcela?.qtd_parcelas ?? 1),
         tipo: initialTipo,
         id: parcela?.id ?? null,
         categoria_id: (parcela?.categoria_id ?? null) as number | null,
@@ -298,7 +297,6 @@ export default function ExtratoModal({
                 data_competencia: toInputValue(parcela?.data_competencia) || hojeISO(),
                 valor: toMoneyFormValue(parcela?.valor),
                 valor_pago: toMoneyFormValue(parcela?.valor_pago),
-                qtd_parcelas: Number(parcela?.qtd_parcelas ?? 1),
                 tipo: initialTab,
                 categoria_id: categoriaId ? Number(categoriaId) : null,
                 produto_id: produtoId ? Number(produtoId) : null,
@@ -311,7 +309,6 @@ export default function ExtratoModal({
             reset();
             clearErrors();
             setData('data_competencia', hojeISO());
-            setData('qtd_parcelas', 1);
             setData('tipo', initialTab);
             setData('produto_id', null);
             setData('funcionario_id', null);
@@ -1006,7 +1003,7 @@ export default function ExtratoModal({
 
                                 <div className="grid gap-2">
                                     <div className="grid gap-2">
-                                        <Label htmlFor="descricao">Descrição</Label>
+                                        <Label>Descrição <span className="text-red-500">*</span></Label>
                                         <Input
                                             id="descricao"
                                             value={data.descricao}
@@ -1016,25 +1013,11 @@ export default function ExtratoModal({
                                         />
                                         <InputError message={errors.descricao} />
                                     </div>
-
-                                    <div className="grid md:grid-cols-2 gap-2">
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="data_competencia">Data</Label>
-                                            <Input
-                                                id="data_competencia"
-                                                type="date"
-                                                value={data.data_competencia}
-                                                onChange={(e) => setData('data_competencia', e.target.value)}
-                                                disabled={processing}
-                                            />
-                                            <InputError message={errors.data_competencia} />
-                                        </div>
-                                    </div>
                                 </div>
 
                                 <div className="grid md:grid-cols-2 gap-2">
                                     <div className="grid gap-2">
-                                        <Label>Conta</Label>
+                                        <Label>Conta <span className="text-red-500">*</span></Label>
                                         <AsyncSelect
                                             value={selectedConta}
                                             onChange={(val) => {
@@ -1049,7 +1032,7 @@ export default function ExtratoModal({
                                     </div>
 
                                     <div className="grid gap-2">
-                                        <Label>Categoria</Label>
+                                        <Label>Categoria <span className="text-red-500">*</span></Label>
                                         <div className="flex items-start gap-2">
                                             <div className="min-w-0 flex-1">
                                                 <AsyncSelect
@@ -1058,7 +1041,7 @@ export default function ExtratoModal({
                                                     value={selectedCategoria}
                                                     onChange={handleCategoriaChange}
                                                     loadOptions={loadCategorias}
-                                                    placeholder="Selecione a categoria (opcional)"
+                                                    placeholder="Selecione a categoria"
                                                     isClearable
                                                     formatCreateLabel={(input) =>
                                                         `+ Cadastrar categoria de ${activeTab === 'RECEITA' ? 'receita' : 'despesa'} "${input}"`
@@ -1135,7 +1118,7 @@ export default function ExtratoModal({
 
                                 <div className="grid md:grid-cols-2 gap-2">
                                     <div className="grid gap-2">
-                                        <Label htmlFor="valor">Valor</Label>
+                                        <Label>Valor <span className="text-red-500">*</span></Label>
                                         <MoneyInput
                                             id="valor"
                                             value={data.valor ? Number(data.valor as any) : null}
@@ -1165,23 +1148,19 @@ export default function ExtratoModal({
                                         <InputError message={errors.valor_pago} />
                                     </div>
                                 </div>
-                                {!parcela && (
-                                    <div className="grid md:grid-cols-2 gap-2">
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="qtd_parcelas">Quantidade de parcelas</Label>
-                                            <Input
-                                                id="qtd_parcelas"
-                                                type="number"
-                                                min={1}
-                                                step={1}
-                                                value={data.qtd_parcelas}
-                                                onChange={(e) => setData('qtd_parcelas', Number(e.target.value))}
-                                                disabled={processing}
-                                            />
-                                            <InputError message={errors.qtd_parcelas} />
-                                        </div>
+                                <div className="grid gap-2">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="data_competencia">Data <span className="text-red-500">*</span></Label>
+                                        <Input
+                                            id="data_competencia"
+                                            type="date"
+                                            value={data.data_competencia}
+                                            onChange={(e) => setData('data_competencia', e.target.value)}
+                                            disabled={processing}
+                                        />
+                                        <InputError message={errors.data_competencia} />
                                     </div>
-                                )}
+                                </div>
                                 <DialogFooter className="flex flex-row gap-2 mt-4">
                                     <DialogClose asChild>
                                         <Button

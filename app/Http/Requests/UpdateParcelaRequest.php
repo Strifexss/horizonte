@@ -38,12 +38,19 @@ class UpdateParcelaRequest extends FormRequest
             'valor' => ['nullable', 'numeric', 'min:0'],
             'valor_pago' => ['nullable', 'numeric', 'min:0'],
             'parcela' => ['nullable', 'integer', 'min:1'],
-            'categoria_id' => ['nullable', 'integer', 'exists:categoria,id'],
+            'categoria_id' => ['required', 'integer', 'exists:categoria,id'],
             'produto_id' => ['nullable', 'integer', 'exists:produto,id'],
             'funcionario_id' => ['nullable', 'integer', 'exists:funcionario,id'],
             'conta_id' => ['nullable', 'integer', 'exists:conta,id'],
             'financeiro_id' => ['nullable', 'integer', 'exists:financeiro,id'],
             'usuario_id' => ['nullable', 'integer', 'exists:users,id'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'categoria_id.required' => 'A categoria é obrigatória',
         ];
     }
 }
