@@ -20,7 +20,8 @@ function formatDateISO(dateISO: string | null | undefined): string {
     }
 
     try {
-        return new Intl.DateTimeFormat('pt-BR').format(new Date(dateISO));
+        const [year, month, day] = dateISO.split('-').map(Number);
+        return new Intl.DateTimeFormat('pt-BR').format(new Date(year, month - 1, day));
     } catch {
         return dateISO;
     }

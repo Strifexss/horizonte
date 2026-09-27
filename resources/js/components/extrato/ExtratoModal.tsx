@@ -35,7 +35,6 @@ export type ExtratoModalParcela = {
     id?: number | string | null;
     descricao?: string | null;
     data_competencia?: string | null;
-    data_vencimento?: string | null;
     valor?: number | string | null;
     valor_pago?: number | string | null;
     qtd_parcelas?: number | string | null;
@@ -143,7 +142,6 @@ export default function ExtratoModal({
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
         descricao: toInputValue(parcela?.descricao),
         data_competencia: toInputValue(parcela?.data_competencia) || hojeISO(),
-        data_vencimento: toInputValue(parcela?.data_vencimento) || hojeISO(),
         valor: toInputValue(parcela?.valor),
         valor_pago: toInputValue(parcela?.valor_pago),
         qtd_parcelas: Number(parcela?.qtd_parcelas ?? 1),
@@ -298,7 +296,6 @@ export default function ExtratoModal({
             setData({
                 descricao: toInputValue(parcela?.descricao),
                 data_competencia: toInputValue(parcela?.data_competencia) || hojeISO(),
-                data_vencimento: toInputValue(parcela?.data_vencimento) || hojeISO(),
                 valor: toMoneyFormValue(parcela?.valor),
                 valor_pago: toMoneyFormValue(parcela?.valor_pago),
                 qtd_parcelas: Number(parcela?.qtd_parcelas ?? 1),
@@ -314,7 +311,6 @@ export default function ExtratoModal({
             reset();
             clearErrors();
             setData('data_competencia', hojeISO());
-            setData('data_vencimento', hojeISO());
             setData('qtd_parcelas', 1);
             setData('tipo', initialTab);
             setData('produto_id', null);
@@ -1032,18 +1028,6 @@ export default function ExtratoModal({
                                                 disabled={processing}
                                             />
                                             <InputError message={errors.data_competencia} />
-                                        </div>
-
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="data_vencimento">Data de vencimento</Label>
-                                            <Input
-                                                id="data_vencimento"
-                                                type="date"
-                                                value={data.data_vencimento}
-                                                onChange={(e) => setData('data_vencimento', e.target.value)}
-                                                disabled={processing}
-                                            />
-                                            <InputError message={errors.data_vencimento} />
                                         </div>
                                     </div>
                                 </div>

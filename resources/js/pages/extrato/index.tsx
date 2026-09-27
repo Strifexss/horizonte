@@ -33,7 +33,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 function formatDateISO(dateISO: string) {
     try {
-        return new Intl.DateTimeFormat('pt-BR').format(new Date(dateISO));
+        const [year, month, day] = dateISO.split('-').map(Number);
+        return new Intl.DateTimeFormat('pt-BR').format(new Date(year, month - 1, day));
     } catch {
         return dateISO;
     }
@@ -165,7 +166,6 @@ export default function Extrato() {
 
     const columns = [
         { key: 'data', label: 'DATA', thClassName: 'w-24', render: (p: any) => formatDateISO(p.data_competencia) },
-        { key: 'data_vencimento', label: 'VENC.', thClassName: 'w-24', render: (p: any) => formatDateISO(p.data_vencimento) },
         {
             key: 'descricao',
             label: 'DESCRIÇÃO',
