@@ -70,6 +70,8 @@ type Props = {
     onClearChip: (key: string) => void;
     loadContas: (q: string) => Promise<FilterOption[]>;
     loadCategorias: (q: string) => Promise<FilterOption[]>;
+    loadProdutos: (q: string) => Promise<FilterOption[]>;
+    loadGrupos: (q: string) => Promise<FilterOption[]>;
 };
 
 export default function ExtratoMobileFilterBar({
@@ -80,6 +82,8 @@ export default function ExtratoMobileFilterBar({
     onClearChip,
     loadContas,
     loadCategorias,
+    loadProdutos,
+    loadGrupos,
 }: Props) {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [periodOpen, setPeriodOpen] = useState(false);
@@ -134,6 +138,12 @@ export default function ExtratoMobileFilterBar({
         }
         if (values.categoria) {
             next.push({ key: 'categoria', label: values.categoria.nome });
+        }
+        if (values.produto) {
+            next.push({ key: 'produto', label: values.produto.nome });
+        }
+        if (values.grupo) {
+            next.push({ key: 'grupo', label: values.grupo.nome });
         }
         if (values.status && values.status !== 'todos') {
             next.push({ key: 'status', label: STATUS_LABELS[values.status] ?? values.status });
@@ -279,6 +289,8 @@ export default function ExtratoMobileFilterBar({
                             onChange={onDraftChange}
                             loadContas={loadContas}
                             loadCategorias={loadCategorias}
+                            loadProdutos={loadProdutos}
+                            loadGrupos={loadGrupos}
                         />
                     </div>
                     <SheetFooter className="shrink-0 flex-row gap-2 border-t border-sidebar-border/70 bg-background px-4 py-3">

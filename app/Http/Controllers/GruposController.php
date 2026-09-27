@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\DTO\GrupoDTO;
 use App\Http\Requests\StoreGrupoRequest;
 use App\Services\Interfaces\GruposServiceInterface;
+use Illuminate\Http\Request;
 
 class GruposController extends Controller
 {
@@ -17,6 +18,13 @@ class GruposController extends Controller
         return response()->json([
             'grupos' => $this->gruposService->index(),
         ]);
+    }
+
+    public function autocomplete(Request $request)
+    {
+        $q = (string) $request->query('q', '');
+        $result = $this->gruposService->autocomplete($q);
+        return response()->json($result);
     }
 
     public function store(StoreGrupoRequest $request)

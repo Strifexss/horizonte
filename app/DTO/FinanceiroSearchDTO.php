@@ -18,6 +18,10 @@ class FinanceiroSearchDTO extends Dto
 
     public ?string $busca = null;
 
+    public ?int $produto_id = null;
+
+    public ?int $grupo_id = null;
+
     public int $per_page = 20;
 
     /**
@@ -35,6 +39,18 @@ class FinanceiroSearchDTO extends Dto
             $data['categoria_id'] = (int) $data['categoria_id'];
         } else {
             $data['categoria_id'] = null;
+        }
+
+        if (array_key_exists('produto_id', $data) && $data['produto_id'] !== null && $data['produto_id'] !== '') {
+            $data['produto_id'] = (int) $data['produto_id'];
+        } else {
+            $data['produto_id'] = null;
+        }
+
+        if (array_key_exists('grupo_id', $data) && $data['grupo_id'] !== null && $data['grupo_id'] !== '') {
+            $data['grupo_id'] = (int) $data['grupo_id'];
+        } else {
+            $data['grupo_id'] = null;
         }
 
         $perPage = isset($data['per_page']) ? (int) $data['per_page'] : 20;

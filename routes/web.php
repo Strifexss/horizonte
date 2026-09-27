@@ -65,6 +65,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::group(['prefix' => 'grupos'], function () {
         Route::get('/', [GruposController::class, 'index'])->name('grupos');
+        Route::get('/autocomplete', [GruposController::class, 'autocomplete'])->name('grupos.autocomplete');
         Route::post('/', [GruposController::class, 'store'])->name('grupos.store');
         Route::put('/{id}', [GruposController::class, 'update'])->name('grupos.update');
         Route::delete('/{id}', [GruposController::class, 'destroy'])->name('grupos.destroy');

@@ -14,6 +14,8 @@ type FiltersProps = {
     data_fim?: string;
     conta_id?: number;
     categoria_id?: number;
+    produto_id?: number;
+    grupo_id?: number;
     status?: string;
 };
 
@@ -68,6 +70,16 @@ function buildPayload(
         payload.categoria_nome = values.categoria.nome;
     }
 
+    if (values.produto) {
+        payload.produto_id = Number(values.produto.id);
+        payload.produto_nome = values.produto.nome;
+    }
+
+    if (values.grupo) {
+        payload.grupo_id = Number(values.grupo.id);
+        payload.grupo_nome = values.grupo.nome;
+    }
+
     if (extras.busca) {
         payload.busca = extras.busca;
     }
@@ -94,9 +106,21 @@ export default function ExtratoFilters() {
                       nome: queryNome('categoria_nome') || String(filters.categoria_id),
                   }
                 : null,
+            produto: filters.produto_id
+                ? {
+                      id: filters.produto_id,
+                      nome: queryNome('produto_nome') || String(filters.produto_id),
+                  }
+                : null,
+            grupo: filters.grupo_id
+                ? {
+                      id: filters.grupo_id,
+                      nome: queryNome('grupo_nome') || String(filters.grupo_id),
+                  }
+                : null,
             status: filters.status ?? 'todos',
         }),
-        [filters.tipo_data, filters.data_inicio, filters.data_fim, filters.conta_id, filters.categoria_id, filters.status],
+        [filters.tipo_data, filters.data_inicio, filters.data_fim, filters.conta_id, filters.categoria_id, filters.produto_id, filters.grupo_id, filters.status],
     );
 
     const [values, setValues] = useState<ExtratoFilterValues>(initialValues);
@@ -123,6 +147,22 @@ export default function ExtratoFilters() {
         return res.json();
     };
 
+    const loadProdutos = async (q: string): Promise<FilterOption[]> => {
+        const res = await fetch(`/produtos/autocomplete?q=${encodeURIComponent(q)}`);
+        if (!res.ok) {
+            return [];
+        }
+        return res.json();
+    };
+
+    const loadGrupos = async (q: string): Promise<FilterOption[]> => {
+        const res = await fetch(`/grupos/autocomplete?q=${encodeURIComponent(q)}`);
+        if (!res.ok) {
+            return [];
+        }
+        return res.json();
+    };
+
     const extras = () => ({
         busca: filters.busca,
         per_page: filters.per_page ?? 20,
@@ -140,6 +180,8 @@ export default function ExtratoFilters() {
             dataFim: fimMesISO(),
             conta: null,
             categoria: null,
+            produto: null,
+            grupo: null,
             status: 'todos',
         };
         setValues(next);
@@ -155,6 +197,12 @@ export default function ExtratoFilters() {
         }
         if (key === 'categoria') {
             next.categoria = null;
+        }
+        if (key === 'produto') {
+            next.produto = null;
+        }
+        if (key === 'grupo') {
+            next.grupo = null;
         }
         if (key === 'status') {
             next.status = 'todos';
@@ -176,6 +224,8 @@ export default function ExtratoFilters() {
                 onClearChip={clearChip}
                 loadContas={loadContas}
                 loadCategorias={loadCategorias}
+                loadProdutos={loadProdutos}
+                loadGrupos={loadGrupos}
             />
 
             <div className="hidden rounded-lg border border-sidebar-border/70 bg-white p-4 shadow-sm md:block dark:bg-slate-900">
@@ -184,6 +234,8 @@ export default function ExtratoFilters() {
                     onChange={(patch) => setValues((prev) => ({ ...prev, ...patch }))}
                     loadContas={loadContas}
                     loadCategorias={loadCategorias}
+                    loadProdutos={loadProdutos}
+                    loadGrupos={loadGrupos}
                 />
                 <div className="mt-3 flex justify-end md:col-span-8">
                     <Button

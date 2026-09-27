@@ -18,6 +18,8 @@ export type ExtratoFilterValues = {
     dataFim: string;
     conta: FilterOption | null;
     categoria: FilterOption | null;
+    produto: FilterOption | null;
+    grupo: FilterOption | null;
     status: string;
 };
 
@@ -26,6 +28,8 @@ type Props = {
     onChange: (patch: Partial<ExtratoFilterValues>) => void;
     loadContas: (q: string) => Promise<FilterOption[]>;
     loadCategorias: (q: string) => Promise<FilterOption[]>;
+    loadProdutos: (q: string) => Promise<FilterOption[]>;
+    loadGrupos: (q: string) => Promise<FilterOption[]>;
     idPrefix?: string;
 };
 
@@ -34,6 +38,8 @@ export default function ExtratoFilterFields({
     onChange,
     loadContas,
     loadCategorias,
+    loadProdutos,
+    loadGrupos,
     idPrefix = '',
 }: Props) {
     return (
@@ -89,6 +95,28 @@ export default function ExtratoFilterFields({
                     value={values.categoria}
                     onChange={(categoria) => onChange({ categoria })}
                     loadOptions={loadCategorias}
+                    placeholder="Todos"
+                    isClearable
+                />
+            </div>
+
+            <div className="flex flex-col gap-1 md:col-span-1">
+                <Label>Produto</Label>
+                <AsyncSelect
+                    value={values.produto}
+                    onChange={(produto) => onChange({ produto })}
+                    loadOptions={loadProdutos}
+                    placeholder="Todos"
+                    isClearable
+                />
+            </div>
+
+            <div className="flex flex-col gap-1 md:col-span-1">
+                <Label>Grupo</Label>
+                <AsyncSelect
+                    value={values.grupo}
+                    onChange={(grupo) => onChange({ grupo })}
+                    loadOptions={loadGrupos}
                     placeholder="Todos"
                     isClearable
                 />
