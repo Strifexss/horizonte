@@ -313,7 +313,7 @@ export default function Extrato() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Extrato" />
-            <div className="flex h-full w-full min-w-0 max-w-full flex-1 flex-col gap-4 overflow-x-hidden rounded-xl p-4 pb-28 md:pb-4">
+            <div className="flex h-full w-full min-w-0 max-w-full flex-1 flex-col gap-2 overflow-x-hidden rounded-xl p-4 pb-28 md:pb-4 md:gap-4">
                 <CategoriasModal open={categoriasOpen} onOpenChange={setCategoriasOpen} />
                 <ProdutosModal open={produtosOpen} onOpenChange={setProdutosOpen} />
                 <FuncionariosModal open={funcionariosOpen} onOpenChange={setFuncionariosOpen} />
@@ -324,20 +324,12 @@ export default function Extrato() {
                     subtitle="Visualize e gerencie os lançamentos da sua conta"
                     actions={
                         <>
-                            {/* <button
-                                type="button"
-                                className="inline-flex items-center gap-3 rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-base font-medium text-teal-700 hover:bg-teal-100 dark:border-teal-800 dark:bg-teal-900/30 dark:text-teal-300"
-                            >
-                                <File className="h-5 w-5" />
-                                Importar Extrato
-                            </button> */}
-
-                            <div className="relative">
+                            <div className="hidden md:block relative">
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <button
                                             type="button"
-                                            className="inline-flex items-center gap-3 rounded-lg border border-sidebar-border/70 bg-white px-4 py-2 text-base font-medium text-muted-foreground hover:bg-sidebar-border/50 dark:bg-slate-800 dark:text-muted-foreground"
+                                            className="hidden md:inline-flex items-center gap-3 rounded-lg border border-sidebar-border/70 bg-white px-4 py-2 text-base font-medium text-muted-foreground hover:bg-sidebar-border/50 dark:bg-slate-800 dark:text-muted-foreground"
                                         >
                                             Ações
                                             <ChevronDown className="h-5 w-5" />
@@ -354,7 +346,7 @@ export default function Extrato() {
 
                             <button
                                 type="button"
-                                className="inline-flex items-center gap-3 rounded-lg bg-amber-500 px-4 py-2 text-base font-medium text-white hover:bg-amber-600"
+                                className="hidden md:inline-flex items-center gap-3 rounded-lg bg-amber-500 px-4 py-2 text-base font-medium text-white hover:bg-amber-600"
                                 onClick={() => {
                                     setExtratoMode('create');
                                     setParcelaEdit(null);
