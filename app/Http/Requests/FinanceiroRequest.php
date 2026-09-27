@@ -20,6 +20,9 @@ class FinanceiroRequest extends FormRequest
 
     public function rules(): array
     {
+        $catId = $this->input('categoria_id');
+        $isProduto = $catId && \App\Models\Categoria::where('id', $catId)->where('nome', 'PRODUTO')->exists();
+
         return [
             'descricao' => ['required', 'string', 'max:255'],
             'valor' => ['required', 'numeric', 'min:0.01'],
@@ -28,6 +31,7 @@ class FinanceiroRequest extends FormRequest
             'produto_id' => ['nullable', 'integer', 'exists:produto,id'],
             'funcionario_id' => ['nullable', 'integer', 'exists:funcionario,id'],
             'fornecedor_id' => ['nullable', 'integer', 'exists:fornecedor,id'],
+            'quantidade' => $isProduto ? ['required', 'integer', 'min:1'] : ['nullable', 'integer', 'min:1'],
             'conta_id' => ['required', 'exists:conta,id'],
             'data_competencia' => ['nullable', 'date'],
             'usuario_id' => ['nullable', 'exists:users,id'],
@@ -57,6 +61,9 @@ class FinanceiroRequest extends FormRequest
             'valor_pago.nullable' => 'O valor pago é opcional',
             'valor_pago.numeric' => 'O valor pago deve ser um número',
             'valor_pago.min' => 'O valor pago deve ser maior que 0',
+            'quantidade.required' => 'A quantidade é obrigatória para categoria produto.',
+            'quantidade.integer' => 'A quantidade deve ser um número inteiro.',
+            'quantidade.min' => 'A quantidade deve ser pelo menos 1.',
             'qtd_parcelas.required' => 'A quantidade de parcelas é obrigatória',
             'qtd_parcelas.integer' => 'A quantidade de parcelas deve ser um número',
             'qtd_parcelas.min' => 'A quantidade de parcelas deve ser maior que 0',

@@ -1142,32 +1142,34 @@ export default function ExtratoModal({
                                 </div>
 
                                 <div className="grid md:grid-cols-3 gap-2">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="quantidade">Quantidade</Label>
-                                        <Input
-                                            id="quantidade"
-                                            type="number"
-                                            min={1}
-                                            value={data.quantidade}
-                                            onChange={(e) => {
-                                                const val = e.target.value;
-                                                setData('quantidade', val);
-                                                const qtdStr = val === '' ? '1' : val;
-                                                const qtd = Math.max(1, parseFloat(qtdStr) || 1);
-                                                const precoStr = selectedProduto?.preco_compra !== undefined && selectedProduto?.preco_compra !== null ? String(selectedProduto.preco_compra) : null;
-                                                if (precoStr !== null) {
-                                                    const precoNum = parseFloat(precoStr.replace(',', '.') || precoStr);
+                                    {showProdutoField && (
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="quantidade">Quantidade</Label>
+                                            <Input
+                                                id="quantidade"
+                                                type="number"
+                                                min={1}
+                                                value={data.quantidade}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    setData('quantidade', val);
+                                                    const qtdStr = val === '' ? '1' : val;
+                                                    const qtd = Math.max(1, parseFloat(qtdStr) || 1);
+                                                    const precoStr = selectedProduto?.preco_compra !== undefined && selectedProduto?.preco_compra !== null ? String(selectedProduto.preco_compra) : null;
+                                                    if (precoStr !== null) {
+                                                        const precoNum = parseFloat(precoStr.replace(',', '.') || precoStr);
                                                         if (!isNaN(precoNum)) {
                                                             const total = (precoNum * qtd).toFixed(2);
                                                             setData('valor', total);
                                                             setData('valor_pago', total);
                                                         }
-                                                }
-                                            }}
-                                            disabled={processing}
-                                        />
-                                    </div>
-
+                                                    }
+                                                }}
+                                                disabled={processing}
+                                            />
+                                            <InputError message={errors.quantidade} />
+                                        </div>
+                                    )}
                                     <div className="grid gap-2">
                                         <Label>Valor <span className="text-red-500">*</span></Label>
                                         <MoneyInput
@@ -1186,7 +1188,6 @@ export default function ExtratoModal({
                                         />
                                         <InputError message={errors.valor} />
                                     </div>
-
                                     <div className="grid gap-2">
                                         <Label htmlFor="valor_pago">Valor pago</Label>
                                         <MoneyInput
@@ -1199,6 +1200,7 @@ export default function ExtratoModal({
                                         <InputError message={errors.valor_pago} />
                                     </div>
                                 </div>
+
                                 <div className="grid gap-2">
                                     <div className="grid gap-2">
                                         <Label htmlFor="data_competencia">Data <span className="text-red-500">*</span></Label>

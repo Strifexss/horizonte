@@ -34,6 +34,7 @@ class FinanceiroParcela extends Model
         'funcionario_id',
         'fornecedor_id',
         'conta_id',
+        'quantidade',
         'usuario_id',
     ];
 
@@ -57,6 +58,7 @@ class FinanceiroParcela extends Model
             'funcionario_id' => 'integer',
             'fornecedor_id' => 'integer',
             'conta_id' => 'integer',
+            'quantidade' => 'integer',
             'financeiro_id' => 'integer',
             'usuario_id' => 'integer',
         ];

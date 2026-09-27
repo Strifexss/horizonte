@@ -197,6 +197,15 @@ export default function Extrato() {
             },
         },
         {
+            key: 'quantidade',
+            label: 'QTD',
+            thClassName: 'w-16 text-center',
+            render: (p: any) => {
+                const isProduto = p.categoria?.nome?.toUpperCase() === 'PRODUTO' || p.produto_id != null;
+                return isProduto ? <span className="text-center">{p.quantidade ?? '-'}</span> : <span className="text-center text-muted-foreground">-</span>;
+            },
+        },
+        {
             key: 'fornecedor',
             label: 'FORNECEDOR',
             thClassName: 'w-36',

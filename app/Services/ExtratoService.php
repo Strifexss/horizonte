@@ -66,6 +66,7 @@ class ExtratoService extends ServiceAbstract implements ExtratoServiceInterface
             'fornecedor_id' => $financeiroDto->fornecedor_id,
             'funcionario_id' => $financeiroDto->funcionario_id,
             'conta_id' => $financeiroDto->conta_id,
+            'quantidade' => $financeiroDto->quantidade ?? 1,
             'valor' => $financeiroDto->valor,
             'valor_pago' => $financeiroDto->valor_pago,
             'parcela' => 1,

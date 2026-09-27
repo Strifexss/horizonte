@@ -26,6 +26,8 @@ class FinanceiroParcelaDTO extends Dto
 
     public ?int $conta_id = null;
 
+    public ?int $quantidade = null;
+
     public ?int $financeiro_id = null;
 
     public ?int $usuario_id = null;

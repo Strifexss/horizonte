@@ -31,6 +31,7 @@ class FinanceiroParcelaResource extends JsonResource
             'funcionario' => $this->funcionario,
             'funcionario_id' => $this->funcionario_id,
             'conta' => $this->conta,
+            'quantidade' => $this->quantidade ?? 1,
             'financeiro' => $this->financeiro,
         ];
     }
