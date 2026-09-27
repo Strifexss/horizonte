@@ -136,7 +136,7 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
                                 </Button>
                             </DialogTrigger>
 
-                            <DialogContent>
+                            <DialogContent className="md:h-auto md:w-[500px] max-w-full overflow-hidden flex flex-col">
                                 <DialogHeader>
                                     <DialogTitle>Adicionar conta</DialogTitle>
                                     <DialogDescription>Preencha os dados para cadastrar uma nova conta.</DialogDescription>
@@ -196,7 +196,7 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
 
                 {/* Edit dialog */}
                 <Dialog open={editOpen} onOpenChange={setEditOpen}>
-                    <DialogContent>
+                    <DialogContent className="md:h-auto md:w-[500px] max-w-full overflow-hidden flex flex-col">
                         <DialogHeader>
                             <DialogTitle>Editar conta</DialogTitle>
                             <DialogDescription>Atualize os dados da conta.</DialogDescription>
@@ -254,7 +254,7 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
 
                 {/* Delete confirmation */}
                 <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-                    <DialogContent>
+                    <DialogContent className="md:h-auto md:w-[500px] max-w-full overflow-hidden flex flex-col">
                         <DialogHeader>
                             <DialogTitle>Confirmar exclusão</DialogTitle>
                             <DialogDescription>Tem certeza que deseja excluir esta conta? Esta ação não pode ser desfeita.</DialogDescription>

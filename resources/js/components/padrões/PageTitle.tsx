@@ -24,7 +24,7 @@ export default function PageTitle({ title, mobileTitle, subtitle, actions }: Pro
         {subtitle ? <p className="hidden text-sm text-muted-foreground md:block">{subtitle}</p> : null}
       </div>
       {actions ? (
-        <div className="mt-4 hidden flex-wrap items-center gap-2 sm:ml-4 md:mt-0 md:flex md:gap-3">{actions}</div>
+        <div className="mt-4 flex flex-wrap items-center justify-end gap-2 sm:ml-4 md:mt-0 md:gap-3">{actions}</div>
       ) : null}
     </div>
   );
