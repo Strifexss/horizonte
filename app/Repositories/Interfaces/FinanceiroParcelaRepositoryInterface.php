@@ -2,6 +2,4 @@
 
 namespace App\Repositories\Interfaces;
 
-interface FinanceiroParcelaRepositoryInterface extends AbstractRepositoryInterface
-{
-}
+interface FinanceiroParcelaRepositoryInterface extends AbstractRepositoryInterface {}

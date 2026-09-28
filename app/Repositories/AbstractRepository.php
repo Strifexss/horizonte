@@ -87,7 +87,8 @@ class AbstractRepository implements AbstractRepositoryInterface
         $expression = $this->sqlUnaccentLowerExpression($column);
 
         // Escape backslash correctly for SQL ESCAPE clause.
-        $query->whereRaw("{$expression} LIKE ? ESCAPE '\\\\'", ['%'.$needle.'%']);
+        // Use a single backslash as the ESCAPE character (SQL literal '\\' in PHP source).
+        $query->whereRaw("{$expression} LIKE ? ESCAPE '\\'", ['%'.$needle.'%']);
     }
 
     protected function sqlUnaccentLowerExpression(string $column): string

@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Financeiro extends Model
 {
@@ -49,5 +48,20 @@ class Financeiro extends Model
     public function usuario()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function categoria()
+    {
+        return $this->belongsTo(Categoria::class);
+    }
+
+    public function conta()
+    {
+        return $this->belongsTo(Conta::class);
+    }
+
+    public function parcelas()
+    {
+        return $this->hasMany(FinanceiroParcela::class);
     }
 }

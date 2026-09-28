@@ -4,7 +4,9 @@ namespace App\Repositories\Interfaces;
 
 use App\DTO\FinanceiroParcelaDTO;
 use App\DTO\FinanceiroSearchDTO;
+use App\Models\FinanceiroParcela;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 interface FinanceiroRepositoryInterface extends AbstractRepositoryInterface
 {
@@ -20,4 +22,11 @@ interface FinanceiroRepositoryInterface extends AbstractRepositoryInterface
      * }
      */
     public function resumoParcelas(?FinanceiroSearchDTO $data = null): array;
+
+    /**
+     * Retorna todas as parcelas para exportação (sem paginação).
+     *
+     * @return Collection<int, FinanceiroParcela>
+     */
+    public function exportParcelas(?FinanceiroSearchDTO $data = null): Collection;
 }

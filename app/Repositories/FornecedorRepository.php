@@ -2,8 +2,8 @@
 
 namespace App\Repositories;
 
-use App\Models\Produto;
 use App\Models\Fornecedor;
+use App\Models\Produto;
 use App\Repositories\Interfaces\FornecedorRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
 
@@ -43,4 +43,3 @@ class FornecedorRepository extends AbstractRepository implements FornecedorRepos
             ->findOrFail($id);
     }
 }
-

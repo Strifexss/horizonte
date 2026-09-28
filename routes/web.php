@@ -2,8 +2,9 @@
 
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ContasController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExtratoController;
+use App\Http\Controllers\ExtratoPdfController;
+use App\Http\Controllers\FornecedoresController;
 use App\Http\Controllers\FuncionariosController;
 use App\Http\Controllers\GruposController;
 use App\Http\Controllers\ParcelaController;
@@ -21,6 +22,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::group(['prefix' => 'extrato'], function () {
         Route::get('/', [ExtratoController::class, 'index'])->name('extrato.index');
+        Route::get('/pdf', [ExtratoPdfController::class, '__invoke'])->name('extrato.pdf');
         Route::post('/', [ExtratoController::class, 'store'])->name('extrato.store');
         Route::put('/{id}', [ExtratoController::class, 'update'])->name('extrato.update');
         Route::delete('/{id}', [ExtratoController::class, 'destroy'])->name('extrato.destroy');
@@ -56,11 +58,11 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::group(['prefix' => 'fornecedores'], function () {
-        Route::get('/', [\App\Http\Controllers\FornecedoresController::class, 'index'])->name('fornecedores');
-        Route::get('/autocomplete', [\App\Http\Controllers\FornecedoresController::class, 'autocomplete'])->name('fornecedores.autocomplete');
-        Route::post('/', [\App\Http\Controllers\FornecedoresController::class, 'store'])->name('fornecedores.store');
-        Route::put('/{id}', [\App\Http\Controllers\FornecedoresController::class, 'update'])->name('fornecedores.update');
-        Route::delete('/{id}', [\App\Http\Controllers\FornecedoresController::class, 'destroy'])->name('fornecedores.destroy');
+        Route::get('/', [FornecedoresController::class, 'index'])->name('fornecedores');
+        Route::get('/autocomplete', [FornecedoresController::class, 'autocomplete'])->name('fornecedores.autocomplete');
+        Route::post('/', [FornecedoresController::class, 'store'])->name('fornecedores.store');
+        Route::put('/{id}', [FornecedoresController::class, 'update'])->name('fornecedores.update');
+        Route::delete('/{id}', [FornecedoresController::class, 'destroy'])->name('fornecedores.destroy');
     });
 
     Route::group(['prefix' => 'grupos'], function () {

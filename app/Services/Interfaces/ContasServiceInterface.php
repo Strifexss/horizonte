@@ -2,6 +2,4 @@
 
 namespace App\Services\Interfaces;
 
-interface ContasServiceInterface extends AbstractServiceInterface
-{  
-}
+interface ContasServiceInterface extends AbstractServiceInterface {}

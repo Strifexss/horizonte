@@ -8,4 +8,3 @@ class FornecedorDTO extends Dto
 
     public ?int $usuario_id = null;
 }
-

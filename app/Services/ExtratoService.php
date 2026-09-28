@@ -5,8 +5,10 @@ namespace App\Services;
 use App\DTO\FinanceiroDTO;
 use App\DTO\FinanceiroParcelaDTO;
 use App\DTO\FinanceiroSearchDTO;
+use App\Models\FinanceiroParcela;
 use App\Repositories\Interfaces\FinanceiroRepositoryInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class ExtratoService extends ServiceAbstract implements ExtratoServiceInterface
@@ -36,6 +38,16 @@ class ExtratoService extends ServiceAbstract implements ExtratoServiceInterface
     public function show(int $id)
     {
         return $this->repository->find($id);
+    }
+
+    /**
+     * Retorna todas as parcelas (sem paginação) para exportação/pdf.
+     *
+     * @return Collection<int, FinanceiroParcela>
+     */
+    public function export($data = null)
+    {
+        return $this->repository->exportParcelas($data instanceof FinanceiroSearchDTO ? $data : null);
     }
 
     /**

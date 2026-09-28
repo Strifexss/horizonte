@@ -51,7 +51,7 @@ class Produto extends Model
     {
         return $this->hasMany(FinanceiroParcela::class, 'produto_id');
     }
-    
+
     public function fornecedor(): BelongsTo
     {
         return $this->belongsTo(Fornecedor::class, 'fornecedor_id');

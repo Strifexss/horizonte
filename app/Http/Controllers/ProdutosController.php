@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\DTO\ProdutoDTO;
 use App\Http\Requests\StoreProdutoRequest;
+use App\Http\Resources\ProdutoAutocompleteResource;
 use App\Services\Interfaces\ProdutosServiceInterface;
 use Illuminate\Http\Request;
-use App\Http\Resources\ProdutoAutocompleteResource;
 
 class ProdutosController extends Controller
 {

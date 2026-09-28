@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UpdateParcelaRequest;
 use App\DTO\FinanceiroParcelaDTO;
-use App\Http\Resources\FinanceiroParcelaResource;
+use App\Http\Requests\UpdateParcelaRequest;
 use App\Services\Interfaces\FinanceiroParcelaServiceInterface;
 
 class ParcelaController extends Controller
@@ -22,7 +21,7 @@ class ParcelaController extends Controller
 
             return redirect()->route('extrato.index')->with('success', 'Parcela atualizada com sucesso.');
         } catch (\Exception $e) {
-            return redirect()->route('extrato.index')->with('error', 'Erro ao atualizar parcela: ' . $e->getMessage());
+            return redirect()->route('extrato.index')->with('error', 'Erro ao atualizar parcela: '.$e->getMessage());
         }
     }
 
@@ -33,7 +32,7 @@ class ParcelaController extends Controller
 
             return redirect()->route('extrato.index')->with('success', 'Parcela excluída com sucesso.');
         } catch (\Exception $e) {
-            return redirect()->route('extrato.index')->with('error', 'Erro ao excluir parcela: ' . $e->getMessage());
+            return redirect()->route('extrato.index')->with('error', 'Erro ao excluir parcela: '.$e->getMessage());
         }
     }
 }

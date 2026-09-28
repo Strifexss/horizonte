@@ -3,6 +3,8 @@
 namespace App\Services\Interfaces;
 
 use App\DTO\FinanceiroDTO;
+use App\Models\FinanceiroParcela;
+use Illuminate\Support\Collection;
 
 interface ExtratoServiceInterface extends AbstractServiceInterface
 {
@@ -20,4 +22,11 @@ interface ExtratoServiceInterface extends AbstractServiceInterface
     public function show(int $id);
 
     public function storeParcelas(FinanceiroDTO $financeiroDto);
+
+    /**
+     * Retorna todas as parcelas para exportação (sem paginação).
+     *
+     * @return Collection<int, FinanceiroParcela>
+     */
+    public function export($data = null);
 }

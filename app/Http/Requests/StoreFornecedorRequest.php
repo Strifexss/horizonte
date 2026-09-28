@@ -29,4 +29,3 @@ class StoreFornecedorRequest extends FormRequest
         ];
     }
 }
-

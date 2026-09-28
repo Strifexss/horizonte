@@ -9,4 +9,3 @@ interface FornecedorRepositoryInterface extends AbstractRepositoryInterface
      */
     public function nullifyFornecedorIdOnProdutos(int $fornecedorId): int;
 }
-

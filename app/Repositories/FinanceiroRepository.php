@@ -9,6 +9,7 @@ use App\Models\FinanceiroParcela;
 use App\Repositories\Interfaces\FinanceiroRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class FinanceiroRepository extends AbstractRepository implements FinanceiroRepositoryInterface
@@ -36,6 +37,19 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
             ->orderBy('data_vencimento', 'desc')
             ->paginate($perPage)
             ->withQueryString();
+    }
+
+    /**
+     * Retorna todas as parcelas aplicando os mesmos filtros, sem paginação.
+     *
+     * @return Collection<int, FinanceiroParcela>
+     */
+    public function exportParcelas(?FinanceiroSearchDTO $data = null): Collection
+    {
+        return $this->parcelasFiltradasQuery($data)
+            ->with(['categoria', 'conta', 'produto.fornecedor', 'produto.grupo', 'fornecedor', 'funcionario', 'financeiro'])
+            ->orderBy('data_vencimento', 'desc')
+            ->get();
     }
 
     /**

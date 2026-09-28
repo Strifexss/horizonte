@@ -16,9 +16,9 @@ return new class extends Migration
             if (Schema::hasColumn('financeiro', 'valor_total')) {
                 $table->dropColumn('valor_total');
             }
-            
+
             $table->decimal('valor', 15, 2);
-        
+
             if (Schema::hasColumn('financeiro', 'qtd_parcelas')) {
                 $table->dropColumn('qtd_parcelas');
             }
@@ -47,4 +47,3 @@ return new class extends Migration
         });
     }
 };
-

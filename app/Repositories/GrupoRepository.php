@@ -19,6 +19,7 @@ class GrupoRepository extends AbstractRepository implements GrupoRepositoryInter
         if (Auth::check()) {
             $query->where('usuario_id', Auth::id());
         }
+
         return $query->orderBy('nome')->get();
     }
 

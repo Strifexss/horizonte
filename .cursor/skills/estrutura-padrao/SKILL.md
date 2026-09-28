@@ -47,6 +47,24 @@ Quando o repository precisa de operações além do CRUD básico (definido em `A
 
 Cada método novo também deve ser declarado na interface (`*RepositoryInterface`) quando sair do escopo do `AbstractRepositoryInterface`.
 
+Checklist obrigatório ao adicionar métodos extras no repository
+- Atualize a interface do repository (`app/Repositories/Interfaces/*RepositoryInterface.php`) com a assinatura pública do método (tipos, nullable e phpdoc).
+- Atualize a interface do service correspondente (`app/Services/Interfaces/*ServiceInterface.php`) com um método que delegue para o repository (mesma assinatura).
+- Implemente o método no repository concreto (somente aqui a query/Eloquent/joins devem existir).
+- Implemente o método no service, delegando para o repository e mantendo regras de negócio/transactions no service quando necessário.
+- Registre (ou confirme) o bind no `AppServiceProvider` somente quando houver nova interface a ser vinculada.
+- Rode `composer dump-autoload`, `vendor/bin/pint --format agent` e execute os testes relevantes (`php artisan test --filter=NomeDoTeste`) antes de pushar.
+- Ao usar pacotes externos (ex: Spatie), verifique a API no README/Docs antes de chamar métodos (ex.: use `Pdf::view(...)` conforme a documentação do spatie/laravel-pdf v2).
+- Para qualquer rotina que gere PDF, leia e siga a skill dedicada `./.cursor/skills/pdf/SKILL.md` (regras de naming, view blade, rota, e testes). A skill `pdf` complementa a `estrutura-padrao` e explica como integrar `barryvdh/laravel-dompdf` (ou outro driver autorizado) sem quebrar camadas.
+ - Para qualquer rotina que gere PDF, leia e siga a skill dedicada `./.cursor/skills/pdf/SKILL.md` (regras de naming, view blade, rota, e testes). A skill `pdf` complementa a `estrutura-padrao` e explica como integrar `barryvdh/laravel-dompdf` (ou outro driver autorizado) sem quebrar camadas.
+ - Se o seu ambiente local não tiver PHP/Composer/Pint instalados, use o container Docker do projeto. Exemplo rápido:
+   1. Encontre o container que roda o projeto (ex.: usando `docker ps`) e execute:
+      `docker exec -it <container> bash`
+   2. Dentro do container, navegue para a pasta do projeto:
+      `cd /var/www/html/projetos/horizonte`
+   3. Rode os comandos da checklist normalmente (composer dump-autoload, vendor/bin/pint --format agent, php artisan test --filter=NomeDoTeste).
+   Isso garante testes e formatters rodarem mesmo quando PHP/Composer não estão instalados localmente.
+
 **Transações DB no service**  
 Quando uma operação envolver múltiplas gravações que devem ser atômicas (ex: gravar pai + filho, ou atualizar registros relacionados), envolva o código em `DB::transaction()` no **service**. Nunca coloque transação no controller ou repository — o service é o dono da regra de negócio.
 

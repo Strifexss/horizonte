@@ -3,8 +3,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import React, { useState } from 'react';
 import { usePage, router } from '@inertiajs/react';
-import { CreditCard, ChevronDown, Plus, BarChart2, ArrowUpRight, ArrowDownRight, Grid, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-// import { File } from 'lucide-react';
+import { CreditCard, ChevronDown, Plus, BarChart2, ArrowUpRight, ArrowDownRight, Grid, MoreHorizontal, Pencil, Trash2, File } from 'lucide-react';
 import { PageTitle, KpisPanel } from '@/components/padrões';
 import ExtratoFilters from '@/components/extrato/Filters';
 import ExtratoFooter from '@/components/extrato/Footer';
@@ -21,7 +20,7 @@ import FuncionariosModal from '@/components/funcionarios/FuncionariosModal';
 import FornecedoresModal from '@/components/fornecedores/FornecedoresModal';
 import ExtratoModal, { type ExtratoModalParcela } from '@/components/extrato/ExtratoModal';
 import ConfirmDeleteModal from '@/components/extrato/ConfirmDeleteModal';
-import ExtratoFab from '@/components/extrato/ExtratoFab';
+import ExtratoFab2 from '@/components/extrato/ExtratoFab2';
 import ExtratoMobileCardList from '@/components/extrato/ExtratoMobileCardList';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -100,6 +99,51 @@ export default function Extrato() {
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [parcelaToDelete, setParcelaToDelete] = useState<any>(null);
     const [deleting, setDeleting] = useState(false);
+    const [pdfLoading, setPdfLoading] = useState(false);
+    const pdfTimeoutRef = React.useRef<number | null>(null);
+
+    const handleGeneratePdf = React.useCallback(() => {
+        if (pdfLoading) return;
+        setPdfLoading(true);
+
+        const params = buildQuery();
+        const qs = new URLSearchParams();
+        Object.entries(params).forEach(([k, v]) => {
+            if (v !== null && v !== undefined) {
+                qs.append(k, String(v));
+            }
+        });
+
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.onload = () => {
+            if (pdfTimeoutRef.current) {
+                clearTimeout(pdfTimeoutRef.current);
+                pdfTimeoutRef.current = null;
+            }
+            setPdfLoading(false);
+            if (iframe.parentNode) document.body.removeChild(iframe);
+        };
+        iframe.onerror = () => {
+            if (pdfTimeoutRef.current) {
+                clearTimeout(pdfTimeoutRef.current);
+                pdfTimeoutRef.current = null;
+            }
+            setPdfLoading(false);
+            if (iframe.parentNode) document.body.removeChild(iframe);
+        };
+        iframe.src = route('extrato.pdf') + (qs.toString() ? `?${qs.toString()}` : '');
+        document.body.appendChild(iframe);
+
+        if (pdfTimeoutRef.current) {
+            clearTimeout(pdfTimeoutRef.current);
+        }
+        pdfTimeoutRef.current = window.setTimeout(() => {
+            setPdfLoading(false);
+            if (iframe.parentNode) document.body.removeChild(iframe);
+            pdfTimeoutRef.current = null;
+        }, 10000);
+    }, [pdfLoading]);
 
     const statusTab = (filters.status as ExtratoStatusTab) || 'todos';
     const perPage = Number(paginationMeta?.per_page ?? filters.per_page ?? 20);
@@ -355,6 +399,26 @@ export default function Extrato() {
 
                             <button
                                 type="button"
+                                className="hidden md:inline-flex items-center gap-3 rounded-lg border border-sidebar-border/70 bg-white px-4 py-2 text-base font-medium text-muted-foreground hover:bg-sidebar-border/50 dark:bg-slate-800 dark:text-muted-foreground"
+                                onClick={() => {
+                                    handleGeneratePdf();
+                                }}
+                                disabled={pdfLoading}
+                            >
+                                {pdfLoading ? (
+                                    <>
+                                        <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeOpacity="0.25" strokeWidth="4"/><path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="4" strokeLinecap="round"/></svg>
+                                        <span>Gerando...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <File className="h-5 w-5" />
+                                        Gerar PDF
+                                    </>
+                                )}
+                            </button>
+                            <button
+                                type="button"
                                 className="hidden md:inline-flex items-center gap-3 rounded-lg bg-amber-500 px-4 py-2 text-base font-medium text-white hover:bg-amber-600"
                                 onClick={() => {
                                     setExtratoMode('create');
@@ -368,7 +432,7 @@ export default function Extrato() {
                         </>
                     }
                 />
-                <ExtratoFab
+                <ExtratoFab2
                     onNovoLancamento={() => {
                         setExtratoMode('create');
                         setParcelaEdit(null);
@@ -376,6 +440,7 @@ export default function Extrato() {
                     }}
                     onCadastrarFuncionario={() => setFuncionariosOpen(true)}
                     onCadastrarProduto={() => setProdutosOpen(true)}
+                    onGerarPdf={() => handleGeneratePdf()}
                 />
                 <ExtratoModal open={extratoOpen} onOpenChange={setExtratoOpen} mode={extratoMode} parcela={parcelaEdit} categoriasPadrao={(props as any).categorias_padrao ?? null} />
                 <ConfirmDeleteModal

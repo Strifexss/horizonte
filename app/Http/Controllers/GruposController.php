@@ -24,6 +24,7 @@ class GruposController extends Controller
     {
         $q = (string) $request->query('q', '');
         $result = $this->gruposService->autocomplete($q);
+
         return response()->json($result);
     }
 
@@ -33,6 +34,7 @@ class GruposController extends Controller
             $grupo = $this->gruposService->store(
                 GrupoDTO::fromArray($request->validated())
             );
+
             return redirect()
                 ->route('extrato.index')
                 ->with('success', 'Grupo criado com sucesso.')
@@ -52,6 +54,7 @@ class GruposController extends Controller
                 (int) $id,
                 GrupoDTO::fromArray($request->validated())
             );
+
             return redirect()->route('extrato.index')->with('success', 'Grupo atualizado com sucesso.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erro ao atualizar grupo: '.$e->getMessage());
@@ -62,6 +65,7 @@ class GruposController extends Controller
     {
         try {
             $this->gruposService->delete((int) $id);
+
             return redirect()->route('extrato.index')->with('success', 'Grupo excluído com sucesso.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erro ao excluir grupo: '.$e->getMessage());

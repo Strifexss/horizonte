@@ -8,7 +8,7 @@ class ServiceAbstract
 {
     public function __construct(
         protected AbstractRepositoryInterface $repository
-    ){}
+    ) {}
 
     public function store($data)
     {
@@ -29,7 +29,6 @@ class ServiceAbstract
     {
         return $this->repository->delete($id);
     }
-
 
     public function autocomplete($q = null)
     {

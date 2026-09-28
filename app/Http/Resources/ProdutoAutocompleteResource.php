@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProdutoAutocompleteResource extends JsonResource
@@ -9,7 +10,7 @@ class ProdutoAutocompleteResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return array<string, mixed>
      */
     public function toArray($request): array
@@ -51,4 +52,3 @@ class ProdutoAutocompleteResource extends JsonResource
         ];
     }
 }
-

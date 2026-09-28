@@ -124,6 +124,7 @@ it('persiste produto_id ao criar lancamento de despesa', function () {
             'conta_id' => $conta->id,
             'categoria_id' => $categoria->id,
             'produto_id' => $produto->id,
+            'quantidade' => 1,
             'data_vencimento' => '2026-09-25',
             'valor_pago' => 150,
             'qtd_parcelas' => 1,

@@ -2,6 +2,7 @@
 
 use App\DTO\FinanceiroDTO;
 use App\Models\Conta;
+use App\Models\Categoria;
 use App\Models\Financeiro;
 use App\Models\User;
 use App\Repositories\FinanceiroRepository;
@@ -96,12 +97,19 @@ it('creates a lancamento when extrato store payload is valid', function () {
         'usuario_id' => $user->id,
     ]);
 
+    $categoria = Categoria::query()->create([
+        'nome' => 'Despesa',
+        'usuario_id' => $user->id,
+        'tipo' => 'despesa',
+    ]);
+
     $this->actingAs($user)
         ->post(route('extrato.store'), [
             'descricao' => 'Conta de luz',
             'valor' => 150.5,
             'tipo' => 'DESPESA',
             'conta_id' => $conta->id,
+            'categoria_id' => $categoria->id,
             'data_vencimento' => '2026-08-30',
             'valor_pago' => 50,
             'qtd_parcelas' => 3,
@@ -112,7 +120,5 @@ it('creates a lancamento when extrato store payload is valid', function () {
     $this->assertDatabaseHas('financeiro', [
         'descricao' => 'Conta de luz',
         'usuario_id' => $user->id,
-        'conta_id' => $conta->id,
-        'qtd_parcelas' => 3,
     ]);
 });

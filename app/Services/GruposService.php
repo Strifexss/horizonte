@@ -16,6 +16,7 @@ class GruposService extends ServiceAbstract implements GruposServiceInterface
     public function update($id, $data)
     {
         $this->grupoRepository->findForUsuario((int) $id);
+
         return parent::update($id, $data);
     }
 
@@ -23,6 +24,7 @@ class GruposService extends ServiceAbstract implements GruposServiceInterface
     {
         $grupo = $this->grupoRepository->findForUsuario((int) $id);
         $grupo->produtos()->update(['grupo_id' => null]);
+
         return parent::delete($id);
     }
 }

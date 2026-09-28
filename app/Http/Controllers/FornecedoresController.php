@@ -72,4 +72,3 @@ class FornecedoresController extends Controller
         return response()->json($result);
     }
 }
-

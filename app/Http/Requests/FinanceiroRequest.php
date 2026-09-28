@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Categoria;
 use Illuminate\Foundation\Http\FormRequest;
 
 class FinanceiroRequest extends FormRequest
@@ -21,7 +22,7 @@ class FinanceiroRequest extends FormRequest
     public function rules(): array
     {
         $catId = $this->input('categoria_id');
-        $isProduto = $catId && \App\Models\Categoria::where('id', $catId)->where('nome', 'PRODUTO')->exists();
+        $isProduto = $catId && Categoria::where('id', $catId)->where('nome', 'PRODUTO')->exists();
 
         return [
             'descricao' => ['required', 'string', 'max:255'],

@@ -31,4 +31,3 @@ class Fornecedor extends Model
         return $this->hasMany(Produto::class, 'fornecedor_id');
     }
 }
-

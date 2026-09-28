@@ -2,8 +2,4 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-class ContasReceberController extends FinanceiroAbstractController
-{
-}
+class ContasReceberController extends FinanceiroAbstractController {}

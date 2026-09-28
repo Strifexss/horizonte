@@ -7,13 +7,13 @@ use App\DTO\FinanceiroSearchDTO;
 use App\Http\Requests\FinanceiroRequest;
 use App\Http\Requests\FinanceiroSearchRequest;
 use App\Http\Resources\FinanceiroParcelaResource;
-use App\Services\Interfaces\ContasServiceInterface;
 use App\Services\Interfaces\CategoriaServiceInterface;
+use App\Services\Interfaces\ContasServiceInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
-use App\Services\Interfaces\FuncionariosServiceInterface;
-use App\Services\Interfaces\ProdutosServiceInterface;
 use App\Services\Interfaces\FornecedoresServiceInterface;
+use App\Services\Interfaces\FuncionariosServiceInterface;
 use App\Services\Interfaces\GruposServiceInterface;
+use App\Services\Interfaces\ProdutosServiceInterface;
 use Inertia\Inertia;
 
 class ExtratoController extends FinanceiroAbstractController
@@ -54,11 +54,12 @@ class ExtratoController extends FinanceiroAbstractController
         try {
             $dto = FinanceiroDTO::fromArray($request->validated());
             $store = $this->extratoService->store($dto);
+
             return redirect()->route('extrato.index')->with('success', 'Lançamento criado.');
         } catch (\Exception $e) {
             return redirect()->route('extrato.index')->with('error', 'Erro ao criar lançamento: '.$e->getMessage());
         }
-        
+
     }
 
     public function show(int $id)

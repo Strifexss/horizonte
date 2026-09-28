@@ -16,12 +16,11 @@ class Dto
      * Cria uma instância do DTO preenchendo apenas propriedades públicas existentes
      * cujo nome bate com as chaves do array.
      *
-     * @param array<string,mixed> $data
-     * @return static
+     * @param  array<string,mixed>  $data
      */
     public static function fromArray(array $data): static
     {
-        $instance = new static();
+        $instance = new static;
 
         foreach ($data as $key => $value) {
             if (property_exists($instance, $key)) {
@@ -47,4 +46,3 @@ class Dto
         );
     }
 }
-

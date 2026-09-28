@@ -32,4 +32,3 @@ class FornecedoresService extends ServiceAbstract implements FornecedoresService
         });
     }
 }
-
