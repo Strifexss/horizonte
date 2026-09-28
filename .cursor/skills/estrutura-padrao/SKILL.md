@@ -258,8 +258,10 @@ PHP dirty: `vendor/bin/pint --dirty --format agent`.
 
 Testes só se o intake pediu → `testing-best-practices`, depois o recorte `php artisan test --compact`.
 
-UI nova: verificar no browser o fluxo pedido.
+UI nova: verificar no browser o fluxo pedido
 
-**Antes de declarar a tarefa concluída**, rode a verificação de tipos (tsc --noEmit ou equivalente) e os testes unitários afetados no terminal. Se houver falhas, corrija-as antes de responder."
+**Antes de declarar a tarefa concluída**, rode a verificação de tipos (tsc --noEmit ou equivalente) e os testes unitários afetados no terminal. Se houver falhas, corrija-as antes de responder.
+
+Criar, refatorar ou validar teste Pest (`tests/**/*.php`): aplique a skill `pest-php-testing`.
 
 Done: pint limpo; testes pedidos verdes; fluxo de UI exercitado quando houve page.
