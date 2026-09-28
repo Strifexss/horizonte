@@ -13,6 +13,20 @@ description: >-
 
 Toda feature do app é uma **rotina**. O corte das **camadas** é o teste de cada diff, não uma dica.
 
+## Contexto do Projeto: Horizonte
+
+O Horizonte é uma aplicação de **gestão financeira corporativa** (contas a pagar/receber, parcelas, categorias, produtos, fornecedores, grupos, funcions) construída em Laravel 12 + Inertia.js v2 (React 19). O banco é SQLite em desenvolvimento, com suporte a MySQL.
+
+A rotina pode ser simples (CRUD isolado, ex: Contas) ou **composta** (Extrato, que agrega 7 services e exibe resumo + lista de parcelas). A skill cobre ambos os casos — leia "Controller composto" abaixo quando a feature precisar de múltiplos services ou de entidades pai-filho.
+
+Referência viva de cada padrão: `app/Http/Controllers/ExtratoController.php` (composto), `app/Http/Controllers/ContasController.php` (simples).
+
+**Proibição de alucinação**: "Não invente bibliotecas ou métodos não declarados nas dependências. Se não souber a API exata de um pacote, use o contexto do projeto ou peça orientação."
+
+**Mudanças incrementais**: "Faça alterações cirúrgicas. Não refatore código não relacionado sem solicitação explícita."
+
+**Tipagem estrita**: "Nunca utilize any implícito ou explícito em código TypeScript."
+
 ## Camadas
 
 Classifique cada trecho novo neste corte. Query no service ou no controller = passo incompleto.
@@ -26,6 +40,78 @@ Classifique cada trecho novo neste corte. Query no service ou no controller = pa
 **Provider** só `bind(Interface, Concreto)` do service e do repository.
 
 Mapa PHP, binds e o que ler em contas: [camadas.md](camadas.md). Front em três níveis e page-alvo: [front.md](front.md).
+
+### Controller composto (variação)
+
+Quando a feature agrega múltiplos services (ex: Extrato com 7) ou exibe entidades pai-filho, o controller herda de um `*AbstractController` vazio e injeta cada service no construtor. O padrão de cada camada não muda — só o número de dependências.
+
+```php
+class ExtratoController extends FinanceiroAbstractController
+{
+    public function __construct(
+        private ContasServiceInterface $contaService,
+        private CategoriaServiceInterface $categoriaService,
+        private ExtratoServiceInterface $extratoService,
+        // ... mais services
+    ) {}
+
+    public function index(FinanceiroSearchRequest $request)
+    {
+        $filters = FinanceiroSearchDTO::fromArray($request->validated());
+
+        return Inertia::render('extrato/index', [
+            'filters' => $filters->all(),
+            'resumo' => Inertia::defer(fn () => $this->extratoService->resumo($filters)),
+            'parcelas' => Inertia::defer(
+                FinanceiroParcelaResource::collection($this->extratoService->index($filters))
+            ),
+        ]);
+    }
+}
+```
+
+- O `*AbstractController` fica vazio (apenas `<?php ... class X extends Controller {}`). Sua função é marcar o tipo de controller, não abstrair lógica.
+- `Inertia::defer` para cada prop pesada; `Inertia::lazy` para listas de referência carregadas sob demanda.
+
+### API Resources
+
+Quando o service retorna uma coleção de models e o front precisa de formato específico (datas como `toDateString()`, números formatados, relacionamentos), use um **Eloquent API Resource** em vez de retornar o model cru:
+
+```php
+use App\Http\Resources\FinanceiroParcelaResource;
+
+'parcelas' => Inertia::defer(
+    FinanceiroParcelaResource::collection($this->extratoService->index($filters))
+);
+```
+
+- Resource em `app/Http/Resources/{Entidade}Resource.php`, estende `JsonResource`.
+- `toArray($request)` retorna o array de campos. Coleções: `Resource::collection()`.
+- Use quando houver formatação de saída ou quando o model tem mais colunas do que a tela exige.
+
+### Busca / Filtro
+
+Quando a rota de `index` recebe filtros, o fluxo é:
+
+1. **FormRequest específico** (`*SearchRequest`) — autoriza e valida apenas os parâmetros de busca (ex: `dataInicio`, `dataFim`, `contaId`, `status`, `busca`, `perPage`).
+2. **SearchDTO** (`*SearchDTO extends Dto`) — normaliza tipos no `fromArray`: strings vazias → `null`, `*_id` → `int|null`, `per_page` restringido a um conjunto fixo (ex: `[10, 20, 25, 50]`).
+3. O SearchDTO é passado ao service → repository, que aplica os filtros nas queries.
+
+```php
+// Exemplo: FinanceiroSearchDTO::fromArray($request->validated())
+public ?string $dataInicio = null;
+public ?int $contaId = null;
+public int $perPage = 20;
+
+public static function fromArray(array $data): static
+{
+    // normalização de tipos
+    return parent::fromArray($data);
+}
+```
+
+- O `index` do controller recebe o `*SearchRequest` (não `Request` genérico).
+- O `index` do service aceita `?SearchDTO` e repassa ao repository.
 
 ## Passos
 
@@ -148,5 +234,7 @@ PHP dirty: `vendor/bin/pint --dirty --format agent`.
 Testes só se o intake pediu → `testing-best-practices`, depois o recorte `php artisan test --compact`.
 
 UI nova: verificar no browser o fluxo pedido.
+
+**Antes de declarar a tarefa concluída**, rode a verificação de tipos (tsc --noEmit ou equivalente) e os testes unitários afetados no terminal. Se houver falhas, corrija-as antes de responder."
 
 Done: pint limpo; testes pedidos verdes; fluxo de UI exercitado quando houve page.
