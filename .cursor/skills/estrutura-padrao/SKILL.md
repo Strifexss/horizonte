@@ -37,7 +37,32 @@ Classifique cada trecho novo neste corte. Query no service ou no controller = pa
 
 **Repository — banco.** Toda query, persistência, `findOrFail`, filtro, join, `Schema` e Eloquent. Redirect, flash e FormRequest ficam fora.
 
-**Provider** só `bind(Interface, Concreto)` do service e do repository.
+### Repository composto / métodos extras
+
+Quando o repository precisa de operações além do CRUD básico (definido em `AbstractRepository`), adicione métodos **públicos** neste arquivo. Exemplos comuns:
+
+- Filtros complexos / agregações: `indexParcelas($filters)`, `resumoParcelas($filters)`
+- Persistência de entidade filho: `storeParcela($parcelaDto)`
+- Operações em lote / regras de negócio no banco: `clearPadraoParaUsuario($usuarioId, $exceptId = null)`
+
+Cada método novo também deve ser declarado na interface (`*RepositoryInterface`) quando sair do escopo do `AbstractRepositoryInterface`.
+
+**Transações DB no service**  
+Quando uma operação envolver múltiplas gravações que devem ser atômicas (ex: gravar pai + filho, ou atualizar registros relacionados), envolva o código em `DB::transaction()` no **service**. Nunca coloque transação no controller ou repository — o service é o dono da regra de negócio.
+
+```php
+public function store($dto)
+{
+    return DB::transaction(function () use ($dto) {
+        $pai = parent::store($dto); // grava financeiro
+        $dto->id = $pai->id;
+        $this->storeFilho($dto);    // grava parcela
+        return $pai;
+    });
+}
+```
+
+**Provider** só `bind(Interface, Concreto)` do service e do repository. Quando há métodos extras no repository, a interface também precisa ser declarada no `bind()` do `AppServiceProvider`.
 
 Mapa PHP, binds e o que ler em contas: [camadas.md](camadas.md). Front em três níveis e page-alvo: [front.md](front.md).
 
