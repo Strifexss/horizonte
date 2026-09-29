@@ -69,7 +69,10 @@ class AbstractRepository implements AbstractRepositoryInterface
         }
 
         if (Schema::hasColumn($this->model->getTable(), 'usuario_id') && Auth::check()) {
-            $query->where('usuario_id', Auth::id());
+            // Include both system-wide (usuario_id IS NULL) and user-specific records.
+            $query->where(function ($q) {
+                $q->whereNull('usuario_id')->orWhere('usuario_id', Auth::id());
+            });
         }
 
         return $query->limit(20)->get(['id', 'nome']);
@@ -86,9 +89,10 @@ class AbstractRepository implements AbstractRepositoryInterface
 
         $expression = $this->sqlUnaccentLowerExpression($column);
 
-        // Escape backslash correctly for SQL ESCAPE clause.
-        // Use a single backslash as the ESCAPE character (SQL literal '\\' in PHP source).
-        $query->whereRaw("{$expression} LIKE ? ESCAPE '\\'", ['%'.$needle.'%']);
+        // Build an escaped pattern and use LIKE without an explicit ESCAPE clause.
+        // This avoids driver-specific ESCAPE syntax issues (MySQL vs SQLite).
+        $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $needle);
+        $query->whereRaw("{$expression} LIKE ?", ['%'.$escaped.'%']);
     }
 
     protected function sqlUnaccentLowerExpression(string $column): string

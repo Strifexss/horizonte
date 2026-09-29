@@ -14,11 +14,22 @@ it('busca produtos ignorando acentos no autocomplete', function () {
         'preco_compra' => 5.5,
         'usuario_id' => $user->id,
     ]);
+    Produto::query()->create([
+        'nome' => 'Maçã Fuji',
+        'preco_compra' => 2.5,
+        'usuario_id' => $user->id,
+    ]);
 
     $this->actingAs($user)
         ->getJson(route('produtos.autocomplete', ['q' => 'Pao']))
         ->assertOk()
         ->assertJsonFragment(['nome' => 'Pão Francês']);
+
+    // busca também deve funcionar sem acento (Maca -> Maçã)
+    $this->actingAs($user)
+        ->getJson(route('produtos.autocomplete', ['q' => 'Maca']))
+        ->assertOk()
+        ->assertJsonFragment(['nome' => 'Maçã Fuji']);
 });
 
 it('busca contas ignorando acentos no autocomplete', function () {
