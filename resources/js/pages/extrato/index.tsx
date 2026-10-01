@@ -213,11 +213,11 @@ export default function Extrato() {
         {
             key: 'descricao',
             label: 'DESCRIÇÃO',
-            thClassName: 'min-w-[12rem] w-auto',
+            thClassName: 'w-48',
             render: (p: any) => {
                 const isReceita = tipoDaParcela(p) === 'RECEITA';
                 return (
-                    <div className="flex min-w-0 items-center gap-2">
+                    <div className="flex max-w-[10rem] items-center gap-2">
                         <span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${isReceita ? 'bg-green-50 dark:bg-green-900/30 text-green-600' : 'bg-red-50 dark:bg-red-900/30 text-red-600'}`}>
                             {isReceita ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
                         </span>

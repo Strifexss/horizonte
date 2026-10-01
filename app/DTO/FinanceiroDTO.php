@@ -19,6 +19,8 @@ class FinanceiroDTO extends Dto
     public int $usuario_id;
 
     public string $data_vencimento;
+    
+    public string $data_competencia;
 
     public float $valor_pago;
 

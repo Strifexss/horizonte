@@ -18,9 +18,7 @@ class FinanceiroRequest extends FormRequest
             $this->merge(['usuario_id' => $this->user()->id]);
         }
 
-        if($this->has('data_competencia')) {
-            $this->merge(['data_competencia' => \Carbon\Carbon::parse($this->input('data_competencia'))->format('Y-m-d')]);
-        }
+        
     }
 
     public function rules(): array
