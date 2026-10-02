@@ -29,6 +29,8 @@ class FinanceiroSearchRequest extends FormRequest
             'busca' => $this->filled('busca') ? $this->input('busca') : null,
             'per_page' => $this->filled('per_page') ? $this->input('per_page') : 20,
             'page' => $this->filled('page') ? $this->input('page') : 1,
+            'sort' => $this->filled('sort') ? $this->input('sort') : null,
+            'sort_dir' => $this->filled('sort_dir') ? $this->input('sort_dir') : null,
         ]);
     }
 
@@ -50,6 +52,8 @@ class FinanceiroSearchRequest extends FormRequest
             'busca' => ['nullable', 'string', 'max:255'],
             'per_page' => ['required', 'integer', 'in:10,20,25,50'],
             'page' => ['nullable', 'integer', 'min:1'],
+            'sort' => ['nullable', 'string', 'in:data,descricao,quantidade,valor,valor_pago'],
+            'sort_dir' => ['nullable', 'string', 'in:asc,desc'],
         ];
     }
 }

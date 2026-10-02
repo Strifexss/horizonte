@@ -25,6 +25,20 @@ class FinanceiroSearchDTO extends Dto
     public ?int $fornecedor_id = null;
 
     public int $per_page = 20;
+    
+    /**
+     * Campo de ordenação (ex: data, descricao, quantidade, valor, valor_pago)
+     *
+     * @var string|null
+     */
+    public ?string $sort = null;
+
+    /**
+     * Direção da ordenação: 'asc' ou 'desc'
+     *
+     * @var string|null
+     */
+    public ?string $sort_dir = null;
 
     /**
      * @param  array<string, mixed>  $data
@@ -69,6 +83,20 @@ class FinanceiroSearchDTO extends Dto
             $data['busca'] = $busca !== '' ? $busca : null;
         } else {
             $data['busca'] = null;
+        }
+
+        // Ordenação (opcional)
+        if (array_key_exists('sort', $data)) {
+            $data['sort'] = is_string($data['sort']) && $data['sort'] !== '' ? $data['sort'] : null;
+        } else {
+            $data['sort'] = null;
+        }
+
+        if (array_key_exists('sort_dir', $data)) {
+            $dir = is_string($data['sort_dir']) ? strtolower($data['sort_dir']) : '';
+            $data['sort_dir'] = in_array($dir, ['asc', 'desc'], true) ? $dir : null;
+        } else {
+            $data['sort_dir'] = null;
         }
 
         return parent::fromArray($data);

@@ -3,7 +3,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import React, { useState } from 'react';
 import { usePage, router } from '@inertiajs/react';
-import { CreditCard, ChevronDown, Plus, BarChart2, ArrowUpRight, ArrowDownRight, Grid, MoreHorizontal, Pencil, Trash2, File } from 'lucide-react';
+import { CreditCard, ChevronDown, Plus, BarChart2, ArrowUpRight, ArrowDownRight, Grid, MoreHorizontal, Pencil, Trash2, File, ArrowUp, ArrowDown } from 'lucide-react';
 import { PageTitle, KpisPanel } from '@/components/padrões';
 import ExtratoFilters from '@/components/extrato/Filters';
 import ExtratoFooter from '@/components/extrato/Footer';
@@ -165,6 +165,8 @@ export default function Extrato() {
         const contaId = override.conta_id !== undefined ? override.conta_id : filters.conta_id;
         const categoriaId = override.categoria_id !== undefined ? override.categoria_id : filters.categoria_id;
         const buscaValue = override.busca !== undefined ? override.busca : filters.busca;
+        const sortValue = override.sort !== undefined ? override.sort : (filters.sort ?? 'data');
+        const sortDirValue = override.sort_dir !== undefined ? override.sort_dir : (filters.sort_dir ?? 'desc');
 
         if (contaId) {
             payload.conta_id = Number(contaId);
@@ -175,6 +177,8 @@ export default function Extrato() {
         if (buscaValue) {
             payload.busca = String(buscaValue);
         }
+        payload.sort = String(sortValue);
+        payload.sort_dir = String(sortDirValue);
 
         return payload;
     };
@@ -517,9 +521,43 @@ export default function Extrato() {
                             <table className="w-full table-auto text-sm border-collapse">
                                 <thead>
                                     <tr className="text-left text-xs text-muted-foreground bg-transparent">
-                                        {columns.map((c) => (
-                                            <th key={c.key} className={`px-4 py-3 ${c.thClassName ?? ''}`}>{c.label}</th>
-                                        ))}
+                                        {columns.map((c) => {
+                                            const sortableKeys = ['data', 'descricao', 'quantidade', 'valor', 'valor_pago'];
+                                            const isSortable = sortableKeys.includes(c.key);
+                                            if (!isSortable) {
+                                                return <th key={c.key} className={`px-4 py-3 ${c.thClassName ?? ''}`}>{c.label}</th>;
+                                            }
+
+                                            const currentSort = String(filters.sort ?? '');
+                                            const currentDir = String(filters.sort_dir ?? 'desc');
+                                            const isActive = currentSort === c.key;
+
+                                            return (
+                                                <th key={c.key} className={`px-4 py-3 ${c.thClassName ?? ''}`}>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="mr-1 text-sm">{c.label}</span>
+                                                        <div className="flex items-center gap-1">
+                                                            <button
+                                                                type="button"
+                                                                className={`p-0.5 ${isActive && currentDir === 'asc' ? 'text-primary' : 'text-muted-foreground'} hover:text-primary`}
+                                                                onClick={() => visitExtrato({ sort: c.key, sort_dir: 'asc', page: 1 })}
+                                                                aria-label={`Ordenar ${c.label} ascendente`}
+                                                            >
+                                                                <ArrowUp className="h-3 w-3" />
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                className={`p-0.5 ${isActive && currentDir === 'desc' ? 'text-primary' : 'text-muted-foreground'} hover:text-primary`}
+                                                                onClick={() => visitExtrato({ sort: c.key, sort_dir: 'desc', page: 1 })}
+                                                                aria-label={`Ordenar ${c.label} descendente`}
+                                                            >
+                                                                <ArrowDown className="h-3 w-3" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </th>
+                                            );
+                                        })}
                                     </tr>
                                 </thead>
                                 <tbody>

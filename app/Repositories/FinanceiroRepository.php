@@ -32,11 +32,31 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
     {
         $perPage = $data?->per_page ?? 20;
 
-        return $this->parcelasFiltradasQuery($data)
-            ->with(['categoria', 'conta', 'produto.fornecedor', 'produto.grupo', 'fornecedor', 'funcionario', 'financeiro'])
-            ->orderBy('data_vencimento', 'desc')
-            ->paginate($perPage)
-            ->withQueryString();
+        $query = $this->parcelasFiltradasQuery($data)
+            ->with(['categoria', 'conta', 'produto.fornecedor', 'produto.grupo', 'fornecedor', 'funcionario', 'financeiro']);
+
+        // Definir coluna base para data conforme tipo_data
+        $colunaData = $data?->tipo_data === 'competencia' ? 'data_competencia' : 'data_vencimento';
+
+        // Mapeamento de campos permitidos para ordenação
+        $sortMap = [
+            'data' => $colunaData,
+            'descricao' => 'descricao',
+            'quantidade' => 'quantidade',
+            'valor' => 'valor',
+            'valor_pago' => 'valor_pago',
+        ];
+
+        $sortCol = $data?->sort ? ($sortMap[$data->sort] ?? null) : null;
+        $dir = in_array(strtolower((string)($data?->sort_dir ?? '')), ['asc', 'desc'], true) ? strtolower((string)$data?->sort_dir) : 'desc';
+
+        if ($sortCol) {
+            $query = $query->orderBy($sortCol, $dir);
+        } else {
+            $query = $query->orderBy($colunaData, 'desc');
+        }
+
+        return $query->paginate($perPage)->withQueryString();
     }
 
     /**
@@ -46,10 +66,28 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
      */
     public function exportParcelas(?FinanceiroSearchDTO $data = null): Collection
     {
-        return $this->parcelasFiltradasQuery($data)
-            ->with(['categoria', 'conta', 'produto.fornecedor', 'produto.grupo', 'fornecedor', 'funcionario', 'financeiro'])
-            ->orderBy('data_vencimento', 'desc')
-            ->get();
+        $query = $this->parcelasFiltradasQuery($data)
+            ->with(['categoria', 'conta', 'produto.fornecedor', 'produto.grupo', 'fornecedor', 'funcionario', 'financeiro']);
+
+        $colunaData = $data?->tipo_data === 'competencia' ? 'data_competencia' : 'data_vencimento';
+        $sortMap = [
+            'data' => $colunaData,
+            'descricao' => 'descricao',
+            'quantidade' => 'quantidade',
+            'valor' => 'valor',
+            'valor_pago' => 'valor_pago',
+        ];
+
+        $sortCol = $data?->sort ? ($sortMap[$data->sort] ?? null) : null;
+        $dir = in_array(strtolower((string)($data?->sort_dir ?? '')), ['asc', 'desc'], true) ? strtolower((string)$data?->sort_dir) : 'desc';
+
+        if ($sortCol) {
+            $query = $query->orderBy($sortCol, $dir);
+        } else {
+            $query = $query->orderBy($colunaData, 'desc');
+        }
+
+        return $query->get();
     }
 
     /**
