@@ -1,7 +1,8 @@
 import { Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { ExtratoStatusTab } from '@/components/extrato/types';
 
-export type ExtratoStatusTab = 'todos' | 'aberto' | 'pago' | 'parcial';
+export type { ExtratoStatusTab };
 
 type Counts = Record<ExtratoStatusTab, number>;
 
