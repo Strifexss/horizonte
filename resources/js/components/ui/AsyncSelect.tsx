@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import Select, { StylesConfig } from 'react-select';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import Select, { components, MenuListProps, StylesConfig } from 'react-select';
 
 const SEARCH_DEBOUNCE_MS = 800;
 
@@ -19,6 +19,92 @@ interface AsyncSelectProps {
 }
 
 type SelectOption = { value: number | string; label: string; __raw: Option; __isCreate?: boolean };
+
+const EDGE_EPSILON_PX = 1;
+
+function assignMenuListRef(ref: MenuListProps<SelectOption, false>['innerRef'], node: HTMLDivElement | null) {
+  if (typeof ref === 'function') {
+    ref(node);
+    return;
+  }
+
+  if (ref) {
+    (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+  }
+}
+
+/**
+ * The menu is portaled to document.body, outside the Radix scroll lock.
+ * That lock cancels touchmove on document, which is what blocks finger scrolling.
+ * Stop the event while the list can still move, and cancel it at the edges so
+ * the page behind does not pick up the leftover gesture. Wheel is left alone.
+ */
+function bindMenuTouchScroll(node: HTMLDivElement): () => void {
+  let lastY = 0;
+
+  const onTouchStart = (event: TouchEvent) => {
+    lastY = event.touches[0]?.clientY ?? 0;
+  };
+
+  const onTouchMove = (event: TouchEvent) => {
+    if (event.touches.length !== 1) {
+      return;
+    }
+
+    const touch = event.touches[0];
+    const deltaY = lastY - touch.clientY;
+    lastY = touch.clientY;
+
+    event.stopPropagation();
+
+    if (deltaY === 0) {
+      return;
+    }
+
+    const maxScroll = node.scrollHeight - node.clientHeight;
+    const room = deltaY > 0 ? maxScroll - node.scrollTop : node.scrollTop;
+
+    if (room > EDGE_EPSILON_PX && Math.abs(deltaY) < room - EDGE_EPSILON_PX) {
+      return;
+    }
+
+    if (event.cancelable) {
+      event.preventDefault();
+    }
+
+    if (maxScroll > 0) {
+      node.scrollTop = Math.min(maxScroll, Math.max(0, node.scrollTop + deltaY));
+    }
+  };
+
+  node.addEventListener('touchstart', onTouchStart, { passive: true });
+  node.addEventListener('touchmove', onTouchMove, { passive: false });
+
+  return () => {
+    node.removeEventListener('touchstart', onTouchStart);
+    node.removeEventListener('touchmove', onTouchMove);
+  };
+}
+
+function ScrollableMenuList(props: MenuListProps<SelectOption, false>) {
+  const innerRefProp = useRef(props.innerRef);
+  innerRefProp.current = props.innerRef;
+  const cleanupRef = useRef<(() => void) | null>(null);
+
+  const setListRef = useCallback((node: HTMLDivElement | null) => {
+    cleanupRef.current?.();
+    cleanupRef.current = null;
+    assignMenuListRef(innerRefProp.current, node);
+
+    if (!node) {
+      return;
+    }
+
+    cleanupRef.current = bindMenuTouchScroll(node);
+  }, []);
+
+  return <components.MenuList {...props} innerRef={setListRef} />;
+}
 
 const selectStyles: StylesConfig<SelectOption, false> = {
   control: (base, state) => ({
@@ -232,6 +318,7 @@ export default function AsyncSelect({
       isClearable={isClearable}
       placeholder={placeholder}
       styles={selectStyles}
+      components={{ MenuList: ScrollableMenuList }}
       autoFocus={autoFocus}
       menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
       menuPosition="fixed"
