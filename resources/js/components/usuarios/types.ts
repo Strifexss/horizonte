@@ -13,6 +13,10 @@ export type Usuario = {
 export type UsuariosUrls = {
     index: string;
     store: string;
+    autocomplete: string;
+    transfer: string;
+    /** Contém o marcador `__ID__`, substituído pelo id do usuário de origem. */
+    transfer_counts: string;
 };
 
 export type UsuariosFilters = {

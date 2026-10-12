@@ -36,8 +36,10 @@ use App\Services\Interfaces\FuncionariosServiceInterface;
 use App\Services\Interfaces\GruposServiceInterface;
 use App\Services\Interfaces\ProdutosServiceInterface;
 use App\Services\Interfaces\UsuariosServiceInterface;
+use App\Services\Interfaces\UsuariosTransferServiceInterface;
 use App\Services\ProdutosService;
 use App\Services\UsuariosService;
+use App\Services\UsuariosTransferService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -65,6 +67,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(GrupoRepositoryInterface::class, GrupoRepository::class);
         $this->app->bind(UsuariosServiceInterface::class, UsuariosService::class);
         $this->app->bind(UsuarioRepositoryInterface::class, UsuarioRepository::class);
+        $this->app->bind(UsuariosTransferServiceInterface::class, UsuariosTransferService::class);
     }
 
     /**

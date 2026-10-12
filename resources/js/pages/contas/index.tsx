@@ -136,7 +136,7 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
                                 </Button>
                             </DialogTrigger>
 
-                            <DialogContent className="md:h-auto md:w-[500px] max-w-full overflow-hidden flex flex-col">
+                            <DialogContent className="h-[100dvh] md:h-auto md:w-[500px] max-w-full overflow-hidden flex flex-col">
                                 <DialogHeader>
                                     <DialogTitle>Adicionar conta</DialogTitle>
                                     <DialogDescription>Preencha os dados para cadastrar uma nova conta.</DialogDescription>
@@ -196,7 +196,7 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
 
                 {/* Edit dialog */}
                 <Dialog open={editOpen} onOpenChange={setEditOpen}>
-                    <DialogContent className="md:h-auto md:w-[500px] max-w-full overflow-hidden flex flex-col">
+                    <DialogContent className="h-[100dvh] md:h-auto md:w-[500px] max-w-full overflow-hidden flex flex-col">
                         <DialogHeader>
                             <DialogTitle>Editar conta</DialogTitle>
                             <DialogDescription>Atualize os dados da conta.</DialogDescription>

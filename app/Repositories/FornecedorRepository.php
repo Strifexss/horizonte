@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Fornecedor;
 use App\Models\Produto;
 use App\Repositories\Interfaces\FornecedorRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class FornecedorRepository extends AbstractRepository implements FornecedorRepositoryInterface
@@ -48,5 +49,23 @@ class FornecedorRepository extends AbstractRepository implements FornecedorRepos
         return $this->model->newQuery()
             ->where('usuario_id', Auth::id())
             ->findOrFail($id);
+    }
+
+    /**
+     * Conta quantos fornecedores pertencem ao usuário informado.
+     */
+    public function countByUsuario(int $usuarioId): int
+    {
+        return $this->model->newQuery()->where('usuario_id', $usuarioId)->count();
+    }
+
+    /**
+     * Retorna todos os fornecedores do usuário.
+     *
+     * @return Collection<int, Fornecedor>
+     */
+    public function getByUsuario(int $usuarioId): mixed
+    {
+        return $this->model->newQuery()->where('usuario_id', $usuarioId)->orderBy('id')->get();
     }
 }

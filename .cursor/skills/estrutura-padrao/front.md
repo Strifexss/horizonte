@@ -52,6 +52,8 @@ Contrato da rotina: **folha em tela cheia** abaixo de `md` (768px); **card centr
 
 ### Casca (`DialogContent`)
 
+O `DialogContent` de `ui/dialog` é um **card de altura automática** (`max-h-[100dvh]`, sem `h-*`). **Nunca** coloque altura de tela cheia (`h-[100dvh]`/`h-[100vh]`) no componente base: todo `Dialog` sem `className` (confirms, `delete-user`) herdaria a altura da tela. Tela cheia é opt-in, por modal.
+
 Passe no `className` do modal de domínio (o `ui/dialog` já centra com `fixed` + `translate` e cobre overlay):
 
 ```tsx
@@ -73,7 +75,7 @@ Corpo: `flex flex-col h-full`. Filhos do `DialogContent` em **uma coluna** (`gri
 | Abas (Receita/Despesa) | **lado a lado** | `flex gap-2` |
 | Footer do form (Cancelar + submit) | **lado a lado**, cada um `w-full` | `DialogFooter className="flex flex-row gap-2"` — anula o `flex-col-reverse` do `ui` |
 | Linha da lista (nome + ações) | **lado a lado** | `flex justify-between` |
-| Confirm de exclusão (2º `Dialog`) | footer empilhado invertido | deixe o default do `DialogFooter` |
+| Confirm de exclusão (2º `Dialog`) | card compacto, footer empilhado invertido | `<DialogContent>` sem classes de altura; deixe o default do `DialogFooter` |
 
 O X de fechar fica `absolute` no `ui`; não entra no fluxo.
 

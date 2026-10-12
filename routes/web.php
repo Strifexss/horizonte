@@ -90,8 +90,11 @@ if (filled(config('admin.path'))) {
         ->group(function () {
             Route::get('/', [UsuariosController::class, 'index'])->name('usuarios');
             Route::post('/usuarios', [UsuariosController::class, 'store'])->name('usuarios.store');
+            Route::get('/usuarios/autocomplete', [UsuariosController::class, 'autocomplete'])->name('usuarios.autocomplete');
             Route::put('/usuarios/{id}', [UsuariosController::class, 'update'])->name('usuarios.update');
             Route::delete('/usuarios/{id}', [UsuariosController::class, 'destroy'])->name('usuarios.destroy');
+            Route::post('/usuarios/transfer', [UsuariosController::class, 'transfer'])->name('usuarios.transfer');
+            Route::get('/usuarios/{id}/transfer-counts', [UsuariosController::class, 'transferCounts'])->name('usuarios.transfer.counts');
             Route::post('/usuarios/{id}/entrar-como', [UsuariosController::class, 'entrarComo'])->name('usuarios.entrar-como');
         });
 }

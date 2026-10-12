@@ -31,6 +31,20 @@ class UsuarioRepository extends AbstractRepository implements UsuarioRepositoryI
         return $query->orderBy('name')->get();
     }
 
+    public function autocomplete($q = null)
+    {
+        $query = $this->model->newQuery();
+
+        if ($q !== null && $q !== '') {
+            $query->where(function ($subQuery) use ($q) {
+                $this->applyAccentInsensitiveLike($subQuery, 'name', $q);
+                $subQuery->orWhere('email', 'like', '%'.$q.'%');
+            });
+        }
+
+        return $query->orderBy('name')->limit(20)->get(['id', 'name', 'email']);
+    }
+
     public function encerrarSessoes(int $usuarioId, ?string $excetoSessaoId = null): int
     {
         $query = DB::table(config('session.table', 'sessions'))

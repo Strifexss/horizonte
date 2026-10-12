@@ -8,6 +8,7 @@ import UsuariosEmpty from '@/components/usuarios/UsuariosEmpty';
 import UsuariosForm from '@/components/usuarios/UsuariosForm';
 import UsuariosSkeleton from '@/components/usuarios/UsuariosSkeleton';
 import UsuariosTable from '@/components/usuarios/UsuariosTable';
+import UsuariosTransferModal from '@/components/usuarios/UsuariosTransferModal';
 import AdminLayout from '@/layouts/admin-layout';
 import { Deferred, Head, router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
@@ -23,6 +24,7 @@ type Confirmacao = { tipo: 'excluir' | 'entrar-como'; usuario: Usuario } | null;
 
 export default function UsuariosIndex({ filters, urls, usuarios }: Props) {
     const [formOpen, setFormOpen] = useState(false);
+    const [transferOpen, setTransferOpen] = useState(false);
     const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
     const [usuarioEmEdicao, setUsuarioEmEdicao] = useState<Usuario | null>(null);
     const [confirmacao, setConfirmacao] = useState<Confirmacao>(null);
@@ -85,10 +87,15 @@ export default function UsuariosIndex({ filters, urls, usuarios }: Props) {
                     title="Usuários"
                     subtitle="Gerencie os usuários do sistema"
                     actions={
-                        <Button variant="primary" onClick={abrirCriacao} className="inline-flex items-center gap-2">
-                            <Plus className="h-4 w-4" />
-                            Adicionar usuário
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <Button variant="primary" onClick={abrirCriacao} className="inline-flex items-center gap-2">
+                                <Plus className="h-4 w-4" />
+                                Adicionar usuário
+                            </Button>
+                            <Button variant="default" onClick={() => setTransferOpen(true)} className="inline-flex items-center gap-2">
+                                Transferir Dados
+                            </Button>
+                        </div>
                     }
                 />
 
@@ -113,6 +120,7 @@ export default function UsuariosIndex({ filters, urls, usuarios }: Props) {
             </div>
 
             <UsuariosForm open={formOpen} onOpenChange={setFormOpen} mode={formMode} usuario={usuarioEmEdicao} storeUrl={urls.store} />
+            <UsuariosTransferModal open={transferOpen} onOpenChange={setTransferOpen} urls={urls} />
 
             <UsuariosConfirm
                 open={confirmacao !== null}
