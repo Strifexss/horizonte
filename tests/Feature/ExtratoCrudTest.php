@@ -7,6 +7,7 @@ use App\Models\Financeiro;
 use App\Models\User;
 use App\Repositories\FinanceiroRepository;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Testing\AssertableInertia as Assert;
 
 it('stores and lists financeiro records for authenticated user', function () {
     $user = User::factory()->create();
@@ -128,4 +129,19 @@ it('creates a lancamento when extrato store payload is valid', function () {
         'data_competencia' => '2026-08-30',
         'data_vencimento' => '2026-08-30',
     ]);
+});
+
+it('renders the extrato index for the signed-in user', function (): void {
+    $this->withoutVite();
+
+    config([
+        'inertia.testing.page_paths' => [resource_path('js/pages')],
+    ]);
+
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('extrato.index'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page->component('extrato/index'));
 });

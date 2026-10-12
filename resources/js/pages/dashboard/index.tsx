@@ -10,7 +10,7 @@ import { useSidebar } from '@/components/ui/sidebar';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Deferred, Head, router } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/dashboard' }];
 
@@ -19,17 +19,15 @@ const CARD_WRAP =
 
 function RecolherSidebarNoDashboard(): null {
     const { setOpen } = useSidebar();
+    const jaRecolheu = useRef(false);
 
     useEffect(() => {
-        const preferencia = window.localStorage.getItem('sidebar');
-
-        setOpen(false);
-
-        if (preferencia === null) {
-            window.localStorage.removeItem('sidebar');
-        } else {
-            window.localStorage.setItem('sidebar', preferencia);
+        if (jaRecolheu.current) {
+            return;
         }
+
+        jaRecolheu.current = true;
+        setOpen(false);
     }, [setOpen]);
 
     return null;
@@ -140,7 +138,7 @@ export default function Dashboard({
             <RecolherSidebarNoDashboard />
             <Head title="Dashboard" />
             <div className="flex h-full min-w-0 flex-1 flex-col gap-6 rounded-xl p-4 md:p-6">
-                <PageTitle title="Saldo mensal" subtitle={String(ano)} />
+                <PageTitle title="Dashboard" />
 
                 <div className="@container flex min-w-0 flex-wrap items-stretch gap-4">
                     <div className={CARD_WRAP}>
@@ -158,6 +156,7 @@ export default function Dashboard({
                                     dataInicio={dataInicio}
                                     dataFim={dataFim}
                                     onPeriodoChange={recarregarPizza}
+                                    idPrefix="categoria-"
                                 />
                             }
                         >
@@ -167,6 +166,7 @@ export default function Dashboard({
                                 dataInicio={dataInicio}
                                 dataFim={dataFim}
                                 onPeriodoChange={recarregarPizza}
+                                idPrefix="categoria-"
                             />
                         </Deferred>
                     </div>
@@ -180,6 +180,7 @@ export default function Dashboard({
                                     dataInicio={grupoInicio}
                                     dataFim={grupoFim}
                                     onPeriodoChange={recarregarPizzaGrupos}
+                                    idPrefix="grupo-"
                                 />
                             }
                         >
@@ -189,6 +190,7 @@ export default function Dashboard({
                                 dataInicio={grupoInicio}
                                 dataFim={grupoFim}
                                 onPeriodoChange={recarregarPizzaGrupos}
+                                idPrefix="grupo-"
                             />
                         </Deferred>
                     </div>

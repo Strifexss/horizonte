@@ -5,6 +5,7 @@ type DashboardPizzaSkeletonProps = {
     dataInicio: string;
     dataFim: string;
     onPeriodoChange: (inicio: string, fim: string) => void;
+    idPrefix: string;
 };
 
 export default function DashboardPizzaSkeleton({
@@ -12,6 +13,7 @@ export default function DashboardPizzaSkeleton({
     dataInicio,
     dataFim,
     onPeriodoChange,
+    idPrefix,
 }: DashboardPizzaSkeletonProps) {
     return (
         <div
@@ -24,7 +26,12 @@ export default function DashboardPizzaSkeleton({
                     <div className="text-sm font-medium">{titulo}</div>
                     <div className="text-xs text-muted-foreground">Competência</div>
                 </div>
-                <DashboardFiltroPeriodo dataInicio={dataInicio} dataFim={dataFim} onPeriodoChange={onPeriodoChange} />
+                <DashboardFiltroPeriodo
+                    dataInicio={dataInicio}
+                    dataFim={dataFim}
+                    onPeriodoChange={onPeriodoChange}
+                    idPrefix={idPrefix}
+                />
             </div>
 
             <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3">

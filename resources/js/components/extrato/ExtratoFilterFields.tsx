@@ -1,4 +1,4 @@
-import { Input } from '@/components/ui/input';
+import FiltroPeriodoDatas from '@/components/padrões/FiltroPeriodoDatas';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -59,25 +59,14 @@ export default function ExtratoFilterFields({
                 </Select>
             </div>
 
-            <div className="flex min-w-0 flex-col gap-1 md:col-span-2">
-                <Label>Período</Label>
-                <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
-                    <Input
-                        id={`${idPrefix}data-inicio`}
-                        type="date"
-                        className="min-w-0 w-full"
-                        value={values.dataInicio}
-                        onChange={(e) => onChange({ dataInicio: e.target.value })}
-                    />
-                    <span className="hidden text-sm text-muted-foreground sm:inline">-</span>
-                    <Input
-                        id={`${idPrefix}data-fim`}
-                        type="date"
-                        className="min-w-0 w-full"
-                        value={values.dataFim}
-                        onChange={(e) => onChange({ dataFim: e.target.value })}
-                    />
-                </div>
+            <div className="min-w-0 md:col-span-2">
+                <FiltroPeriodoDatas
+                    dataInicio={values.dataInicio}
+                    dataFim={values.dataFim}
+                    onInicioChange={(dataInicio) => onChange({ dataInicio })}
+                    onFimChange={(dataFim) => onChange({ dataFim })}
+                    idPrefix={idPrefix}
+                />
             </div>
 
             <div className="flex flex-col gap-1 md:col-span-1">

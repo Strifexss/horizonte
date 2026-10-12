@@ -97,7 +97,11 @@ export default function DashboardGrafico({ ano, saldos }: DashboardGraficoProps)
     );
 
     return (
-        <div className="flex h-full min-h-0 min-w-0 flex-col rounded-xl border border-sidebar-border/70 bg-white p-4 shadow-sm dark:bg-slate-900">
+        <div className="flex h-full min-h-0 min-w-0 flex-col rounded-xl border border-sidebar-border/70 bg-white p-3 shadow-sm dark:bg-slate-900">
+            <div className="mb-2 min-w-0 shrink-0">
+                <div className="text-sm font-medium">Saldo mensal</div>
+                <div className="text-xs text-muted-foreground">{ano}</div>
+            </div>
             <div className="h-[280px] w-full min-w-0 shrink-0">
                 <Chart definition={chart} height={280} ariaLabel={`Saldo mensal de ${ano}`} />
             </div>

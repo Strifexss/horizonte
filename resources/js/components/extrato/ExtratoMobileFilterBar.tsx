@@ -1,6 +1,5 @@
+import FiltroPeriodoDatas from '@/components/padrões/FiltroPeriodoDatas';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
     Sheet,
     SheetContent,
@@ -336,24 +335,13 @@ export default function ExtratoMobileFilterBar({
                         <SheetDescription>Escolha o intervalo de datas.</SheetDescription>
                     </SheetHeader>
                     <div className="space-y-3 px-4 py-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="mobile-period-inicio">Início</Label>
-                            <Input
-                                id="mobile-period-inicio"
-                                type="date"
-                                value={draftInicio}
-                                onChange={(e) => setDraftInicio(e.target.value)}
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="mobile-period-fim">Fim</Label>
-                            <Input
-                                id="mobile-period-fim"
-                                type="date"
-                                value={draftFim}
-                                onChange={(e) => setDraftFim(e.target.value)}
-                            />
-                        </div>
+                        <FiltroPeriodoDatas
+                            dataInicio={draftInicio}
+                            dataFim={draftFim}
+                            onInicioChange={setDraftInicio}
+                            onFimChange={setDraftFim}
+                            idPrefix="mobile-period-"
+                        />
                     </div>
                     <SheetFooter className="flex-row gap-2 border-t border-sidebar-border/70 px-4 py-3">
                         <Button type="button" variant="secondary" className="flex-1" onClick={() => setPeriodOpen(false)}>

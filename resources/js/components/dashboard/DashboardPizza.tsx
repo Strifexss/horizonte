@@ -13,6 +13,7 @@ type DashboardPizzaProps = {
     dataInicio: string;
     dataFim: string;
     onPeriodoChange: (inicio: string, fim: string) => void;
+    idPrefix: string;
 };
 
 const PALETTE = [
@@ -67,6 +68,7 @@ export default function DashboardPizza({
     dataInicio,
     dataFim,
     onPeriodoChange,
+    idPrefix,
 }: DashboardPizzaProps) {
     const { ref: donutRef, lado } = useLadoDoContainer();
 
@@ -115,7 +117,12 @@ export default function DashboardPizza({
                     <div className="text-sm font-medium">{titulo}</div>
                     <div className="text-xs text-muted-foreground">Competência</div>
                 </div>
-                <DashboardFiltroPeriodo dataInicio={dataInicio} dataFim={dataFim} onPeriodoChange={onPeriodoChange} />
+                <DashboardFiltroPeriodo
+                    dataInicio={dataInicio}
+                    dataFim={dataFim}
+                    onPeriodoChange={onPeriodoChange}
+                    idPrefix={idPrefix}
+                />
             </div>
 
             {total <= 0 ? (
