@@ -17,7 +17,9 @@ use App\Repositories\Interfaces\FornecedorRepositoryInterface;
 use App\Repositories\Interfaces\FuncionarioRepositoryInterface;
 use App\Repositories\Interfaces\GrupoRepositoryInterface;
 use App\Repositories\Interfaces\ProdutoRepositoryInterface;
+use App\Repositories\Interfaces\UsuarioRepositoryInterface;
 use App\Repositories\ProdutoRepository;
+use App\Repositories\UsuarioRepository;
 use App\Services\CategoriaService;
 use App\Services\ContasService;
 use App\Services\ExtratoService;
@@ -33,7 +35,11 @@ use App\Services\Interfaces\FornecedoresServiceInterface;
 use App\Services\Interfaces\FuncionariosServiceInterface;
 use App\Services\Interfaces\GruposServiceInterface;
 use App\Services\Interfaces\ProdutosServiceInterface;
+use App\Services\Interfaces\UsuariosServiceInterface;
+use App\Services\Interfaces\UsuariosTransferServiceInterface;
 use App\Services\ProdutosService;
+use App\Services\UsuariosService;
+use App\Services\UsuariosTransferService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -59,6 +65,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(FornecedorRepositoryInterface::class, FornecedorRepository::class);
         $this->app->bind(GruposServiceInterface::class, GruposService::class);
         $this->app->bind(GrupoRepositoryInterface::class, GrupoRepository::class);
+        $this->app->bind(UsuariosServiceInterface::class, UsuariosService::class);
+        $this->app->bind(UsuarioRepositoryInterface::class, UsuarioRepository::class);
+        $this->app->bind(UsuariosTransferServiceInterface::class, UsuariosTransferService::class);
     }
 
     /**

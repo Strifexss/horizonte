@@ -31,4 +31,9 @@ class FornecedoresService extends ServiceAbstract implements FornecedoresService
             return parent::delete($id);
         });
     }
+
+    public function deleteByUsuario(int $usuarioId): int
+    {
+        return $this->fornecedorRepository->deleteByUsuario($usuarioId);
+    }
 }

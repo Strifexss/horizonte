@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\FinanceiroParcela;
 use App\Models\Produto;
 use App\Repositories\Interfaces\ProdutoRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryInterface
@@ -62,5 +63,27 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
         return $this->model->newQuery()
             ->where('usuario_id', Auth::id())
             ->findOrFail($id);
+    }
+
+    /**
+     * Conta quantos produtos pertencem ao usuário informado.
+     */
+    public function countByUsuario(int $usuarioId): int
+    {
+        return $this->model->newQuery()->where('usuario_id', $usuarioId)->count();
+    }
+
+    /**
+     * Retorna todos os produtos do usuário (coleção).
+     *
+     * @return Collection<int, Produto>
+     */
+    public function getByUsuario(int $usuarioId): mixed
+    {
+        return $this->model->newQuery()
+            ->where('usuario_id', $usuarioId)
+            ->with('fornecedor', 'grupo')
+            ->orderBy('id')
+            ->get();
     }
 }

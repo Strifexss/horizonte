@@ -729,7 +729,7 @@ export default function ExtratoModal({
     return (
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent className="md:h-auto md:w-[700px] max-w-full overflow-hidden flex flex-col">
+                <DialogContent className="h-[100dvh] md:h-auto md:w-[700px] max-w-full overflow-hidden flex flex-col">
                     <DialogHeader>
                         <DialogTitle>{mode === 'edit' ? 'Editar lançamento' : 'Adicionar lançamento'}</DialogTitle>
                         <DialogDescription>

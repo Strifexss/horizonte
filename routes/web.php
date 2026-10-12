@@ -9,6 +9,7 @@ use App\Http\Controllers\FuncionariosController;
 use App\Http\Controllers\GruposController;
 use App\Http\Controllers\ParcelaController;
 use App\Http\Controllers\ProdutosController;
+use App\Http\Controllers\UsuariosController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -81,6 +82,22 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}', [FuncionariosController::class, 'destroy'])->name('funcionarios.destroy');
     });
 });
+
+if (filled(config('admin.path'))) {
+    Route::middleware(['administrador'])
+        ->prefix(config('admin.path'))
+        ->name('admin.')
+        ->group(function () {
+            Route::get('/', [UsuariosController::class, 'index'])->name('usuarios');
+            Route::post('/usuarios', [UsuariosController::class, 'store'])->name('usuarios.store');
+            Route::get('/usuarios/autocomplete', [UsuariosController::class, 'autocomplete'])->name('usuarios.autocomplete');
+            Route::put('/usuarios/{id}', [UsuariosController::class, 'update'])->name('usuarios.update');
+            Route::delete('/usuarios/{id}', [UsuariosController::class, 'destroy'])->name('usuarios.destroy');
+            Route::post('/usuarios/transfer', [UsuariosController::class, 'transfer'])->name('usuarios.transfer');
+            Route::get('/usuarios/{id}/transfer-counts', [UsuariosController::class, 'transferCounts'])->name('usuarios.transfer.counts');
+            Route::post('/usuarios/{id}/entrar-como', [UsuariosController::class, 'entrarComo'])->name('usuarios.entrar-como');
+        });
+}
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
