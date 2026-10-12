@@ -4,6 +4,8 @@ use App\Models\Categoria;
 use App\Models\Conta;
 use App\Models\Financeiro;
 use App\Models\FinanceiroParcela;
+use App\Models\Grupo;
+use App\Models\Produto;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -90,6 +92,47 @@ function lancarDespesaComCategoriaNoDashboard(
     ]);
 }
 
+function lancarDespesaComProdutoNoDashboard(
+    User $user,
+    string $competencia,
+    Produto $produto,
+    float $valor,
+    ?Conta $conta = null,
+    ?Categoria $categoria = null,
+): FinanceiroParcela {
+    $conta ??= Conta::query()->create([
+        'nome' => 'Carteira '.$user->id,
+        'usuario_id' => $user->id,
+    ]);
+
+    $categoria ??= Categoria::query()->create([
+        'nome' => 'Despesa produto '.$competencia,
+        'tipo' => 'despesa',
+        'usuario_id' => $user->id,
+    ]);
+
+    $financeiro = Financeiro::query()->create([
+        'descricao' => 'DESPESA produto '.$competencia,
+        'valor' => $valor,
+        'tipo' => 'DESPESA',
+        'usuario_id' => $user->id,
+    ]);
+
+    return FinanceiroParcela::query()->create([
+        'descricao' => 'DESPESA produto '.$competencia,
+        'data_vencimento' => $competencia,
+        'data_competencia' => $competencia,
+        'valor' => $valor,
+        'valor_pago' => 0,
+        'parcela' => 1,
+        'financeiro_id' => $financeiro->id,
+        'categoria_id' => $categoria->id,
+        'produto_id' => $produto->id,
+        'conta_id' => $conta->id,
+        'usuario_id' => $user->id,
+    ]);
+}
+
 it('redirects guests to the login page', function (): void {
     $this->get(route('dashboard'))
         ->assertRedirect(route('login'));
@@ -105,6 +148,10 @@ it('shows twelve zero balances when the year has no parcels', function (): void 
         ->assertInertia(fn (Assert $page) => $page
             ->component('dashboard/index')
             ->where('ano', 2026)
+            ->where('dataInicioDespesasPorCategoria', '2026-06-01')
+            ->where('dataFimDespesasPorCategoria', '2026-06-30')
+            ->where('dataInicioDespesasPorGrupo', '2026-06-01')
+            ->where('dataFimDespesasPorGrupo', '2026-06-30')
             ->loadDeferredProps(fn (Assert $reload) => $reload
                 ->has('saldos', 12)
                 ->where('saldos', function ($saldos): bool {
@@ -117,6 +164,9 @@ it('shows twelve zero balances when the year has no parcels', function (): void 
 
                     return true;
                 })
+                ->has('despesasPorCategoria', 0)
+                ->has('despesasPorGrupoDeProduto', 0)
+                ->has('receitasPorDiaDaSemana', 7)
             )
         );
 
@@ -289,6 +339,274 @@ it('shows expenses by category for a custom competence date range (competencia)'
     $this->travelBack();
 });
 
+it('shows expenses by current product group for the signed-in user using the default month range', function (): void {
+    $this->travelTo('2026-06-15');
+
+    $user = User::factory()->create();
+    $outraPessoa = User::factory()->create();
+    $conta = Conta::query()->create([
+        'nome' => 'Carteira '.$user->id,
+        'usuario_id' => $user->id,
+    ]);
+    $categoria = Categoria::query()->create([
+        'nome' => 'Produto',
+        'tipo' => 'despesa',
+        'usuario_id' => $user->id,
+    ]);
+
+    $hardware = Grupo::query()->create([
+        'nome' => 'Hardware',
+        'usuario_id' => $user->id,
+    ]);
+    $escritorio = Grupo::query()->create([
+        'nome' => 'Escritório',
+        'usuario_id' => $user->id,
+    ]);
+
+    $mouse = Produto::query()->create([
+        'nome' => 'Mouse',
+        'preco_compra' => 80,
+        'usuario_id' => $user->id,
+        'grupo_id' => $hardware->id,
+    ]);
+    $teclado = Produto::query()->create([
+        'nome' => 'Teclado',
+        'preco_compra' => 180,
+        'usuario_id' => $user->id,
+        'grupo_id' => $hardware->id,
+    ]);
+    $papel = Produto::query()->create([
+        'nome' => 'Papel',
+        'preco_compra' => 25,
+        'usuario_id' => $user->id,
+        'grupo_id' => $escritorio->id,
+    ]);
+    $cabo = Produto::query()->create([
+        'nome' => 'Cabo',
+        'preco_compra' => 15,
+        'usuario_id' => $user->id,
+        'grupo_id' => null,
+    ]);
+
+    lancarDespesaComProdutoNoDashboard($user, '2026-06-05', $mouse, 10, $conta, $categoria);
+    lancarDespesaComProdutoNoDashboard($user, '2026-06-20', $teclado, 20, $conta, $categoria);
+    lancarDespesaComProdutoNoDashboard($user, '2026-06-12', $papel, 7, $conta, $categoria);
+    lancarDespesaComProdutoNoDashboard($user, '2026-06-18', $cabo, 4, $conta, $categoria);
+
+    lancarDespesaComProdutoNoDashboard($user, '2026-05-10', $mouse, 999, $conta, $categoria);
+
+    lancarDespesaComCategoriaNoDashboard($user, '2026-06-08', $categoria, 50, 0, $conta);
+
+    $financeiroReceita = Financeiro::query()->create([
+        'descricao' => 'RECEITA produto 2026-06-10',
+        'valor' => 123,
+        'tipo' => 'RECEITA',
+        'usuario_id' => $user->id,
+    ]);
+
+    FinanceiroParcela::query()->create([
+        'descricao' => 'RECEITA produto 2026-06-10',
+        'data_vencimento' => '2026-06-10',
+        'data_competencia' => '2026-06-10',
+        'valor' => 123,
+        'valor_pago' => 0,
+        'parcela' => 1,
+        'financeiro_id' => $financeiroReceita->id,
+        'categoria_id' => $categoria->id,
+        'produto_id' => $mouse->id,
+        'conta_id' => $conta->id,
+        'usuario_id' => $user->id,
+    ]);
+
+    lancarDespesaComProdutoNoDashboard($outraPessoa, '2026-06-05', Produto::query()->create([
+        'nome' => 'Alheio',
+        'preco_compra' => 1,
+        'usuario_id' => $outraPessoa->id,
+        'grupo_id' => Grupo::query()->create([
+            'nome' => 'Hardware',
+            'usuario_id' => $outraPessoa->id,
+        ])->id,
+    ]), 500);
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard/index')
+            ->where('ano', 2026)
+            ->where('dataInicioDespesasPorGrupo', '2026-06-01')
+            ->where('dataFimDespesasPorGrupo', '2026-06-30')
+            ->loadDeferredProps(fn (Assert $reload) => $reload
+                ->has('despesasPorGrupoDeProduto', 3)
+                ->where('despesasPorGrupoDeProduto.0.grupo', 'Escritório')
+                ->where('despesasPorGrupoDeProduto.0.valor', 7)
+                ->where('despesasPorGrupoDeProduto.1.grupo', 'Hardware')
+                ->where('despesasPorGrupoDeProduto.1.valor', 30)
+                ->where('despesasPorGrupoDeProduto.2.grupo', 'Sem grupo')
+                ->where('despesasPorGrupoDeProduto.2.valor', 4)
+            )
+        );
+
+    $this->travelBack();
+});
+
+it('shows expenses by product group for a custom competence date range', function (): void {
+    $this->travelTo('2026-06-15');
+
+    $user = User::factory()->create();
+    $conta = Conta::query()->create([
+        'nome' => 'Carteira '.$user->id,
+        'usuario_id' => $user->id,
+    ]);
+    $categoria = Categoria::query()->create([
+        'nome' => 'Produto',
+        'tipo' => 'despesa',
+        'usuario_id' => $user->id,
+    ]);
+    $hardware = Grupo::query()->create([
+        'nome' => 'Hardware',
+        'usuario_id' => $user->id,
+    ]);
+    $mouse = Produto::query()->create([
+        'nome' => 'Mouse',
+        'preco_compra' => 80,
+        'usuario_id' => $user->id,
+        'grupo_id' => $hardware->id,
+    ]);
+    $papel = Produto::query()->create([
+        'nome' => 'Papel',
+        'preco_compra' => 25,
+        'usuario_id' => $user->id,
+        'grupo_id' => Grupo::query()->create([
+            'nome' => 'Escritório',
+            'usuario_id' => $user->id,
+        ])->id,
+    ]);
+
+    lancarDespesaComProdutoNoDashboard($user, '2026-01-05', $mouse, 7, $conta, $categoria);
+    lancarDespesaComProdutoNoDashboard($user, '2026-01-25', $mouse, 5, $conta, $categoria);
+    lancarDespesaComProdutoNoDashboard($user, '2026-01-10', $papel, 3, $conta, $categoria);
+    lancarDespesaComProdutoNoDashboard($user, '2026-02-10', $mouse, 100, $conta, $categoria);
+
+    $this->actingAs($user)
+        ->get(route('dashboard', [
+            'grupo_data_inicio' => '2026-01-01',
+            'grupo_data_fim' => '2026-01-31',
+        ]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard/index')
+            ->where('ano', 2026)
+            ->where('dataInicioDespesasPorGrupo', '2026-01-01')
+            ->where('dataFimDespesasPorGrupo', '2026-01-31')
+            ->where('dataInicioDespesasPorCategoria', '2026-06-01')
+            ->where('dataFimDespesasPorCategoria', '2026-06-30')
+            ->loadDeferredProps(fn (Assert $reload) => $reload
+                ->has('despesasPorGrupoDeProduto', 2)
+                ->where('despesasPorGrupoDeProduto.0.grupo', 'Escritório')
+                ->where('despesasPorGrupoDeProduto.0.valor', 3)
+                ->where('despesasPorGrupoDeProduto.1.grupo', 'Hardware')
+                ->where('despesasPorGrupoDeProduto.1.valor', 12)
+            )
+        );
+
+    $this->travelBack();
+});
+
+it('keeps the group pizza on the current month when only the category range changes', function (): void {
+    $this->travelTo('2026-06-15');
+
+    $user = User::factory()->create();
+    $conta = Conta::query()->create([
+        'nome' => 'Carteira '.$user->id,
+        'usuario_id' => $user->id,
+    ]);
+    $categoria = Categoria::query()->create([
+        'nome' => 'Produto',
+        'tipo' => 'despesa',
+        'usuario_id' => $user->id,
+    ]);
+    $mouse = Produto::query()->create([
+        'nome' => 'Mouse',
+        'preco_compra' => 80,
+        'usuario_id' => $user->id,
+        'grupo_id' => Grupo::query()->create([
+            'nome' => 'Hardware',
+            'usuario_id' => $user->id,
+        ])->id,
+    ]);
+
+    lancarDespesaComProdutoNoDashboard($user, '2026-06-05', $mouse, 30, $conta, $categoria);
+    lancarDespesaComProdutoNoDashboard($user, '2026-01-05', $mouse, 90, $conta, $categoria);
+    lancarDespesaComCategoriaNoDashboard($user, '2026-01-10', $categoria, 40, 0, $conta);
+
+    $this->actingAs($user)
+        ->get(route('dashboard', [
+            'data_inicio' => '2026-01-01',
+            'data_fim' => '2026-01-31',
+        ]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard/index')
+            ->where('dataInicioDespesasPorCategoria', '2026-01-01')
+            ->where('dataFimDespesasPorCategoria', '2026-01-31')
+            ->where('dataInicioDespesasPorGrupo', '2026-06-01')
+            ->where('dataFimDespesasPorGrupo', '2026-06-30')
+            ->loadDeferredProps(fn (Assert $reload) => $reload
+                ->has('despesasPorCategoria', 1)
+                ->where('despesasPorCategoria.0.valor', 130)
+                ->has('despesasPorGrupoDeProduto', 1)
+                ->where('despesasPorGrupoDeProduto.0.grupo', 'Hardware')
+                ->where('despesasPorGrupoDeProduto.0.valor', 30)
+            )
+        );
+
+    $this->travelBack();
+});
+
+it('groups product expenses by the product current group after the product moves', function (): void {
+    $this->travelTo('2026-06-15');
+
+    $user = User::factory()->create();
+    $conta = Conta::query()->create([
+        'nome' => 'Carteira '.$user->id,
+        'usuario_id' => $user->id,
+    ]);
+    $categoria = Categoria::query()->create([
+        'nome' => 'Produto',
+        'tipo' => 'despesa',
+        'usuario_id' => $user->id,
+    ]);
+    $hardware = Grupo::query()->create([
+        'nome' => 'Hardware',
+        'usuario_id' => $user->id,
+    ]);
+    $escritorio = Grupo::query()->create([
+        'nome' => 'Escritório',
+        'usuario_id' => $user->id,
+    ]);
+    $mouse = Produto::query()->create([
+        'nome' => 'Mouse',
+        'preco_compra' => 80,
+        'usuario_id' => $user->id,
+        'grupo_id' => $hardware->id,
+    ]);
+
+    lancarDespesaComProdutoNoDashboard($user, '2026-06-05', $mouse, 15, $conta, $categoria);
+
+    $mouse->forceFill(['grupo_id' => $escritorio->id])->save();
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard/index')
+            ->loadDeferredProps(fn (Assert $reload) => $reload
+                ->has('despesasPorGrupoDeProduto', 1)
+                ->where('despesasPorGrupoDeProduto.0.grupo', 'Escritório')
+                ->where('despesasPorGrupoDeProduto.0.valor', 15)
+            )
+        );
+
+    $this->travelBack();
+});
+
 it('rejects a pizza date range whose end is before the start', function (): void {
     $user = User::factory()->create();
 
@@ -300,6 +618,19 @@ it('rejects a pizza date range whose end is before the start', function (): void
         ]))
         ->assertRedirect(route('dashboard'))
         ->assertSessionHasErrors(['data_fim']);
+});
+
+it('rejects a group pizza date range whose end is before the start', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->from(route('dashboard'))
+        ->get(route('dashboard', [
+            'grupo_data_inicio' => '2026-02-01',
+            'grupo_data_fim' => '2026-01-01',
+        ]))
+        ->assertRedirect(route('dashboard'))
+        ->assertSessionHasErrors(['grupo_data_fim']);
 });
 
 it('shows seven weekday revenue bars for the current week by competencia', function (): void {

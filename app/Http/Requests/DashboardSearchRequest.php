@@ -22,6 +22,8 @@ class DashboardSearchRequest extends FormRequest
         return [
             'data_inicio' => ['nullable', 'date', 'required_with:data_fim'],
             'data_fim' => ['nullable', 'date', 'required_with:data_inicio', 'after_or_equal:data_inicio'],
+            'grupo_data_inicio' => ['nullable', 'date', 'required_with:grupo_data_fim'],
+            'grupo_data_fim' => ['nullable', 'date', 'required_with:grupo_data_inicio', 'after_or_equal:grupo_data_inicio'],
             'mes_receitas' => ['nullable', 'date_format:Y-m'],
             'semana_receitas' => ['nullable', 'date'],
         ];

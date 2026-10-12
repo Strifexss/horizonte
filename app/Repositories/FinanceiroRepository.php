@@ -49,7 +49,7 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
         ];
 
         $sortCol = $data?->sort ? ($sortMap[$data->sort] ?? null) : null;
-        $dir = in_array(strtolower((string)($data?->sort_dir ?? '')), ['asc', 'desc'], true) ? strtolower((string)$data?->sort_dir) : 'desc';
+        $dir = in_array(strtolower((string) ($data?->sort_dir ?? '')), ['asc', 'desc'], true) ? strtolower((string) $data?->sort_dir) : 'desc';
 
         if ($sortCol) {
             $query = $query->orderBy($sortCol, $dir);
@@ -80,7 +80,7 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
         ];
 
         $sortCol = $data?->sort ? ($sortMap[$data->sort] ?? null) : null;
-        $dir = in_array(strtolower((string)($data?->sort_dir ?? '')), ['asc', 'desc'], true) ? strtolower((string)$data?->sort_dir) : 'desc';
+        $dir = in_array(strtolower((string) ($data?->sort_dir ?? '')), ['asc', 'desc'], true) ? strtolower((string) $data?->sort_dir) : 'desc';
 
         if ($sortCol) {
             $query = $query->orderBy($sortCol, $dir);
@@ -246,6 +246,24 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
             ->groupByRaw("COALESCE(categoria.nome, 'Sem categoria')")
             ->havingRaw('SUM(financeiro_parcela.valor) > 0')
             ->orderBy('categoria')
+            ->get();
+    }
+
+    public function despesasPorGrupoDeProdutoNoPeriodo(string $dataInicio, string $dataFim): Collection
+    {
+        return FinanceiroParcela::query()
+            ->toBase()
+            ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
+            ->join('produto', 'produto.id', '=', 'financeiro_parcela.produto_id')
+            ->leftJoin('grupos', 'grupos.id', '=', 'produto.grupo_id')
+            ->where('financeiro_parcela.usuario_id', Auth::id())
+            ->whereRaw("UPPER(financeiro.tipo) = 'DESPESA'")
+            ->whereBetween('financeiro_parcela.data_competencia', [$dataInicio, $dataFim])
+            ->selectRaw("COALESCE(grupos.nome, 'Sem grupo') as grupo")
+            ->selectRaw('SUM(financeiro_parcela.valor) as valor')
+            ->groupByRaw("COALESCE(grupos.nome, 'Sem grupo')")
+            ->havingRaw('SUM(financeiro_parcela.valor) > 0')
+            ->orderBy('grupo')
             ->get();
     }
 

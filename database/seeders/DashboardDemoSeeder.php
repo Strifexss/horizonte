@@ -6,6 +6,8 @@ use App\Models\Categoria;
 use App\Models\Conta;
 use App\Models\Financeiro;
 use App\Models\FinanceiroParcela;
+use App\Models\Grupo;
+use App\Models\Produto;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
@@ -89,6 +91,128 @@ class DashboardDemoSeeder extends Seeder
                 'financeiro_id' => $financeiro->id,
                 'conta_id' => $conta->id,
                 'categoria_id' => $categoriaReceita->id,
+                'usuario_id' => $user->id,
+            ]);
+        }
+
+        $this->seedDespesasPorGrupo($user, $conta);
+    }
+
+    private function seedDespesasPorGrupo(User $user, Conta $conta): void
+    {
+        $categoriaDespesa = Categoria::query()->firstOrCreate(
+            [
+                'nome' => 'Despesa demo',
+                'tipo' => 'despesa',
+                'usuario_id' => $user->id,
+            ],
+        );
+
+        $hardware = Grupo::query()->firstOrCreate(
+            [
+                'nome' => 'Hardware',
+                'usuario_id' => $user->id,
+            ],
+        );
+
+        $escritorio = Grupo::query()->firstOrCreate(
+            [
+                'nome' => 'Escritório',
+                'usuario_id' => $user->id,
+            ],
+        );
+
+        $mouse = Produto::query()->firstOrCreate(
+            [
+                'nome' => 'Mouse demo',
+                'usuario_id' => $user->id,
+            ],
+            [
+                'preco_compra' => 80,
+                'grupo_id' => $hardware->id,
+            ],
+        );
+        $mouse->forceFill(['grupo_id' => $hardware->id])->save();
+
+        $teclado = Produto::query()->firstOrCreate(
+            [
+                'nome' => 'Teclado demo',
+                'usuario_id' => $user->id,
+            ],
+            [
+                'preco_compra' => 180,
+                'grupo_id' => $hardware->id,
+            ],
+        );
+        $teclado->forceFill(['grupo_id' => $hardware->id])->save();
+
+        $papel = Produto::query()->firstOrCreate(
+            [
+                'nome' => 'Papel demo',
+                'usuario_id' => $user->id,
+            ],
+            [
+                'preco_compra' => 25,
+                'grupo_id' => $escritorio->id,
+            ],
+        );
+        $papel->forceFill(['grupo_id' => $escritorio->id])->save();
+
+        $cabo = Produto::query()->firstOrCreate(
+            [
+                'nome' => 'Cabo demo',
+                'usuario_id' => $user->id,
+            ],
+            [
+                'preco_compra' => 15,
+                'grupo_id' => null,
+            ],
+        );
+        $cabo->forceFill(['grupo_id' => null])->save();
+
+        FinanceiroParcela::query()
+            ->where('usuario_id', $user->id)
+            ->where('descricao', 'like', 'Demo dashboard despesa grupo%')
+            ->delete();
+
+        Financeiro::query()
+            ->where('usuario_id', $user->id)
+            ->where('descricao', 'like', 'Demo dashboard despesa grupo%')
+            ->delete();
+
+        $mesAtual = now()->startOfMonth();
+        $mesAnterior = $mesAtual->copy()->subMonth();
+
+        $lancamentos = [
+            [$mouse, $mesAtual->copy()->addDays(2)->toDateString(), 1200],
+            [$teclado, $mesAtual->copy()->addDays(8)->toDateString(), 800],
+            [$papel, $mesAtual->copy()->addDays(5)->toDateString(), 350],
+            [$papel, $mesAtual->copy()->addDays(12)->toDateString(), 150],
+            [$cabo, $mesAtual->copy()->addDays(4)->toDateString(), 220],
+            [$mouse, $mesAnterior->copy()->addDays(3)->toDateString(), 999],
+        ];
+
+        foreach ($lancamentos as [$produto, $competencia, $valor]) {
+            $descricao = 'Demo dashboard despesa grupo '.$produto->nome.' '.$competencia;
+
+            $financeiro = Financeiro::query()->create([
+                'descricao' => $descricao,
+                'valor' => $valor,
+                'tipo' => 'DESPESA',
+                'usuario_id' => $user->id,
+            ]);
+
+            FinanceiroParcela::query()->create([
+                'descricao' => $descricao,
+                'data_vencimento' => $competencia,
+                'data_competencia' => $competencia,
+                'valor' => $valor,
+                'valor_pago' => 0,
+                'parcela' => 1,
+                'financeiro_id' => $financeiro->id,
+                'conta_id' => $conta->id,
+                'categoria_id' => $categoriaDespesa->id,
+                'produto_id' => $produto->id,
                 'usuario_id' => $user->id,
             ]);
         }

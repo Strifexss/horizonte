@@ -28,6 +28,14 @@ interface DashboardServiceInterface extends AbstractServiceInterface
     public function despesasPorCategoriaNoPeriodo(DashboardSearchDTO $filtros): array;
 
     /**
+     * Despesas com produto, agrupadas pelo grupo atual do produto (competência).
+     * Produto sem grupo entra na fatia "Sem grupo". Parcelas sem produto ficam de fora.
+     *
+     * @return list<array{grupo: string, valor: float}>
+     */
+    public function despesasPorGrupoDeProdutoNoPeriodo(DashboardSearchDTO $filtros): array;
+
+    /**
      * Semanas (segunda a domingo) que cruzam o mês YYYY-MM, sem cortar a semana.
      *
      * @return list<array{inicio: string, fim: string, rotulo: string}>

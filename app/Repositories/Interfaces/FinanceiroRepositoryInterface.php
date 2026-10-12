@@ -47,6 +47,14 @@ interface FinanceiroRepositoryInterface extends AbstractRepositoryInterface
     public function despesasPorCategoriaNoPeriodo(string $dataInicio, string $dataFim): Collection;
 
     /**
+     * Soma o valor de face das parcelas de DESPESA com produto do usuário autenticado
+     * em cada grupo atual do produto, pela competência. Sem grupo vira "Sem grupo".
+     *
+     * @return Collection<int, object{grupo: string|null, valor: float|int}>
+     */
+    public function despesasPorGrupoDeProdutoNoPeriodo(string $dataInicio, string $dataFim): Collection;
+
+    /**
      * Soma o valor de face das parcelas de RECEITA do usuário autenticado
      * em cada dia da semana ISO (1 = segunda … 7 = domingo), pela competência.
      *

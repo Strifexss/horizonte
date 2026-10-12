@@ -1,21 +1,27 @@
 import DashboardFiltroPeriodo from '@/components/dashboard/DashboardFiltroPeriodo';
 
 type DashboardPizzaSkeletonProps = {
+    titulo: string;
     dataInicio: string;
     dataFim: string;
     onPeriodoChange: (inicio: string, fim: string) => void;
 };
 
-export default function DashboardPizzaSkeleton({ dataInicio, dataFim, onPeriodoChange }: DashboardPizzaSkeletonProps) {
+export default function DashboardPizzaSkeleton({
+    titulo,
+    dataInicio,
+    dataFim,
+    onPeriodoChange,
+}: DashboardPizzaSkeletonProps) {
     return (
         <div
             className="@container flex h-full min-h-0 min-w-0 flex-col rounded-xl border border-sidebar-border/70 bg-white p-3 shadow-sm dark:bg-slate-900"
             aria-busy="true"
-            aria-label="Carregando despesas por categoria"
+            aria-label={`Carregando ${titulo.toLowerCase()}`}
         >
             <div className="mb-2 flex min-w-0 shrink-0 flex-col gap-2">
                 <div className="min-w-0">
-                    <div className="text-sm font-medium">Despesas por categoria</div>
+                    <div className="text-sm font-medium">{titulo}</div>
                     <div className="text-xs text-muted-foreground">Competência</div>
                 </div>
                 <DashboardFiltroPeriodo dataInicio={dataInicio} dataFim={dataFim} onPeriodoChange={onPeriodoChange} />

@@ -58,6 +58,8 @@ class DashboardService extends ServiceAbstract implements DashboardServiceInterf
         return DashboardSearchDTO::fromArray([
             'data_inicio' => $filtros->data_inicio ?? now()->startOfMonth()->toDateString(),
             'data_fim' => $filtros->data_fim ?? now()->endOfMonth()->toDateString(),
+            'grupo_data_inicio' => $filtros->grupo_data_inicio ?? now()->startOfMonth()->toDateString(),
+            'grupo_data_fim' => $filtros->grupo_data_fim ?? now()->endOfMonth()->toDateString(),
             'mes_receitas' => $mesReceitas,
             'semana_receitas' => $filtros->semana_receitas ?? $this->semanaPadraoDoMes($mesReceitas),
         ]);
@@ -99,6 +101,26 @@ class DashboardService extends ServiceAbstract implements DashboardServiceInterf
         foreach ($linhas as $linha) {
             $resultado[] = [
                 'categoria' => (string) ($linha->categoria ?? 'Sem categoria'),
+                'valor' => round((float) ($linha->valor ?? 0), 2),
+            ];
+        }
+
+        return $resultado;
+    }
+
+    public function despesasPorGrupoDeProdutoNoPeriodo(DashboardSearchDTO $filtros): array
+    {
+        $linhas = $this->financeiroRepository
+            ->despesasPorGrupoDeProdutoNoPeriodo(
+                (string) $filtros->grupo_data_inicio,
+                (string) $filtros->grupo_data_fim,
+            );
+
+        $resultado = [];
+
+        foreach ($linhas as $linha) {
+            $resultado[] = [
+                'grupo' => (string) ($linha->grupo ?? 'Sem grupo'),
                 'valor' => round((float) ($linha->valor ?? 0), 2),
             ];
         }

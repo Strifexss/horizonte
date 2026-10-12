@@ -28,6 +28,10 @@ class DashboardController extends Controller
             'dataFimDespesasPorCategoria' => $filtros->data_fim,
             'despesasPorCategoria' => Inertia::defer(fn (): array => $this->dashboardService
                 ->despesasPorCategoriaNoPeriodo($filtros)),
+            'dataInicioDespesasPorGrupo' => $filtros->grupo_data_inicio,
+            'dataFimDespesasPorGrupo' => $filtros->grupo_data_fim,
+            'despesasPorGrupoDeProduto' => Inertia::defer(fn (): array => $this->dashboardService
+                ->despesasPorGrupoDeProdutoNoPeriodo($filtros)),
             'mesReceitas' => $filtros->mes_receitas,
             'semanaReceitas' => $filtros->semana_receitas,
             'semanasReceitas' => $this->dashboardService->semanasQueCruzamOMes($filtros),

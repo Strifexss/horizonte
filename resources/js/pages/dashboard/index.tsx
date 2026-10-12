@@ -4,7 +4,7 @@ import DashboardPizzaSkeleton from '@/components/dashboard/DashboardPizzaSkeleto
 import DashboardReceitas from '@/components/dashboard/DashboardReceitas';
 import DashboardReceitasSkeleton from '@/components/dashboard/DashboardReceitasSkeleton';
 import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton';
-import { type DashboardPageProps } from '@/components/dashboard/types';
+import { type DashboardPageProps, type FatiaPizza } from '@/components/dashboard/types';
 import { PageTitle } from '@/components/padrões';
 import { useSidebar } from '@/components/ui/sidebar';
 import AppLayout from '@/layouts/app-layout';
@@ -15,7 +15,7 @@ import { useEffect, useState } from 'react';
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/dashboard' }];
 
 const CARD_WRAP =
-    'flex min-h-0 min-w-[min(100%,280px)] flex-1 basis-[calc((100%-2rem)/3)] flex-col [&>*]:h-full';
+    'flex min-h-0 w-full max-w-full shrink-0 grow-0 flex-col @min-[36rem]:w-[calc((100%-1rem)/2)] @min-[54rem]:w-[calc((100%-2rem)/3)] [&>*]:h-full';
 
 function RecolherSidebarNoDashboard(): null {
     const { setOpen } = useSidebar();
@@ -35,12 +35,23 @@ function RecolherSidebarNoDashboard(): null {
     return null;
 }
 
+function fatiasDeCategoria(despesas: DashboardPageProps['despesasPorCategoria']): FatiaPizza[] {
+    return (despesas ?? []).map((item) => ({ rotulo: item.categoria, valor: item.valor }));
+}
+
+function fatiasDeGrupo(despesas: DashboardPageProps['despesasPorGrupoDeProduto']): FatiaPizza[] {
+    return (despesas ?? []).map((item) => ({ rotulo: item.grupo, valor: item.valor }));
+}
+
 export default function Dashboard({
     ano,
     saldos,
     dataInicioDespesasPorCategoria,
     dataFimDespesasPorCategoria,
     despesasPorCategoria,
+    dataInicioDespesasPorGrupo,
+    dataFimDespesasPorGrupo,
+    despesasPorGrupoDeProduto,
     mesReceitas,
     semanaReceitas,
     semanasReceitas,
@@ -48,6 +59,8 @@ export default function Dashboard({
 }: DashboardPageProps) {
     const [dataInicio, setDataInicio] = useState<string>(dataInicioDespesasPorCategoria);
     const [dataFim, setDataFim] = useState<string>(dataFimDespesasPorCategoria);
+    const [grupoInicio, setGrupoInicio] = useState<string>(dataInicioDespesasPorGrupo);
+    const [grupoFim, setGrupoFim] = useState<string>(dataFimDespesasPorGrupo);
     const [mes, setMes] = useState<string>(mesReceitas);
     const [semana, setSemana] = useState<string>(semanaReceitas);
 
@@ -55,6 +68,8 @@ export default function Dashboard({
         return {
             data_inicio: dataInicio,
             data_fim: dataFim,
+            grupo_data_inicio: grupoInicio,
+            grupo_data_fim: grupoFim,
             mes_receitas: mes,
             semana_receitas: semana,
             ...overrides,
@@ -70,6 +85,21 @@ export default function Dashboard({
             replace: true,
             only: ['despesasPorCategoria'],
         });
+    }
+
+    function recarregarPizzaGrupos(inicio: string, fim: string): void {
+        setGrupoInicio(inicio);
+        setGrupoFim(fim);
+        router.get(
+            route('dashboard'),
+            queryDashboard({ grupo_data_inicio: inicio, grupo_data_fim: fim }),
+            {
+                preserveScroll: true,
+                preserveState: true,
+                replace: true,
+                only: ['despesasPorGrupoDeProduto'],
+            },
+        );
     }
 
     function recarregarReceitas(proximoMes: string, proximaSemana: string | null): void {
@@ -92,15 +122,15 @@ export default function Dashboard({
             replace: true,
             only: ['receitasPorDiaDaSemana', 'semanasReceitas', 'mesReceitas', 'semanaReceitas'],
             onSuccess: (page) => {
-                const proximoMes = page.props.mesReceitas;
-                const proximaSemana = page.props.semanaReceitas;
+                const mesAtualizado = page.props.mesReceitas;
+                const semanaAtualizada = page.props.semanaReceitas;
 
-                if (typeof proximoMes !== 'string' || typeof proximaSemana !== 'string') {
+                if (typeof mesAtualizado !== 'string' || typeof semanaAtualizada !== 'string') {
                     return;
                 }
 
-                setMes(proximoMes);
-                setSemana(proximaSemana);
+                setMes(mesAtualizado);
+                setSemana(semanaAtualizada);
             },
         });
     }
@@ -112,7 +142,7 @@ export default function Dashboard({
             <div className="flex h-full min-w-0 flex-1 flex-col gap-6 rounded-xl p-4 md:p-6">
                 <PageTitle title="Saldo mensal" subtitle={String(ano)} />
 
-                <div className="flex min-w-0 flex-wrap items-stretch gap-4">
+                <div className="@container flex min-w-0 flex-wrap items-stretch gap-4">
                     <div className={CARD_WRAP}>
                         <Deferred data="saldos" fallback={<DashboardSkeleton />}>
                             <DashboardGrafico ano={ano} saldos={saldos ?? []} />
@@ -124,6 +154,7 @@ export default function Dashboard({
                             data="despesasPorCategoria"
                             fallback={
                                 <DashboardPizzaSkeleton
+                                    titulo="Despesas por categoria"
                                     dataInicio={dataInicio}
                                     dataFim={dataFim}
                                     onPeriodoChange={recarregarPizza}
@@ -131,10 +162,33 @@ export default function Dashboard({
                             }
                         >
                             <DashboardPizza
-                                despesasPorCategoria={despesasPorCategoria ?? []}
+                                titulo="Despesas por categoria"
+                                fatias={fatiasDeCategoria(despesasPorCategoria)}
                                 dataInicio={dataInicio}
                                 dataFim={dataFim}
                                 onPeriodoChange={recarregarPizza}
+                            />
+                        </Deferred>
+                    </div>
+
+                    <div className={CARD_WRAP}>
+                        <Deferred
+                            data="despesasPorGrupoDeProduto"
+                            fallback={
+                                <DashboardPizzaSkeleton
+                                    titulo="Por grupo de produtos"
+                                    dataInicio={grupoInicio}
+                                    dataFim={grupoFim}
+                                    onPeriodoChange={recarregarPizzaGrupos}
+                                />
+                            }
+                        >
+                            <DashboardPizza
+                                titulo="Por grupo de produtos"
+                                fatias={fatiasDeGrupo(despesasPorGrupoDeProduto)}
+                                dataInicio={grupoInicio}
+                                dataFim={grupoFim}
+                                onPeriodoChange={recarregarPizzaGrupos}
                             />
                         </Deferred>
                     </div>
