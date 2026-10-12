@@ -22,6 +22,7 @@ use App\Repositories\ProdutoRepository;
 use App\Repositories\UsuarioRepository;
 use App\Services\CategoriaService;
 use App\Services\ContasService;
+use App\Services\DashboardService;
 use App\Services\ExtratoService;
 use App\Services\FinanceiroParcelaService;
 use App\Services\FornecedoresService;
@@ -29,6 +30,7 @@ use App\Services\FuncionariosService;
 use App\Services\GruposService;
 use App\Services\Interfaces\CategoriaServiceInterface;
 use App\Services\Interfaces\ContasServiceInterface;
+use App\Services\Interfaces\DashboardServiceInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
 use App\Services\Interfaces\FinanceiroParcelaServiceInterface;
 use App\Services\Interfaces\FornecedoresServiceInterface;
@@ -49,6 +51,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind(DashboardServiceInterface::class, DashboardService::class);
         $this->app->bind(ContasServiceInterface::class, ContasService::class);
         $this->app->bind(ContaRepositoryInterface::class, ContaRepository::class);
         $this->app->bind(CategoriaServiceInterface::class, CategoriaService::class);

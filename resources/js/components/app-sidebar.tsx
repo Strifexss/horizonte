@@ -4,16 +4,15 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, FileText, Landmark } from 'lucide-react';
-// import { LayoutGrid } from 'lucide-react';
+import { BookOpen, Folder, FileText, Landmark, LayoutGrid } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
-    // {
-    //     title: 'Dashboard',
-    //     url: '/dashboard',
-    //     icon: LayoutGrid,
-    // },
+    {
+        title: 'Dashboard',
+        url: '/dashboard',
+        icon: LayoutGrid,
+    },
     {
         title: 'Extrato',
         url: '/extrato',

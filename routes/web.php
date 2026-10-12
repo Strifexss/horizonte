@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ContasController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExtratoController;
 use App\Http\Controllers\ExtratoPdfController;
 use App\Http\Controllers\FornecedoresController;
@@ -17,9 +18,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        return redirect()->route('extrato.index');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::group(['prefix' => 'extrato'], function () {
         Route::get('/', [ExtratoController::class, 'index'])->name('extrato.index');
