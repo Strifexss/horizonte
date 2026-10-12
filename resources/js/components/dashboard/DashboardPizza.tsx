@@ -44,7 +44,10 @@ function useLadoDoContainer(): { ref: RefObject<HTMLDivElement | null>; lado: nu
 
         const medir = (): void => {
             const { width, height } = el.getBoundingClientRect();
-            setLado(Math.max(0, Math.floor(Math.min(width, height))));
+            const largura = Math.max(0, Math.floor(width));
+            const altura = Math.max(0, Math.floor(height));
+
+            setLado(altura > 8 ? Math.min(largura, altura) : largura);
         };
 
         medir();
@@ -120,7 +123,10 @@ export default function DashboardPizza({
                 </div>
             ) : (
                 <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 @[26rem]:flex-row @[26rem]:items-stretch">
-                    <div ref={donutRef} className="flex min-h-0 min-w-0 flex-1 items-center justify-center">
+                    <div
+                        ref={donutRef}
+                        className="flex aspect-square w-full min-h-[12rem] max-h-[16rem] min-w-0 items-center justify-center @[26rem]:aspect-auto @[26rem]:h-auto @[26rem]:max-h-none @[26rem]:min-h-0 @[26rem]:flex-1"
+                    >
                         {lado > 0 ? (
                             <ReactChart
                                 definition={chart}

@@ -22,7 +22,7 @@ export default function DashboardPizzaSkeleton({ dataInicio, dataFim, onPeriodoC
             </div>
 
             <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3">
-                <div className="aspect-square max-h-full w-full max-w-full flex-1 animate-pulse rounded-full bg-muted/40" />
+                <div className="aspect-square min-h-[12rem] w-full max-h-[16rem] max-w-full flex-1 animate-pulse rounded-full bg-muted/40 @[26rem]:max-h-none" />
                 <div className="flex w-full shrink-0 flex-col gap-2">
                     <div className="h-3 w-full animate-pulse rounded bg-muted/40" />
                     <div className="h-3 w-5/6 animate-pulse rounded bg-muted/40" />

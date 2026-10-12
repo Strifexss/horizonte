@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { barY, defineChart } from '@tanstack/charts';
 import { scaleBand } from '@tanstack/charts/scales/band';
 import { scaleLinear } from '@tanstack/charts/scales/linear';
@@ -13,8 +13,13 @@ type DashboardGraficoProps = {
 
 const COR_POSITIVO = '#16a34a';
 const COR_NEGATIVO = '#dc2626';
-
 const moeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+const moedaCompacta = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    notation: 'compact',
+    maximumFractionDigits: 1,
+});
 
 function dominioSaldo(saldos: readonly SaldoMensal[]): [number, number] {
     let minimo = 0;
@@ -32,8 +37,27 @@ function dominioSaldo(saldos: readonly SaldoMensal[]): [number, number] {
     return [minimo, maximo];
 }
 
+function useEixoCompacto(): boolean {
+    const [compacto, setCompacto] = useState(false);
+
+    useEffect(() => {
+        const consulta = window.matchMedia('(max-width: 639px)');
+        const atualizar = (): void => {
+            setCompacto(consulta.matches);
+        };
+
+        atualizar();
+        consulta.addEventListener('change', atualizar);
+
+        return () => consulta.removeEventListener('change', atualizar);
+    }, []);
+
+    return compacto;
+}
+
 export default function DashboardGrafico({ ano, saldos }: DashboardGraficoProps) {
     const dominio = useMemo(() => dominioSaldo(saldos), [saldos]);
+    const compacto = useEixoCompacto();
 
     const chart = useMemo(
         () =>
@@ -46,20 +70,30 @@ export default function DashboardGrafico({ ano, saldos }: DashboardGraficoProps)
                     }),
                 ],
                 scales: {
-                    x: { scale: () => scaleBand<string>().padding(0.2) },
+                    x: {
+                        scale: () => scaleBand<string>().padding(0.2),
+                        axis: {
+                            ticks: {
+                                values: saldos.map((ponto) => ponto.rotulo),
+                            },
+                            tickLabels: compacto
+                                ? { thin: false, fontSize: 10 }
+                                : { thin: false },
+                        },
+                    },
                     y: {
                         scale: () => scaleLinear().domain(dominio).nice(),
                         grid: true,
                         axis: {
                             ticks: {
-                                format: (valor) => moeda.format(valor),
+                                format: (valor) => (compacto ? moedaCompacta.format(valor) : moeda.format(valor)),
                             },
                         },
                     },
                 },
                 tooltip,
             }),
-        [dominio, saldos],
+        [compacto, dominio, saldos],
     );
 
     return (
