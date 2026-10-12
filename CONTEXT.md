@@ -21,3 +21,13 @@ _Avoid_: Backoffice, admin
 **Entrar como**:
 Ação do Administrador de trocar a própria sessão pela sessão de um Usuário, sem caminho de volta além de sair e entrar de novo.
 _Avoid_: Impersonar, logar como
+
+### Dinheiro
+
+**Competência**:
+Data que situa a parcela no mês do saldo.
+_Avoid_: Vencimento, data de pagamento
+
+**Saldo do mês**:
+Líquido de um mês: valor das parcelas de receita menos valor das parcelas de despesa daquele mês, pagas ou não.
+_Avoid_: Saldo acumulado, saldo de caixa

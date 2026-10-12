@@ -11,6 +11,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class FinanceiroRepository extends AbstractRepository implements FinanceiroRepositoryInterface
 {
@@ -174,5 +175,31 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
         }
 
         return $query;
+    }
+
+    public function somasMensaisPorCompetencia(int $ano): Collection
+    {
+        $coluna = 'financeiro_parcela.data_competencia';
+        $mes = $this->expressaoMes($coluna);
+
+        return FinanceiroParcela::query()
+            ->toBase()
+            ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
+            ->where('financeiro_parcela.usuario_id', Auth::id())
+            ->whereYear($coluna, $ano)
+            ->selectRaw($mes.' as mes')
+            ->selectRaw("SUM(CASE WHEN UPPER(financeiro.tipo) = 'RECEITA' THEN financeiro_parcela.valor ELSE 0 END) as receitas")
+            ->selectRaw("SUM(CASE WHEN UPPER(financeiro.tipo) = 'DESPESA' THEN financeiro_parcela.valor ELSE 0 END) as despesas")
+            ->groupByRaw($mes)
+            ->get();
+    }
+
+    private function expressaoMes(string $coluna): string
+    {
+        return match (DB::connection()->getDriverName()) {
+            'sqlite' => "CAST(strftime('%m', {$coluna}) AS INTEGER)",
+            'pgsql' => "EXTRACT(MONTH FROM {$coluna})::int",
+            default => "MONTH({$coluna})",
+        };
     }
 }

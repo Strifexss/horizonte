@@ -29,4 +29,12 @@ interface FinanceiroRepositoryInterface extends AbstractRepositoryInterface
      * @return Collection<int, FinanceiroParcela>
      */
     public function exportParcelas(?FinanceiroSearchDTO $data = null): Collection;
+
+    /**
+     * Soma o valor de face das parcelas do usuário autenticado em cada mês de competência.
+     * Abertas, parciais e pagas entram. Não filtra conta.
+     *
+     * @return Collection<int, object{mes: int|string, receitas: float|int|string, despesas: float|int|string}>
+     */
+    public function somasMensaisPorCompetencia(int $ano): Collection;
 }
