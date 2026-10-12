@@ -36,6 +36,13 @@ class FornecedorRepository extends AbstractRepository implements FornecedorRepos
             ->update(['fornecedor_id' => null]);
     }
 
+    public function deleteByUsuario(int $usuarioId): int
+    {
+        return $this->model->newQuery()
+            ->where('usuario_id', $usuarioId)
+            ->delete();
+    }
+
     public function findForUsuario(int $id): Fornecedor
     {
         return $this->model->newQuery()
