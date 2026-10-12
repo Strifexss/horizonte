@@ -19,8 +19,8 @@ class FinanceiroDTO extends Dto
     public int $usuario_id;
 
     public string $data_vencimento;
-    
-    public string $data_competencia;
+
+    public ?string $data_competencia = null;
 
     public float $valor_pago;
 
@@ -33,4 +33,17 @@ class FinanceiroDTO extends Dto
     public ?int $quantidade = null;
 
     public ?int $fornecedor_id = null;
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public static function fromArray(array $data): static
+    {
+        $competencia = $data['data_competencia'] ?? null;
+        $data['data_competencia'] = is_string($competencia) && trim($competencia) !== ''
+            ? trim($competencia)
+            : null;
+
+        return parent::fromArray($data);
+    }
 }

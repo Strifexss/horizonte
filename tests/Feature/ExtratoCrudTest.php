@@ -1,8 +1,8 @@
 <?php
 
 use App\DTO\FinanceiroDTO;
-use App\Models\Conta;
 use App\Models\Categoria;
+use App\Models\Conta;
 use App\Models\Financeiro;
 use App\Models\User;
 use App\Repositories\FinanceiroRepository;
@@ -120,5 +120,12 @@ it('creates a lancamento when extrato store payload is valid', function () {
     $this->assertDatabaseHas('financeiro', [
         'descricao' => 'Conta de luz',
         'usuario_id' => $user->id,
+    ]);
+
+    $this->assertDatabaseHas('financeiro_parcela', [
+        'descricao' => 'Conta de luz',
+        'usuario_id' => $user->id,
+        'data_competencia' => '2026-08-30',
+        'data_vencimento' => '2026-08-30',
     ]);
 });
