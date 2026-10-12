@@ -194,12 +194,56 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
             ->get();
     }
 
+    public function despesasPorCategoriaNoPeriodo(string $dataInicio, string $dataFim): Collection
+    {
+        return FinanceiroParcela::query()
+            ->toBase()
+            ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
+            ->leftJoin('categoria', 'categoria.id', '=', 'financeiro_parcela.categoria_id')
+            ->where('financeiro_parcela.usuario_id', Auth::id())
+            ->whereRaw("UPPER(financeiro.tipo) = 'DESPESA'")
+            ->whereBetween('financeiro_parcela.data_competencia', [$dataInicio, $dataFim])
+            ->selectRaw("COALESCE(categoria.nome, 'Sem categoria') as categoria")
+            ->selectRaw('SUM(financeiro_parcela.valor) as valor')
+            ->groupByRaw("COALESCE(categoria.nome, 'Sem categoria')")
+            ->havingRaw('SUM(financeiro_parcela.valor) > 0')
+            ->orderBy('categoria')
+            ->get();
+    }
+
+    public function receitasPorDiaDaSemanaNoPeriodo(string $dataInicio, string $dataFim): Collection
+    {
+        $coluna = 'financeiro_parcela.data_competencia';
+        $dia = $this->expressaoDiaDaSemanaIso($coluna);
+
+        return FinanceiroParcela::query()
+            ->toBase()
+            ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
+            ->where('financeiro_parcela.usuario_id', Auth::id())
+            ->whereRaw("UPPER(financeiro.tipo) = 'RECEITA'")
+            ->whereBetween($coluna, [$dataInicio, $dataFim])
+            ->selectRaw($dia.' as dia')
+            ->selectRaw('SUM(financeiro_parcela.valor) as valor')
+            ->groupByRaw($dia)
+            ->orderBy('dia')
+            ->get();
+    }
+
     private function expressaoMes(string $coluna): string
     {
         return match (DB::connection()->getDriverName()) {
             'sqlite' => "CAST(strftime('%m', {$coluna}) AS INTEGER)",
             'pgsql' => "EXTRACT(MONTH FROM {$coluna})::int",
             default => "MONTH({$coluna})",
+        };
+    }
+
+    private function expressaoDiaDaSemanaIso(string $coluna): string
+    {
+        return match (DB::connection()->getDriverName()) {
+            'sqlite' => '((CAST(strftime(\'%w\', '.$coluna.') AS INTEGER) + 6) % 7) + 1',
+            'pgsql' => 'EXTRACT(ISODOW FROM '.$coluna.')::int',
+            default => '((DAYOFWEEK('.$coluna.') + 5) % 7) + 1',
         };
     }
 }

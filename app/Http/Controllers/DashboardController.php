@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\DTO\DashboardSearchDTO;
+use App\Http\Requests\DashboardSearchRequest;
 use App\Services\Interfaces\DashboardServiceInterface;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -12,13 +14,25 @@ class DashboardController extends Controller
         private DashboardServiceInterface $dashboardService
     ) {}
 
-    public function index(): Response
+    public function index(DashboardSearchRequest $request): Response
     {
+        $filtros = $this->dashboardService->resolverFiltros(
+            DashboardSearchDTO::fromArray($request->validated())
+        );
         $ano = $this->dashboardService->anoVigente();
 
-        return Inertia::render('dashboard', [
+        return Inertia::render('dashboard/index', [
             'ano' => $ano,
             'saldos' => Inertia::defer(fn (): array => $this->dashboardService->saldosDoAno($ano)),
+            'dataInicioDespesasPorCategoria' => $filtros->data_inicio,
+            'dataFimDespesasPorCategoria' => $filtros->data_fim,
+            'despesasPorCategoria' => Inertia::defer(fn (): array => $this->dashboardService
+                ->despesasPorCategoriaNoPeriodo($filtros)),
+            'mesReceitas' => $filtros->mes_receitas,
+            'semanaReceitas' => $filtros->semana_receitas,
+            'semanasReceitas' => $this->dashboardService->semanasQueCruzamOMes($filtros),
+            'receitasPorDiaDaSemana' => Inertia::defer(fn (): array => $this->dashboardService
+                ->receitasPorDiaDaSemana($filtros)),
         ]);
     }
 }
