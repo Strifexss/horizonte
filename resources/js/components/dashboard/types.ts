@@ -1,3 +1,5 @@
+import type { ExtratoResumo } from '@/components/extrato/types';
+
 export type SaldoMensal = {
     mes: number;
     rotulo: string;
@@ -33,6 +35,7 @@ export type ReceitaPorDiaDaSemana = {
 
 export type DashboardPageProps = {
     ano: number;
+    resumo?: ExtratoResumo;
     saldos?: SaldoMensal[];
     dataInicioDespesasPorCategoria: string;
     dataFimDespesasPorCategoria: string;

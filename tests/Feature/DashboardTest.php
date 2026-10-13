@@ -133,6 +133,127 @@ function lancarDespesaComProdutoNoDashboard(
     ]);
 }
 
+it('shows the same current-month extract totals as the extract page and omits other users', function (): void {
+    $this->travelTo('2026-06-15');
+
+    $user = User::factory()->create();
+    $outraPessoa = User::factory()->create();
+    $conta = Conta::query()->create([
+        'nome' => 'Corrente',
+        'usuario_id' => $user->id,
+    ]);
+
+    lancarParcelaNoDashboard($user, 'RECEITA', '2026-06-10', 150, 0, '2026-06-10', $conta);
+    lancarParcelaNoDashboard($user, 'DESPESA', '2026-06-20', 40, 10, '2026-06-20', $conta);
+    lancarParcelaNoDashboard($user, 'RECEITA', '2026-05-10', 999, 0, '2026-05-10', $conta);
+    lancarParcelaNoDashboard($outraPessoa, 'RECEITA', '2026-06-10', 500, 0);
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard/index')
+            ->loadDeferredProps(fn (Assert $reload) => $reload
+                ->where('resumo.total_credits', function ($valor): bool {
+                    expect((float) $valor)->toBe(150.0);
+
+                    return true;
+                })
+                ->where('resumo.total_debits', function ($valor): bool {
+                    expect((float) $valor)->toBe(40.0);
+
+                    return true;
+                })
+            )
+        );
+
+    $this->actingAs($user)
+        ->get(route('extrato.index'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('extrato/index')
+            ->loadDeferredProps(fn (Assert $reload) => $reload
+                ->where('resumo.total_credits', function ($valor): bool {
+                    expect((float) $valor)->toBe(150.0);
+
+                    return true;
+                })
+                ->where('resumo.total_debits', function ($valor): bool {
+                    expect((float) $valor)->toBe(40.0);
+
+                    return true;
+                })
+            )
+        );
+
+    $this->travelBack();
+});
+
+it('keeps extract kpis on the current month when pizza date filters change', function (): void {
+    $this->travelTo('2026-06-15');
+
+    $user = User::factory()->create();
+    $conta = Conta::query()->create([
+        'nome' => 'Corrente',
+        'usuario_id' => $user->id,
+    ]);
+
+    lancarParcelaNoDashboard($user, 'RECEITA', '2026-06-10', 80, 0, '2026-06-10', $conta);
+    lancarParcelaNoDashboard($user, 'DESPESA', '2026-06-12', 20, 0, '2026-06-12', $conta);
+    lancarParcelaNoDashboard($user, 'RECEITA', '2026-01-10', 300, 0, '2026-01-10', $conta);
+    lancarParcelaNoDashboard($user, 'DESPESA', '2026-01-20', 50, 0, '2026-01-20', $conta);
+
+    $this->actingAs($user)
+        ->get(route('dashboard', [
+            'data_inicio' => '2026-01-01',
+            'data_fim' => '2026-01-31',
+        ]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard/index')
+            ->where('dataInicioDespesasPorCategoria', '2026-01-01')
+            ->where('dataFimDespesasPorCategoria', '2026-01-31')
+            ->loadDeferredProps(fn (Assert $reload) => $reload
+                ->where('resumo.total_credits', function ($valor): bool {
+                    expect((float) $valor)->toBe(80.0);
+
+                    return true;
+                })
+                ->where('resumo.total_debits', function ($valor): bool {
+                    expect((float) $valor)->toBe(20.0);
+
+                    return true;
+                })
+            )
+        );
+
+    $this->travelBack();
+});
+
+it('shows zero extract kpis when the current month has no parcels', function (): void {
+    $this->travelTo('2026-06-15');
+
+    $user = User::factory()->create();
+    lancarParcelaNoDashboard($user, 'RECEITA', '2026-05-10', 100, 0);
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard/index')
+            ->loadDeferredProps(fn (Assert $reload) => $reload
+                ->where('resumo.total_credits', function ($valor): bool {
+                    expect((float) $valor)->toBe(0.0);
+
+                    return true;
+                })
+                ->where('resumo.total_debits', function ($valor): bool {
+                    expect((float) $valor)->toBe(0.0);
+
+                    return true;
+                })
+            )
+        );
+
+    $this->travelBack();
+});
+
 it('redirects guests to the login page', function (): void {
     $this->get(route('dashboard'))
         ->assertRedirect(route('login'));

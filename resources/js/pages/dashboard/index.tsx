@@ -5,6 +5,7 @@ import DashboardReceitas from '@/components/dashboard/DashboardReceitas';
 import DashboardReceitasSkeleton from '@/components/dashboard/DashboardReceitasSkeleton';
 import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton';
 import { type DashboardPageProps, type FatiaPizza } from '@/components/dashboard/types';
+import ExtratoKpis, { ExtratoKpisSkeleton } from '@/components/extrato/ExtratoKpis';
 import { PageTitle } from '@/components/padrões';
 import { useSidebar } from '@/components/ui/sidebar';
 import AppLayout from '@/layouts/app-layout';
@@ -43,6 +44,7 @@ function fatiasDeGrupo(despesas: DashboardPageProps['despesasPorGrupoDeProduto']
 
 export default function Dashboard({
     ano,
+    resumo,
     saldos,
     dataInicioDespesasPorCategoria,
     dataFimDespesasPorCategoria,
@@ -88,16 +90,12 @@ export default function Dashboard({
     function recarregarPizzaGrupos(inicio: string, fim: string): void {
         setGrupoInicio(inicio);
         setGrupoFim(fim);
-        router.get(
-            route('dashboard'),
-            queryDashboard({ grupo_data_inicio: inicio, grupo_data_fim: fim }),
-            {
-                preserveScroll: true,
-                preserveState: true,
-                replace: true,
-                only: ['despesasPorGrupoDeProduto'],
-            },
-        );
+        router.get(route('dashboard'), queryDashboard({ grupo_data_inicio: inicio, grupo_data_fim: fim }), {
+            preserveScroll: true,
+            preserveState: true,
+            replace: true,
+            only: ['despesasPorGrupoDeProduto'],
+        });
     }
 
     function recarregarReceitas(proximoMes: string, proximaSemana: string | null): void {
@@ -139,6 +137,10 @@ export default function Dashboard({
             <Head title="Dashboard" />
             <div className="flex h-full min-w-0 flex-1 flex-col gap-6 rounded-xl p-4 md:p-6">
                 <PageTitle title="Dashboard" />
+
+                <Deferred data="resumo" fallback={<ExtratoKpisSkeleton omitirSaldoAnterior empilharNoMobile />}>
+                    <ExtratoKpis resumo={resumo} omitirSaldoAnterior empilharNoMobile />
+                </Deferred>
 
                 <div className="@container flex min-w-0 flex-wrap items-stretch gap-4">
                     <div className={CARD_WRAP}>

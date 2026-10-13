@@ -3,15 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\DTO\DashboardSearchDTO;
+use App\DTO\FinanceiroSearchDTO;
 use App\Http\Requests\DashboardSearchRequest;
 use App\Services\Interfaces\DashboardServiceInterface;
+use App\Services\Interfaces\ExtratoServiceInterface;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DashboardController extends Controller
 {
     public function __construct(
-        private DashboardServiceInterface $dashboardService
+        private DashboardServiceInterface $dashboardService,
+        private ExtratoServiceInterface $extratoService,
     ) {}
 
     public function index(DashboardSearchRequest $request): Response
@@ -20,9 +23,15 @@ class DashboardController extends Controller
             DashboardSearchDTO::fromArray($request->validated())
         );
         $ano = $this->dashboardService->anoVigente();
+        $filtrosExtrato = FinanceiroSearchDTO::fromArray([
+            'tipo_data' => 'competencia',
+            'data_inicio' => now()->startOfMonth()->toDateString(),
+            'data_fim' => now()->endOfMonth()->toDateString(),
+        ]);
 
         return Inertia::render('dashboard/index', [
             'ano' => $ano,
+            'resumo' => Inertia::defer(fn (): array => $this->extratoService->resumo($filtrosExtrato)),
             'saldos' => Inertia::defer(fn (): array => $this->dashboardService->saldosDoAno($ano)),
             'dataInicioDespesasPorCategoria' => $filtros->data_inicio,
             'dataFimDespesasPorCategoria' => $filtros->data_fim,
