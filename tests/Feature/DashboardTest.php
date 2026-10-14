@@ -4,6 +4,7 @@ use App\Models\Categoria;
 use App\Models\Conta;
 use App\Models\Financeiro;
 use App\Models\FinanceiroParcela;
+use App\Models\Fornecedor;
 use App\Models\Grupo;
 use App\Models\Produto;
 use App\Models\User;
@@ -920,4 +921,163 @@ it('rejects invalid month and week filters for weekday revenues', function (arra
     'semana que não é data' => [['mes_receitas' => '2026-06', 'semana_receitas' => 'segunda'], 'semana_receitas'],
     'semana que não começa na segunda' => [['mes_receitas' => '2026-06', 'semana_receitas' => '2026-06-16'], 'semana_receitas'],
     'semana fora do mês' => [['mes_receitas' => '2026-06', 'semana_receitas' => '2026-03-02'], 'semana_receitas'],
+]);
+
+/**
+ * @param  array<string, int>  $vinculos
+ */
+function lancarParcelaNoRanking(User $user, string $tipo, string $competencia, float $valor, array $vinculos): FinanceiroParcela
+{
+    $financeiro = Financeiro::query()->create([
+        'descricao' => $tipo.' ranking '.$competencia,
+        'valor' => $valor,
+        'tipo' => $tipo,
+        'usuario_id' => $user->id,
+    ]);
+
+    $vinculos['categoria_id'] ??= Categoria::query()->create([
+        'nome' => $tipo.' ranking '.$competencia,
+        'tipo' => strtolower($tipo),
+        'usuario_id' => $user->id,
+    ])->id;
+    $vinculos['conta_id'] ??= Conta::query()->firstOrCreate([
+        'nome' => 'Carteira '.$user->id,
+        'usuario_id' => $user->id,
+    ])->id;
+
+    return FinanceiroParcela::query()->create([
+        'descricao' => $tipo.' ranking '.$competencia,
+        'data_vencimento' => $competencia,
+        'data_competencia' => $competencia,
+        'valor' => $valor,
+        'valor_pago' => 0,
+        'parcela' => 1,
+        'financeiro_id' => $financeiro->id,
+        'usuario_id' => $user->id,
+        ...$vinculos,
+    ]);
+}
+
+it('defers the ranking in its own group', function (): void {
+    $user = User::factory()->create();
+
+    $page = $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard/index')
+            ->missing('ranking')
+            ->where('rankingCriterio', 'produtos')
+        )
+        ->viewData('page');
+
+    expect($page['deferredProps']['ranking'])->toBe(['ranking']);
+});
+
+it('ranks the top five products by expense value in the current month with their share of the total', function (): void {
+    $this->travelTo('2026-06-15');
+
+    $user = User::factory()->create();
+    $outraPessoa = User::factory()->create();
+
+    $valores = ['Bateria' => 2400, 'Aditivo' => 1300, 'Pneu' => 600, 'Bandeja' => 400, 'Amortecedor' => 200, 'Filtro' => 100];
+
+    foreach ($valores as $nome => $valor) {
+        $produto = Produto::query()->create(['nome' => $nome, 'preco_compra' => 1, 'usuario_id' => $user->id]);
+        lancarParcelaNoRanking($user, 'DESPESA', '2026-06-10', $valor, ['produto_id' => $produto->id]);
+    }
+
+    $bateria = Produto::query()->where('nome', 'Bateria')->firstOrFail();
+    lancarParcelaNoRanking($user, 'DESPESA', '2026-06-20', 600, ['produto_id' => $bateria->id]);
+    lancarParcelaNoRanking($user, 'DESPESA', '2026-07-01', 9000, ['produto_id' => $bateria->id]);
+    lancarParcelaNoRanking($user, 'RECEITA', '2026-06-10', 9000, ['produto_id' => $bateria->id]);
+
+    $produtoAlheio = Produto::query()->create(['nome' => 'Alheio', 'preco_compra' => 1, 'usuario_id' => $outraPessoa->id]);
+    lancarParcelaNoRanking($outraPessoa, 'DESPESA', '2026-06-10', 9000, ['produto_id' => $produtoAlheio->id]);
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('dataInicioRanking', '2026-06-01')
+            ->where('dataFimRanking', '2026-06-30')
+            ->loadDeferredProps('ranking', fn (Assert $reload) => $reload
+                ->where('ranking.criterio', 'produtos')
+                ->where('ranking.total', 5600)
+                ->has('ranking.itens', 5)
+                ->where('ranking.itens.0', [
+                    'posicao' => 1,
+                    'nome' => 'Bateria',
+                    'valor' => 3000,
+                    'lancamentos' => 2,
+                    'percentual' => 53.57,
+                ])
+                ->where('ranking.itens.1.nome', 'Aditivo')
+                ->where('ranking.itens.1.percentual', 23.21)
+                ->where('ranking.itens.4.nome', 'Amortecedor')
+                ->where('ranking.itens.4.posicao', 5)
+            )
+        );
+
+    $this->travelBack();
+});
+
+it('ranks suppliers and revenue categories for a custom period', function (): void {
+    $user = User::factory()->create();
+
+    $acme = Fornecedor::query()->create(['nome' => 'Acme', 'usuario_id' => $user->id]);
+    $beta = Fornecedor::query()->create(['nome' => 'Beta', 'usuario_id' => $user->id]);
+    lancarParcelaNoRanking($user, 'DESPESA', '2026-01-10', 50, ['fornecedor_id' => $beta->id]);
+    lancarParcelaNoRanking($user, 'DESPESA', '2026-01-12', 150, ['fornecedor_id' => $acme->id]);
+    lancarParcelaNoRanking($user, 'DESPESA', '2026-02-12', 999, ['fornecedor_id' => $beta->id]);
+
+    $salario = Categoria::query()->create(['nome' => 'Salário', 'tipo' => 'receita', 'usuario_id' => $user->id]);
+    lancarParcelaNoRanking($user, 'RECEITA', '2026-01-05', 1000, ['categoria_id' => $salario->id]);
+
+    $periodo = ['ranking_data_inicio' => '2026-01-01', 'ranking_data_fim' => '2026-01-31'];
+
+    $this->actingAs($user)
+        ->get(route('dashboard', [...$periodo, 'ranking_criterio' => 'fornecedores']))
+        ->assertInertia(fn (Assert $page) => $page
+            ->loadDeferredProps('ranking', fn (Assert $reload) => $reload
+                ->where('ranking.itens.0.nome', 'Acme')
+                ->where('ranking.itens.0.percentual', 75)
+                ->where('ranking.itens.1.nome', 'Beta')
+                ->where('ranking.itens.1.valor', 50)
+            )
+        );
+
+    $this->actingAs($user)
+        ->get(route('dashboard', [...$periodo, 'ranking_criterio' => 'categorias_receita']))
+        ->assertInertia(fn (Assert $page) => $page
+            ->loadDeferredProps('ranking', fn (Assert $reload) => $reload
+                ->has('ranking.itens', 1)
+                ->where('ranking.itens.0.nome', 'Salário')
+                ->where('ranking.itens.0.percentual', 100)
+            )
+        );
+});
+
+it('returns an empty ranking when the period has no matching parcels', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('dashboard', ['ranking_criterio' => 'categorias_despesa']))
+        ->assertInertia(fn (Assert $page) => $page
+            ->loadDeferredProps('ranking', fn (Assert $reload) => $reload
+                ->where('ranking.total', 0)
+                ->has('ranking.itens', 0)
+            )
+        );
+});
+
+it('rejects invalid ranking filters', function (array $query, string $campo): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->from(route('dashboard'))
+        ->get(route('dashboard', $query))
+        ->assertRedirect(route('dashboard'))
+        ->assertSessionHasErrors([$campo]);
+})->with([
+    'critério desconhecido' => [['ranking_criterio' => 'margem'], 'ranking_criterio'],
+    'fim antes do início' => [['ranking_data_inicio' => '2026-06-10', 'ranking_data_fim' => '2026-06-01'], 'ranking_data_fim'],
 ]);

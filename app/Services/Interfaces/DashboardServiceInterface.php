@@ -40,6 +40,18 @@ interface DashboardServiceInterface extends AbstractServiceInterface
     public function despesasPorGrupoDeProdutoNoPeriodo(DashboardSearchDTO $filtros): array;
 
     /**
+     * Top 5 do ranking no período (competência) para o critério escolhido, com o
+     * percentual de participação de cada item sobre o total de todos os itens do critério.
+     *
+     * @return array{
+     *     criterio: string,
+     *     total: float,
+     *     itens: list<array{posicao: int, nome: string, valor: float, lancamentos: int, percentual: float}>
+     * }
+     */
+    public function rankingNoPeriodo(DashboardSearchDTO $filtros): array;
+
+    /**
      * Semanas (segunda a domingo) que cruzam o mês YYYY-MM, sem cortar a semana.
      *
      * @return list<array{inicio: string, fim: string, rotulo: string}>

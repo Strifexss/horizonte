@@ -45,6 +45,22 @@ export type ReceitaPorDiaDaSemana = {
     valor: number;
 };
 
+export type CriterioRanking = 'produtos' | 'fornecedores' | 'categorias_despesa' | 'categorias_receita';
+
+export type ItemRanking = {
+    posicao: number;
+    nome: string;
+    valor: number;
+    lancamentos: number;
+    percentual: number;
+};
+
+export type Ranking = {
+    criterio: CriterioRanking;
+    total: number;
+    itens: ItemRanking[];
+};
+
 export type DashboardPageProps = {
     ano: number;
     resumo?: ExtratoResumo;
@@ -59,4 +75,8 @@ export type DashboardPageProps = {
     semanaReceitas: string;
     semanasReceitas: SemanaReceitas[];
     receitasPorDiaDaSemana?: ReceitaPorDiaDaSemana[];
+    rankingCriterio: CriterioRanking;
+    dataInicioRanking: string;
+    dataFimRanking: string;
+    ranking?: Ranking;
 };

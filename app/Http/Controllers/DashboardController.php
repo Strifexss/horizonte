@@ -46,6 +46,11 @@ class DashboardController extends Controller
             'semanasReceitas' => $this->dashboardService->semanasQueCruzamOMes($filtros),
             'receitasPorDiaDaSemana' => Inertia::defer(fn (): array => $this->dashboardService
                 ->receitasPorDiaDaSemana($filtros)),
+            'rankingCriterio' => $filtros->ranking_criterio,
+            'dataInicioRanking' => $filtros->ranking_data_inicio,
+            'dataFimRanking' => $filtros->ranking_data_fim,
+            'ranking' => Inertia::defer(fn (): array => $this->dashboardService
+                ->rankingNoPeriodo($filtros), 'ranking'),
         ]);
     }
 }

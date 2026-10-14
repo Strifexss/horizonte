@@ -40,6 +40,8 @@ class DashboardService extends ServiceAbstract implements DashboardServiceInterf
         7 => 'Dom',
     ];
 
+    private const LIMITE_RANKING = 5;
+
     public function __construct(
         private FinanceiroRepositoryInterface $financeiroRepository
     ) {
@@ -62,6 +64,9 @@ class DashboardService extends ServiceAbstract implements DashboardServiceInterf
             'grupo_data_fim' => $filtros->grupo_data_fim ?? now()->endOfMonth()->toDateString(),
             'mes_receitas' => $mesReceitas,
             'semana_receitas' => $filtros->semana_receitas ?? $this->semanaPadraoDoMes($mesReceitas),
+            'ranking_criterio' => $filtros->ranking_criterio ?? DashboardSearchDTO::CRITERIOS_RANKING[0],
+            'ranking_data_inicio' => $filtros->ranking_data_inicio ?? now()->startOfMonth()->toDateString(),
+            'ranking_data_fim' => $filtros->ranking_data_fim ?? now()->endOfMonth()->toDateString(),
         ]);
     }
 
@@ -144,6 +149,37 @@ class DashboardService extends ServiceAbstract implements DashboardServiceInterf
         }
 
         return $resultado;
+    }
+
+    public function rankingNoPeriodo(DashboardSearchDTO $filtros): array
+    {
+        $criterio = (string) $filtros->ranking_criterio;
+        $linhas = $this->financeiroRepository->rankingNoPeriodo(
+            $criterio,
+            (string) $filtros->ranking_data_inicio,
+            (string) $filtros->ranking_data_fim,
+        );
+
+        $total = round((float) $linhas->sum(fn ($linha): float => (float) $linha->valor), 2);
+        $itens = [];
+
+        foreach ($linhas->take(self::LIMITE_RANKING)->values() as $indice => $linha) {
+            $valor = round((float) $linha->valor, 2);
+
+            $itens[] = [
+                'posicao' => $indice + 1,
+                'nome' => (string) $linha->nome,
+                'valor' => $valor,
+                'lancamentos' => (int) $linha->lancamentos,
+                'percentual' => $total > 0 ? round($valor / $total * 100, 2) : 0.0,
+            ];
+        }
+
+        return [
+            'criterio' => $criterio,
+            'total' => $total,
+            'itens' => $itens,
+        ];
     }
 
     public function semanasQueCruzamOMes(DashboardSearchDTO $filtros): array

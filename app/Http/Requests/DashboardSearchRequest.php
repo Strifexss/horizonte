@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\DTO\DashboardSearchDTO;
 use Carbon\Carbon;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\In;
 
 class DashboardSearchRequest extends FormRequest
 {
@@ -15,7 +18,7 @@ class DashboardSearchRequest extends FormRequest
     }
 
     /**
-     * @return array<string, list<string|ValidationRule>>
+     * @return array<string, list<string|ValidationRule|In>>
      */
     public function rules(): array
     {
@@ -26,6 +29,9 @@ class DashboardSearchRequest extends FormRequest
             'grupo_data_fim' => ['nullable', 'date', 'required_with:grupo_data_inicio', 'after_or_equal:grupo_data_inicio'],
             'mes_receitas' => ['nullable', 'date_format:Y-m'],
             'semana_receitas' => ['nullable', 'date'],
+            'ranking_criterio' => ['nullable', 'string', Rule::in(DashboardSearchDTO::CRITERIOS_RANKING)],
+            'ranking_data_inicio' => ['nullable', 'date', 'required_with:ranking_data_fim'],
+            'ranking_data_fim' => ['nullable', 'date', 'required_with:ranking_data_inicio', 'after_or_equal:ranking_data_inicio'],
         ];
     }
 

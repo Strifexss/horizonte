@@ -281,6 +281,34 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
             ->get();
     }
 
+    public function rankingNoPeriodo(string $criterio, string $dataInicio, string $dataFim): Collection
+    {
+        $query = FinanceiroParcela::query()
+            ->toBase()
+            ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
+            ->where('financeiro_parcela.usuario_id', Auth::id())
+            ->whereBetween('financeiro_parcela.data_competencia', [$dataInicio, $dataFim]);
+
+        [$tabela, $chave, $tipo] = match ($criterio) {
+            'fornecedores' => ['fornecedor', 'financeiro_parcela.fornecedor_id', 'DESPESA'],
+            'categorias_despesa' => ['categoria', 'financeiro_parcela.categoria_id', 'DESPESA'],
+            'categorias_receita' => ['categoria', 'financeiro_parcela.categoria_id', 'RECEITA'],
+            default => ['produto', 'financeiro_parcela.produto_id', 'DESPESA'],
+        };
+
+        return $query
+            ->join($tabela, $tabela.'.id', '=', $chave)
+            ->whereRaw('UPPER(financeiro.tipo) = ?', [$tipo])
+            ->selectRaw($tabela.'.nome as nome')
+            ->selectRaw('SUM(financeiro_parcela.valor) as valor')
+            ->selectRaw('COUNT(*) as lancamentos')
+            ->groupBy($tabela.'.id', $tabela.'.nome')
+            ->havingRaw('SUM(financeiro_parcela.valor) > 0')
+            ->orderByDesc('valor')
+            ->orderBy('nome')
+            ->get();
+    }
+
     public function receitasPorDiaDaSemanaNoPeriodo(string $dataInicio, string $dataFim): Collection
     {
         $coluna = 'financeiro_parcela.data_competencia';

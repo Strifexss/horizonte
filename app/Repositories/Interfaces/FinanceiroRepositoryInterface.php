@@ -63,6 +63,16 @@ interface FinanceiroRepositoryInterface extends AbstractRepositoryInterface
     public function despesasPorGrupoDeProdutoNoPeriodo(string $dataInicio, string $dataFim): Collection;
 
     /**
+     * Soma o valor de face das parcelas do usuário autenticado no período (competência),
+     * agrupadas pelo critério do ranking: produtos, fornecedores e categorias de despesa
+     * usam parcelas de DESPESA; categorias de receita usam parcelas de RECEITA.
+     * Parcelas sem o vínculo do critério ficam de fora. Ordena do maior para o menor valor.
+     *
+     * @return Collection<int, object{nome: string, valor: float|int|string, lancamentos: int|string}>
+     */
+    public function rankingNoPeriodo(string $criterio, string $dataInicio, string $dataFim): Collection;
+
+    /**
      * Soma o valor de face das parcelas de RECEITA do usuário autenticado
      * em cada dia da semana ISO (1 = segunda … 7 = domingo), pela competência.
      *

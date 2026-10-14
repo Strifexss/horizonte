@@ -1,10 +1,12 @@
 import DashboardGrafico from '@/components/dashboard/DashboardGrafico';
 import DashboardPizza from '@/components/dashboard/DashboardPizza';
 import DashboardPizzaSkeleton from '@/components/dashboard/DashboardPizzaSkeleton';
+import DashboardRanking from '@/components/dashboard/DashboardRanking';
+import DashboardRankingSkeleton from '@/components/dashboard/DashboardRankingSkeleton';
 import DashboardReceitas from '@/components/dashboard/DashboardReceitas';
 import DashboardReceitasSkeleton from '@/components/dashboard/DashboardReceitasSkeleton';
 import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton';
-import { type DashboardPageProps, type FatiaPizza, type PontoMensal, type SeriesMensais } from '@/components/dashboard/types';
+import { type CriterioRanking, type DashboardPageProps, type FatiaPizza, type PontoMensal, type SeriesMensais } from '@/components/dashboard/types';
 import ExtratoKpis, { ExtratoKpisSkeleton } from '@/components/extrato/ExtratoKpis';
 import { PageTitle } from '@/components/padrões';
 import { useSidebar } from '@/components/ui/sidebar';
@@ -20,6 +22,8 @@ const COR_DESPESA = '#f59e0b';
 
 const CARD_WRAP =
     'flex min-h-0 w-full max-w-full shrink-0 grow-0 flex-col @min-[36rem]:w-[calc((100%-1rem)/2)] @min-[54rem]:w-[calc((100%-2rem)/3)] [&>*]:h-full';
+
+const CARD_WRAP_DUPLO = 'flex min-h-0 w-full max-w-full shrink-0 grow-0 flex-col @min-[54rem]:w-[calc((100%-2rem)/3*2+1rem)] [&>*]:h-full';
 
 function pontosDeSaldo(saldos: SeriesMensais['saldos'] | undefined): PontoMensal[] {
     return (saldos ?? []).map((ponto) => ({
@@ -67,6 +71,10 @@ export default function Dashboard({
     semanaReceitas,
     semanasReceitas,
     receitasPorDiaDaSemana,
+    rankingCriterio,
+    dataInicioRanking,
+    dataFimRanking,
+    ranking,
 }: DashboardPageProps) {
     const [dataInicio, setDataInicio] = useState<string>(dataInicioDespesasPorCategoria);
     const [dataFim, setDataFim] = useState<string>(dataFimDespesasPorCategoria);
@@ -74,6 +82,9 @@ export default function Dashboard({
     const [grupoFim, setGrupoFim] = useState<string>(dataFimDespesasPorGrupo);
     const [mes, setMes] = useState<string>(mesReceitas);
     const [semana, setSemana] = useState<string>(semanaReceitas);
+    const [criterioRanking, setCriterioRanking] = useState<CriterioRanking>(rankingCriterio);
+    const [rankingInicio, setRankingInicio] = useState<string>(dataInicioRanking);
+    const [rankingFim, setRankingFim] = useState<string>(dataFimRanking);
 
     function queryDashboard(overrides: Record<string, string> = {}): Record<string, string> {
         return {
@@ -83,6 +94,9 @@ export default function Dashboard({
             grupo_data_fim: grupoFim,
             mes_receitas: mes,
             semana_receitas: semana,
+            ranking_criterio: criterioRanking,
+            ranking_data_inicio: rankingInicio,
+            ranking_data_fim: rankingFim,
             ...overrides,
         };
     }
@@ -107,6 +121,26 @@ export default function Dashboard({
             replace: true,
             only: ['despesasPorGrupoDeProduto'],
         });
+    }
+
+    function recarregarRanking(overrides: Record<string, string>): void {
+        router.get(route('dashboard'), queryDashboard(overrides), {
+            preserveScroll: true,
+            preserveState: true,
+            replace: true,
+            only: ['ranking'],
+        });
+    }
+
+    function trocarCriterioRanking(criterio: CriterioRanking): void {
+        setCriterioRanking(criterio);
+        recarregarRanking({ ranking_criterio: criterio });
+    }
+
+    function trocarPeriodoRanking(inicio: string, fim: string): void {
+        setRankingInicio(inicio);
+        setRankingFim(fim);
+        recarregarRanking({ ranking_data_inicio: inicio, ranking_data_fim: fim });
     }
 
     function recarregarReceitas(proximoMes: string, proximaSemana: string | null): void {
@@ -248,6 +282,30 @@ export default function Dashboard({
                                 semanas={semanasReceitas}
                                 receitas={receitasPorDiaDaSemana ?? []}
                                 onFiltroChange={recarregarReceitas}
+                            />
+                        </Deferred>
+                    </div>
+
+                    <div className={CARD_WRAP_DUPLO}>
+                        <Deferred
+                            data="ranking"
+                            fallback={
+                                <DashboardRankingSkeleton
+                                    criterio={criterioRanking}
+                                    onCriterioChange={trocarCriterioRanking}
+                                    dataInicio={rankingInicio}
+                                    dataFim={rankingFim}
+                                    onPeriodoChange={trocarPeriodoRanking}
+                                />
+                            }
+                        >
+                            <DashboardRanking
+                                criterio={criterioRanking}
+                                onCriterioChange={trocarCriterioRanking}
+                                itens={ranking?.itens ?? []}
+                                dataInicio={rankingInicio}
+                                dataFim={rankingFim}
+                                onPeriodoChange={trocarPeriodoRanking}
                             />
                         </Deferred>
                     </div>
