@@ -24,6 +24,9 @@ class FinanceiroParcelaService extends ServiceAbstract implements FinanceiroParc
         // all() remove nulls; FKs opcionais precisam poder ser limpas explicitamente.
         $data['produto_id'] = $dto->produto_id;
         $data['funcionario_id'] = $dto->funcionario_id;
+        if ($dto->quantidade !== null) {
+            $data['quantidade'] = $dto->quantidade;
+        }
 
         return $this->repository->update($id, $data);
     }

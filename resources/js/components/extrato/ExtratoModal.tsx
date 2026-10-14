@@ -39,6 +39,7 @@ export type ExtratoModalParcela = {
     valor?: number | string | null;
     valor_pago?: number | string | null;
     qtd_parcelas?: number | string | null;
+    quantidade?: number | string | null;
     tipo?: string | null;
     categoria?: { id: number | string; nome: string; padrao?: number | null } | null;
     categoria_id?: number | string | null;
@@ -317,6 +318,7 @@ export default function ExtratoModal({
                 fornecedor_id: fornecedorId ? Number(fornecedorId) : null,
                 funcionario_id: funcionarioId ? Number(funcionarioId) : null,
                 conta_id: contaId ? Number(contaId) : null,
+                quantidade: toInputValue(parcela?.quantidade ?? 1),
                 id: parcela?.id ?? null,
             });
         } else {
@@ -709,6 +711,7 @@ export default function ExtratoModal({
             ...current,
             valor: toMoneyFormValue(current.valor),
             valor_pago: toMoneyFormValue(current.valor_pago),
+            quantidade: Math.max(1, Number(current.quantidade) || 1),
             ...(isEdit
                 ? {}
                 : {

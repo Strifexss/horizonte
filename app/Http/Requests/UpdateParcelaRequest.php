@@ -42,6 +42,7 @@ class UpdateParcelaRequest extends FormRequest
             'produto_id' => ['nullable', 'integer', 'exists:produto,id'],
             'funcionario_id' => ['nullable', 'integer', 'exists:funcionario,id'],
             'conta_id' => ['nullable', 'integer', 'exists:conta,id'],
+            'quantidade' => ['nullable', 'integer', 'min:1'],
             'financeiro_id' => ['nullable', 'integer', 'exists:financeiro,id'],
             'usuario_id' => ['nullable', 'integer', 'exists:users,id'],
         ];
@@ -51,6 +52,8 @@ class UpdateParcelaRequest extends FormRequest
     {
         return [
             'categoria_id.required' => 'A categoria é obrigatória',
+            'quantidade.integer' => 'A quantidade deve ser um número inteiro.',
+            'quantidade.min' => 'A quantidade deve ser pelo menos 1.',
         ];
     }
 }
