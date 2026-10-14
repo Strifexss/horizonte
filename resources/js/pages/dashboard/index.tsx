@@ -188,6 +188,30 @@ export default function Dashboard({
                 </Deferred>
 
                 <div className="@container flex min-w-0 flex-wrap items-stretch gap-4">
+                    <div className={CARD_WRAP_DUPLO}>
+                        <Deferred
+                            data="ranking"
+                            fallback={
+                                <DashboardRankingSkeleton
+                                    criterio={criterioRanking}
+                                    onCriterioChange={trocarCriterioRanking}
+                                    dataInicio={rankingInicio}
+                                    dataFim={rankingFim}
+                                    onPeriodoChange={trocarPeriodoRanking}
+                                />
+                            }
+                        >
+                            <DashboardRanking
+                                criterio={criterioRanking}
+                                onCriterioChange={trocarCriterioRanking}
+                                itens={ranking?.itens ?? []}
+                                dataInicio={rankingInicio}
+                                dataFim={rankingFim}
+                                onPeriodoChange={trocarPeriodoRanking}
+                            />
+                        </Deferred>
+                    </div>
+
                     <div className={CARD_WRAP}>
                         <Deferred data="seriesMensais" fallback={<DashboardSkeleton titulo="Saldo mensal" />}>
                             <DashboardGrafico
@@ -282,30 +306,6 @@ export default function Dashboard({
                                 semanas={semanasReceitas}
                                 receitas={receitasPorDiaDaSemana ?? []}
                                 onFiltroChange={recarregarReceitas}
-                            />
-                        </Deferred>
-                    </div>
-
-                    <div className={CARD_WRAP_DUPLO}>
-                        <Deferred
-                            data="ranking"
-                            fallback={
-                                <DashboardRankingSkeleton
-                                    criterio={criterioRanking}
-                                    onCriterioChange={trocarCriterioRanking}
-                                    dataInicio={rankingInicio}
-                                    dataFim={rankingFim}
-                                    onPeriodoChange={trocarPeriodoRanking}
-                                />
-                            }
-                        >
-                            <DashboardRanking
-                                criterio={criterioRanking}
-                                onCriterioChange={trocarCriterioRanking}
-                                itens={ranking?.itens ?? []}
-                                dataInicio={rankingInicio}
-                                dataFim={rankingFim}
-                                onPeriodoChange={trocarPeriodoRanking}
                             />
                         </Deferred>
                     </div>
