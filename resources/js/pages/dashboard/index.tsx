@@ -4,7 +4,7 @@ import DashboardPizzaSkeleton from '@/components/dashboard/DashboardPizzaSkeleto
 import DashboardReceitas from '@/components/dashboard/DashboardReceitas';
 import DashboardReceitasSkeleton from '@/components/dashboard/DashboardReceitasSkeleton';
 import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton';
-import { type DashboardPageProps, type FatiaPizza } from '@/components/dashboard/types';
+import { type DashboardPageProps, type FatiaPizza, type PontoMensal, type SeriesMensais } from '@/components/dashboard/types';
 import ExtratoKpis, { ExtratoKpisSkeleton } from '@/components/extrato/ExtratoKpis';
 import { PageTitle } from '@/components/padrões';
 import { useSidebar } from '@/components/ui/sidebar';
@@ -15,8 +15,19 @@ import { useEffect, useRef, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/dashboard' }];
 
+const COR_RECEITA = '#082845';
+const COR_DESPESA = '#f59e0b';
+
 const CARD_WRAP =
     'flex min-h-0 w-full max-w-full shrink-0 grow-0 flex-col @min-[36rem]:w-[calc((100%-1rem)/2)] @min-[54rem]:w-[calc((100%-2rem)/3)] [&>*]:h-full';
+
+function pontosDeSaldo(saldos: SeriesMensais['saldos'] | undefined): PontoMensal[] {
+    return (saldos ?? []).map((ponto) => ({
+        mes: ponto.mes,
+        rotulo: ponto.rotulo,
+        valor: ponto.saldo,
+    }));
+}
 
 function RecolherSidebarNoDashboard(): null {
     const { setOpen } = useSidebar();
@@ -45,7 +56,7 @@ function fatiasDeGrupo(despesas: DashboardPageProps['despesasPorGrupoDeProduto']
 export default function Dashboard({
     ano,
     resumo,
-    saldos,
+    seriesMensais,
     dataInicioDespesasPorCategoria,
     dataFimDespesasPorCategoria,
     despesasPorCategoria,
@@ -144,8 +155,39 @@ export default function Dashboard({
 
                 <div className="@container flex min-w-0 flex-wrap items-stretch gap-4">
                     <div className={CARD_WRAP}>
-                        <Deferred data="saldos" fallback={<DashboardSkeleton />}>
-                            <DashboardGrafico ano={ano} saldos={saldos ?? []} />
+                        <Deferred data="seriesMensais" fallback={<DashboardSkeleton titulo="Saldo mensal" />}>
+                            <DashboardGrafico
+                                ano={ano}
+                                titulo="Saldo mensal"
+                                pontos={pontosDeSaldo(seriesMensais?.saldos)}
+                                cor="#16a34a"
+                                corPorSinal
+                                mensagemVazio="Sem lançamentos no ano."
+                            />
+                        </Deferred>
+                    </div>
+
+                    <div className={CARD_WRAP}>
+                        <Deferred data="seriesMensais" fallback={<DashboardSkeleton titulo="Receitas por mês" />}>
+                            <DashboardGrafico
+                                ano={ano}
+                                titulo="Receitas por mês"
+                                pontos={seriesMensais?.receitas ?? []}
+                                cor={COR_RECEITA}
+                                mensagemVazio="Sem receitas no ano."
+                            />
+                        </Deferred>
+                    </div>
+
+                    <div className={CARD_WRAP}>
+                        <Deferred data="seriesMensais" fallback={<DashboardSkeleton titulo="Despesas por mês" />}>
+                            <DashboardGrafico
+                                ano={ano}
+                                titulo="Despesas por mês"
+                                pontos={seriesMensais?.despesas ?? []}
+                                cor={COR_DESPESA}
+                                mensagemVazio="Sem despesas no ano."
+                            />
                         </Deferred>
                     </div>
 

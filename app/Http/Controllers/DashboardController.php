@@ -32,7 +32,7 @@ class DashboardController extends Controller
         return Inertia::render('dashboard/index', [
             'ano' => $ano,
             'resumo' => Inertia::defer(fn (): array => $this->extratoService->resumo($filtrosExtrato)),
-            'saldos' => Inertia::defer(fn (): array => $this->dashboardService->saldosDoAno($ano)),
+            'seriesMensais' => Inertia::defer(fn (): array => $this->dashboardService->seriesMensaisDoAno($ano)),
             'dataInicioDespesasPorCategoria' => $filtros->data_inicio,
             'dataFimDespesasPorCategoria' => $filtros->data_fim,
             'despesasPorCategoria' => Inertia::defer(fn (): array => $this->dashboardService

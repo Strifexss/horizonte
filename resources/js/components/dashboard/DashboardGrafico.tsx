@@ -4,11 +4,15 @@ import { scaleBand } from '@tanstack/charts/scales/band';
 import { scaleLinear } from '@tanstack/charts/scales/linear';
 import { tooltip } from '@tanstack/charts/tooltip';
 import { Chart } from '@tanstack/charts/react';
-import type { SaldoMensal } from '@/components/dashboard/types';
+import type { PontoMensal } from '@/components/dashboard/types';
 
 type DashboardGraficoProps = {
     ano: number;
-    saldos: SaldoMensal[];
+    titulo: string;
+    pontos: PontoMensal[];
+    cor: string;
+    corPorSinal?: boolean;
+    mensagemVazio: string;
 };
 
 const COR_POSITIVO = '#16a34a';
@@ -21,13 +25,13 @@ const moedaCompacta = new Intl.NumberFormat('pt-BR', {
     maximumFractionDigits: 1,
 });
 
-function dominioSaldo(saldos: readonly SaldoMensal[]): [number, number] {
+function dominioValor(pontos: readonly PontoMensal[]): [number, number] {
     let minimo = 0;
     let maximo = 0;
 
-    for (const ponto of saldos) {
-        minimo = Math.min(minimo, ponto.saldo);
-        maximo = Math.max(maximo, ponto.saldo);
+    for (const ponto of pontos) {
+        minimo = Math.min(minimo, ponto.valor);
+        maximo = Math.max(maximo, ponto.valor);
     }
 
     if (minimo === maximo) {
@@ -35,6 +39,10 @@ function dominioSaldo(saldos: readonly SaldoMensal[]): [number, number] {
     }
 
     return [minimo, maximo];
+}
+
+function serieVazia(pontos: readonly PontoMensal[]): boolean {
+    return pontos.every((ponto) => ponto.valor === 0);
 }
 
 function useEixoCompacto(): boolean {
@@ -55,18 +63,26 @@ function useEixoCompacto(): boolean {
     return compacto;
 }
 
-export default function DashboardGrafico({ ano, saldos }: DashboardGraficoProps) {
-    const dominio = useMemo(() => dominioSaldo(saldos), [saldos]);
+export default function DashboardGrafico({
+    ano,
+    titulo,
+    pontos,
+    cor,
+    corPorSinal = false,
+    mensagemVazio,
+}: DashboardGraficoProps) {
+    const dominio = useMemo(() => dominioValor(pontos), [pontos]);
     const compacto = useEixoCompacto();
+    const vazio = serieVazia(pontos);
 
     const chart = useMemo(
         () =>
             defineChart({
                 marks: [
-                    barY(saldos, {
+                    barY(pontos, {
                         x: 'rotulo',
-                        y: 'saldo',
-                        fill: (ponto) => (ponto.saldo < 0 ? COR_NEGATIVO : COR_POSITIVO),
+                        y: 'valor',
+                        fill: (ponto) => (corPorSinal ? (ponto.valor < 0 ? COR_NEGATIVO : COR_POSITIVO) : cor),
                     }),
                 ],
                 scales: {
@@ -74,7 +90,7 @@ export default function DashboardGrafico({ ano, saldos }: DashboardGraficoProps)
                         scale: () => scaleBand<string>().padding(0.2),
                         axis: {
                             ticks: {
-                                values: saldos.map((ponto) => ponto.rotulo),
+                                values: pontos.map((ponto) => ponto.rotulo),
                             },
                             tickLabels: compacto
                                 ? { thin: false, fontSize: 10 }
@@ -93,18 +109,24 @@ export default function DashboardGrafico({ ano, saldos }: DashboardGraficoProps)
                 },
                 tooltip,
             }),
-        [compacto, dominio, saldos],
+        [compacto, cor, corPorSinal, dominio, pontos],
     );
 
     return (
         <div className="flex h-full min-h-0 min-w-0 flex-col rounded-xl border border-sidebar-border/70 bg-white p-3 shadow-sm dark:bg-slate-900">
             <div className="mb-2 min-w-0 shrink-0">
-                <div className="text-sm font-medium">Saldo mensal</div>
+                <div className="text-sm font-medium">{titulo}</div>
                 <div className="text-xs text-muted-foreground">{ano}</div>
             </div>
-            <div className="h-[280px] w-full min-w-0 shrink-0">
-                <Chart definition={chart} height={280} ariaLabel={`Saldo mensal de ${ano}`} />
-            </div>
+            {vazio ? (
+                <div className="flex h-[280px] items-center justify-center text-sm text-muted-foreground">
+                    {mensagemVazio}
+                </div>
+            ) : (
+                <div className="h-[280px] w-full min-w-0 shrink-0">
+                    <Chart definition={chart} height={280} ariaLabel={`${titulo} de ${ano}`} />
+                </div>
+            )}
         </div>
     );
 }

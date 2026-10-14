@@ -1,14 +1,18 @@
+type DashboardSkeletonProps = {
+    titulo: string;
+};
+
 const alturas = ['40%', '65%', '30%', '80%', '55%', '45%', '70%', '35%', '60%', '50%', '75%', '42%'];
 
-export default function DashboardSkeleton() {
+export default function DashboardSkeleton({ titulo }: DashboardSkeletonProps) {
     return (
         <div
             className="flex h-full min-h-0 min-w-0 flex-col rounded-xl border border-sidebar-border/70 bg-white p-3 shadow-sm dark:bg-slate-900"
             aria-busy="true"
-            aria-label="Carregando saldo mensal"
+            aria-label={`Carregando ${titulo.toLowerCase()}`}
         >
             <div className="mb-2 min-w-0 shrink-0">
-                <div className="text-sm font-medium">Saldo mensal</div>
+                <div className="text-sm font-medium">{titulo}</div>
                 <div className="h-3 w-10 animate-pulse rounded bg-muted/40" />
             </div>
             <div className="flex h-[280px] shrink-0 items-end gap-2">

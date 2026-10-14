@@ -65,27 +65,45 @@ class DashboardService extends ServiceAbstract implements DashboardServiceInterf
         ]);
     }
 
-    public function saldosDoAno(int $ano): array
+    public function seriesMensaisDoAno(int $ano): array
     {
-        $somas = $this->financeiroRepository
-            ->somasMensaisPorCompetencia($ano)
+        $receitasPorMes = $this->financeiroRepository
+            ->receitasMensaisPorCompetencia($ano)
+            ->keyBy(fn ($linha): int => (int) $linha->mes);
+        $despesasPorMes = $this->financeiroRepository
+            ->despesasMensaisPorCompetencia($ano)
             ->keyBy(fn ($linha): int => (int) $linha->mes);
 
+        $receitas = [];
+        $despesas = [];
         $saldos = [];
 
         for ($mes = 1; $mes <= 12; $mes++) {
-            $linha = $somas->get($mes);
-            $receitas = (float) ($linha->receitas ?? 0);
-            $despesas = (float) ($linha->despesas ?? 0);
+            $receita = round((float) ($receitasPorMes->get($mes)->valor ?? 0), 2);
+            $despesa = round((float) ($despesasPorMes->get($mes)->valor ?? 0), 2);
 
+            $receitas[] = [
+                'mes' => $mes,
+                'rotulo' => self::ROTULOS[$mes],
+                'valor' => $receita,
+            ];
+            $despesas[] = [
+                'mes' => $mes,
+                'rotulo' => self::ROTULOS[$mes],
+                'valor' => $despesa,
+            ];
             $saldos[] = [
                 'mes' => $mes,
                 'rotulo' => self::ROTULOS[$mes],
-                'saldo' => round($receitas - $despesas, 2),
+                'saldo' => round($receita - $despesa, 2),
             ];
         }
 
-        return $saldos;
+        return [
+            'receitas' => $receitas,
+            'despesas' => $despesas,
+            'saldos' => $saldos,
+        ];
     }
 
     public function despesasPorCategoriaNoPeriodo(DashboardSearchDTO $filtros): array

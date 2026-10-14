@@ -274,13 +274,19 @@ it('shows twelve zero balances when the year has no parcels', function (): void 
             ->where('dataInicioDespesasPorGrupo', '2026-06-01')
             ->where('dataFimDespesasPorGrupo', '2026-06-30')
             ->loadDeferredProps(fn (Assert $reload) => $reload
-                ->has('saldos', 12)
-                ->where('saldos', function ($saldos): bool {
-                    expect($saldos)->toHaveCount(12);
+                ->has('seriesMensais.saldos', 12)
+                ->has('seriesMensais.receitas', 12)
+                ->has('seriesMensais.despesas', 12)
+                ->where('seriesMensais', function ($series): bool {
+                    expect($series['saldos'])->toHaveCount(12)
+                        ->and($series['receitas'])->toHaveCount(12)
+                        ->and($series['despesas'])->toHaveCount(12);
 
-                    foreach ($saldos as $indice => $linha) {
+                    foreach ($series['saldos'] as $indice => $linha) {
                         expect($linha['mes'])->toBe($indice + 1)
-                            ->and($linha['saldo'])->toBe(0);
+                            ->and($linha['saldo'])->toBe(0)
+                            ->and($series['receitas'][$indice]['valor'])->toBe(0)
+                            ->and($series['despesas'][$indice]['valor'])->toBe(0);
                     }
 
                     return true;
@@ -294,7 +300,7 @@ it('shows twelve zero balances when the year has no parcels', function (): void 
     $this->travelBack();
 });
 
-it('shows the monthly net of face value by competencia for the signed-in user', function (): void {
+it('shows monthly revenues, expenses and derived balance by competencia for the signed-in user', function (): void {
     $this->travelTo('2026-06-15');
 
     $user = User::factory()->create();
@@ -312,6 +318,7 @@ it('shows the monthly net of face value by competencia for the signed-in user', 
     lancarParcelaNoDashboard($user, 'DESPESA', '2026-01-20', 50, 20, '2026-01-20', $contaPoupanca);
     lancarParcelaNoDashboard($user, 'DESPESA', '2026-01-25', 30, 30, '2026-01-25', $contaCorrente);
     lancarParcelaNoDashboard($user, 'RECEITA', '2026-03-02', 15, 0, '2026-04-01', $contaCorrente);
+    lancarParcelaNoDashboard($user, 'DESPESA', '2026-04-12', 90, 0, '2026-04-12', $contaCorrente);
     lancarParcelaNoDashboard($user, 'RECEITA', '2025-12-01', 999, 999, '2025-12-01', $contaCorrente);
     lancarParcelaNoDashboard($outraPessoa, 'RECEITA', '2026-01-01', 500, 500);
 
@@ -321,16 +328,28 @@ it('shows the monthly net of face value by competencia for the signed-in user', 
             ->component('dashboard/index')
             ->where('ano', 2026)
             ->loadDeferredProps(fn (Assert $reload) => $reload
-                ->has('saldos', 12)
-                ->where('saldos.0.mes', 1)
-                ->where('saldos.0.rotulo', 'Jan')
-                ->where('saldos.0.saldo', 120)
-                ->where('saldos.1.rotulo', 'Fev')
-                ->where('saldos.1.saldo', 0)
-                ->where('saldos.2.rotulo', 'Mar')
-                ->where('saldos.2.saldo', 15)
-                ->where('saldos.11.rotulo', 'Dez')
-                ->where('saldos.11.saldo', 0)
+                ->has('seriesMensais.saldos', 12)
+                ->has('seriesMensais.receitas', 12)
+                ->has('seriesMensais.despesas', 12)
+                ->where('seriesMensais.receitas.0.mes', 1)
+                ->where('seriesMensais.receitas.0.rotulo', 'Jan')
+                ->where('seriesMensais.receitas.0.valor', 200)
+                ->where('seriesMensais.despesas.0.valor', 80)
+                ->where('seriesMensais.saldos.0.saldo', 120)
+                ->where('seriesMensais.receitas.1.rotulo', 'Fev')
+                ->where('seriesMensais.receitas.1.valor', 0)
+                ->where('seriesMensais.despesas.1.valor', 0)
+                ->where('seriesMensais.saldos.1.saldo', 0)
+                ->where('seriesMensais.receitas.2.rotulo', 'Mar')
+                ->where('seriesMensais.receitas.2.valor', 15)
+                ->where('seriesMensais.despesas.2.valor', 0)
+                ->where('seriesMensais.saldos.2.saldo', 15)
+                ->where('seriesMensais.receitas.3.rotulo', 'Abr')
+                ->where('seriesMensais.receitas.3.valor', 0)
+                ->where('seriesMensais.despesas.3.valor', 90)
+                ->where('seriesMensais.saldos.3.saldo', -90)
+                ->where('seriesMensais.saldos.11.rotulo', 'Dez')
+                ->where('seriesMensais.saldos.11.saldo', 0)
             )
         );
 

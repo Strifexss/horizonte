@@ -6,6 +6,18 @@ export type SaldoMensal = {
     saldo: number;
 };
 
+export type PontoMensal = {
+    mes: number;
+    rotulo: string;
+    valor: number;
+};
+
+export type SeriesMensais = {
+    receitas: PontoMensal[];
+    despesas: PontoMensal[];
+    saldos: SaldoMensal[];
+};
+
 export type FatiaPizza = {
     rotulo: string;
     valor: number;
@@ -36,7 +48,7 @@ export type ReceitaPorDiaDaSemana = {
 export type DashboardPageProps = {
     ano: number;
     resumo?: ExtratoResumo;
-    saldos?: SaldoMensal[];
+    seriesMensais?: SeriesMensais;
     dataInicioDespesasPorCategoria: string;
     dataFimDespesasPorCategoria: string;
     despesasPorCategoria?: DespesaPorCategoria[];

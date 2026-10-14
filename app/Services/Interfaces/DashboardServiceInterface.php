@@ -11,12 +11,16 @@ interface DashboardServiceInterface extends AbstractServiceInterface
     public function resolverFiltros(DashboardSearchDTO $filtros): DashboardSearchDTO;
 
     /**
-     * Saldo de cada mês do ano: valor das receitas menos valor das despesas,
+     * Receitas, despesas e saldo (receita − despesa) de cada mês do ano,
      * pela data de competência, sem filtrar status nem conta.
      *
-     * @return list<array{mes: int, rotulo: string, saldo: float}>
+     * @return array{
+     *     receitas: list<array{mes: int, rotulo: string, valor: float}>,
+     *     despesas: list<array{mes: int, rotulo: string, valor: float}>,
+     *     saldos: list<array{mes: int, rotulo: string, saldo: float}>
+     * }
      */
-    public function saldosDoAno(int $ano): array;
+    public function seriesMensaisDoAno(int $ano): array;
 
     /**
      * Despesas por categoria dentro do intervalo definido por data de competência.

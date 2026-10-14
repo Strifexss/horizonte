@@ -215,7 +215,20 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
         return $query;
     }
 
-    public function somasMensaisPorCompetencia(int $ano): Collection
+    public function receitasMensaisPorCompetencia(int $ano): Collection
+    {
+        return $this->somasMensaisPorTipo($ano, 'RECEITA');
+    }
+
+    public function despesasMensaisPorCompetencia(int $ano): Collection
+    {
+        return $this->somasMensaisPorTipo($ano, 'DESPESA');
+    }
+
+    /**
+     * @return Collection<int, object{mes: int|string, valor: float|int|string}>
+     */
+    private function somasMensaisPorTipo(int $ano, string $tipo): Collection
     {
         $coluna = 'financeiro_parcela.data_competencia';
         $mes = $this->expressaoMes($coluna);
@@ -224,11 +237,12 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
             ->toBase()
             ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
             ->where('financeiro_parcela.usuario_id', Auth::id())
+            ->whereRaw('UPPER(financeiro.tipo) = ?', [$tipo])
             ->whereYear($coluna, $ano)
             ->selectRaw($mes.' as mes')
-            ->selectRaw("SUM(CASE WHEN UPPER(financeiro.tipo) = 'RECEITA' THEN financeiro_parcela.valor ELSE 0 END) as receitas")
-            ->selectRaw("SUM(CASE WHEN UPPER(financeiro.tipo) = 'DESPESA' THEN financeiro_parcela.valor ELSE 0 END) as despesas")
+            ->selectRaw('SUM(financeiro_parcela.valor) as valor')
             ->groupByRaw($mes)
+            ->orderBy('mes')
             ->get();
     }
 
