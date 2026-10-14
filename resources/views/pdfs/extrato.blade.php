@@ -7,6 +7,7 @@
         /* Fonte reduzida para caber todas as colunas no PDF */
         body { font-family: "DejaVu Sans", Arial, sans-serif; font-size: 10px; color: #222; }
         .header { text-align: center; margin-bottom: 8px; }
+        .header img { height: 28px; width: auto; margin: 0 auto 6px; display: block; }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; word-wrap: break-word; }
         th, td { border: 1px solid #ddd; padding: 4px 6px; vertical-align: top; }
         th { background: #f5f5f5; font-weight: 600; font-size: 9px; }
@@ -19,6 +20,7 @@
 </head>
 <body>
     <div class="header">
+        <img src="{{ public_path('branding/logo-light-bg.svg') }}" alt="Horizonte">
         <h2>Extrato Financeiro</h2>
         <div class="muted">Gerado em: {{ now()->format('d/m/Y H:i') }}</div>
     </div>

@@ -66,7 +66,7 @@ export function AdminHeader({ usuariosUrl }: AdminHeaderProps) {
                 </div>
 
                 <Link href={usuariosUrl} className="flex items-center">
-                    <AppLogo />
+                    <AppLogo fundo="claro" />
                 </Link>
 
                 <nav className="ml-6 hidden h-full items-center gap-1 md:flex">

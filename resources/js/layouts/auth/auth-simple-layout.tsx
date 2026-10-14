@@ -1,5 +1,5 @@
-import AppLogoIcon from '@/components/app-logo-icon';
-import { Link, usePage } from '@inertiajs/react';
+import { branding } from '@/lib/branding';
+import { Link } from '@inertiajs/react';
 
 interface AuthLayoutProps {
     children: React.ReactNode;
@@ -9,19 +9,14 @@ interface AuthLayoutProps {
 }
 
 export default function AuthSimpleLayout({ children, title, description }: AuthLayoutProps) {
-    const { name } = usePage().props as { name?: string };
-    const brandName = name || 'HORIZONTE';
-
     return (
         <div className="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
             <div className="w-full max-w-sm">
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col items-center gap-4">
                         <Link href={route('home')} className="flex flex-col items-center gap-2 font-medium">
-                            <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-md">
-                                <AppLogoIcon className="size-9 fill-current text-[var(--foreground)] dark:text-white" />
-                            </div>
-                            <span className="text-lg font-semibold tracking-wide">{brandName}</span>
+                            <img src={branding.completaFundoClaro} alt="Horizonte" className="h-auto w-[320px] max-w-full dark:hidden" />
+                            <img src={branding.completaFundoEscuro} alt="Horizonte" className="hidden h-auto w-[320px] max-w-full dark:block" />
                         </Link>
 
                         <div className="space-y-2 text-center">

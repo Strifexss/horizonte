@@ -1,14 +1,16 @@
-import AppLogoIcon from './app-logo-icon';
+import { branding } from '@/lib/branding';
 
-export default function AppLogo() {
+type AppLogoProps = {
+    fundo?: 'escuro' | 'claro';
+};
+
+export default function AppLogo({ fundo = 'escuro' }: AppLogoProps) {
+    const completa = fundo === 'escuro' ? branding.completaFundoEscuro : branding.completaFundoClaro;
+
     return (
         <>
-            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-md">
-                <AppLogoIcon className="size-5 fill-current text-white dark:text-black" />
-            </div>
-            <div className="ml-1 grid flex-1 text-left text-sm">
-                <span className="mb-0.5 truncate leading-none font-semibold">HORIZONTE</span>
-            </div>
+            <img src={branding.icone} alt="" className="hidden size-8 shrink-0 group-data-[collapsible=icon]:block" />
+            <img src={completa} alt="Horizonte" className="h-8 w-auto max-w-[10rem] shrink-0 group-data-[collapsible=icon]:hidden" />
         </>
     );
 }
