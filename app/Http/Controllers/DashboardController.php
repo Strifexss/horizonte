@@ -31,21 +31,21 @@ class DashboardController extends Controller
 
         return Inertia::render('dashboard/index', [
             'ano' => $ano,
-            'resumo' => Inertia::defer(fn (): array => $this->extratoService->resumo($filtrosExtrato)),
-            'seriesMensais' => Inertia::defer(fn (): array => $this->dashboardService->seriesMensaisDoAno($ano)),
+            'resumo' => Inertia::defer(fn (): array => $this->extratoService->resumo($filtrosExtrato), 'resumo'),
+            'seriesMensais' => Inertia::defer(fn (): array => $this->dashboardService->seriesMensaisDoAno($ano), 'seriesMensais'),
             'dataInicioDespesasPorCategoria' => $filtros->data_inicio,
             'dataFimDespesasPorCategoria' => $filtros->data_fim,
             'despesasPorCategoria' => Inertia::defer(fn (): array => $this->dashboardService
-                ->despesasPorCategoriaNoPeriodo($filtros)),
+                ->despesasPorCategoriaNoPeriodo($filtros), 'despesasPorCategoria'),
             'dataInicioDespesasPorGrupo' => $filtros->grupo_data_inicio,
             'dataFimDespesasPorGrupo' => $filtros->grupo_data_fim,
             'despesasPorGrupoDeProduto' => Inertia::defer(fn (): array => $this->dashboardService
-                ->despesasPorGrupoDeProdutoNoPeriodo($filtros)),
+                ->despesasPorGrupoDeProdutoNoPeriodo($filtros), 'despesasPorGrupoDeProduto'),
             'mesReceitas' => $filtros->mes_receitas,
             'semanaReceitas' => $filtros->semana_receitas,
             'semanasReceitas' => $this->dashboardService->semanasQueCruzamOMes($filtros),
             'receitasPorDiaDaSemana' => Inertia::defer(fn (): array => $this->dashboardService
-                ->receitasPorDiaDaSemana($filtros)),
+                ->receitasPorDiaDaSemana($filtros), 'receitasPorDiaDaSemana'),
             'rankingCriterio' => $filtros->ranking_criterio,
             'dataInicioRanking' => $filtros->ranking_data_inicio,
             'dataFimRanking' => $filtros->ranking_data_fim,

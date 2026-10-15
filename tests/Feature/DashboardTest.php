@@ -958,19 +958,51 @@ function lancarParcelaNoRanking(User $user, string $tipo, string $competencia, f
     ]);
 }
 
-it('defers the ranking in its own group', function (): void {
+it('defers each heavy dashboard block in its own group', function (): void {
     $user = User::factory()->create();
 
     $page = $this->actingAs($user)
         ->get(route('dashboard'))
         ->assertInertia(fn (Assert $page) => $page
             ->component('dashboard/index')
+            ->missing('resumo')
+            ->missing('seriesMensais')
+            ->missing('despesasPorCategoria')
+            ->missing('despesasPorGrupoDeProduto')
+            ->missing('receitasPorDiaDaSemana')
             ->missing('ranking')
+            ->has('mesReceitas')
+            ->has('semanaReceitas')
+            ->has('semanasReceitas')
             ->where('rankingCriterio', 'produtos')
         )
         ->viewData('page');
 
-    expect($page['deferredProps']['ranking'])->toBe(['ranking']);
+    expect($page['deferredProps'])->toBe([
+        'resumo' => ['resumo'],
+        'seriesMensais' => ['seriesMensais'],
+        'despesasPorCategoria' => ['despesasPorCategoria'],
+        'despesasPorGrupoDeProduto' => ['despesasPorGrupoDeProduto'],
+        'receitasPorDiaDaSemana' => ['receitasPorDiaDaSemana'],
+        'ranking' => ['ranking'],
+    ]);
+});
+
+it('loads a single deferred group without the other heavy blocks', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->loadDeferredProps('despesasPorCategoria', fn (Assert $reload) => $reload
+                ->has('despesasPorCategoria')
+                ->missing('resumo')
+                ->missing('seriesMensais')
+                ->missing('despesasPorGrupoDeProduto')
+                ->missing('receitasPorDiaDaSemana')
+                ->missing('ranking')
+            )
+        );
 });
 
 it('ranks the top five products by expense value in the current month with their share of the total', function (): void {
