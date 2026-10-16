@@ -1,3 +1,4 @@
+import DashboardBloco from '@/components/dashboard/DashboardBloco';
 import DashboardGrafico from '@/components/dashboard/DashboardGrafico';
 import DashboardPeriodoReferencia from '@/components/dashboard/DashboardPeriodoReferencia';
 import DashboardPizza from '@/components/dashboard/DashboardPizza';
@@ -13,7 +14,7 @@ import { PageTitle } from '@/components/padrões';
 import { useSidebar } from '@/components/ui/sidebar';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Deferred, Head, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/dashboard' }];
@@ -80,6 +81,7 @@ export default function Dashboard({
     const [mesSelecionado, setMesSelecionado] = useState<number>(mes);
     const [semanaSelecionada, setSemanaSelecionada] = useState<string>(semana);
     const [criterioRanking, setCriterioRanking] = useState<CriterioRanking>(rankingCriterio);
+    const [recarregando, setRecarregando] = useState<string[]>([]);
 
     function recarregar(query: Record<string, string>, only: string[]): void {
         router.get(route('dashboard'), query, {
@@ -87,6 +89,8 @@ export default function Dashboard({
             preserveState: true,
             replace: true,
             only,
+            onStart: () => setRecarregando(only),
+            onFinish: () => setRecarregando([]),
             onSuccess: (page) => {
                 const semanaDoServidor = page.props.semana;
 
@@ -132,22 +136,27 @@ export default function Dashboard({
 
                 <DashboardPeriodoReferencia ano={anoSelecionado} mes={mesSelecionado} anos={anos} onPeriodoChange={trocarPeriodo} />
 
-                <Deferred data="resumo" fallback={<ExtratoKpisSkeleton empilharNoMobile />}>
+                <DashboardBloco data="resumo" carregando={recarregando.includes('resumo')} fallback={<ExtratoKpisSkeleton empilharNoMobile />}>
                     <ExtratoKpis resumo={resumo} empilharNoMobile />
-                </Deferred>
+                </DashboardBloco>
 
                 <div className="@container flex min-w-0 flex-wrap items-stretch gap-4">
                     <div className={CARD_WRAP_DUPLO}>
-                        <Deferred
+                        <DashboardBloco
                             data="ranking"
+                            carregando={recarregando.includes('ranking')}
                             fallback={<DashboardRankingSkeleton criterio={criterioRanking} onCriterioChange={trocarCriterioRanking} />}
                         >
                             <DashboardRanking criterio={criterioRanking} onCriterioChange={trocarCriterioRanking} itens={ranking?.itens ?? []} />
-                        </Deferred>
+                        </DashboardBloco>
                     </div>
 
                     <div className={CARD_WRAP}>
-                        <Deferred data="seriesMensais" fallback={<DashboardSkeleton titulo="Saldo mensal" />}>
+                        <DashboardBloco
+                            data="seriesMensais"
+                            carregando={recarregando.includes('seriesMensais')}
+                            fallback={<DashboardSkeleton titulo="Saldo mensal" />}
+                        >
                             <DashboardGrafico
                                 ano={anoSelecionado}
                                 titulo="Saldo mensal"
@@ -156,11 +165,15 @@ export default function Dashboard({
                                 corPorSinal
                                 mensagemVazio="Sem lançamentos no ano."
                             />
-                        </Deferred>
+                        </DashboardBloco>
                     </div>
 
                     <div className={CARD_WRAP}>
-                        <Deferred data="seriesMensais" fallback={<DashboardSkeleton titulo="Receitas por mês" />}>
+                        <DashboardBloco
+                            data="seriesMensais"
+                            carregando={recarregando.includes('seriesMensais')}
+                            fallback={<DashboardSkeleton titulo="Receitas por mês" />}
+                        >
                             <DashboardGrafico
                                 ano={anoSelecionado}
                                 titulo="Receitas por mês"
@@ -168,11 +181,15 @@ export default function Dashboard({
                                 cor={COR_RECEITA}
                                 mensagemVazio="Sem receitas no ano."
                             />
-                        </Deferred>
+                        </DashboardBloco>
                     </div>
 
                     <div className={CARD_WRAP}>
-                        <Deferred data="seriesMensais" fallback={<DashboardSkeleton titulo="Despesas por mês" />}>
+                        <DashboardBloco
+                            data="seriesMensais"
+                            carregando={recarregando.includes('seriesMensais')}
+                            fallback={<DashboardSkeleton titulo="Despesas por mês" />}
+                        >
                             <DashboardGrafico
                                 ano={anoSelecionado}
                                 titulo="Despesas por mês"
@@ -180,30 +197,42 @@ export default function Dashboard({
                                 cor={COR_DESPESA}
                                 mensagemVazio="Sem despesas no ano."
                             />
-                        </Deferred>
+                        </DashboardBloco>
                     </div>
 
                     <div className={CARD_WRAP}>
-                        <Deferred data="despesasPorCategoria" fallback={<DashboardPizzaSkeleton titulo="Despesas por categoria" />}>
+                        <DashboardBloco
+                            data="despesasPorCategoria"
+                            carregando={recarregando.includes('despesasPorCategoria')}
+                            fallback={<DashboardPizzaSkeleton titulo="Despesas por categoria" />}
+                        >
                             <DashboardPizza titulo="Despesas por categoria" fatias={fatiasDeCategoria(despesasPorCategoria)} />
-                        </Deferred>
+                        </DashboardBloco>
                     </div>
 
                     <div className={CARD_WRAP}>
-                        <Deferred data="despesasPorGrupoDeProduto" fallback={<DashboardPizzaSkeleton titulo="Por grupo de produtos" />}>
+                        <DashboardBloco
+                            data="despesasPorGrupoDeProduto"
+                            carregando={recarregando.includes('despesasPorGrupoDeProduto')}
+                            fallback={<DashboardPizzaSkeleton titulo="Por grupo de produtos" />}
+                        >
                             <DashboardPizza titulo="Por grupo de produtos" fatias={fatiasDeGrupo(despesasPorGrupoDeProduto)} />
-                        </Deferred>
+                        </DashboardBloco>
                     </div>
 
                     <div className={CARD_WRAP}>
-                        <Deferred data="receitasPorDiaDaSemana" fallback={<DashboardReceitasSkeleton />}>
+                        <DashboardBloco
+                            data="receitasPorDiaDaSemana"
+                            carregando={recarregando.includes('receitasPorDiaDaSemana')}
+                            fallback={<DashboardReceitasSkeleton />}
+                        >
                             <DashboardReceitas
                                 semana={semanaSelecionada}
                                 semanas={semanas}
                                 receitas={receitasPorDiaDaSemana ?? []}
                                 onSemanaChange={trocarSemana}
                             />
-                        </Deferred>
+                        </DashboardBloco>
                     </div>
                 </div>
             </div>
