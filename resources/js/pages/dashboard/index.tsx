@@ -132,8 +132,8 @@ export default function Dashboard({
 
                 <DashboardPeriodoReferencia ano={anoSelecionado} mes={mesSelecionado} anos={anos} onPeriodoChange={trocarPeriodo} />
 
-                <Deferred data="resumo" fallback={<ExtratoKpisSkeleton omitirSaldoAnterior empilharNoMobile />}>
-                    <ExtratoKpis resumo={resumo} omitirSaldoAnterior empilharNoMobile />
+                <Deferred data="resumo" fallback={<ExtratoKpisSkeleton empilharNoMobile />}>
+                    <ExtratoKpis resumo={resumo} empilharNoMobile />
                 </Deferred>
 
                 <div className="@container flex min-w-0 flex-wrap items-stretch gap-4">
