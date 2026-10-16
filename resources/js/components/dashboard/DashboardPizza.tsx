@@ -4,16 +4,11 @@ import { Chart as ReactChart } from '@tanstack/charts/react';
 import { tooltip } from '@tanstack/charts/tooltip';
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 
-import DashboardFiltroPeriodo from '@/components/dashboard/DashboardFiltroPeriodo';
 import type { FatiaPizza } from '@/components/dashboard/types';
 
 type DashboardPizzaProps = {
     titulo: string;
     fatias: FatiaPizza[];
-    dataInicio: string;
-    dataFim: string;
-    onPeriodoChange: (inicio: string, fim: string) => void;
-    idPrefix: string;
 };
 
 const PALETTE = [
@@ -65,10 +60,6 @@ function useLadoDoContainer(): { ref: RefObject<HTMLDivElement | null>; lado: nu
 export default function DashboardPizza({
     titulo,
     fatias,
-    dataInicio,
-    dataFim,
-    onPeriodoChange,
-    idPrefix,
 }: DashboardPizzaProps) {
     const { ref: donutRef, lado } = useLadoDoContainer();
 
@@ -112,22 +103,14 @@ export default function DashboardPizza({
 
     return (
         <div className="@container flex h-full min-h-0 min-w-0 flex-col rounded-xl border border-sidebar-border/70 bg-white p-3 shadow-sm dark:bg-slate-900">
-            <div className="mb-2 flex min-w-0 shrink-0 flex-col gap-2">
-                <div className="min-w-0">
-                    <div className="text-sm font-medium">{titulo}</div>
-                    <div className="text-xs text-muted-foreground">Competência</div>
-                </div>
-                <DashboardFiltroPeriodo
-                    dataInicio={dataInicio}
-                    dataFim={dataFim}
-                    onPeriodoChange={onPeriodoChange}
-                    idPrefix={idPrefix}
-                />
+            <div className="mb-2 min-w-0 shrink-0">
+                <div className="text-sm font-medium">{titulo}</div>
+                <div className="text-xs text-muted-foreground">Competência</div>
             </div>
 
             {total <= 0 ? (
                 <div className="flex min-h-0 flex-1 items-center justify-center text-sm text-muted-foreground">
-                    Sem despesas no período.
+                    Sem despesas no mês.
                 </div>
             ) : (
                 <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 @[26rem]:flex-row @[26rem]:items-stretch">

@@ -22,16 +22,18 @@ class DashboardSearchRequest extends FormRequest
      */
     public function rules(): array
     {
+        $anoAtual = (int) now()->year;
+
         return [
-            'data_inicio' => ['nullable', 'date', 'required_with:data_fim'],
-            'data_fim' => ['nullable', 'date', 'required_with:data_inicio', 'after_or_equal:data_inicio'],
-            'grupo_data_inicio' => ['nullable', 'date', 'required_with:grupo_data_fim'],
-            'grupo_data_fim' => ['nullable', 'date', 'required_with:grupo_data_inicio', 'after_or_equal:grupo_data_inicio'],
-            'mes_receitas' => ['nullable', 'date_format:Y-m'],
-            'semana_receitas' => ['nullable', 'date'],
+            'ano' => [
+                'nullable',
+                'integer',
+                'min:'.($anoAtual - DashboardSearchDTO::ANOS_ANTES),
+                'max:'.($anoAtual + DashboardSearchDTO::ANOS_DEPOIS),
+            ],
+            'mes' => ['nullable', 'integer', 'between:1,12'],
+            'semana' => ['nullable', 'date'],
             'ranking_criterio' => ['nullable', 'string', Rule::in(DashboardSearchDTO::CRITERIOS_RANKING)],
-            'ranking_data_inicio' => ['nullable', 'date', 'required_with:ranking_data_fim'],
-            'ranking_data_fim' => ['nullable', 'date', 'required_with:ranking_data_inicio', 'after_or_equal:ranking_data_inicio'],
         ];
     }
 
@@ -46,7 +48,7 @@ class DashboardSearchRequest extends FormRequest
                     return;
                 }
 
-                $semanaInput = $this->input('semana_receitas');
+                $semanaInput = $this->input('semana');
 
                 if (! is_string($semanaInput) || trim($semanaInput) === '') {
                     return;
@@ -55,35 +57,20 @@ class DashboardSearchRequest extends FormRequest
                 $semana = Carbon::parse($semanaInput)->startOfDay();
 
                 if ($semana->dayOfWeek !== Carbon::MONDAY) {
-                    $validator->errors()->add(
-                        'semana_receitas',
-                        'A semana deve começar em uma segunda-feira.',
-                    );
+                    $validator->errors()->add('semana', 'A semana deve começar em uma segunda-feira.');
 
                     return;
                 }
 
-                $mesInput = $this->input('mes_receitas');
-
-                if (! is_string($mesInput) || trim($mesInput) === '') {
-                    return;
-                }
-
-                $inicioMes = Carbon::createFromFormat('!Y-m', $mesInput);
-
-                if ($inicioMes === false) {
-                    return;
-                }
-
-                $inicioMes = $inicioMes->startOfMonth();
+                $inicioMes = Carbon::create(
+                    (int) ($this->input('ano') ?: now()->year),
+                    (int) ($this->input('mes') ?: now()->month),
+                    1,
+                )->startOfDay();
                 $fimMes = $inicioMes->copy()->endOfMonth();
-                $fimSemana = $semana->copy()->addDays(6);
 
-                if ($semana->gt($fimMes) || $fimSemana->lt($inicioMes)) {
-                    $validator->errors()->add(
-                        'semana_receitas',
-                        'A semana deve cruzar o mês selecionado.',
-                    );
+                if ($semana->gt($fimMes) || $semana->copy()->addDays(6)->lt($inicioMes)) {
+                    $validator->errors()->add('semana', 'A semana deve cruzar o mês do período de referência.');
                 }
             },
         ];

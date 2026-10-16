@@ -9,39 +9,15 @@ import type { ReceitaPorDiaDaSemana, SemanaReceitas } from '@/components/dashboa
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type DashboardReceitasProps = {
-    ano: number;
-    mes: string;
     semana: string;
     semanas: SemanaReceitas[];
     receitas: ReceitaPorDiaDaSemana[];
-    onFiltroChange: (mes: string, semana: string | null) => void;
+    onSemanaChange: (semana: string) => void;
 };
 
 const COR_RECEITA = '#16a34a';
 
 const moeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-
-const NOMES_MES = [
-    'Janeiro',
-    'Fevereiro',
-    'Março',
-    'Abril',
-    'Maio',
-    'Junho',
-    'Julho',
-    'Agosto',
-    'Setembro',
-    'Outubro',
-    'Novembro',
-    'Dezembro',
-];
-
-function mesesDoAno(ano: number): { valor: string; rotulo: string }[] {
-    return NOMES_MES.map((rotulo, indice) => ({
-        valor: `${ano}-${String(indice + 1).padStart(2, '0')}`,
-        rotulo,
-    }));
-}
 
 function dominioReceita(receitas: readonly ReceitaPorDiaDaSemana[]): [number, number] {
     let maximo = 0;
@@ -57,16 +33,8 @@ function dominioReceita(receitas: readonly ReceitaPorDiaDaSemana[]): [number, nu
     return [0, maximo];
 }
 
-export default function DashboardReceitas({
-    ano,
-    mes,
-    semana,
-    semanas,
-    receitas,
-    onFiltroChange,
-}: DashboardReceitasProps) {
+export default function DashboardReceitas({ semana, semanas, receitas, onSemanaChange }: DashboardReceitasProps) {
     const dominio = useMemo(() => dominioReceita(receitas), [receitas]);
-    const opcoesMes = useMemo(() => mesesDoAno(ano), [ano]);
 
     const chart = useMemo(
         () =>
@@ -103,19 +71,7 @@ export default function DashboardReceitas({
                     <div className="text-xs text-muted-foreground">Competência</div>
                 </div>
                 <div className="flex min-w-0 flex-wrap items-center gap-2">
-                    <Select value={mes} onValueChange={(proximoMes) => onFiltroChange(proximoMes, null)}>
-                        <SelectTrigger className="h-8 w-[8.5rem] text-xs" aria-label="Mês das receitas">
-                            <SelectValue placeholder="Mês" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {opcoesMes.map((opcao) => (
-                                <SelectItem key={opcao.valor} value={opcao.valor}>
-                                    {opcao.rotulo}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    <Select value={semana} onValueChange={(proximaSemana) => onFiltroChange(mes, proximaSemana)}>
+                    <Select value={semana} onValueChange={onSemanaChange}>
                         <SelectTrigger className="h-8 w-[9.5rem] text-xs" aria-label="Semana das receitas">
                             <SelectValue placeholder="Semana" />
                         </SelectTrigger>

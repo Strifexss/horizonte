@@ -4,9 +4,6 @@ import type { CriterioRanking } from '@/components/dashboard/types';
 type DashboardRankingSkeletonProps = {
     criterio: CriterioRanking;
     onCriterioChange: (criterio: CriterioRanking) => void;
-    dataInicio: string;
-    dataFim: string;
-    onPeriodoChange: (inicio: string, fim: string) => void;
 };
 
 const larguras = ['90%', '60%', '40%', '25%', '15%'];

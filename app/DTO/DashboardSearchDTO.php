@@ -14,40 +14,45 @@ class DashboardSearchDTO extends Dto
         'categorias_receita',
     ];
 
-    public ?string $data_inicio = null;
+    /**
+     * Quantos anos antes e depois do atual o Período de referência aceita.
+     */
+    public const ANOS_ANTES = 5;
 
-    public ?string $data_fim = null;
+    public const ANOS_DEPOIS = 1;
 
-    public ?string $grupo_data_inicio = null;
+    public ?int $ano = null;
 
-    public ?string $grupo_data_fim = null;
+    public ?int $mes = null;
 
-    public ?string $mes_receitas = null;
-
-    public ?string $semana_receitas = null;
+    public ?string $semana = null;
 
     public ?string $ranking_criterio = null;
-
-    public ?string $ranking_data_inicio = null;
-
-    public ?string $ranking_data_fim = null;
 
     /**
      * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): static
     {
-        $data['data_inicio'] = self::textoOuNulo($data['data_inicio'] ?? null);
-        $data['data_fim'] = self::textoOuNulo($data['data_fim'] ?? null);
-        $data['grupo_data_inicio'] = self::textoOuNulo($data['grupo_data_inicio'] ?? null);
-        $data['grupo_data_fim'] = self::textoOuNulo($data['grupo_data_fim'] ?? null);
-        $data['mes_receitas'] = self::textoOuNulo($data['mes_receitas'] ?? null);
-        $data['semana_receitas'] = self::textoOuNulo($data['semana_receitas'] ?? null);
+        $data['ano'] = self::inteiroOuNulo($data['ano'] ?? null);
+        $data['mes'] = self::inteiroOuNulo($data['mes'] ?? null);
+        $data['semana'] = self::textoOuNulo($data['semana'] ?? null);
         $data['ranking_criterio'] = self::textoOuNulo($data['ranking_criterio'] ?? null);
-        $data['ranking_data_inicio'] = self::textoOuNulo($data['ranking_data_inicio'] ?? null);
-        $data['ranking_data_fim'] = self::textoOuNulo($data['ranking_data_fim'] ?? null);
 
         return parent::fromArray($data);
+    }
+
+    private static function inteiroOuNulo(mixed $valor): ?int
+    {
+        if (is_int($valor)) {
+            return $valor;
+        }
+
+        if (is_string($valor) && preg_match('/^\d+$/', trim($valor)) === 1) {
+            return (int) trim($valor);
+        }
+
+        return null;
     }
 
     private static function textoOuNulo(mixed $valor): ?string

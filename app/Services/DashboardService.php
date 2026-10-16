@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DTO\DashboardSearchDTO;
+use App\DTO\FinanceiroSearchDTO;
 use App\Repositories\Interfaces\FinanceiroRepositoryInterface;
 use App\Services\Interfaces\DashboardServiceInterface;
 use Carbon\Carbon;
@@ -48,25 +49,32 @@ class DashboardService extends ServiceAbstract implements DashboardServiceInterf
         parent::__construct($financeiroRepository);
     }
 
-    public function anoVigente(): int
+    public function anosDisponiveis(): array
     {
-        return (int) now()->year;
+        $anoAtual = (int) now()->year;
+
+        return range($anoAtual - DashboardSearchDTO::ANOS_ANTES, $anoAtual + DashboardSearchDTO::ANOS_DEPOIS);
     }
 
     public function resolverFiltros(DashboardSearchDTO $filtros): DashboardSearchDTO
     {
-        $mesReceitas = $filtros->mes_receitas ?? now()->format('Y-m');
+        $ano = $filtros->ano ?? (int) now()->year;
+        $mes = $filtros->mes ?? (int) now()->month;
 
         return DashboardSearchDTO::fromArray([
-            'data_inicio' => $filtros->data_inicio ?? now()->startOfMonth()->toDateString(),
-            'data_fim' => $filtros->data_fim ?? now()->endOfMonth()->toDateString(),
-            'grupo_data_inicio' => $filtros->grupo_data_inicio ?? now()->startOfMonth()->toDateString(),
-            'grupo_data_fim' => $filtros->grupo_data_fim ?? now()->endOfMonth()->toDateString(),
-            'mes_receitas' => $mesReceitas,
-            'semana_receitas' => $filtros->semana_receitas ?? $this->semanaPadraoDoMes($mesReceitas),
+            'ano' => $ano,
+            'mes' => $mes,
+            'semana' => $filtros->semana ?? $this->semanaPadraoDoMes($ano, $mes),
             'ranking_criterio' => $filtros->ranking_criterio ?? DashboardSearchDTO::CRITERIOS_RANKING[0],
-            'ranking_data_inicio' => $filtros->ranking_data_inicio ?? now()->startOfMonth()->toDateString(),
-            'ranking_data_fim' => $filtros->ranking_data_fim ?? now()->endOfMonth()->toDateString(),
+        ]);
+    }
+
+    public function filtrosDoResumoNoMes(DashboardSearchDTO $filtros): FinanceiroSearchDTO
+    {
+        return FinanceiroSearchDTO::fromArray([
+            'tipo_data' => 'competencia',
+            'data_inicio' => $this->inicioDoMes($filtros)->toDateString(),
+            'data_fim' => $this->inicioDoMes($filtros)->endOfMonth()->toDateString(),
         ]);
     }
 
@@ -115,8 +123,8 @@ class DashboardService extends ServiceAbstract implements DashboardServiceInterf
     {
         $linhas = $this->financeiroRepository
             ->despesasPorCategoriaNoPeriodo(
-                (string) $filtros->data_inicio,
-                (string) $filtros->data_fim,
+                $this->inicioDoMes($filtros)->toDateString(),
+                $this->inicioDoMes($filtros)->endOfMonth()->toDateString(),
             );
 
         $resultado = [];
@@ -135,8 +143,8 @@ class DashboardService extends ServiceAbstract implements DashboardServiceInterf
     {
         $linhas = $this->financeiroRepository
             ->despesasPorGrupoDeProdutoNoPeriodo(
-                (string) $filtros->grupo_data_inicio,
-                (string) $filtros->grupo_data_fim,
+                $this->inicioDoMes($filtros)->toDateString(),
+                $this->inicioDoMes($filtros)->endOfMonth()->toDateString(),
             );
 
         $resultado = [];
@@ -156,8 +164,8 @@ class DashboardService extends ServiceAbstract implements DashboardServiceInterf
         $criterio = (string) $filtros->ranking_criterio;
         $linhas = $this->financeiroRepository->rankingNoPeriodo(
             $criterio,
-            (string) $filtros->ranking_data_inicio,
-            (string) $filtros->ranking_data_fim,
+            $this->inicioDoMes($filtros)->toDateString(),
+            $this->inicioDoMes($filtros)->endOfMonth()->toDateString(),
         );
 
         $total = round((float) $linhas->sum(fn ($linha): float => (float) $linha->valor), 2);
@@ -184,13 +192,7 @@ class DashboardService extends ServiceAbstract implements DashboardServiceInterf
 
     public function semanasQueCruzamOMes(DashboardSearchDTO $filtros): array
     {
-        $inicioMes = Carbon::createFromFormat('!Y-m', (string) $filtros->mes_receitas);
-
-        if ($inicioMes === false) {
-            return [];
-        }
-
-        $inicioMes = $inicioMes->startOfMonth();
+        $inicioMes = $this->inicioDoMes($filtros);
         $fimMes = $inicioMes->copy()->endOfMonth();
         $cursor = $inicioMes->copy()->startOfWeek(Carbon::MONDAY);
         $semanas = [];
@@ -210,7 +212,7 @@ class DashboardService extends ServiceAbstract implements DashboardServiceInterf
 
     public function receitasPorDiaDaSemana(DashboardSearchDTO $filtros): array
     {
-        $inicio = Carbon::parse((string) $filtros->semana_receitas)->startOfWeek(Carbon::MONDAY)->startOfDay();
+        $inicio = Carbon::parse((string) $filtros->semana)->startOfWeek(Carbon::MONDAY)->startOfDay();
         $fim = $inicio->copy()->endOfWeek(Carbon::SUNDAY)->toDateString();
 
         $somas = $this->financeiroRepository
@@ -231,22 +233,19 @@ class DashboardService extends ServiceAbstract implements DashboardServiceInterf
         return $receitas;
     }
 
-    private function semanaPadraoDoMes(string $mes): string
+    private function inicioDoMes(DashboardSearchDTO $filtros): Carbon
     {
-        if ($mes === now()->format('Y-m')) {
+        return Carbon::create((int) $filtros->ano, (int) $filtros->mes, 1)->startOfDay();
+    }
+
+    private function semanaPadraoDoMes(int $ano, int $mes): string
+    {
+        $inicioMes = Carbon::create($ano, $mes, 1)->startOfDay();
+
+        if ($inicioMes->isSameMonth(now())) {
             return now()->startOfWeek(Carbon::MONDAY)->toDateString();
         }
 
-        if (preg_match('/^\d{4}-\d{2}$/', $mes) !== 1) {
-            return now()->startOfWeek(Carbon::MONDAY)->toDateString();
-        }
-
-        $inicioMes = Carbon::createFromFormat('!Y-m', $mes);
-
-        if ($inicioMes === false) {
-            return now()->startOfWeek(Carbon::MONDAY)->toDateString();
-        }
-
-        return $inicioMes->startOfMonth()->startOfWeek(Carbon::MONDAY)->toDateString();
+        return $inicioMes->startOfWeek(Carbon::MONDAY)->toDateString();
     }
 }

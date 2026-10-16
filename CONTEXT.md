@@ -31,3 +31,13 @@ _Avoid_: Vencimento, data de pagamento
 **Saldo do mês**:
 Líquido de um mês: valor das parcelas de receita menos valor das parcelas de despesa daquele mês, pagas ou não.
 _Avoid_: Saldo acumulado, saldo de caixa
+
+### Dashboard
+
+**Período de referência**:
+Ano e mês escolhidos no topo do Dashboard; cada bloco usa a parte que precisa (o ano inteiro ou o mês inteiro, sempre pela competência).
+_Avoid_: Filtro global, período do dashboard
+
+**Semana da receita**:
+Semana de segunda a domingo, escolhida dentro do card de receitas por dia da semana, entre as semanas que cruzam o mês do Período de referência.
+_Avoid_: Semana do filtro, semana global

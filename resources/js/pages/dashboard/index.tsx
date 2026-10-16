@@ -1,4 +1,5 @@
 import DashboardGrafico from '@/components/dashboard/DashboardGrafico';
+import DashboardPeriodoReferencia from '@/components/dashboard/DashboardPeriodoReferencia';
 import DashboardPizza from '@/components/dashboard/DashboardPizza';
 import DashboardPizzaSkeleton from '@/components/dashboard/DashboardPizzaSkeleton';
 import DashboardRanking from '@/components/dashboard/DashboardRanking';
@@ -57,123 +58,69 @@ function fatiasDeGrupo(despesas: DashboardPageProps['despesasPorGrupoDeProduto']
     return (despesas ?? []).map((item) => ({ rotulo: item.grupo, valor: item.valor }));
 }
 
+const PROPS_DO_MES = ['mes', 'semana', 'semanas', 'resumo', 'despesasPorCategoria', 'despesasPorGrupoDeProduto', 'receitasPorDiaDaSemana', 'ranking'];
+
+const PROPS_DO_ANO = ['ano', 'seriesMensais', ...PROPS_DO_MES];
+
 export default function Dashboard({
     ano,
+    mes,
+    anos,
+    semana,
+    semanas,
+    rankingCriterio,
     resumo,
     seriesMensais,
-    dataInicioDespesasPorCategoria,
-    dataFimDespesasPorCategoria,
     despesasPorCategoria,
-    dataInicioDespesasPorGrupo,
-    dataFimDespesasPorGrupo,
     despesasPorGrupoDeProduto,
-    mesReceitas,
-    semanaReceitas,
-    semanasReceitas,
     receitasPorDiaDaSemana,
-    rankingCriterio,
-    dataInicioRanking,
-    dataFimRanking,
     ranking,
 }: DashboardPageProps) {
-    const [dataInicio, setDataInicio] = useState<string>(dataInicioDespesasPorCategoria);
-    const [dataFim, setDataFim] = useState<string>(dataFimDespesasPorCategoria);
-    const [grupoInicio, setGrupoInicio] = useState<string>(dataInicioDespesasPorGrupo);
-    const [grupoFim, setGrupoFim] = useState<string>(dataFimDespesasPorGrupo);
-    const [mes, setMes] = useState<string>(mesReceitas);
-    const [semana, setSemana] = useState<string>(semanaReceitas);
+    const [anoSelecionado, setAnoSelecionado] = useState<number>(ano);
+    const [mesSelecionado, setMesSelecionado] = useState<number>(mes);
+    const [semanaSelecionada, setSemanaSelecionada] = useState<string>(semana);
     const [criterioRanking, setCriterioRanking] = useState<CriterioRanking>(rankingCriterio);
-    const [rankingInicio, setRankingInicio] = useState<string>(dataInicioRanking);
-    const [rankingFim, setRankingFim] = useState<string>(dataFimRanking);
 
-    function queryDashboard(overrides: Record<string, string> = {}): Record<string, string> {
-        return {
-            data_inicio: dataInicio,
-            data_fim: dataFim,
-            grupo_data_inicio: grupoInicio,
-            grupo_data_fim: grupoFim,
-            mes_receitas: mes,
-            semana_receitas: semana,
-            ranking_criterio: criterioRanking,
-            ranking_data_inicio: rankingInicio,
-            ranking_data_fim: rankingFim,
-            ...overrides,
-        };
-    }
-
-    function recarregarPizza(inicio: string, fim: string): void {
-        setDataInicio(inicio);
-        setDataFim(fim);
-        router.get(route('dashboard'), queryDashboard({ data_inicio: inicio, data_fim: fim }), {
+    function recarregar(query: Record<string, string>, only: string[]): void {
+        router.get(route('dashboard'), query, {
             preserveScroll: true,
             preserveState: true,
             replace: true,
-            only: ['despesasPorCategoria'],
+            only,
+            onSuccess: (page) => {
+                const semanaDoServidor = page.props.semana;
+
+                if (typeof semanaDoServidor === 'string') {
+                    setSemanaSelecionada(semanaDoServidor);
+                }
+            },
         });
     }
 
-    function recarregarPizzaGrupos(inicio: string, fim: string): void {
-        setGrupoInicio(inicio);
-        setGrupoFim(fim);
-        router.get(route('dashboard'), queryDashboard({ grupo_data_inicio: inicio, grupo_data_fim: fim }), {
-            preserveScroll: true,
-            preserveState: true,
-            replace: true,
-            only: ['despesasPorGrupoDeProduto'],
-        });
+    function trocarPeriodo(proximoAno: number, proximoMes: number): void {
+        if (proximoAno === anoSelecionado && proximoMes === mesSelecionado) {
+            return;
+        }
+
+        setAnoSelecionado(proximoAno);
+        setMesSelecionado(proximoMes);
+        recarregar(
+            { ano: String(proximoAno), mes: String(proximoMes), ranking_criterio: criterioRanking },
+            proximoAno === anoSelecionado ? PROPS_DO_MES : PROPS_DO_ANO,
+        );
     }
 
-    function recarregarRanking(overrides: Record<string, string>): void {
-        router.get(route('dashboard'), queryDashboard(overrides), {
-            preserveScroll: true,
-            preserveState: true,
-            replace: true,
-            only: ['ranking'],
-        });
+    function trocarSemana(proximaSemana: string): void {
+        setSemanaSelecionada(proximaSemana);
+        recarregar({ ano: String(anoSelecionado), mes: String(mesSelecionado), semana: proximaSemana, ranking_criterio: criterioRanking }, [
+            'semana',
+            'receitasPorDiaDaSemana',
+        ]);
     }
 
     function trocarCriterioRanking(criterio: CriterioRanking): void {
         setCriterioRanking(criterio);
-        recarregarRanking({ ranking_criterio: criterio });
-    }
-
-    function trocarPeriodoRanking(inicio: string, fim: string): void {
-        setRankingInicio(inicio);
-        setRankingFim(fim);
-        recarregarRanking({ ranking_data_inicio: inicio, ranking_data_fim: fim });
-    }
-
-    function recarregarReceitas(proximoMes: string, proximaSemana: string | null): void {
-        setMes(proximoMes);
-
-        const payload =
-            proximaSemana === null
-                ? queryDashboard({ mes_receitas: proximoMes, semana_receitas: '' })
-                : queryDashboard({ mes_receitas: proximoMes, semana_receitas: proximaSemana });
-
-        if (proximaSemana === null) {
-            delete payload.semana_receitas;
-        } else {
-            setSemana(proximaSemana);
-        }
-
-        router.get(route('dashboard'), payload, {
-            preserveScroll: true,
-            preserveState: true,
-            replace: true,
-            only: ['receitasPorDiaDaSemana', 'semanasReceitas', 'mesReceitas', 'semanaReceitas'],
-            onSuccess: (page) => {
-                const mesAtualizado = page.props.mesReceitas;
-                const semanaAtualizada = page.props.semanaReceitas;
-
-                if (typeof mesAtualizado !== 'string' || typeof semanaAtualizada !== 'string') {
-                    return;
-                }
-
-                setMes(mesAtualizado);
-                setSemana(semanaAtualizada);
-            },
-        });
+        recarregar({ ano: String(anoSelecionado), mes: String(mesSelecionado), semana: semanaSelecionada, ranking_criterio: criterio }, ['ranking']);
     }
 
     return (
@@ -183,6 +130,8 @@ export default function Dashboard({
             <div className="flex h-full min-w-0 flex-1 flex-col gap-6 rounded-xl p-4 md:p-6">
                 <PageTitle title="Dashboard" />
 
+                <DashboardPeriodoReferencia ano={anoSelecionado} mes={mesSelecionado} anos={anos} onPeriodoChange={trocarPeriodo} />
+
                 <Deferred data="resumo" fallback={<ExtratoKpisSkeleton omitirSaldoAnterior empilharNoMobile />}>
                     <ExtratoKpis resumo={resumo} omitirSaldoAnterior empilharNoMobile />
                 </Deferred>
@@ -191,31 +140,16 @@ export default function Dashboard({
                     <div className={CARD_WRAP_DUPLO}>
                         <Deferred
                             data="ranking"
-                            fallback={
-                                <DashboardRankingSkeleton
-                                    criterio={criterioRanking}
-                                    onCriterioChange={trocarCriterioRanking}
-                                    dataInicio={rankingInicio}
-                                    dataFim={rankingFim}
-                                    onPeriodoChange={trocarPeriodoRanking}
-                                />
-                            }
+                            fallback={<DashboardRankingSkeleton criterio={criterioRanking} onCriterioChange={trocarCriterioRanking} />}
                         >
-                            <DashboardRanking
-                                criterio={criterioRanking}
-                                onCriterioChange={trocarCriterioRanking}
-                                itens={ranking?.itens ?? []}
-                                dataInicio={rankingInicio}
-                                dataFim={rankingFim}
-                                onPeriodoChange={trocarPeriodoRanking}
-                            />
+                            <DashboardRanking criterio={criterioRanking} onCriterioChange={trocarCriterioRanking} itens={ranking?.itens ?? []} />
                         </Deferred>
                     </div>
 
                     <div className={CARD_WRAP}>
                         <Deferred data="seriesMensais" fallback={<DashboardSkeleton titulo="Saldo mensal" />}>
                             <DashboardGrafico
-                                ano={ano}
+                                ano={anoSelecionado}
                                 titulo="Saldo mensal"
                                 pontos={pontosDeSaldo(seriesMensais?.saldos)}
                                 cor="#16a34a"
@@ -228,7 +162,7 @@ export default function Dashboard({
                     <div className={CARD_WRAP}>
                         <Deferred data="seriesMensais" fallback={<DashboardSkeleton titulo="Receitas por mês" />}>
                             <DashboardGrafico
-                                ano={ano}
+                                ano={anoSelecionado}
                                 titulo="Receitas por mês"
                                 pontos={seriesMensais?.receitas ?? []}
                                 cor={COR_RECEITA}
@@ -240,7 +174,7 @@ export default function Dashboard({
                     <div className={CARD_WRAP}>
                         <Deferred data="seriesMensais" fallback={<DashboardSkeleton titulo="Despesas por mês" />}>
                             <DashboardGrafico
-                                ano={ano}
+                                ano={anoSelecionado}
                                 titulo="Despesas por mês"
                                 pontos={seriesMensais?.despesas ?? []}
                                 cor={COR_DESPESA}
@@ -250,62 +184,24 @@ export default function Dashboard({
                     </div>
 
                     <div className={CARD_WRAP}>
-                        <Deferred
-                            data="despesasPorCategoria"
-                            fallback={
-                                <DashboardPizzaSkeleton
-                                    titulo="Despesas por categoria"
-                                    dataInicio={dataInicio}
-                                    dataFim={dataFim}
-                                    onPeriodoChange={recarregarPizza}
-                                    idPrefix="categoria-"
-                                />
-                            }
-                        >
-                            <DashboardPizza
-                                titulo="Despesas por categoria"
-                                fatias={fatiasDeCategoria(despesasPorCategoria)}
-                                dataInicio={dataInicio}
-                                dataFim={dataFim}
-                                onPeriodoChange={recarregarPizza}
-                                idPrefix="categoria-"
-                            />
+                        <Deferred data="despesasPorCategoria" fallback={<DashboardPizzaSkeleton titulo="Despesas por categoria" />}>
+                            <DashboardPizza titulo="Despesas por categoria" fatias={fatiasDeCategoria(despesasPorCategoria)} />
                         </Deferred>
                     </div>
 
                     <div className={CARD_WRAP}>
-                        <Deferred
-                            data="despesasPorGrupoDeProduto"
-                            fallback={
-                                <DashboardPizzaSkeleton
-                                    titulo="Por grupo de produtos"
-                                    dataInicio={grupoInicio}
-                                    dataFim={grupoFim}
-                                    onPeriodoChange={recarregarPizzaGrupos}
-                                    idPrefix="grupo-"
-                                />
-                            }
-                        >
-                            <DashboardPizza
-                                titulo="Por grupo de produtos"
-                                fatias={fatiasDeGrupo(despesasPorGrupoDeProduto)}
-                                dataInicio={grupoInicio}
-                                dataFim={grupoFim}
-                                onPeriodoChange={recarregarPizzaGrupos}
-                                idPrefix="grupo-"
-                            />
+                        <Deferred data="despesasPorGrupoDeProduto" fallback={<DashboardPizzaSkeleton titulo="Por grupo de produtos" />}>
+                            <DashboardPizza titulo="Por grupo de produtos" fatias={fatiasDeGrupo(despesasPorGrupoDeProduto)} />
                         </Deferred>
                     </div>
 
                     <div className={CARD_WRAP}>
                         <Deferred data="receitasPorDiaDaSemana" fallback={<DashboardReceitasSkeleton />}>
                             <DashboardReceitas
-                                ano={ano}
-                                mes={mes}
-                                semana={semana}
-                                semanas={semanasReceitas}
+                                semana={semanaSelecionada}
+                                semanas={semanas}
                                 receitas={receitasPorDiaDaSemana ?? []}
-                                onFiltroChange={recarregarReceitas}
+                                onSemanaChange={trocarSemana}
                             />
                         </Deferred>
                     </div>

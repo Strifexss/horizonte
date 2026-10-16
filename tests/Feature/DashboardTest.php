@@ -188,7 +188,7 @@ it('shows the same current-month extract totals as the extract page and omits ot
     $this->travelBack();
 });
 
-it('keeps extract kpis on the current month when pizza date filters change', function (): void {
+it('shows extract kpis for the month of the reference period', function (): void {
     $this->travelTo('2026-06-15');
 
     $user = User::factory()->create();
@@ -203,22 +203,19 @@ it('keeps extract kpis on the current month when pizza date filters change', fun
     lancarParcelaNoDashboard($user, 'DESPESA', '2026-01-20', 50, 0, '2026-01-20', $conta);
 
     $this->actingAs($user)
-        ->get(route('dashboard', [
-            'data_inicio' => '2026-01-01',
-            'data_fim' => '2026-01-31',
-        ]))
+        ->get(route('dashboard', ['ano' => 2026, 'mes' => 1]))
         ->assertInertia(fn (Assert $page) => $page
             ->component('dashboard/index')
-            ->where('dataInicioDespesasPorCategoria', '2026-01-01')
-            ->where('dataFimDespesasPorCategoria', '2026-01-31')
+            ->where('ano', 2026)
+            ->where('mes', 1)
             ->loadDeferredProps(fn (Assert $reload) => $reload
                 ->where('resumo.total_credits', function ($valor): bool {
-                    expect((float) $valor)->toBe(80.0);
+                    expect((float) $valor)->toBe(300.0);
 
                     return true;
                 })
                 ->where('resumo.total_debits', function ($valor): bool {
-                    expect((float) $valor)->toBe(20.0);
+                    expect((float) $valor)->toBe(50.0);
 
                     return true;
                 })
@@ -270,10 +267,8 @@ it('shows twelve zero balances when the year has no parcels', function (): void 
         ->assertInertia(fn (Assert $page) => $page
             ->component('dashboard/index')
             ->where('ano', 2026)
-            ->where('dataInicioDespesasPorCategoria', '2026-06-01')
-            ->where('dataFimDespesasPorCategoria', '2026-06-30')
-            ->where('dataInicioDespesasPorGrupo', '2026-06-01')
-            ->where('dataFimDespesasPorGrupo', '2026-06-30')
+            ->where('mes', 6)
+            ->where('anos', [2021, 2022, 2023, 2024, 2025, 2026, 2027])
             ->loadDeferredProps(fn (Assert $reload) => $reload
                 ->has('seriesMensais.saldos', 12)
                 ->has('seriesMensais.receitas', 12)
@@ -417,8 +412,7 @@ it('shows expenses by category for the signed-in user using the default month ra
         ->assertInertia(fn (Assert $page) => $page
             ->component('dashboard/index')
             ->where('ano', 2026)
-            ->where('dataInicioDespesasPorCategoria', '2026-06-01')
-            ->where('dataFimDespesasPorCategoria', '2026-06-30')
+            ->where('mes', 6)
             ->loadDeferredProps(fn (Assert $reload) => $reload
                 ->has('despesasPorCategoria', 1)
                 ->where('despesasPorCategoria.0.categoria', 'Categoria A')
@@ -429,7 +423,7 @@ it('shows expenses by category for the signed-in user using the default month ra
     $this->travelBack();
 });
 
-it('shows expenses by category for a custom competence date range (competencia)', function (): void {
+it('shows expenses by category for the month of the reference period', function (): void {
     $this->travelTo('2026-06-15');
 
     $user = User::factory()->create();
@@ -450,7 +444,7 @@ it('shows expenses by category for a custom competence date range (competencia)'
         'usuario_id' => $user->id,
     ]);
 
-    // Jan/2026 (range customizado)
+    // Jan/2026 (mês do período de referência)
     lancarDespesaComCategoriaNoDashboard($user, '2026-01-05', $categoriaA, 7, 0, $conta);
     lancarDespesaComCategoriaNoDashboard($user, '2026-01-25', $categoriaA, 5, 0, $conta);
     lancarDespesaComCategoriaNoDashboard($user, '2026-01-10', $categoriaB, 3, 0, $conta);
@@ -459,15 +453,11 @@ it('shows expenses by category for a custom competence date range (competencia)'
     lancarDespesaComCategoriaNoDashboard($user, '2026-02-10', $categoriaA, 100, 0, $conta);
 
     $this->actingAs($user)
-        ->get(route('dashboard', [
-            'data_inicio' => '2026-01-01',
-            'data_fim' => '2026-01-31',
-        ]))
+        ->get(route('dashboard', ['ano' => 2026, 'mes' => 1]))
         ->assertInertia(fn (Assert $page) => $page
             ->component('dashboard/index')
             ->where('ano', 2026)
-            ->where('dataInicioDespesasPorCategoria', '2026-01-01')
-            ->where('dataFimDespesasPorCategoria', '2026-01-31')
+            ->where('mes', 1)
             ->loadDeferredProps(fn (Assert $reload) => $reload
                 ->has('despesasPorCategoria', 2)
                 ->where('despesasPorCategoria.0.categoria', 'Categoria A')
@@ -574,8 +564,7 @@ it('shows expenses by current product group for the signed-in user using the def
         ->assertInertia(fn (Assert $page) => $page
             ->component('dashboard/index')
             ->where('ano', 2026)
-            ->where('dataInicioDespesasPorGrupo', '2026-06-01')
-            ->where('dataFimDespesasPorGrupo', '2026-06-30')
+            ->where('mes', 6)
             ->loadDeferredProps(fn (Assert $reload) => $reload
                 ->has('despesasPorGrupoDeProduto', 3)
                 ->where('despesasPorGrupoDeProduto.0.grupo', 'Escritório')
@@ -590,7 +579,7 @@ it('shows expenses by current product group for the signed-in user using the def
     $this->travelBack();
 });
 
-it('shows expenses by product group for a custom competence date range', function (): void {
+it('shows expenses by product group for the month of the reference period', function (): void {
     $this->travelTo('2026-06-15');
 
     $user = User::factory()->create();
@@ -629,17 +618,11 @@ it('shows expenses by product group for a custom competence date range', functio
     lancarDespesaComProdutoNoDashboard($user, '2026-02-10', $mouse, 100, $conta, $categoria);
 
     $this->actingAs($user)
-        ->get(route('dashboard', [
-            'grupo_data_inicio' => '2026-01-01',
-            'grupo_data_fim' => '2026-01-31',
-        ]))
+        ->get(route('dashboard', ['ano' => 2026, 'mes' => 1]))
         ->assertInertia(fn (Assert $page) => $page
             ->component('dashboard/index')
             ->where('ano', 2026)
-            ->where('dataInicioDespesasPorGrupo', '2026-01-01')
-            ->where('dataFimDespesasPorGrupo', '2026-01-31')
-            ->where('dataInicioDespesasPorCategoria', '2026-06-01')
-            ->where('dataFimDespesasPorCategoria', '2026-06-30')
+            ->where('mes', 1)
             ->loadDeferredProps(fn (Assert $reload) => $reload
                 ->has('despesasPorGrupoDeProduto', 2)
                 ->where('despesasPorGrupoDeProduto.0.grupo', 'Escritório')
@@ -652,7 +635,7 @@ it('shows expenses by product group for a custom competence date range', functio
     $this->travelBack();
 });
 
-it('keeps the group pizza on the current month when only the category range changes', function (): void {
+it('applies the same reference month to both expense pizzas', function (): void {
     $this->travelTo('2026-06-15');
 
     $user = User::factory()->create();
@@ -680,22 +663,15 @@ it('keeps the group pizza on the current month when only the category range chan
     lancarDespesaComCategoriaNoDashboard($user, '2026-01-10', $categoria, 40, 0, $conta);
 
     $this->actingAs($user)
-        ->get(route('dashboard', [
-            'data_inicio' => '2026-01-01',
-            'data_fim' => '2026-01-31',
-        ]))
+        ->get(route('dashboard', ['ano' => 2026, 'mes' => 1]))
         ->assertInertia(fn (Assert $page) => $page
             ->component('dashboard/index')
-            ->where('dataInicioDespesasPorCategoria', '2026-01-01')
-            ->where('dataFimDespesasPorCategoria', '2026-01-31')
-            ->where('dataInicioDespesasPorGrupo', '2026-06-01')
-            ->where('dataFimDespesasPorGrupo', '2026-06-30')
             ->loadDeferredProps(fn (Assert $reload) => $reload
                 ->has('despesasPorCategoria', 1)
                 ->where('despesasPorCategoria.0.valor', 130)
                 ->has('despesasPorGrupoDeProduto', 1)
                 ->where('despesasPorGrupoDeProduto.0.grupo', 'Hardware')
-                ->where('despesasPorGrupoDeProduto.0.valor', 30)
+                ->where('despesasPorGrupoDeProduto.0.valor', 90)
             )
         );
 
@@ -748,30 +724,49 @@ it('groups product expenses by the product current group after the product moves
     $this->travelBack();
 });
 
-it('rejects a pizza date range whose end is before the start', function (): void {
+it('rejects an invalid reference period', function (array $query, string $campo): void {
+    $this->travelTo('2026-06-15');
+
     $user = User::factory()->create();
 
     $this->actingAs($user)
         ->from(route('dashboard'))
-        ->get(route('dashboard', [
-            'data_inicio' => '2026-02-01',
-            'data_fim' => '2026-01-01',
-        ]))
+        ->get(route('dashboard', $query))
         ->assertRedirect(route('dashboard'))
-        ->assertSessionHasErrors(['data_fim']);
-});
+        ->assertSessionHasErrors([$campo]);
 
-it('rejects a group pizza date range whose end is before the start', function (): void {
+    $this->travelBack();
+})->with([
+    'ano antes da janela' => [['ano' => 2020, 'mes' => 6], 'ano'],
+    'ano depois da janela' => [['ano' => 2028, 'mes' => 6], 'ano'],
+    'ano que não é número' => [['ano' => 'dois mil', 'mes' => 6], 'ano'],
+    'mês zero' => [['ano' => 2026, 'mes' => 0], 'mes'],
+    'mês treze' => [['ano' => 2026, 'mes' => 13], 'mes'],
+]);
+
+it('shows the twelve months of the reference year in the monthly series', function (): void {
+    $this->travelTo('2026-06-15');
+
     $user = User::factory()->create();
+    lancarParcelaNoDashboard($user, 'RECEITA', '2025-03-10', 70);
+    lancarParcelaNoDashboard($user, 'DESPESA', '2025-03-20', 20);
+    lancarParcelaNoDashboard($user, 'RECEITA', '2026-03-10', 999);
 
     $this->actingAs($user)
-        ->from(route('dashboard'))
-        ->get(route('dashboard', [
-            'grupo_data_inicio' => '2026-02-01',
-            'grupo_data_fim' => '2026-01-01',
-        ]))
-        ->assertRedirect(route('dashboard'))
-        ->assertSessionHasErrors(['grupo_data_fim']);
+        ->get(route('dashboard', ['ano' => 2025, 'mes' => 8]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('ano', 2025)
+            ->where('mes', 8)
+            ->loadDeferredProps('seriesMensais', fn (Assert $reload) => $reload
+                ->has('seriesMensais.saldos', 12)
+                ->where('seriesMensais.receitas.2.valor', 70)
+                ->where('seriesMensais.despesas.2.valor', 20)
+                ->where('seriesMensais.saldos.2.saldo', 50)
+                ->where('seriesMensais.receitas.7.valor', 0)
+            )
+        );
+
+    $this->travelBack();
 });
 
 it('shows seven weekday revenue bars for the current week by competencia', function (): void {
@@ -800,9 +795,9 @@ it('shows seven weekday revenue bars for the current week by competencia', funct
         ->get(route('dashboard'))
         ->assertInertia(fn (Assert $page) => $page
             ->component('dashboard/index')
-            ->where('mesReceitas', '2026-06')
-            ->where('semanaReceitas', '2026-06-15')
-            ->where('semanasReceitas.2.inicio', '2026-06-15')
+            ->where('mes', 6)
+            ->where('semana', '2026-06-15')
+            ->where('semanas.2.inicio', '2026-06-15')
             ->loadDeferredProps(fn (Assert $reload) => $reload
                 ->has('receitasPorDiaDaSemana', 7)
                 ->where('receitasPorDiaDaSemana.0.dia', 1)
@@ -820,7 +815,7 @@ it('shows seven weekday revenue bars for the current week by competencia', funct
     $this->travelBack();
 });
 
-it('shows weekday revenues for a custom month and week that crosses the month boundary', function (): void {
+it('shows weekday revenues for a week that crosses into the reference month', function (): void {
     $this->travelTo('2026-06-15');
 
     $user = User::factory()->create();
@@ -835,16 +830,13 @@ it('shows weekday revenues for a custom month and week that crosses the month bo
     lancarParcelaNoDashboard($user, 'RECEITA', '2026-01-06', 99, 0, '2026-01-06', $conta);
 
     $this->actingAs($user)
-        ->get(route('dashboard', [
-            'mes_receitas' => '2026-01',
-            'semana_receitas' => '2025-12-29',
-        ]))
+        ->get(route('dashboard', ['ano' => 2026, 'mes' => 1, 'semana' => '2025-12-29']))
         ->assertInertia(fn (Assert $page) => $page
             ->component('dashboard/index')
-            ->where('mesReceitas', '2026-01')
-            ->where('semanaReceitas', '2025-12-29')
-            ->where('semanasReceitas.0.inicio', '2025-12-29')
-            ->where('semanasReceitas.0.fim', '2026-01-04')
+            ->where('mes', 1)
+            ->where('semana', '2025-12-29')
+            ->where('semanas.0.inicio', '2025-12-29')
+            ->where('semanas.0.fim', '2026-01-04')
             ->loadDeferredProps(fn (Assert $reload) => $reload
                 ->has('receitasPorDiaDaSemana', 7)
                 ->where('receitasPorDiaDaSemana.1.rotulo', 'Ter')
@@ -867,7 +859,7 @@ it('fills seven zero weekday revenues when the selected week has no income', fun
         ->get(route('dashboard'))
         ->assertInertia(fn (Assert $page) => $page
             ->component('dashboard/index')
-            ->where('semanaReceitas', '2026-06-15')
+            ->where('semana', '2026-06-15')
             ->loadDeferredProps(fn (Assert $reload) => $reload
                 ->has('receitasPorDiaDaSemana', 7)
                 ->where('receitasPorDiaDaSemana', function ($receitas): bool {
@@ -889,26 +881,24 @@ it('fills seven zero weekday revenues when the selected week has no income', fun
     $this->travelBack();
 });
 
-it('defaults the week to the first ISO week of a custom month when semana is omitted', function (): void {
+it('defaults the week to the first ISO week when the reference month is not the current one', function (): void {
     $this->travelTo('2026-06-15');
 
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->get(route('dashboard', [
-            'mes_receitas' => '2026-01',
-        ]))
+        ->get(route('dashboard', ['ano' => 2026, 'mes' => 1]))
         ->assertInertia(fn (Assert $page) => $page
             ->component('dashboard/index')
-            ->where('mesReceitas', '2026-01')
-            ->where('semanaReceitas', '2025-12-29')
-            ->where('semanasReceitas.0.inicio', '2025-12-29')
+            ->where('mes', 1)
+            ->where('semana', '2025-12-29')
+            ->where('semanas.0.inicio', '2025-12-29')
         );
 
     $this->travelBack();
 });
 
-it('rejects invalid month and week filters for weekday revenues', function (array $query, string $campo): void {
+it('rejects an invalid revenue week', function (array $query, string $campo): void {
     $user = User::factory()->create();
 
     $this->actingAs($user)
@@ -917,10 +907,9 @@ it('rejects invalid month and week filters for weekday revenues', function (arra
         ->assertRedirect(route('dashboard'))
         ->assertSessionHasErrors([$campo]);
 })->with([
-    'mes inválido' => [['mes_receitas' => '2026-13'], 'mes_receitas'],
-    'semana que não é data' => [['mes_receitas' => '2026-06', 'semana_receitas' => 'segunda'], 'semana_receitas'],
-    'semana que não começa na segunda' => [['mes_receitas' => '2026-06', 'semana_receitas' => '2026-06-16'], 'semana_receitas'],
-    'semana fora do mês' => [['mes_receitas' => '2026-06', 'semana_receitas' => '2026-03-02'], 'semana_receitas'],
+    'semana que não é data' => [['ano' => 2026, 'mes' => 6, 'semana' => 'segunda'], 'semana'],
+    'semana que não começa na segunda' => [['ano' => 2026, 'mes' => 6, 'semana' => '2026-06-16'], 'semana'],
+    'semana fora do mês' => [['ano' => 2026, 'mes' => 6, 'semana' => '2026-03-02'], 'semana'],
 ]);
 
 /**
@@ -971,9 +960,11 @@ it('defers each heavy dashboard block in its own group', function (): void {
             ->missing('despesasPorGrupoDeProduto')
             ->missing('receitasPorDiaDaSemana')
             ->missing('ranking')
-            ->has('mesReceitas')
-            ->has('semanaReceitas')
-            ->has('semanasReceitas')
+            ->has('ano')
+            ->has('mes')
+            ->has('anos')
+            ->has('semana')
+            ->has('semanas')
             ->where('rankingCriterio', 'produtos')
         )
         ->viewData('page');
@@ -1029,8 +1020,7 @@ it('ranks the top five products by expense value in the current month with their
     $this->actingAs($user)
         ->get(route('dashboard'))
         ->assertInertia(fn (Assert $page) => $page
-            ->where('dataInicioRanking', '2026-06-01')
-            ->where('dataFimRanking', '2026-06-30')
+            ->where('mes', 6)
             ->loadDeferredProps('ranking', fn (Assert $reload) => $reload
                 ->where('ranking.criterio', 'produtos')
                 ->where('ranking.total', 5600)
@@ -1052,7 +1042,7 @@ it('ranks the top five products by expense value in the current month with their
     $this->travelBack();
 });
 
-it('ranks suppliers and revenue categories for a custom period', function (): void {
+it('ranks suppliers and revenue categories for the month of the reference period', function (): void {
     $user = User::factory()->create();
 
     $acme = Fornecedor::query()->create(['nome' => 'Acme', 'usuario_id' => $user->id]);
@@ -1064,7 +1054,7 @@ it('ranks suppliers and revenue categories for a custom period', function (): vo
     $salario = Categoria::query()->create(['nome' => 'Salário', 'tipo' => 'receita', 'usuario_id' => $user->id]);
     lancarParcelaNoRanking($user, 'RECEITA', '2026-01-05', 1000, ['categoria_id' => $salario->id]);
 
-    $periodo = ['ranking_data_inicio' => '2026-01-01', 'ranking_data_fim' => '2026-01-31'];
+    $periodo = ['ano' => 2026, 'mes' => 1];
 
     $this->actingAs($user)
         ->get(route('dashboard', [...$periodo, 'ranking_criterio' => 'fornecedores']))
@@ -1111,5 +1101,4 @@ it('rejects invalid ranking filters', function (array $query, string $campo): vo
         ->assertSessionHasErrors([$campo]);
 })->with([
     'critério desconhecido' => [['ranking_criterio' => 'margem'], 'ranking_criterio'],
-    'fim antes do início' => [['ranking_data_inicio' => '2026-06-10', 'ranking_data_fim' => '2026-06-01'], 'ranking_data_fim'],
 ]);

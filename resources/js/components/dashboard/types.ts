@@ -63,20 +63,15 @@ export type Ranking = {
 
 export type DashboardPageProps = {
     ano: number;
+    mes: number;
+    anos: number[];
+    semana: string;
+    semanas: SemanaReceitas[];
+    rankingCriterio: CriterioRanking;
     resumo?: ExtratoResumo;
     seriesMensais?: SeriesMensais;
-    dataInicioDespesasPorCategoria: string;
-    dataFimDespesasPorCategoria: string;
     despesasPorCategoria?: DespesaPorCategoria[];
-    dataInicioDespesasPorGrupo: string;
-    dataFimDespesasPorGrupo: string;
     despesasPorGrupoDeProduto?: DespesaPorGrupoDeProduto[];
-    mesReceitas: string;
-    semanaReceitas: string;
-    semanasReceitas: SemanaReceitas[];
     receitasPorDiaDaSemana?: ReceitaPorDiaDaSemana[];
-    rankingCriterio: CriterioRanking;
-    dataInicioRanking: string;
-    dataFimRanking: string;
     ranking?: Ranking;
 };

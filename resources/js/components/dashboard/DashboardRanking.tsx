@@ -7,9 +7,6 @@ type DashboardRankingProps = {
     criterio: CriterioRanking;
     onCriterioChange: (criterio: CriterioRanking) => void;
     itens: ItemRanking[];
-    dataInicio: string;
-    dataFim: string;
-    onPeriodoChange: (inicio: string, fim: string) => void;
 };
 
 const COR_TROFEU: Record<number, string> = {
@@ -41,19 +38,13 @@ function Trofeu({ posicao }: { posicao: number }) {
     );
 }
 
-export default function DashboardRanking({ criterio, onCriterioChange, itens, dataInicio, dataFim, onPeriodoChange }: DashboardRankingProps) {
+export default function DashboardRanking({ criterio, onCriterioChange, itens }: DashboardRankingProps) {
     return (
         <div className="border-sidebar-border/70 @container flex h-full min-h-0 min-w-0 flex-col rounded-xl border bg-white p-3 shadow-sm dark:bg-slate-900">
-            <DashboardRankingCabecalho
-                criterio={criterio}
-                onCriterioChange={onCriterioChange}
-                dataInicio={dataInicio}
-                dataFim={dataFim}
-                onPeriodoChange={onPeriodoChange}
-            />
+            <DashboardRankingCabecalho criterio={criterio} onCriterioChange={onCriterioChange} />
 
             {itens.length === 0 ? (
-                <div className="text-muted-foreground flex min-h-[12rem] flex-1 items-center justify-center text-sm">Sem lançamentos no período.</div>
+                <div className="text-muted-foreground flex min-h-[12rem] flex-1 items-center justify-center text-sm">Sem lançamentos no mês.</div>
             ) : (
                 <div className="flex min-w-0 flex-col">
                     <div className="text-muted-foreground hidden justify-end gap-4 pb-1 text-xs font-medium @[28rem]:flex">
