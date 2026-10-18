@@ -211,33 +211,6 @@ export default function ExtratoFilters() {
         });
     };
 
-    const clearChip = (key: string) => {
-        const next = { ...values };
-        if (key === 'conta') {
-            next.conta = null;
-        }
-        if (key === 'categoria') {
-            next.categoria = null;
-        }
-        if (key === 'produto') {
-            next.produto = null;
-        }
-        if (key === 'grupo') {
-            next.grupo = null;
-        }
-        if (key === 'fornecedor') {
-            next.fornecedor = null;
-        }
-        if (key === 'status') {
-            next.status = 'todos';
-        }
-        if (key === 'tipo_data') {
-            next.tipoData = 'vencimento';
-        }
-        setValues(next);
-        router.get(route('extrato.index'), buildPayload(next, extras()), { preserveScroll: true });
-    };
-
     return (
         <>
             <ExtratoMobileFilterBar
@@ -245,7 +218,6 @@ export default function ExtratoFilters() {
                 onDraftChange={(patch) => setValues((prev) => ({ ...prev, ...patch }))}
                 onApply={apply}
                 onClearAll={clearAll}
-                onClearChip={clearChip}
                 loadContas={loadContas}
                 loadCategorias={loadCategorias}
                 loadProdutos={loadProdutos}

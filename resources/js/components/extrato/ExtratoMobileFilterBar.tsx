@@ -12,14 +12,8 @@ import ExtratoFilterFields, {
     type ExtratoFilterValues,
     type FilterOption,
 } from '@/components/extrato/ExtratoFilterFields';
-import { CalendarDays, ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-
-const STATUS_LABELS: Record<string, string> = {
-    aberto: 'Em Aberto',
-    pago: 'Pago',
-    parcial: 'Parcial',
-};
 
 function parseISODate(value: string): Date {
     const [y, m, d] = value.split('-').map(Number);
@@ -56,17 +50,22 @@ function formatPeriodPill(dataInicio: string, dataFim: string): string {
     return `${start.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} – ${end.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}`;
 }
 
-type Chip = {
-    key: string;
-    label: string;
-};
+/**
+ * Filtros escolhidos pelo usuário. Tipo de data (sempre competência) e período
+ * (já mostrado no chip do mês) não contam.
+ */
+function contarFiltrosAplicados(values: ExtratoFilterValues): number {
+    const escolhidos = [values.conta, values.categoria, values.produto, values.grupo, values.fornecedor];
+    const statusEscolhido = values.status !== '' && values.status !== 'todos';
+
+    return escolhidos.filter((filtro) => filtro !== null).length + (statusEscolhido ? 1 : 0);
+}
 
 type Props = {
     values: ExtratoFilterValues;
     onDraftChange: (patch: Partial<ExtratoFilterValues>) => void;
     onApply: (values?: ExtratoFilterValues) => void;
     onClearAll: () => void;
-    onClearChip: (key: string) => void;
     loadContas: (q: string) => Promise<FilterOption[]>;
     loadCategorias: (q: string) => Promise<FilterOption[]>;
     loadProdutos: (q: string) => Promise<FilterOption[]>;
@@ -79,7 +78,6 @@ export default function ExtratoMobileFilterBar({
     onDraftChange,
     onApply,
     onClearAll,
-    onClearChip,
     loadContas,
     loadCategorias,
     loadProdutos,
@@ -132,33 +130,7 @@ export default function ExtratoMobileFilterBar({
         return () => window.removeEventListener('scroll', onScroll);
     }, [sheetOpen, periodOpen]);
 
-    const chips: Chip[] = useMemo(() => {
-        const next: Chip[] = [];
-        if (values.conta) {
-            next.push({ key: 'conta', label: values.conta.nome });
-        }
-        if (values.categoria) {
-            next.push({ key: 'categoria', label: values.categoria.nome });
-        }
-        if (values.produto) {
-            next.push({ key: 'produto', label: values.produto.nome });
-        }
-        if (values.grupo) {
-            next.push({ key: 'grupo', label: values.grupo.nome });
-        }
-        if (values.fornecedor) {
-            next.push({ key: 'fornecedor', label: values.fornecedor.nome });
-        }
-        if (values.status && values.status !== 'todos') {
-            next.push({ key: 'status', label: STATUS_LABELS[values.status] ?? values.status });
-        }
-        if (values.tipoData && values.tipoData !== 'vencimento') {
-            next.push({ key: 'tipo_data', label: values.tipoData });
-        }
-        return next;
-    }, [values]);
-
-    const activeCount = chips.length;
+    const activeCount = useMemo(() => contarFiltrosAplicados(values), [values]);
 
     const shiftMonth = (delta: number) => {
         const base = parseISODate(values.dataInicio);
@@ -203,7 +175,7 @@ export default function ExtratoMobileFilterBar({
                 } transition-transform duration-300 ease-out`}
             >
                 <div
-                    className="rounded-2xl border border-white/40 bg-white/95 p-2 pr-16 shadow-xl backdrop-blur-md dark:border-slate-700/50 dark:bg-slate-900/95"
+                    className="rounded-2xl border border-white/40 bg-white/95 p-2 shadow-xl backdrop-blur-md dark:border-slate-700/50 dark:bg-slate-900/95"
                     onTouchStart={onDockTouchStart}
                     onTouchEnd={onDockTouchEnd}
                 >
@@ -216,8 +188,8 @@ export default function ExtratoMobileFilterBar({
                         <span className="h-1 w-10 rounded-full bg-slate-300 dark:bg-slate-600" />
                     </button>
 
-                    <div className="flex min-w-0 items-center gap-2">
-                        <div className="flex shrink-0 items-center gap-0.5 rounded-full border border-slate-200/80 bg-white dark:border-slate-700 dark:bg-slate-800">
+                    <div className="grid min-w-0 grid-cols-2 gap-2">
+                        <div className="flex h-9 min-w-0 items-center justify-between rounded-full border border-slate-200/80 bg-white dark:border-slate-700 dark:bg-slate-800">
                             <button
                                 type="button"
                                 className="rounded-l-full p-2 text-muted-foreground hover:bg-muted/40"
@@ -228,7 +200,7 @@ export default function ExtratoMobileFilterBar({
                             </button>
                             <button
                                 type="button"
-                                className="inline-flex max-w-[7.5rem] items-center gap-1 px-1 py-1.5 text-xs font-medium"
+                                className="inline-flex min-w-0 items-center justify-center gap-1 px-1 py-1.5 text-xs font-medium"
                                 onClick={() => setPeriodOpen(true)}
                             >
                                 <CalendarDays className="h-3.5 w-3.5 shrink-0 text-amber-600" />
@@ -244,25 +216,11 @@ export default function ExtratoMobileFilterBar({
                             </button>
                         </div>
 
-                        <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                            {chips.map((chip) => (
-                                <button
-                                    key={chip.key}
-                                    type="button"
-                                    className="inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200/80 bg-slate-50 px-2.5 py-1 text-xs font-medium dark:border-slate-700 dark:bg-slate-800"
-                                    onClick={() => onClearChip(chip.key)}
-                                >
-                                    <span className="max-w-[7rem] truncate">{chip.label}</span>
-                                    <X className="h-3 w-3 text-muted-foreground" />
-                                </button>
-                            ))}
-                        </div>
-
                         <Button
                             type="button"
                             variant="outline"
                             size="sm"
-                            className="shrink-0 gap-1 rounded-full border-slate-200/80 bg-white px-2.5 dark:border-slate-700 dark:bg-slate-800"
+                            className="h-9 w-full justify-center gap-1 rounded-full border-slate-200/80 bg-white px-2.5 dark:border-slate-700 dark:bg-slate-800"
                             onClick={() => setSheetOpen(true)}
                         >
                             <SlidersHorizontal className="h-3.5 w-3.5" />
