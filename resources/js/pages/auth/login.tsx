@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AuthLayout from '@/layouts/auth-layout';
+import AuthHorizonteLayout from '@/layouts/auth/auth-horizonte-layout';
 
 interface LoginForm {
     email: string;
@@ -36,7 +36,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
     };
 
     return (
-        <AuthLayout title="Entrar na sua conta" description="Informe seu e-mail e senha para acessar">
+        <AuthHorizonteLayout title="Entrar na sua conta" description="Informe seu e-mail e senha para acessar">
             <Head title="Entrar" />
 
             <form className="flex flex-col gap-6" onSubmit={submit}>
@@ -98,6 +98,6 @@ export default function Login({ status, canResetPassword }: LoginProps) {
             </form>
 
             {status && <div className="mb-4 text-center text-sm font-medium text-green-600">{status}</div>}
-        </AuthLayout>
+        </AuthHorizonteLayout>
     );
 }
