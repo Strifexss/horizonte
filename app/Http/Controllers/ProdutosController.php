@@ -3,10 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\DTO\ProdutoDTO;
+use App\DTO\ProdutoSearchDTO;
+use App\Exceptions\ProdutoEmUsoException;
+use App\Http\Requests\ProdutoSearchRequest;
 use App\Http\Requests\StoreProdutoRequest;
 use App\Http\Resources\ProdutoAutocompleteResource;
+use App\Http\Resources\ProdutoResource;
 use App\Services\Interfaces\ProdutosServiceInterface;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ProdutosController extends Controller
 {
@@ -14,10 +20,15 @@ class ProdutosController extends Controller
         private ProdutosServiceInterface $produtosService
     ) {}
 
-    public function index()
+    public function index(ProdutoSearchRequest $request)
     {
-        return response()->json([
-            'produtos' => $this->produtosService->index(),
+        $filters = ProdutoSearchDTO::fromArray($request->validated());
+
+        return Inertia::render('produtos/index', [
+            'filters' => $filters->all(),
+            'produtos' => Inertia::defer(
+                fn () => ProdutoResource::collection($this->produtosService->indexFiltrado($filters))
+            ),
         ]);
     }
 
@@ -28,9 +39,7 @@ class ProdutosController extends Controller
                 ProdutoDTO::fromArray($request->validated())
             );
 
-            return redirect()
-                ->route('extrato.index')
-                ->with('success', 'Produto criado com sucesso.')
+            return $this->redirectAfterWrite($request, 'Produto criado com sucesso.')
                 ->with('produto_criado', [
                     'id' => $produto->id,
                     'nome' => $produto->nome,
@@ -49,18 +58,22 @@ class ProdutosController extends Controller
                 ProdutoDTO::fromArray($request->validated())
             );
 
-            return redirect()->route('extrato.index')->with('success', 'Produto atualizado com sucesso.');
+            return $this->redirectAfterWrite($request, 'Produto atualizado com sucesso.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erro ao atualizar produto: '.$e->getMessage());
         }
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         try {
             $this->produtosService->delete($id);
 
-            return redirect()->route('extrato.index')->with('success', 'Produto excluído com sucesso.');
+            return $this->redirectAfterWrite($request, 'Produto excluído com sucesso.');
+        } catch (ModelNotFoundException $e) {
+            throw $e;
+        } catch (ProdutoEmUsoException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erro ao excluir produto: '.$e->getMessage());
         }
@@ -73,7 +86,14 @@ class ProdutosController extends Controller
         $resource = ProdutoAutocompleteResource::collection($result);
         $data = $resource->response()->getData(true);
 
-        // Return plain array expected by the frontend autocomplete.
         return response()->json($data['data'] ?? []);
+    }
+
+    private function redirectAfterWrite(Request $request, string $message)
+    {
+        $previous = (string) url()->previous();
+        $route = str_contains($previous, '/produtos') ? 'produtos' : 'extrato.index';
+
+        return redirect()->route($route)->with('success', $message);
     }
 }

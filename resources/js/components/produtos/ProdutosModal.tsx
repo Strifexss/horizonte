@@ -269,9 +269,9 @@ export default function ProdutosModal({
                     <DialogHeader>
                         <DialogTitle>Confirmar exclusão</DialogTitle>
                         <DialogDescription>
-                            O produto &quot;{produtoToDelete?.nome ?? ''}&quot; será removido. Os lançamentos
-                            vinculados permanecerão, mas sem o produto associado (o vínculo será limpo).
-                            Esta ação não pode ser desfeita.
+                            O produto &quot;{produtoToDelete?.nome ?? ''}&quot; será excluído somente se nunca
+                            tiver sido usado em lançamentos. Caso já tenha sido usado, a exclusão será
+                            bloqueada e você poderá inativá-lo. Esta ação não pode ser desfeita.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>

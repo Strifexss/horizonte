@@ -2,6 +2,9 @@
 
 namespace App\Repositories\Interfaces;
 
+use App\DTO\ProdutoSearchDTO;
+use App\Models\Produto;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 interface ProdutoRepositoryInterface extends AbstractRepositoryInterface
@@ -22,4 +25,10 @@ interface ProdutoRepositoryInterface extends AbstractRepositoryInterface
      * @return Collection|array
      */
     public function getByUsuario(int $usuarioId): mixed;
+
+    public function findForUsuario(int $id): Produto;
+
+    public function countParcelasByProdutoId(int $produtoId): int;
+
+    public function indexFiltrado(ProdutoSearchDTO $filters): LengthAwarePaginator;
 }

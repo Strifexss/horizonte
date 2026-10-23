@@ -49,7 +49,7 @@ it('nao lista produtos de outro usuario no autocomplete', function () {
         ->assertJsonMissing(['nome' => 'Produto Alheio']);
 });
 
-it('ao excluir produto limpa produto_id nas parcelas', function () {
+it('bloqueia exclusao de produto usado em parcela', function () {
     $user = User::factory()->create();
     $conta = Conta::query()->create([
         'nome' => 'Carteira',
@@ -88,13 +88,13 @@ it('ao excluir produto limpa produto_id nas parcelas', function () {
 
     $this->actingAs($user)
         ->delete(route('produtos.destroy', $produto->id))
-        ->assertRedirect(route('extrato.index'))
-        ->assertSessionHas('success');
+        ->assertRedirect()
+        ->assertSessionHas('error');
 
-    $this->assertDatabaseMissing('produto', ['id' => $produto->id]);
+    $this->assertDatabaseHas('produto', ['id' => $produto->id]);
     $this->assertDatabaseHas('financeiro_parcela', [
         'id' => $parcela->id,
-        'produto_id' => null,
+        'produto_id' => $produto->id,
     ]);
 });
 

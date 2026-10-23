@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\DTO\ProdutoSearchDTO;
+use App\Exceptions\ProdutoEmUsoException;
 use App\Repositories\Interfaces\ProdutoRepositoryInterface;
 use App\Services\Interfaces\ProdutosServiceInterface;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ProdutosService extends ServiceAbstract implements ProdutosServiceInterface
 {
@@ -12,6 +14,11 @@ class ProdutosService extends ServiceAbstract implements ProdutosServiceInterfac
         private ProdutoRepositoryInterface $produtoRepository
     ) {
         parent::__construct($produtoRepository);
+    }
+
+    public function indexFiltrado(ProdutoSearchDTO $filters): LengthAwarePaginator
+    {
+        return $this->produtoRepository->indexFiltrado($filters);
     }
 
     public function update($id, $data)
@@ -25,10 +32,10 @@ class ProdutosService extends ServiceAbstract implements ProdutosServiceInterfac
     {
         $this->produtoRepository->findForUsuario((int) $id);
 
-        return DB::transaction(function () use ($id) {
-            $this->produtoRepository->nullifyProdutoIdOnParcelas((int) $id);
+        if ($this->produtoRepository->countParcelasByProdutoId((int) $id) > 0) {
+            throw new ProdutoEmUsoException;
+        }
 
-            return parent::delete($id);
-        });
+        return parent::delete($id);
     }
 }

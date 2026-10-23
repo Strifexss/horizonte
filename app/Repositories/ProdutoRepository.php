@@ -2,9 +2,11 @@
 
 namespace App\Repositories;
 
+use App\DTO\ProdutoSearchDTO;
 use App\Models\FinanceiroParcela;
 use App\Models\Produto;
 use App\Repositories\Interfaces\ProdutoRepositoryInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
@@ -48,11 +50,45 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
         return $query->with('fornecedor', 'grupo')->orderBy('nome')->get();
     }
 
+    public function indexFiltrado(ProdutoSearchDTO $filters): LengthAwarePaginator
+    {
+        $query = $this->model->newQuery();
+
+        if (Auth::check()) {
+            $query->where('usuario_id', Auth::id());
+        }
+
+        if ($filters->busca) {
+            $this->applyAccentInsensitiveLike($query, 'nome', $filters->busca);
+        }
+
+        $sort = $filters->sort ?? 'nome';
+        $allowed = ['nome', 'preco_compra', 'preco_venda', 'ativo'];
+        if (! in_array($sort, $allowed, true)) {
+            $sort = 'nome';
+        }
+
+        $dir = ($filters->sort_dir ?? 'asc') === 'desc' ? 'desc' : 'asc';
+
+        return $query
+            ->withCount('parcelas')
+            ->orderBy($sort, $dir)
+            ->orderBy('id')
+            ->paginate($filters->per_page, ['*'], 'page', $filters->page);
+    }
+
     public function nullifyProdutoIdOnParcelas(int $produtoId): int
     {
         return FinanceiroParcela::query()
             ->where('produto_id', $produtoId)
             ->update(['produto_id' => null]);
+    }
+
+    public function countParcelasByProdutoId(int $produtoId): int
+    {
+        return FinanceiroParcela::query()
+            ->where('produto_id', $produtoId)
+            ->count();
     }
 
     /**

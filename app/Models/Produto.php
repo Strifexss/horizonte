@@ -22,9 +22,19 @@ class Produto extends Model
     protected $fillable = [
         'nome',
         'preco_compra',
+        'preco_venda',
+        'ativo',
         'usuario_id',
         'fornecedor_id',
         'grupo_id',
+    ];
+
+    /**
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'preco_venda' => '0.00',
+        'ativo' => true,
     ];
 
     /**
@@ -36,6 +46,8 @@ class Produto extends Model
             'id' => 'integer',
             'nome' => 'string',
             'preco_compra' => 'decimal:2',
+            'preco_venda' => 'decimal:2',
+            'ativo' => 'boolean',
             'usuario_id' => 'integer',
             'fornecedor_id' => 'integer',
             'grupo_id' => 'integer',
