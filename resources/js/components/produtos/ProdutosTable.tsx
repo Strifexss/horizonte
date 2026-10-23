@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import ProdutosCard from '@/components/produtos/ProdutosCard';
 import ProdutosEmpty from '@/components/produtos/ProdutosEmpty';
 import ProdutosPagination from '@/components/produtos/ProdutosPagination';
@@ -107,6 +107,7 @@ export default function ProdutosTable({
     onSort,
 }: Props) {
     const rows = items ?? [];
+    const [expandedId, setExpandedId] = useState<number | null>(null);
     const columns: Column[] = [
         {
             key: 'nome',
@@ -184,14 +185,21 @@ export default function ProdutosTable({
                         </div>
                     ) : (
                         <>
-                            <div className="flex flex-col gap-3 p-3 md:hidden">
+                            <div className="flex flex-col gap-2 p-3 md:hidden">
                                 {rows.map((item) => (
                                     <ProdutosCard
                                         key={item.id}
                                         item={item}
-                                        onEdit={onEdit}
-                                        onDelete={onDelete}
-                                        onInativar={onInativar}
+                                        expanded={expandedId === item.id}
+                                        onToggle={() => setExpandedId((current) => (current === item.id ? null : item.id))}
+                                        onEdit={(current) => {
+                                            setExpandedId(null);
+                                            onEdit(current);
+                                        }}
+                                        onDelete={(current) => {
+                                            setExpandedId(null);
+                                            onDelete(current);
+                                        }}
                                     />
                                 ))}
                             </div>
