@@ -70,19 +70,6 @@ export default function ProdutosIndex() {
         setConfirmOpen(true);
     }
 
-    function inativar(item: ProdutoItem): void {
-        router.put(
-            route('produtos.update', item.id),
-            {
-                nome: item.nome,
-                preco_compra: item.preco_compra,
-                preco_venda: item.preco_venda,
-                ativo: false,
-            },
-            { preserveScroll: true },
-        );
-    }
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Produtos" />
@@ -105,7 +92,6 @@ export default function ProdutosIndex() {
                     onBuscaChange={setBusca}
                     onEdit={openEdit}
                     onDelete={openDelete}
-                    onInativar={inativar}
                     onAdd={openCreate}
                     meta={null}
                     perPage={Number(filters.per_page ?? 20)}
@@ -122,7 +108,6 @@ export default function ProdutosIndex() {
                         onBuscaChange={setBusca}
                         onEdit={openEdit}
                         onDelete={openDelete}
-                        onInativar={inativar}
                         onAdd={openCreate}
                         meta={meta}
                         perPage={Number(meta?.per_page ?? filters.per_page ?? 20)}

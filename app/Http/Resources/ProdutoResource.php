@@ -19,7 +19,6 @@ class ProdutoResource extends JsonResource
             'preco_compra' => $this->preco_compra !== null ? number_format((float) $this->preco_compra, 2, '.', '') : null,
             'preco_venda' => $this->preco_venda !== null ? number_format((float) $this->preco_venda, 2, '.', '') : '0.00',
             'ativo' => (bool) $this->ativo,
-            'em_uso' => (int) ($this->parcelas_count ?? 0) > 0,
         ];
     }
 }

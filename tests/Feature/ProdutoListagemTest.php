@@ -46,6 +46,7 @@ it('renderiza a listagem de produtos do usuario autenticado incluindo preco de v
                 ->where('produtos.data.0.nome', 'Café')
                 ->where('produtos.data.0.preco_venda', '0.00')
                 ->where('produtos.data.0.ativo', true)
+                ->missing('produtos.data.0.em_uso')
                 ->has('produtos.data', 1)
             )
         );
@@ -158,7 +159,7 @@ it('rejeita preco_venda negativo', function (): void {
         ->assertSessionHasErrors('preco_venda');
 });
 
-it('bloqueia exclusao de produto usado em parcela e permite inativar', function (): void {
+it('nao consulta uso na listagem e so bloqueia a exclusao quando o usuario confirma', function (): void {
     $user = User::factory()->create();
     $conta = Conta::query()->create([
         'nome' => 'Carteira',
@@ -195,6 +196,17 @@ it('bloqueia exclusao de produto usado em parcela e permite inativar', function 
         'produto_id' => $produto->id,
         'usuario_id' => $user->id,
     ]);
+
+    $this->actingAs($user)
+        ->get(route('produtos'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('produtos/index')
+            ->loadDeferredProps(fn (Assert $reload) => $reload
+                ->where('produtos.data.0.nome', 'Mouse')
+                ->missing('produtos.data.0.em_uso')
+            )
+        );
 
     $this->actingAs($user)
         ->from(route('produtos'))

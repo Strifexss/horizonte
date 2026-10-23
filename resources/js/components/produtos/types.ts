@@ -4,7 +4,6 @@ export type ProdutoItem = {
     preco_compra: string;
     preco_venda: string;
     ativo: boolean;
-    em_uso: boolean;
 };
 
 export type ProdutoFilters = {

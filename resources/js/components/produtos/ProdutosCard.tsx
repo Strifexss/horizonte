@@ -25,7 +25,6 @@ export default function ProdutosCard({ item, expanded, onToggle, onEdit, onDelet
     const origin = useRef<{ x: number; y: number } | null>(null);
     const longPressFired = useRef(false);
     const suppressClick = useRef(false);
-    const canDelete = !item.em_uso;
 
     function clearTimers(): void {
         if (holdTimer.current !== null) {
@@ -53,7 +52,7 @@ export default function ProdutosCard({ item, expanded, onToggle, onEdit, onDelet
     }, []);
 
     function onPointerDown(event: PointerEvent<HTMLButtonElement>): void {
-        if (event.button !== 0 || !canDelete) {
+        if (event.button !== 0) {
             return;
         }
 
@@ -147,22 +146,20 @@ export default function ProdutosCard({ item, expanded, onToggle, onEdit, onDelet
                     </span>
                 ) : null}
             </button>
-            {canDelete ? (
-                <div className={`grid transition-[grid-template-rows] duration-300 ease-out ${expanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
-                    <div className="overflow-hidden">
-                        <div className="flex border-t border-sidebar-border/70">
-                            <button
-                                type="button"
-                                className="inline-flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
-                                onClick={() => onDelete(item)}
-                            >
-                                <Trash2 className="h-4 w-4" />
-                                Excluir
-                            </button>
-                        </div>
+            <div className={`grid transition-[grid-template-rows] duration-300 ease-out ${expanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                <div className="overflow-hidden">
+                    <div className="flex border-t border-sidebar-border/70">
+                        <button
+                            type="button"
+                            className="inline-flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                            onClick={() => onDelete(item)}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            Excluir
+                        </button>
                     </div>
                 </div>
-            ) : null}
+            </div>
         </article>
     );
 }

@@ -71,7 +71,6 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
         $dir = ($filters->sort_dir ?? 'asc') === 'desc' ? 'desc' : 'asc';
 
         return $query
-            ->withCount('parcelas')
             ->orderBy($sort, $dir)
             ->orderBy('id')
             ->paginate($filters->per_page, ['*'], 'page', $filters->page);

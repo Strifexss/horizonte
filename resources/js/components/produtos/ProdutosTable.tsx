@@ -34,7 +34,6 @@ type Props = {
     onBuscaChange: (value: string) => void;
     onEdit: (item: ProdutoItem) => void;
     onDelete: (item: ProdutoItem) => void;
-    onInativar: (item: ProdutoItem) => void;
     onAdd: () => void;
     meta: ProdutoPaginationMeta | null;
     perPage: number;
@@ -96,7 +95,6 @@ export default function ProdutosTable({
     onBuscaChange,
     onEdit,
     onDelete,
-    onInativar,
     onAdd,
     meta,
     perPage,
@@ -144,13 +142,7 @@ export default function ProdutosTable({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem onSelect={() => onEdit(item)}>Editar</DropdownMenuItem>
-                            {item.em_uso ? (
-                                item.ativo ? (
-                                    <DropdownMenuItem onSelect={() => onInativar(item)}>Inativar</DropdownMenuItem>
-                                ) : null
-                            ) : (
-                                <DropdownMenuItem onSelect={() => onDelete(item)}>Excluir</DropdownMenuItem>
-                            )}
+                            <DropdownMenuItem onSelect={() => onDelete(item)}>Excluir</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
