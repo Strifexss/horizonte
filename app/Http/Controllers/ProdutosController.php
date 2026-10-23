@@ -9,6 +9,8 @@ use App\Http\Requests\ProdutoSearchRequest;
 use App\Http\Requests\StoreProdutoRequest;
 use App\Http\Resources\ProdutoAutocompleteResource;
 use App\Http\Resources\ProdutoResource;
+use App\Services\Interfaces\FornecedoresServiceInterface;
+use App\Services\Interfaces\GruposServiceInterface;
 use App\Services\Interfaces\ProdutosServiceInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -17,7 +19,9 @@ use Inertia\Inertia;
 class ProdutosController extends Controller
 {
     public function __construct(
-        private ProdutosServiceInterface $produtosService
+        private ProdutosServiceInterface $produtosService,
+        private FornecedoresServiceInterface $fornecedoresService,
+        private GruposServiceInterface $gruposService,
     ) {}
 
     public function index(ProdutoSearchRequest $request)
@@ -29,6 +33,8 @@ class ProdutosController extends Controller
             'produtos' => Inertia::defer(
                 fn () => ProdutoResource::collection($this->produtosService->indexFiltrado($filters))
             ),
+            'fornecedores' => Inertia::lazy(fn () => $this->fornecedoresService->index()),
+            'grupos' => Inertia::lazy(fn () => $this->gruposService->index()),
         ]);
     }
 

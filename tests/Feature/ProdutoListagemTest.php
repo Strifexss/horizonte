@@ -4,6 +4,8 @@ use App\Models\Categoria;
 use App\Models\Conta;
 use App\Models\Financeiro;
 use App\Models\FinanceiroParcela;
+use App\Models\Fornecedor;
+use App\Models\Grupo;
 use App\Models\Produto;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -144,6 +146,80 @@ it('grava preco_venda informado na tela de produtos e volta para a listagem', fu
         'preco_venda' => 79.9,
         'ativo' => 1,
     ]);
+});
+
+it('grava fornecedor e grupo no cadastro da tela de produtos e devolve na listagem', function (): void {
+    $user = User::factory()->create();
+    $fornecedor = Fornecedor::query()->create([
+        'nome' => 'Atacado Sul',
+        'usuario_id' => $user->id,
+    ]);
+    $grupo = Grupo::query()->create([
+        'nome' => 'Bebidas',
+        'usuario_id' => $user->id,
+    ]);
+
+    $this->actingAs($user)
+        ->from(route('produtos'))
+        ->post(route('produtos.store'), [
+            'nome' => 'Suco',
+            'preco_compra' => 8.5,
+            'preco_venda' => 12,
+            'ativo' => true,
+            'fornecedor_id' => $fornecedor->id,
+            'grupo_id' => $grupo->id,
+        ])
+        ->assertRedirect(route('produtos'))
+        ->assertSessionHas('success');
+
+    $this->assertDatabaseHas('produto', [
+        'nome' => 'Suco',
+        'usuario_id' => $user->id,
+        'fornecedor_id' => $fornecedor->id,
+        'grupo_id' => $grupo->id,
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('produtos'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('produtos/index')
+            ->loadDeferredProps(fn (Assert $reload) => $reload
+                ->where('produtos.data.0.nome', 'Suco')
+                ->where('produtos.data.0.fornecedor.nome', 'Atacado Sul')
+                ->where('produtos.data.0.grupo.nome', 'Bebidas')
+            )
+        );
+});
+
+it('rejeita fornecedor e grupo invalidos no cadastro de produto', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->from(route('produtos'))
+        ->post(route('produtos.store'), [
+            'nome' => 'Suco',
+            'preco_compra' => 8.5,
+            'fornecedor_id' => 999999,
+            'grupo_id' => 999999,
+        ])
+        ->assertSessionHasErrors(['fornecedor_id', 'grupo_id']);
+});
+
+it('mantem o cadastro rapido de grupo e fornecedor na tela de produtos', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->from(route('produtos'))
+        ->post(route('grupos.store'), ['nome' => 'Higiene'])
+        ->assertRedirect(route('produtos'))
+        ->assertSessionHas('grupo_criado');
+
+    $this->actingAs($user)
+        ->from(route('produtos'))
+        ->post(route('fornecedores.store'), ['nome' => 'Distribuidora Norte'])
+        ->assertRedirect(route('produtos'))
+        ->assertSessionHas('fornecedor_criado');
 });
 
 it('rejeita preco_venda negativo', function (): void {

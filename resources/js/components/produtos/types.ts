@@ -1,9 +1,18 @@
+export type ProdutoNamed = {
+    id: number | string;
+    nome: string;
+};
+
 export type ProdutoItem = {
     id: number;
     nome: string;
     preco_compra: string;
     preco_venda: string;
     ativo: boolean;
+    fornecedor_id: number | null;
+    grupo_id: number | null;
+    fornecedor: ProdutoNamed | null;
+    grupo: ProdutoNamed | null;
 };
 
 export type ProdutoFilters = {

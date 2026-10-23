@@ -35,9 +35,7 @@ class GruposController extends Controller
                 GrupoDTO::fromArray($request->validated())
             );
 
-            return redirect()
-                ->route('extrato.index')
-                ->with('success', 'Grupo criado com sucesso.')
+            return $this->redirectAfterWrite('Grupo criado com sucesso.')
                 ->with('grupo_criado', [
                     'id' => $grupo->id,
                     'nome' => $grupo->nome,
@@ -55,7 +53,7 @@ class GruposController extends Controller
                 GrupoDTO::fromArray($request->validated())
             );
 
-            return redirect()->route('extrato.index')->with('success', 'Grupo atualizado com sucesso.');
+            return $this->redirectAfterWrite('Grupo atualizado com sucesso.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erro ao atualizar grupo: '.$e->getMessage());
         }
@@ -66,9 +64,17 @@ class GruposController extends Controller
         try {
             $this->gruposService->delete((int) $id);
 
-            return redirect()->route('extrato.index')->with('success', 'Grupo excluído com sucesso.');
+            return $this->redirectAfterWrite('Grupo excluído com sucesso.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erro ao excluir grupo: '.$e->getMessage());
         }
+    }
+
+    private function redirectAfterWrite(string $message)
+    {
+        $previous = (string) url()->previous();
+        $route = str_contains($previous, '/produtos') ? 'produtos' : 'extrato.index';
+
+        return redirect()->route($route)->with('success', $message);
     }
 }

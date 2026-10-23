@@ -27,9 +27,7 @@ class FornecedoresController extends Controller
                 FornecedorDTO::fromArray($request->validated())
             );
 
-            return redirect()
-                ->route('extrato.index')
-                ->with('success', 'Fornecedor criado com sucesso.')
+            return $this->redirectAfterWrite('Fornecedor criado com sucesso.')
                 ->with('fornecedor_criado', [
                     'id' => $fornecedor->id,
                     'nome' => $fornecedor->nome,
@@ -47,7 +45,7 @@ class FornecedoresController extends Controller
                 FornecedorDTO::fromArray($request->validated())
             );
 
-            return redirect()->route('extrato.index')->with('success', 'Fornecedor atualizado com sucesso.');
+            return $this->redirectAfterWrite('Fornecedor atualizado com sucesso.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erro ao atualizar fornecedor: '.$e->getMessage());
         }
@@ -58,10 +56,18 @@ class FornecedoresController extends Controller
         try {
             $this->fornecedoresService->delete($id);
 
-            return redirect()->route('extrato.index')->with('success', 'Fornecedor excluído com sucesso.');
+            return $this->redirectAfterWrite('Fornecedor excluído com sucesso.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erro ao excluir fornecedor: '.$e->getMessage());
         }
+    }
+
+    private function redirectAfterWrite(string $message)
+    {
+        $previous = (string) url()->previous();
+        $route = str_contains($previous, '/produtos') ? 'produtos' : 'extrato.index';
+
+        return redirect()->route($route)->with('success', $message);
     }
 
     public function autocomplete(Request $request)
