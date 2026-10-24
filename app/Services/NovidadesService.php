@@ -5,7 +5,9 @@ namespace App\Services;
 use App\DTO\NovidadeDTO;
 use App\Models\Novidade;
 use App\Repositories\Interfaces\NovidadeRepositoryInterface;
+use App\Repositories\Interfaces\UsuarioRepositoryInterface;
 use App\Services\Interfaces\NovidadesServiceInterface;
+use DomainException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +16,8 @@ use Throwable;
 class NovidadesService extends ServiceAbstract implements NovidadesServiceInterface
 {
     public function __construct(
-        private NovidadeRepositoryInterface $novidadeRepository
+        private NovidadeRepositoryInterface $novidadeRepository,
+        private UsuarioRepositoryInterface $usuarioRepository,
     ) {
         parent::__construct($novidadeRepository);
     }
@@ -92,6 +95,42 @@ class NovidadesService extends ServiceAbstract implements NovidadesServiceInterf
     {
         $this->novidadeRepository->findPublicada($novidadeId);
         $this->novidadeRepository->dispensar($usuarioId, $novidadeId);
+    }
+
+    public function usuariosDaNovidade(int $novidadeId): Collection
+    {
+        $this->novidadeRepository->find($novidadeId);
+
+        return $this->novidadeRepository->usuariosComDispensa($novidadeId);
+    }
+
+    public function marcarDispensa(int $novidadeId, int $usuarioId): void
+    {
+        $this->novidadeRepository->find($novidadeId);
+        $this->usuarioRepository->find($usuarioId);
+        $this->novidadeRepository->dispensar($usuarioId, $novidadeId);
+    }
+
+    public function desmarcarDispensa(int $novidadeId, int $usuarioId): void
+    {
+        $this->novidadeRepository->find($novidadeId);
+        $this->novidadeRepository->desfazerDispensa($usuarioId, $novidadeId);
+    }
+
+    public function relancar(int $id): Novidade
+    {
+        /** @var Novidade $novidade */
+        $novidade = $this->novidadeRepository->find($id);
+
+        if (! $novidade->estaPublicada()) {
+            throw new DomainException('Publique a novidade antes de relançar.');
+        }
+
+        return DB::transaction(function () use ($id) {
+            $this->novidadeRepository->limparDispensas($id);
+
+            return parent::update($id, ['publicada_em' => now()]);
+        });
     }
 
     public function diretorioImagens(): Collection

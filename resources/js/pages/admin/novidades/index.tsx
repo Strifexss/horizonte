@@ -1,10 +1,12 @@
 import ConfirmDeleteModal from '@/components/extrato/ConfirmDeleteModal';
+import NovidadesDispensasModal from '@/components/novidades/NovidadesDispensasModal';
 import NovidadesForm from '@/components/novidades/NovidadesForm';
 import NovidadesImagensModal from '@/components/novidades/NovidadesImagensModal';
 import NovidadesTable from '@/components/novidades/NovidadesTable';
-import type { ImagemDoDiretorio, Novidade, NovidadesUrls } from '@/components/novidades/types';
+import type { ImagemDoDiretorio, Novidade, NovidadesUrls, UsuarioDispensa } from '@/components/novidades/types';
 import { MobileFab, PageTitle } from '@/components/padrões';
 import { Button } from '@/components/ui/button';
+import UsuariosConfirm from '@/components/usuarios/UsuariosConfirm';
 import AdminLayout from '@/layouts/admin-layout';
 import { Deferred, Head, router } from '@inertiajs/react';
 import { Images, Megaphone, Plus } from 'lucide-react';
@@ -14,14 +16,18 @@ type Props = {
     urls: NovidadesUrls;
     novidades?: Novidade[];
     imagens?: ImagemDoDiretorio[];
+    dispensas?: UsuarioDispensa[];
 };
 
-export default function NovidadesIndex({ urls, novidades, imagens }: Props) {
+export default function NovidadesIndex({ urls, novidades, imagens, dispensas }: Props) {
     const [formOpen, setFormOpen] = useState(false);
     const [imagensOpen, setImagensOpen] = useState(false);
     const [novidadeEmEdicao, setNovidadeEmEdicao] = useState<Novidade | null>(null);
     const [novidadeParaExcluir, setNovidadeParaExcluir] = useState<Novidade | null>(null);
     const [excluindo, setExcluindo] = useState(false);
+    const [novidadeDasDispensas, setNovidadeDasDispensas] = useState<Novidade | null>(null);
+    const [novidadeParaRelancar, setNovidadeParaRelancar] = useState<Novidade | null>(null);
+    const [relancando, setRelancando] = useState(false);
 
     function abrirCriacao(): void {
         setNovidadeEmEdicao(null);
@@ -50,10 +56,31 @@ export default function NovidadesIndex({ urls, novidades, imagens }: Props) {
         });
     }
 
+    function relancar(): void {
+        if (!novidadeParaRelancar) {
+            return;
+        }
+
+        router.post(
+            novidadeParaRelancar.urls.relancar,
+            {},
+            {
+                preserveScroll: true,
+                preserveState: true,
+                only: ['novidades', 'dispensas', 'flash'],
+                onStart: () => setRelancando(true),
+                onSuccess: () => setNovidadeParaRelancar(null),
+                onFinish: () => setRelancando(false),
+            },
+        );
+    }
+
     const acoes = {
         onAdd: abrirCriacao,
         onEdit: abrirEdicao,
         onAlterarStatus: alterarStatus,
+        onVerDispensas: setNovidadeDasDispensas,
+        onRelancar: setNovidadeParaRelancar,
         onDelete: setNovidadeParaExcluir,
     };
 
@@ -104,6 +131,30 @@ export default function NovidadesIndex({ urls, novidades, imagens }: Props) {
 
             <NovidadesForm open={formOpen} onOpenChange={setFormOpen} novidade={novidadeEmEdicao} storeUrl={urls.store} />
             <NovidadesImagensModal open={imagensOpen} onOpenChange={setImagensOpen} imagens={imagens} />
+            <NovidadesDispensasModal
+                novidade={novidadeDasDispensas}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setNovidadeDasDispensas(null);
+                    }
+                }}
+                dispensas={dispensas}
+                onRelancar={setNovidadeParaRelancar}
+            />
+            <UsuariosConfirm
+                open={novidadeParaRelancar !== null}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setNovidadeParaRelancar(null);
+                    }
+                }}
+                titulo="Relançar novidade"
+                descricao={`"${novidadeParaRelancar?.titulo ?? ''}" volta a abrir para todos os usuários, inclusive quem já dispensou, e sobe para o topo do histórico com a data de hoje.`}
+                textoConfirmar="Relançar"
+                variante="default"
+                processing={relancando}
+                onConfirmar={relancar}
+            />
             <ConfirmDeleteModal
                 open={novidadeParaExcluir !== null}
                 onOpenChange={(open) => {

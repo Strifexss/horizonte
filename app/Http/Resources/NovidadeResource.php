@@ -23,10 +23,12 @@ class NovidadeResource extends JsonResource
             'imagens' => $this->imagens->map(fn (NovidadeImagem $imagem): array => ['id' => $imagem->id, 'url' => $imagem->url()])->all(),
             'cta_url' => $this->cta_url,
             'publicada_em' => $this->publicada_em?->toDateString(),
+            'dispensas_count' => (int) $this->dispensas_count,
             'urls' => [
                 'update' => route('admin.novidades.update', $this->id),
                 'destroy' => route('admin.novidades.destroy', $this->id),
                 'status' => route('admin.novidades.status', $this->id),
+                'relancar' => route('admin.novidades.relancar', $this->id),
             ],
         ];
     }

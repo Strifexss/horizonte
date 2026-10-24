@@ -1,5 +1,5 @@
 import { formatarData } from '@/components/usuarios/formatarData';
-import { BellRing } from 'lucide-react';
+import { BellRing, Users } from 'lucide-react';
 import { NovidadeCategoriaSelo, NovidadesSelo } from './NovidadesSelo';
 import type { Novidade } from './types';
 
@@ -22,6 +22,12 @@ export default function NovidadesCard({ item }: { item: Novidade }) {
                     {item.status === 'publicado' ? 'Publicado' : 'Rascunho'}
                 </NovidadesSelo>
                 <span className="text-muted-foreground text-xs">{formatarData(item.publicada_em)}</span>
+                {item.dispensas_count > 0 ? (
+                    <span className="text-muted-foreground inline-flex items-center gap-1 text-xs" title="Usuários que dispensaram">
+                        <Users className="h-3.5 w-3.5" />
+                        {item.dispensas_count}
+                    </span>
+                ) : null}
             </div>
         </>
     );

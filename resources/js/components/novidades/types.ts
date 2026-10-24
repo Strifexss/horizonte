@@ -23,10 +23,24 @@ export type Novidade = {
     imagens: NovidadeImagem[];
     cta_url: string | null;
     publicada_em: string | null;
+    dispensas_count: number;
     urls: {
         update: string;
         destroy: string;
         status: string;
+        relancar: string;
+    };
+};
+
+/** Usuário do sistema e a data em que dispensou a novidade aberta no painel. */
+export type UsuarioDispensa = {
+    id: number;
+    name: string;
+    email: string;
+    dispensada_em: string | null;
+    urls: {
+        marcar: string;
+        desmarcar: string;
     };
 };
 

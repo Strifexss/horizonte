@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Novidade;
 use App\Models\NovidadeDispensada;
 use App\Models\NovidadeImagem;
+use App\Models\User;
 use App\Repositories\Interfaces\NovidadeRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -24,6 +25,7 @@ class NovidadeRepository extends AbstractRepository implements NovidadeRepositor
     {
         return $this->model->newQuery()
             ->with('imagens')
+            ->withCount('dispensas')
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->get();
@@ -61,6 +63,34 @@ class NovidadeRepository extends AbstractRepository implements NovidadeRepositor
             ['usuario_id' => $usuarioId, 'novidade_id' => $novidadeId],
             ['dispensada_em' => now()],
         );
+    }
+
+    public function desfazerDispensa(int $usuarioId, int $novidadeId): void
+    {
+        NovidadeDispensada::query()
+            ->where('usuario_id', $usuarioId)
+            ->where('novidade_id', $novidadeId)
+            ->delete();
+    }
+
+    public function limparDispensas(int $novidadeId): void
+    {
+        NovidadeDispensada::query()->where('novidade_id', $novidadeId)->delete();
+    }
+
+    public function usuariosComDispensa(int $novidadeId): Collection
+    {
+        return User::query()
+            ->select(['id', 'name', 'email'])
+            ->addSelect(['dispensada_em' => NovidadeDispensada::query()
+                ->select('dispensada_em')
+                ->whereColumn('usuario_id', 'users.id')
+                ->where('novidade_id', $novidadeId)
+                ->limit(1),
+            ])
+            ->withCasts(['dispensada_em' => 'datetime'])
+            ->orderBy('name')
+            ->get();
     }
 
     public function salvarImagem(UploadedFile $imagem): string

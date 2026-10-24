@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Novidade;
+use App\Models\NovidadeDispensada;
 use App\Models\NovidadeImagem;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -43,6 +44,15 @@ function imagemDaNovidade(Novidade $novidade, string $nome = 'banner.png', int $
         'novidade_id' => $novidade->id,
         'caminho' => UploadedFile::fake()->image($nome)->store(Novidade::PASTA_IMAGENS, Novidade::discoImagens()),
         'ordem' => $ordem,
+    ]);
+}
+
+function dispensaDe(User $usuario, Novidade $novidade): NovidadeDispensada
+{
+    return NovidadeDispensada::query()->create([
+        'usuario_id' => $usuario->id,
+        'novidade_id' => $novidade->id,
+        'dispensada_em' => now(),
     ]);
 }
 
@@ -284,12 +294,127 @@ it('rejeita status desconhecido', function (): void {
     expect($novidade->refresh()->status)->toBe(Novidade::STATUS_RASCUNHO);
 });
 
+it('conta quantos usuarios dispensaram cada novidade', function (): void {
+    $novidade = novidadePublicada();
+    dispensaDe(User::factory()->create(), $novidade);
+    dispensaDe(User::factory()->create(), $novidade);
+
+    $this->actingAs(administradorDasNovidades())
+        ->get(route('admin.novidades'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->missing('dispensas')
+            ->loadDeferredProps(fn (Assert $reload) => $reload
+                ->where('novidades.0.dispensas_count', 2)
+                ->where('novidades.0.urls.relancar', route('admin.novidades.relancar', $novidade->id))
+            )
+        );
+});
+
+it('lista todos os usuarios com a data em que dispensaram a novidade', function (): void {
+    $novidade = novidadePublicada();
+    $outra = novidadePublicada(['titulo' => 'Outra']);
+    $admin = User::factory()->create(['email' => 'admin@horizonte.test', 'name' => 'Zilda Admin']);
+    $ana = User::factory()->create(['name' => 'Ana']);
+    $bruno = User::factory()->create(['name' => 'Bruno']);
+    $this->travelTo('2026-10-10 09:00:00');
+    dispensaDe($ana, $novidade);
+    dispensaDe($bruno, $outra);
+
+    $this->actingAs($admin)
+        ->get(route('admin.novidades', ['novidade' => $novidade->id]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->reloadOnly('dispensas', fn (Assert $reload) => $reload
+                ->has('dispensas', 3)
+                ->where('dispensas.0.name', 'Ana')
+                ->where('dispensas.0.dispensada_em', '2026-10-10')
+                ->where('dispensas.0.urls.desmarcar', route('admin.novidades.dispensas.destroy', ['id' => $novidade->id, 'usuarioId' => $ana->id]))
+                ->where('dispensas.1.name', 'Bruno')
+                ->where('dispensas.1.dispensada_em', null)
+                ->where('dispensas.2.id', $admin->id)
+            )
+        );
+});
+
+it('marca a dispensa em nome do usuario', function (): void {
+    $novidade = novidadePublicada();
+    $usuario = User::factory()->create();
+
+    $this->actingAs(administradorDasNovidades())
+        ->put(route('admin.novidades.dispensas.store', ['id' => $novidade->id, 'usuarioId' => $usuario->id]))
+        ->assertRedirect(route('admin.novidades', ['novidade' => $novidade->id]))
+        ->assertSessionHas('success', 'O pop-up desta novidade não abrirá mais para o usuário.');
+
+    $this->assertDatabaseHas('novidade_dispensada', ['usuario_id' => $usuario->id, 'novidade_id' => $novidade->id]);
+});
+
+it('responde 404 ao marcar dispensa para usuario inexistente', function (): void {
+    $novidade = novidadePublicada();
+
+    $this->actingAs(administradorDasNovidades())
+        ->put(route('admin.novidades.dispensas.store', ['id' => $novidade->id, 'usuarioId' => 999]))
+        ->assertNotFound();
+
+    expect(NovidadeDispensada::query()->count())->toBe(0);
+});
+
+it('desmarca a dispensa e a novidade volta a abrir para o usuario', function (): void {
+    $novidade = novidadePublicada();
+    $usuario = User::factory()->create();
+    $dispensa = dispensaDe($usuario, $novidade);
+
+    $this->actingAs(administradorDasNovidades())
+        ->delete(route('admin.novidades.dispensas.destroy', ['id' => $novidade->id, 'usuarioId' => $usuario->id]))
+        ->assertRedirect(route('admin.novidades', ['novidade' => $novidade->id]))
+        ->assertSessionHas('success', 'A novidade voltará a abrir para o usuário.');
+
+    $this->assertModelMissing($dispensa);
+    $this->actingAs($usuario)
+        ->get(route('formas-pagamento'))
+        ->assertInertia(fn (Assert $page) => $page->where('novidades_pendentes.0.id', $novidade->id));
+});
+
+it('relanca a novidade limpando as dispensas e movendo a publicacao para agora', function (): void {
+    $this->travelTo('2026-10-01 09:00:00');
+    $novidade = novidadePublicada();
+    $outra = novidadePublicada(['titulo' => 'Outra']);
+    $usuario = User::factory()->create();
+    dispensaDe($usuario, $novidade);
+    dispensaDe(User::factory()->create(), $novidade);
+    $dispensaDaOutra = dispensaDe($usuario, $outra);
+
+    $this->travelTo('2026-10-24 10:00:00');
+    $this->actingAs(administradorDasNovidades())
+        ->post(route('admin.novidades.relancar', $novidade->id))
+        ->assertRedirect(route('admin.novidades', ['novidade' => $novidade->id]))
+        ->assertSessionHas('success', 'Novidade relançada para todos os usuários.');
+
+    expect($novidade->refresh()->publicada_em->toDateTimeString())->toBe('2026-10-24 10:00:00')
+        ->and($novidade->dispensas()->count())->toBe(0);
+    $this->assertModelExists($dispensaDaOutra);
+});
+
+it('nao relanca novidade em rascunho', function (): void {
+    $novidade = novidade();
+    $dispensa = dispensaDe(User::factory()->create(), $novidade);
+
+    $this->actingAs(administradorDasNovidades())
+        ->from(route('admin.novidades'))
+        ->post(route('admin.novidades.relancar', $novidade->id))
+        ->assertRedirect(route('admin.novidades'))
+        ->assertSessionHas('error', 'Publique a novidade antes de relançar.');
+
+    expect($novidade->refresh()->publicada_em)->toBeNull();
+    $this->assertModelExists($dispensa);
+});
+
 it('responde 404 para usuario comum em qualquer rota do admin de novidades', function (string $metodo, string $rota): void {
     $novidade = novidade();
     $imagem = imagemDaNovidade($novidade);
+    $usuario = User::factory()->create();
+    $dispensa = dispensaDe($usuario, $novidade);
 
-    $this->actingAs(User::factory()->create())
-        ->call($metodo, route($rota, ['id' => $novidade->id, 'arquivo' => basename($imagem->caminho)]), payloadNovidade(['status' => Novidade::STATUS_PUBLICADO]))
+    $this->actingAs($usuario)
+        ->call($metodo, route($rota, ['id' => $novidade->id, 'usuarioId' => $usuario->id, 'arquivo' => basename($imagem->caminho)]), payloadNovidade(['status' => Novidade::STATUS_PUBLICADO]))
         ->assertNotFound();
 
     expect($novidade->refresh()->only(['titulo', 'status']))->toBe([
@@ -298,6 +423,7 @@ it('responde 404 para usuario comum em qualquer rota do admin de novidades', fun
     ]);
     expect(Novidade::query()->count())->toBe(1);
     $this->assertModelExists($imagem);
+    $this->assertModelExists($dispensa);
     Storage::disk(Novidade::discoImagens())->assertExists($imagem->caminho);
 })->with([
     'listar' => ['GET', 'admin.novidades'],
@@ -306,4 +432,7 @@ it('responde 404 para usuario comum em qualquer rota do admin de novidades', fun
     'excluir' => ['DELETE', 'admin.novidades.destroy'],
     'alterar status' => ['PUT', 'admin.novidades.status'],
     'excluir imagem da pasta' => ['DELETE', 'admin.novidades.imagens.destroy'],
+    'relancar' => ['POST', 'admin.novidades.relancar'],
+    'marcar dispensa' => ['PUT', 'admin.novidades.dispensas.store'],
+    'desmarcar dispensa' => ['DELETE', 'admin.novidades.dispensas.destroy'],
 ]);

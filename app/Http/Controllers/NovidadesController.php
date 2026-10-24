@@ -7,9 +7,12 @@ use App\Http\Requests\AlterarStatusNovidadeRequest;
 use App\Http\Requests\StoreNovidadeRequest;
 use App\Http\Resources\ImagemDiretorioResource;
 use App\Http\Resources\NovidadeResource;
+use App\Http\Resources\UsuarioDispensaResource;
 use App\Models\Novidade;
+use App\Models\User;
 use App\Services\Interfaces\NovidadesServiceInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class NovidadesController extends Controller
@@ -18,8 +21,10 @@ class NovidadesController extends Controller
         private NovidadesServiceInterface $novidadesService
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
+        $novidadeId = $request->integer('novidade');
+
         return Inertia::render('admin/novidades/index', [
             'urls' => [
                 'usuarios' => route('admin.usuarios'),
@@ -32,7 +37,53 @@ class NovidadesController extends Controller
             'imagens' => Inertia::optional(
                 fn () => ImagemDiretorioResource::collection($this->novidadesService->diretorioImagens())->resolve()
             ),
+            'dispensas' => Inertia::optional(
+                fn () => $this->novidadesService->usuariosDaNovidade($novidadeId)
+                    ->map(fn (User $usuario): array => (new UsuarioDispensaResource($usuario, $novidadeId))->resolve())
+                    ->all()
+            ),
         ]);
+    }
+
+    public function relancar(int $id)
+    {
+        try {
+            $this->novidadesService->relancar($id);
+
+            return redirect()->route('admin.novidades', ['novidade' => $id])->with('success', 'Novidade relançada para todos os usuários.');
+        } catch (ModelNotFoundException $e) {
+            throw $e;
+        } catch (\DomainException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Erro ao relançar novidade: '.$e->getMessage());
+        }
+    }
+
+    public function marcarDispensa(int $id, int $usuarioId)
+    {
+        try {
+            $this->novidadesService->marcarDispensa($id, $usuarioId);
+
+            return redirect()->route('admin.novidades', ['novidade' => $id])->with('success', 'O pop-up desta novidade não abrirá mais para o usuário.');
+        } catch (ModelNotFoundException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Erro ao marcar dispensa: '.$e->getMessage());
+        }
+    }
+
+    public function desmarcarDispensa(int $id, int $usuarioId)
+    {
+        try {
+            $this->novidadesService->desmarcarDispensa($id, $usuarioId);
+
+            return redirect()->route('admin.novidades', ['novidade' => $id])->with('success', 'A novidade voltará a abrir para o usuário.');
+        } catch (ModelNotFoundException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Erro ao desmarcar dispensa: '.$e->getMessage());
+        }
     }
 
     public function excluirImagem(string $arquivo)

@@ -125,6 +125,9 @@ if (filled(config('admin.path'))) {
             Route::put('/novidades/{id}', [NovidadesController::class, 'update'])->name('novidades.update');
             Route::delete('/novidades/{id}', [NovidadesController::class, 'destroy'])->name('novidades.destroy');
             Route::put('/novidades/{id}/status', [NovidadesController::class, 'status'])->name('novidades.status');
+            Route::post('/novidades/{id}/relancar', [NovidadesController::class, 'relancar'])->name('novidades.relancar');
+            Route::put('/novidades/{id}/dispensas/{usuarioId}', [NovidadesController::class, 'marcarDispensa'])->name('novidades.dispensas.store');
+            Route::delete('/novidades/{id}/dispensas/{usuarioId}', [NovidadesController::class, 'desmarcarDispensa'])->name('novidades.dispensas.destroy');
             Route::delete('/novidades/imagens/{arquivo}', [NovidadesController::class, 'excluirImagem'])
                 ->where('arquivo', '[A-Za-z0-9_-]+\.[A-Za-z0-9]+')
                 ->name('novidades.imagens.destroy');

@@ -3,6 +3,7 @@
 namespace App\Repositories\Interfaces;
 
 use App\Models\Novidade;
+use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -32,6 +33,23 @@ interface NovidadeRepositoryInterface extends AbstractRepositoryInterface
      * Registra que o usuário dispensou a novidade; repetir não cria outro registro.
      */
     public function dispensar(int $usuarioId, int $novidadeId): void;
+
+    /**
+     * Faz a novidade voltar a abrir sozinha para o usuário.
+     */
+    public function desfazerDispensa(int $usuarioId, int $novidadeId): void;
+
+    /**
+     * Apaga a dispensa de todos os usuários da novidade.
+     */
+    public function limparDispensas(int $novidadeId): void;
+
+    /**
+     * Todos os usuários em ordem de nome, com `dispensada_em` preenchido para quem dispensou a novidade.
+     *
+     * @return Collection<int, User>
+     */
+    public function usuariosComDispensa(int $novidadeId): Collection;
 
     /**
      * Grava a imagem na pasta de novidades do disco público e devolve o caminho relativo.

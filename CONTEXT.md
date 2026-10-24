@@ -82,6 +82,10 @@ _Avoid_: Modal obrigatório
 Ação do Usuário de marcar "Não mostrar novamente": a Novidade para de abrir sozinha para ele, mas continua no histórico de novidades.
 _Avoid_: Marcar como lida, excluir novidade
 
+**Relançar novidade**:
+Ação do administrador sobre uma Novidade publicada: apaga a dispensa de todos os Usuários e move a data de publicação para agora, então o Pop-up automático volta a abrir para todos. O administrador também pode marcar ou desmarcar a dispensa de um Usuário específico.
+_Avoid_: Republicar, duplicar novidade
+
 ### Dashboard
 
 **Período de referência**:

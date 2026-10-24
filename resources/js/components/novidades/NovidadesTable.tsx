@@ -1,7 +1,7 @@
 import { MobileCardList, TableWithFilters, type Column, type MobileCardAction } from '@/components/padrões';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { formatarData } from '@/components/usuarios/formatarData';
-import { BellRing, EyeOff, MoreHorizontal, Pencil, Send, Trash2 } from 'lucide-react';
+import { BellRing, EyeOff, MoreHorizontal, Pencil, RotateCcw, Send, Trash2, Users } from 'lucide-react';
 import NovidadesCard from './NovidadesCard';
 import NovidadesEmpty from './NovidadesEmpty';
 import { NovidadeCategoriaSelo, NovidadesSelo } from './NovidadesSelo';
@@ -13,6 +13,8 @@ type Props = {
     onAdd: () => void;
     onEdit: (item: Novidade) => void;
     onAlterarStatus: (item: Novidade) => void;
+    onVerDispensas: (item: Novidade) => void;
+    onRelancar: (item: Novidade) => void;
     onDelete: (item: Novidade) => void;
 };
 
@@ -20,7 +22,7 @@ function rotuloAlterarStatus(item: Novidade): string {
     return item.status === 'publicado' ? 'Voltar para rascunho' : 'Publicar';
 }
 
-export default function NovidadesTable({ loaded, items, onAdd, onEdit, onAlterarStatus, onDelete }: Props) {
+export default function NovidadesTable({ loaded, items, onAdd, onEdit, onAlterarStatus, onVerDispensas, onRelancar, onDelete }: Props) {
     const columns: Column<Novidade>[] = [
         {
             key: 'titulo',
@@ -64,6 +66,22 @@ export default function NovidadesTable({ loaded, items, onAdd, onEdit, onAlterar
                 ),
         },
         {
+            key: 'dispensas_count',
+            label: 'DISPENSAS',
+            thClassName: 'w-28',
+            render: (item) => (
+                <button
+                    type="button"
+                    onClick={() => onVerDispensas(item)}
+                    title="Ver quem dispensou"
+                    className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs underline-offset-2 hover:underline"
+                >
+                    <Users className="h-3.5 w-3.5" />
+                    {item.dispensas_count}
+                </button>
+            ),
+        },
+        {
             key: 'acoes',
             label: 'AÇÃO',
             thClassName: 'w-20 text-center',
@@ -88,6 +106,16 @@ export default function NovidadesTable({ loaded, items, onAdd, onEdit, onAlterar
                                 {item.status === 'publicado' ? <EyeOff className="mr-2 h-4 w-4" /> : <Send className="mr-2 h-4 w-4" />}
                                 {rotuloAlterarStatus(item)}
                             </DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => onVerDispensas(item)}>
+                                <Users className="mr-2 h-4 w-4" />
+                                Quem dispensou
+                            </DropdownMenuItem>
+                            {item.status === 'publicado' ? (
+                                <DropdownMenuItem onSelect={() => onRelancar(item)}>
+                                    <RotateCcw className="mr-2 h-4 w-4" />
+                                    Relançar
+                                </DropdownMenuItem>
+                            ) : null}
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onSelect={() => onDelete(item)}>
                                 <Trash2 className="mr-2 h-4 w-4 text-red-600" />
@@ -108,6 +136,10 @@ export default function NovidadesTable({ loaded, items, onAdd, onEdit, onAlterar
             icon: item.status === 'publicado' ? <EyeOff className="h-4 w-4" /> : <Send className="h-4 w-4" />,
             onClick: () => onAlterarStatus(item),
         },
+        { key: 'dispensas', label: 'Dispensas', icon: <Users className="h-4 w-4" />, onClick: () => onVerDispensas(item) },
+        ...(item.status === 'publicado'
+            ? [{ key: 'relancar', label: 'Relançar', icon: <RotateCcw className="h-4 w-4" />, onClick: () => onRelancar(item) }]
+            : []),
         { key: 'excluir', label: 'Excluir', icon: <Trash2 className="h-4 w-4" />, onClick: () => onDelete(item), destructive: true },
     ];
 
