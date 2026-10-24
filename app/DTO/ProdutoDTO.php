@@ -18,6 +18,8 @@ class ProdutoDTO extends Dto
 
     public ?int $grupo_id = null;
 
+    public ?string $descricao = null;
+
     /**
      * @param  array<string, mixed>  $data
      */
@@ -49,6 +51,10 @@ class ProdutoDTO extends Dto
             $data['grupo_id'] = (int) $data['grupo_id'];
         } else {
             $data['grupo_id'] = null;
+        }
+
+        if (array_key_exists('descricao', $data)) {
+            $data['descricao'] = trim((string) ($data['descricao'] ?? ''));
         }
 
         return parent::fromArray($data);

@@ -21,6 +21,8 @@ class ProdutoResource extends JsonResource
             'ativo' => (bool) $this->ativo,
             'fornecedor_id' => $this->fornecedor_id,
             'grupo_id' => $this->grupo_id,
+            'descricao' => $this->descricao,
+            'foto_url' => $this->foto_url,
             'fornecedor' => $this->whenLoaded('fornecedor', fn () => $this->fornecedor
                 ? ['id' => $this->fornecedor->id, 'nome' => $this->fornecedor->nome]
                 : null),

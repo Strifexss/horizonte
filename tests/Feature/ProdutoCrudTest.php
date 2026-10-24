@@ -141,3 +141,17 @@ it('persiste produto_id ao criar lancamento de despesa', function () {
         'usuario_id' => $user->id,
     ]);
 });
+
+it('salva a descricao do produto exibida no menu board', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->post(route('produtos.store'), [
+            'nome' => 'Parmegiana',
+            'preco_compra' => 15,
+            'descricao' => 'Arroz, fritas e salada',
+        ])
+        ->assertSessionHas('success');
+
+    expect(Produto::query()->sole()->descricao)->toBe('Arroz, fritas e salada');
+});

@@ -30,6 +30,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Produtos Images Disk
+    |--------------------------------------------------------------------------
+    |
+    | Disk that stores the product photos shown on the Menu Board. Like the
+    | Novidades disk, it must serve public URLs and point to the bucket in
+    | production.
+    |
+    */
+
+    'produtos_disk' => env('PRODUTOS_DISK', 'public'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |

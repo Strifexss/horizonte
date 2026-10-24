@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\DTO\ProdutoDTO;
 use App\DTO\ProdutoSearchDTO;
 use App\Exceptions\ProdutoEmUsoException;
+use App\Http\Requests\ProdutoFotoRequest;
 use App\Http\Requests\ProdutoSearchRequest;
 use App\Http\Requests\StoreProdutoRequest;
 use App\Http\Resources\ProdutoAutocompleteResource;
@@ -82,6 +83,32 @@ class ProdutosController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erro ao excluir produto: '.$e->getMessage());
+        }
+    }
+
+    public function fotoStore(ProdutoFotoRequest $request, $id)
+    {
+        try {
+            $this->produtosService->salvarFoto((int) $id, $request->file('foto'));
+
+            return redirect()->back()->with('success', 'Foto do produto salva.');
+        } catch (ModelNotFoundException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Erro ao salvar foto: '.$e->getMessage());
+        }
+    }
+
+    public function fotoDestroy($id)
+    {
+        try {
+            $this->produtosService->removerFoto((int) $id);
+
+            return redirect()->back()->with('success', 'Foto do produto removida.');
+        } catch (ModelNotFoundException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Erro ao remover foto: '.$e->getMessage());
         }
     }
 

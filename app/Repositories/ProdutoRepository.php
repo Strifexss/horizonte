@@ -124,6 +124,24 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
             ->get(['id', 'nome', 'preco_venda']);
     }
 
+    public function ativosDoUsuario(int $usuarioId): Collection
+    {
+        return $this->model->newQuery()
+            ->where('usuario_id', $usuarioId)
+            ->where('ativo', true)
+            ->with('grupo')
+            ->orderBy('nome')
+            ->get();
+    }
+
+    public function atualizarFoto(int $id, ?string $fotoPath): Produto
+    {
+        $produto = $this->model->newQuery()->findOrFail($id);
+        $produto->update(['foto_path' => $fotoPath]);
+
+        return $produto;
+    }
+
     /**
      * Garante que o produto pertence ao usuário autenticado.
      */

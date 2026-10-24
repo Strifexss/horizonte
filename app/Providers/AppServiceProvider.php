@@ -19,11 +19,17 @@ use App\Repositories\Interfaces\FornecedorRepositoryInterface;
 use App\Repositories\Interfaces\FuncionarioRepositoryInterface;
 use App\Repositories\Interfaces\GrupoRepositoryInterface;
 use App\Repositories\Interfaces\NovidadeRepositoryInterface;
+use App\Repositories\Interfaces\MenuBoardRepositoryInterface;
 use App\Repositories\Interfaces\ProdutoRepositoryInterface;
+use App\Repositories\Interfaces\TvDispositivoRepositoryInterface;
+use App\Repositories\Interfaces\TvPareamentoPinRepositoryInterface;
 use App\Repositories\Interfaces\UsuarioRepositoryInterface;
 use App\Repositories\Interfaces\VendaRepositoryInterface;
 use App\Repositories\NovidadeRepository;
+use App\Repositories\MenuBoardRepository;
 use App\Repositories\ProdutoRepository;
+use App\Repositories\TvDispositivoRepository;
+use App\Repositories\TvPareamentoPinRepository;
 use App\Repositories\UsuarioRepository;
 use App\Repositories\VendaRepository;
 use App\Services\CategoriaService;
@@ -45,12 +51,16 @@ use App\Services\Interfaces\FornecedoresServiceInterface;
 use App\Services\Interfaces\FuncionariosServiceInterface;
 use App\Services\Interfaces\GruposServiceInterface;
 use App\Services\Interfaces\NovidadesServiceInterface;
+use App\Services\Interfaces\MenuBoardsServiceInterface;
 use App\Services\Interfaces\ProdutosServiceInterface;
+use App\Services\Interfaces\TvPareamentoServiceInterface;
 use App\Services\Interfaces\UsuariosServiceInterface;
 use App\Services\Interfaces\UsuariosTransferServiceInterface;
 use App\Services\Interfaces\VendasServiceInterface;
 use App\Services\NovidadesService;
+use App\Services\MenuBoardsService;
 use App\Services\ProdutosService;
+use App\Services\TvPareamentoService;
 use App\Services\UsuariosService;
 use App\Services\UsuariosTransferService;
 use App\Services\VendasService;
@@ -89,6 +99,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(VendaRepositoryInterface::class, VendaRepository::class);
         $this->app->bind(NovidadesServiceInterface::class, NovidadesService::class);
         $this->app->bind(NovidadeRepositoryInterface::class, NovidadeRepository::class);
+        $this->app->bind(MenuBoardsServiceInterface::class, MenuBoardsService::class);
+        $this->app->bind(MenuBoardRepositoryInterface::class, MenuBoardRepository::class);
+        $this->app->bind(TvPareamentoServiceInterface::class, TvPareamentoService::class);
+        $this->app->bind(TvDispositivoRepositoryInterface::class, TvDispositivoRepository::class);
+        $this->app->bind(TvPareamentoPinRepositoryInterface::class, TvPareamentoPinRepository::class);
     }
 
     /**

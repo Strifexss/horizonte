@@ -37,6 +37,7 @@ type ProdutoFormValues = {
     ativo: boolean;
     fornecedor_id: number | null;
     grupo_id: number | null;
+    descricao: string;
 };
 
 type SelectOption = {
@@ -65,6 +66,7 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
         ativo: true,
         fornecedor_id: null,
         grupo_id: null,
+        descricao: '',
     });
 
     useEffect(() => {
@@ -82,6 +84,7 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                 ativo: produto.ativo,
                 fornecedor_id: produto.fornecedor_id,
                 grupo_id: produto.grupo_id,
+                descricao: produto.descricao ?? '',
             });
             setSelectedFornecedor(toNamed(produto.fornecedor));
             setSelectedGrupo(toNamed(produto.grupo));
@@ -96,6 +99,7 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
             ativo: true,
             fornecedor_id: null,
             grupo_id: null,
+            descricao: '',
         });
         setSelectedFornecedor(null);
         setSelectedGrupo(null);
@@ -161,6 +165,20 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                                 disabled={processing}
                             />
                             <InputError message={errors.nome} />
+                        </div>
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="produto_descricao">Descrição</Label>
+                            <Input
+                                id="produto_descricao"
+                                value={data.descricao}
+                                onChange={(e) => setData('descricao', e.target.value)}
+                                placeholder="Ex.: Arroz, fritas e salada"
+                                maxLength={160}
+                                disabled={processing}
+                            />
+                            <span className="text-xs text-muted-foreground">Aparece no Menu Board da TV.</span>
+                            <InputError message={errors.descricao} />
                         </div>
 
                         <div className="grid gap-2 md:grid-cols-2">

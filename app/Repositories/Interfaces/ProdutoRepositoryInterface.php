@@ -49,4 +49,13 @@ interface ProdutoRepositoryInterface extends AbstractRepositoryInterface
     public function autocompleteParaVenda(?string $q = null): EloquentCollection;
 
     public function indexFiltrado(ProdutoSearchDTO $filters): LengthAwarePaginator;
+
+    /**
+     * Produtos ativos do usuário, com grupo, ordenados por nome.
+     *
+     * @return Collection<int, Produto>
+     */
+    public function ativosDoUsuario(int $usuarioId): Collection;
+
+    public function atualizarFoto(int $id, ?string $fotoPath): Produto;
 }

@@ -4,9 +4,13 @@ namespace App\Services;
 
 use App\DTO\ProdutoSearchDTO;
 use App\Exceptions\ProdutoEmUsoException;
+use App\Models\Produto;
 use App\Repositories\Interfaces\ProdutoRepositoryInterface;
 use App\Services\Interfaces\ProdutosServiceInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 class ProdutosService extends ServiceAbstract implements ProdutosServiceInterface
 {
@@ -30,13 +34,51 @@ class ProdutosService extends ServiceAbstract implements ProdutosServiceInterfac
 
     public function delete($id)
     {
-        $this->produtoRepository->findForUsuario((int) $id);
+        $produto = $this->produtoRepository->findForUsuario((int) $id);
 
         if ($this->produtoRepository->countParcelasByProdutoId((int) $id) > 0
             || $this->produtoRepository->countVendaItensByProdutoId((int) $id) > 0) {
             throw new ProdutoEmUsoException;
         }
 
-        return parent::delete($id);
+        $excluido = parent::delete($id);
+        $this->apagarArquivoFoto($produto->foto_path);
+
+        return $excluido;
+    }
+
+    public function ativosDoUsuario(int $usuarioId): Collection
+    {
+        return $this->produtoRepository->ativosDoUsuario($usuarioId);
+    }
+
+    public function salvarFoto(int $id, UploadedFile $foto): Produto
+    {
+        $produto = $this->produtoRepository->findForUsuario($id);
+        $fotoAnterior = $produto->foto_path;
+        $fotoPath = $foto->store('produtos/'.$produto->usuario_id, Produto::discoFotos());
+
+        $produto = $this->produtoRepository->atualizarFoto($id, $fotoPath);
+        $this->apagarArquivoFoto($fotoAnterior);
+
+        return $produto;
+    }
+
+    public function removerFoto(int $id): Produto
+    {
+        $produto = $this->produtoRepository->findForUsuario($id);
+        $fotoAnterior = $produto->foto_path;
+
+        $produto = $this->produtoRepository->atualizarFoto($id, null);
+        $this->apagarArquivoFoto($fotoAnterior);
+
+        return $produto;
+    }
+
+    private function apagarArquivoFoto(?string $fotoPath): void
+    {
+        if ($fotoPath) {
+            Storage::disk(Produto::discoFotos())->delete($fotoPath);
+        }
     }
 }

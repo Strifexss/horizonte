@@ -11,8 +11,11 @@ use App\Http\Controllers\FuncionariosController;
 use App\Http\Controllers\GruposController;
 use App\Http\Controllers\NovidadesController;
 use App\Http\Controllers\NovidadesUsuarioController;
+use App\Http\Controllers\MenuBoardsController;
 use App\Http\Controllers\ParcelaController;
 use App\Http\Controllers\ProdutosController;
+use App\Http\Controllers\TvController;
+use App\Http\Controllers\TvPareamentoController;
 use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\VendasController;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +23,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect()->route('login');
 })->name('home');
+
+Route::get('/tv', [TvController::class, 'show'])->name('tv');
+Route::post('/tv/parear', [TvController::class, 'parear'])->middleware('throttle:5,1')->name('tv.parear');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -59,6 +65,23 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [ProdutosController::class, 'store'])->name('produtos.store');
         Route::put('/{id}', [ProdutosController::class, 'update'])->name('produtos.update');
         Route::delete('/{id}', [ProdutosController::class, 'destroy'])->name('produtos.destroy');
+        Route::post('/{id}/foto', [ProdutosController::class, 'fotoStore'])->name('produtos.foto.store');
+        Route::delete('/{id}/foto', [ProdutosController::class, 'fotoDestroy'])->name('produtos.foto.destroy');
+    });
+
+    Route::group(['prefix' => 'menu-boards'], function () {
+        Route::get('/', [MenuBoardsController::class, 'index'])->name('menu-boards');
+        Route::get('/novo', [MenuBoardsController::class, 'create'])->name('menu-boards.create');
+        Route::post('/', [MenuBoardsController::class, 'store'])->name('menu-boards.store');
+        Route::get('/{id}/editar', [MenuBoardsController::class, 'edit'])->name('menu-boards.edit');
+        Route::put('/{id}', [MenuBoardsController::class, 'update'])->name('menu-boards.update');
+        Route::delete('/{id}', [MenuBoardsController::class, 'destroy'])->name('menu-boards.destroy');
+        Route::post('/{id}/ativar', [MenuBoardsController::class, 'ativar'])->name('menu-boards.ativar');
+    });
+
+    Route::group(['prefix' => 'tv'], function () {
+        Route::post('/pin', [TvPareamentoController::class, 'store'])->name('tv.pin.store');
+        Route::delete('/dispositivos/{id}', [TvPareamentoController::class, 'destroy'])->name('tv.dispositivos.destroy');
     });
 
     Route::group(['prefix' => 'fornecedores'], function () {

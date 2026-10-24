@@ -13,6 +13,8 @@ export type ProdutoItem = {
     grupo_id: number | null;
     fornecedor: ProdutoNamed | null;
     grupo: ProdutoNamed | null;
+    descricao: string | null;
+    foto_url: string | null;
 };
 
 export type ProdutoFilters = {

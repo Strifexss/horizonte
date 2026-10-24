@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Produto extends Model
 {
@@ -27,6 +29,8 @@ class Produto extends Model
         'usuario_id',
         'fornecedor_id',
         'grupo_id',
+        'descricao',
+        'foto_path',
     ];
 
     /**
@@ -51,7 +55,27 @@ class Produto extends Model
             'usuario_id' => 'integer',
             'fornecedor_id' => 'integer',
             'grupo_id' => 'integer',
+            'descricao' => 'string',
+            'foto_path' => 'string',
         ];
+    }
+
+    /**
+     * Disco das fotos de produto; no Laravel Cloud aponta para o bucket.
+     */
+    public static function discoFotos(): string
+    {
+        return config('filesystems.produtos_disk');
+    }
+
+    /**
+     * URL pública da foto do produto, quando houver.
+     */
+    protected function fotoUrl(): Attribute
+    {
+        return Attribute::get(fn (): ?string => $this->foto_path
+            ? Storage::disk(self::discoFotos())->url($this->foto_path)
+            : null);
     }
 
     public function user(): BelongsTo

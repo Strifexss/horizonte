@@ -44,6 +44,7 @@ class StoreProdutoRequest extends FormRequest
             'usuario_id' => ['nullable', 'integer', 'exists:users,id'],
             'fornecedor_id' => ['nullable', 'integer', 'exists:fornecedor,id'],
             'grupo_id' => ['nullable', 'integer', 'exists:grupos,id'],
+            'descricao' => ['nullable', 'string', 'max:160'],
         ];
     }
 }
