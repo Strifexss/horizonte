@@ -48,6 +48,17 @@ it('mostra a tela de pareamento para tv desconectada', function (): void {
         ->assertInertia(fn (Assert $page) => $page->component('tv/pareamento'));
 });
 
+it('volta para a tela de pareamento depois que o usuario desconecta a tv', function (): void {
+    $user = User::factory()->create();
+    $dispositivo = tvPareada($user);
+
+    $this->actingAs($user)->delete(route('tv.dispositivos.destroy', $dispositivo->id));
+
+    $this->withCookie(TvController::COOKIE_DISPOSITIVO, 'token-da-tv')
+        ->get(route('tv'))
+        ->assertInertia(fn (Assert $page) => $page->component('tv/pareamento'));
+});
+
 it('exibe o board ativo com destaques separados e sem dados financeiros', function (): void {
     $user = User::factory()->create(['name' => 'Bistrô Sabor da Casa']);
     tvPareada($user);

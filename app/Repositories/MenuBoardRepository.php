@@ -57,6 +57,14 @@ class MenuBoardRepository extends AbstractRepository implements MenuBoardReposit
         }
     }
 
+    public function travarDoUsuario(int $usuarioId): void
+    {
+        $this->model->newQuery()
+            ->where('usuario_id', $usuarioId)
+            ->lockForUpdate()
+            ->pluck('id');
+    }
+
     public function desativarDoUsuario(int $usuarioId): int
     {
         return $this->model->newQuery()

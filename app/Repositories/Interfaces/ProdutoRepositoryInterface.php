@@ -6,6 +6,7 @@ use App\DTO\ProdutoSearchDTO;
 use App\Models\Produto;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 
 interface ProdutoRepositoryInterface extends AbstractRepositoryInterface
@@ -58,4 +59,11 @@ interface ProdutoRepositoryInterface extends AbstractRepositoryInterface
     public function ativosDoUsuario(int $usuarioId): Collection;
 
     public function atualizarFoto(int $id, ?string $fotoPath): Produto;
+
+    /**
+     * Grava o arquivo da foto no disco de produtos e retorna o caminho.
+     */
+    public function salvarArquivoFoto(UploadedFile $foto, int $usuarioId): string;
+
+    public function apagarArquivoFoto(string $fotoPath): void;
 }

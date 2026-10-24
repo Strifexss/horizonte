@@ -63,16 +63,20 @@ class MenuBoardsService extends ServiceAbstract implements MenuBoardsServiceInte
         return parent::delete($id);
     }
 
+    /**
+     * Os boards do usuário ficam travados até o commit, então ativações simultâneas entram em fila
+     * e só um board termina ativo.
+     */
     public function ativar(int $id, int $usuarioId): MenuBoard
     {
-        $board = $this->menuBoardRepository->findForUsuario($id, $usuarioId);
-
-        DB::transaction(function () use ($board, $usuarioId) {
+        return DB::transaction(function () use ($id, $usuarioId) {
+            $this->menuBoardRepository->travarDoUsuario($usuarioId);
+            $this->menuBoardRepository->findForUsuario($id, $usuarioId);
             $this->menuBoardRepository->desativarDoUsuario($usuarioId);
-            $this->menuBoardRepository->marcarAtivo($board->id);
-        });
+            $this->menuBoardRepository->marcarAtivo($id);
 
-        return $board;
+            return $this->menuBoardRepository->findForUsuario($id, $usuarioId);
+        });
     }
 
     public function findAtivoDoUsuario(int $usuarioId): ?MenuBoard

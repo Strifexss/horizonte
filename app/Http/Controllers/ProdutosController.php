@@ -14,6 +14,7 @@ use App\Services\Interfaces\FornecedoresServiceInterface;
 use App\Services\Interfaces\GruposServiceInterface;
 use App\Services\Interfaces\ProdutosServiceInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -86,10 +87,10 @@ class ProdutosController extends Controller
         }
     }
 
-    public function fotoStore(ProdutoFotoRequest $request, $id)
+    public function fotoStore(ProdutoFotoRequest $request, int $id): RedirectResponse
     {
         try {
-            $this->produtosService->salvarFoto((int) $id, $request->file('foto'));
+            $this->produtosService->salvarFoto($id, $request->file('foto'));
 
             return redirect()->back()->with('success', 'Foto do produto salva.');
         } catch (ModelNotFoundException $e) {
@@ -99,10 +100,10 @@ class ProdutosController extends Controller
         }
     }
 
-    public function fotoDestroy($id)
+    public function fotoDestroy(int $id): RedirectResponse
     {
         try {
-            $this->produtosService->removerFoto((int) $id);
+            $this->produtosService->removerFoto($id);
 
             return redirect()->back()->with('success', 'Foto do produto removida.');
         } catch (ModelNotFoundException $e) {

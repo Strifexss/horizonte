@@ -11,8 +11,10 @@ use App\Services\Interfaces\MenuBoardsServiceInterface;
 use App\Services\Interfaces\ProdutosServiceInterface;
 use App\Services\Interfaces\TvPareamentoServiceInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class MenuBoardsController extends Controller
 {
@@ -22,7 +24,7 @@ class MenuBoardsController extends Controller
         private TvPareamentoServiceInterface $tvPareamentoService,
     ) {}
 
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         $usuarioId = (int) $request->user()->id;
 
@@ -34,7 +36,7 @@ class MenuBoardsController extends Controller
         ]);
     }
 
-    public function create(Request $request)
+    public function create(Request $request): Response
     {
         $usuarioId = (int) $request->user()->id;
 
@@ -45,10 +47,10 @@ class MenuBoardsController extends Controller
         ]);
     }
 
-    public function edit(Request $request, $id)
+    public function edit(Request $request, int $id): Response
     {
         $usuarioId = (int) $request->user()->id;
-        $board = $this->menuBoardsService->findComItens((int) $id, $usuarioId);
+        $board = $this->menuBoardsService->findComItens($id, $usuarioId);
 
         return Inertia::render('menu-boards/form', [
             'board' => MenuBoardResource::make($board)->resolve(),
@@ -57,7 +59,7 @@ class MenuBoardsController extends Controller
         ]);
     }
 
-    public function store(StoreMenuBoardRequest $request)
+    public function store(StoreMenuBoardRequest $request): RedirectResponse
     {
         try {
             $this->menuBoardsService->store(
@@ -70,7 +72,7 @@ class MenuBoardsController extends Controller
         }
     }
 
-    public function update(StoreMenuBoardRequest $request, $id)
+    public function update(StoreMenuBoardRequest $request, int $id): RedirectResponse
     {
         try {
             $this->menuBoardsService->update(
@@ -86,7 +88,7 @@ class MenuBoardsController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         try {
             $this->menuBoardsService->delete($id);
@@ -99,9 +101,9 @@ class MenuBoardsController extends Controller
         }
     }
 
-    public function ativar(Request $request, $id)
+    public function ativar(Request $request, int $id): RedirectResponse
     {
-        $board = $this->menuBoardsService->ativar((int) $id, (int) $request->user()->id);
+        $board = $this->menuBoardsService->ativar($id, (int) $request->user()->id);
 
         return redirect()->back()->with('success', "“{$board->nome}” agora é o board da TV. A TV troca no próximo Sync.");
     }

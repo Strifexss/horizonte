@@ -10,7 +10,7 @@ use App\Services\Interfaces\ProdutosServiceInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class ProdutosService extends ServiceAbstract implements ProdutosServiceInterface
 {
@@ -56,9 +56,16 @@ class ProdutosService extends ServiceAbstract implements ProdutosServiceInterfac
     {
         $produto = $this->produtoRepository->findForUsuario($id);
         $fotoAnterior = $produto->foto_path;
-        $fotoPath = $foto->store('produtos/'.$produto->usuario_id, Produto::discoFotos());
+        $fotoPath = $this->produtoRepository->salvarArquivoFoto($foto, (int) $produto->usuario_id);
 
-        $produto = $this->produtoRepository->atualizarFoto($id, $fotoPath);
+        try {
+            $produto = $this->produtoRepository->atualizarFoto($id, $fotoPath);
+        } catch (Throwable $e) {
+            $this->apagarArquivoFoto($fotoPath);
+
+            throw $e;
+        }
+
         $this->apagarArquivoFoto($fotoAnterior);
 
         return $produto;
@@ -78,7 +85,7 @@ class ProdutosService extends ServiceAbstract implements ProdutosServiceInterfac
     private function apagarArquivoFoto(?string $fotoPath): void
     {
         if ($fotoPath) {
-            Storage::disk(Produto::discoFotos())->delete($fotoPath);
+            $this->produtoRepository->apagarArquivoFoto($fotoPath);
         }
     }
 }

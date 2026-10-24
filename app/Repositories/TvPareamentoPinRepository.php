@@ -13,11 +13,6 @@ class TvPareamentoPinRepository extends AbstractRepository implements TvPareamen
         parent::__construct($tvPareamentoPin);
     }
 
-    public function existeValido(string $pin): bool
-    {
-        return $this->validos()->where('pin', $pin)->exists();
-    }
-
     public function findValido(string $pin): ?TvPareamentoPin
     {
         return $this->validos()->where('pin', $pin)->first();
@@ -38,9 +33,18 @@ class TvPareamentoPinRepository extends AbstractRepository implements TvPareamen
             ->update(['expira_em' => now()]);
     }
 
-    public function marcarUsado(int $id): void
+    public function liberarPinsVencidos(): int
     {
-        $this->model->newQuery()->whereKey($id)->update(['usado_em' => now()]);
+        return $this->model->newQuery()
+            ->where(fn (Builder $query) => $query
+                ->whereNotNull('usado_em')
+                ->orWhere('expira_em', '<=', now()))
+            ->delete();
+    }
+
+    public function marcarUsado(int $id): bool
+    {
+        return $this->validos()->whereKey($id)->update(['usado_em' => now()]) === 1;
     }
 
     /**

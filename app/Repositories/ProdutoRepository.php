@@ -9,7 +9,9 @@ use App\Models\VendaItem;
 use App\Repositories\Interfaces\ProdutoRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryInterface
 {
@@ -140,6 +142,16 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
         $produto->update(['foto_path' => $fotoPath]);
 
         return $produto;
+    }
+
+    public function salvarArquivoFoto(UploadedFile $foto, int $usuarioId): string
+    {
+        return $foto->store('produtos/'.$usuarioId, Produto::discoFotos());
+    }
+
+    public function apagarArquivoFoto(string $fotoPath): void
+    {
+        Storage::disk(Produto::discoFotos())->delete($fotoPath);
     }
 
     /**
