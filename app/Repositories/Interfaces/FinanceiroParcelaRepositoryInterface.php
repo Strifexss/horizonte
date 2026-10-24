@@ -2,4 +2,14 @@
 
 namespace App\Repositories\Interfaces;
 
-interface FinanceiroParcelaRepositoryInterface extends AbstractRepositoryInterface {}
+use App\Models\FinanceiroParcela;
+
+interface FinanceiroParcelaRepositoryInterface extends AbstractRepositoryInterface
+{
+    /**
+     * Parcela do usuário autenticado com o financeiro carregado.
+     */
+    public function findDoUsuarioComFinanceiro(int $id): FinanceiroParcela;
+
+    public function updateFormaPagamentoDoFinanceiro(int $financeiroId, int $formaPagamentoId): void;
+}

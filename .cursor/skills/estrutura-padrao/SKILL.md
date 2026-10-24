@@ -199,7 +199,9 @@ Done: controller sem Model/`DB`/query; service sem Eloquent/SQL; repository é o
 
 Leia [front.md](front.md). Aplique `inertia-react-development`. Com Tailwind, `tailwindcss-development`.
 
-Page orquestra. Domínio em `resources/js/components/{plural}/` com nomes PT (`ContasForm`, `ContasCard`, `ContasEmpty`, `ContasSkeleton`). Reuse `padrões` e `ui`. `Inertia::defer` + `<Deferred>` + skeleton. `useForm` usa o **mesmo método da rota**.
+Page orquestra. Domínio em `resources/js/components/{plural}/` com nomes PT (`ContasForm`, `ContasTable`, `ContasFilters`, `ContasEmpty`). Reuse `padrões` e `ui`. `Inertia::defer` + `<Deferred>` + skeleton. `useForm` usa o **mesmo método da rota**.
+
+Listagem e mobile seguem o padrão do Extrato: tabela no desktop e cards no mobile (`TableWithFilters`), bolha de ações (`MobileFab`) e filtros no rodapé (`MobileFilterDock`). Leia **Listagem** e **Mobile da page** em [front.md](front.md). Referência viva: `pages/extrato/index.tsx` e `pages/vendas/index.tsx`.
 
 Modal / `Dialog` (create, edit, lista embutida, confirm): leia **Modal no mobile** em [front.md](front.md) e aplique o mesmo contrato. Referência viva: `resources/js/components/categorias/CategoriasModal.tsx`.
 
@@ -268,7 +270,7 @@ Estas regras mantêm separação de camadas, padrão de formato e boa UX para se
 
 Sidebar só se o intake pediu.
 
-Done: page sem markup de form/card/empty/skeleton (só importa); tipos TS = campos do DTO; método HTTP do form = rota; todo `Dialog` novo segue o contrato **Modal no mobile** de [front.md](front.md).
+Done: page sem markup de form/card/empty/skeleton (só importa); tipos TS = campos do DTO; método HTTP do form = rota; listagem e mobile batem com o **Done (page)** de [front.md](front.md); todo `Dialog` novo segue o contrato **Modal no mobile** de [front.md](front.md).
 
 ### 5. Fechar
 

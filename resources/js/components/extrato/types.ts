@@ -1,3 +1,5 @@
+import type { FormaPagamentoItem } from '@/components/formas-pagamento/types';
+
 export type ExtratoStatusTab = 'todos' | 'aberto' | 'pago' | 'parcial';
 
 export type ExtratoParcelaStatus = Exclude<ExtratoStatusTab, 'todos'>;
@@ -35,6 +37,8 @@ export type ExtratoParcela = {
     funcionario?: (ExtratoNamed & { salario?: number | string }) | null;
     conta?: ExtratoNamed | null;
     financeiro?: { tipo?: string | null } | null;
+    forma_pagamento?: ExtratoNamed | null;
+    venda_id?: number | null;
 };
 
 export type ExtratoFilters = {
@@ -43,6 +47,7 @@ export type ExtratoFilters = {
     data_fim?: string;
     conta_id?: number;
     categoria_id?: number;
+    forma_pagamento_id?: number;
     status?: string;
     busca?: string;
     per_page?: number;
@@ -82,6 +87,7 @@ export type ExtratoPageProps = {
     resumo?: ExtratoResumo;
     parcelas?: ExtratoParcelasPayload | null;
     categorias_padrao?: ExtratoCategoriasPadrao | null;
+    formas_pagamento?: { data: FormaPagamentoItem[] } | FormaPagamentoItem[];
 };
 
 export type ExtratoQueryOverride = Record<string, string | number | null | undefined>;

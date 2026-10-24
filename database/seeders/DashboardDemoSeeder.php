@@ -6,6 +6,7 @@ use App\Models\Categoria;
 use App\Models\Conta;
 use App\Models\Financeiro;
 use App\Models\FinanceiroParcela;
+use App\Models\FormaPagamento;
 use App\Models\Grupo;
 use App\Models\Produto;
 use App\Models\User;
@@ -79,6 +80,7 @@ class DashboardDemoSeeder extends Seeder
                 'valor' => $valor,
                 'tipo' => 'RECEITA',
                 'usuario_id' => $user->id,
+                'forma_pagamento_id' => $this->formaPagamentoEspecieId(),
             ]);
 
             FinanceiroParcela::query()->create([
@@ -96,6 +98,14 @@ class DashboardDemoSeeder extends Seeder
         }
 
         $this->seedDespesasPorGrupo($user, $conta);
+    }
+
+    private function formaPagamentoEspecieId(): int
+    {
+        return (int) FormaPagamento::query()
+            ->where('nome', FormaPagamento::NOME_ESPECIE)
+            ->whereNull('usuario_id')
+            ->value('id');
     }
 
     private function seedDespesasPorGrupo(User $user, Conta $conta): void
@@ -200,6 +210,7 @@ class DashboardDemoSeeder extends Seeder
                 'valor' => $valor,
                 'tipo' => 'DESPESA',
                 'usuario_id' => $user->id,
+                'forma_pagamento_id' => $this->formaPagamentoEspecieId(),
             ]);
 
             FinanceiroParcela::query()->create([

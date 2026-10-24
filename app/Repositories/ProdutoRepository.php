@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\DTO\ProdutoSearchDTO;
 use App\Models\FinanceiroParcela;
 use App\Models\Produto;
+use App\Models\VendaItem;
 use App\Repositories\Interfaces\ProdutoRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -89,6 +90,38 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
         return FinanceiroParcela::query()
             ->where('produto_id', $produtoId)
             ->count();
+    }
+
+    public function countVendaItensByProdutoId(int $produtoId): int
+    {
+        return VendaItem::query()
+            ->where('produto_id', $produtoId)
+            ->count();
+    }
+
+    public function findManyDoUsuario(array $ids): Collection
+    {
+        return $this->model->newQuery()
+            ->where('usuario_id', Auth::id())
+            ->whereIn('id', $ids)
+            ->get()
+            ->keyBy('id');
+    }
+
+    public function autocompleteParaVenda(?string $q = null): Collection
+    {
+        $query = $this->model->newQuery()
+            ->where('usuario_id', Auth::id())
+            ->where('ativo', true);
+
+        if ($q !== null && $q !== '') {
+            $this->applyAccentInsensitiveLike($query, 'nome', $q);
+        }
+
+        return $query
+            ->orderBy('nome')
+            ->limit(20)
+            ->get(['id', 'nome', 'preco_venda']);
     }
 
     /**

@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
     Dialog,
-    DialogTrigger,
     DialogContent,
     DialogHeader,
     DialogTitle,
@@ -30,6 +29,7 @@ import {
 import { MoreHorizontal } from 'lucide-react';
 import AccountsSkeleton from '@/components/contas/AccountsSkeleton';
 import AccountsEmpty from '@/components/contas/AccountsEmpty';
+import ContasForm from '@/components/contas/ContasForm';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -52,13 +52,6 @@ function formatCurrency(value: number) {
 
 export default function Contas({ contas = [] }: { contas?: Array<any> }) {
     const [open, setOpen] = React.useState(false);
-
-    const { data, setData, post, processing, errors, reset } = useForm({
-        nome: '',
-        descricao: '',
-        padrao: false,
-    });
-    
     const [editOpen, setEditOpen] = React.useState(false);
     const [editingAccount, setEditingAccount] = React.useState<any | null>(null);
     const [confirmOpen, setConfirmOpen] = React.useState(false);
@@ -71,16 +64,6 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
     });
 
     const { delete: destroy } = useForm({});
-
-    const submit: React.FormEventHandler = (e) => {
-        e.preventDefault();
-        post('/contas', {
-            onSuccess: () => {
-                setOpen(false);
-                reset('nome', 'descricao', 'padrao');
-            },
-        });
-    };
 
     const openEdit = (acc: any) => {
         setEditingAccount(acc);
@@ -128,71 +111,14 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
                     title="Contas e bancos"
                     subtitle="Tudo em um só lugar"
                     actions={
-                        <Dialog open={open} onOpenChange={setOpen}>
-                            <DialogTrigger asChild>
-                                <Button variant="primary" size="default" className="inline-flex items-center gap-2">
-                                    <Plus className="h-4 w-4" />
-                                    Adicionar conta
-                                </Button>
-                            </DialogTrigger>
-
-                            <DialogContent className="h-[100dvh] md:h-auto md:w-[500px] max-w-full overflow-hidden flex flex-col">
-                                <DialogHeader>
-                                    <DialogTitle>Adicionar conta</DialogTitle>
-                                    <DialogDescription>Preencha os dados para cadastrar uma nova conta.</DialogDescription>
-                                </DialogHeader>
-
-                                <form onSubmit={submit} className="grid gap-4 mt-2">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="nome">Nome</Label>
-                                        <Input
-                                            id="nome"
-                                            value={data.nome}
-                                            onChange={(e) => setData('nome', e.target.value)}
-                                            placeholder="Ex: Conta corrente"
-                                            disabled={processing}
-                                        />
-                                        <InputError message={errors.nome} />
-                                    </div>
-
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="descricao">Descrição</Label>
-                                        <Input
-                                            id="descricao"
-                                            value={data.descricao}
-                                            onChange={(e) => setData('descricao', e.target.value)}
-                                            placeholder="Opcional"
-                                            disabled={processing}
-                                        />
-                                        <InputError message={errors.descricao} />
-                                    </div>
-
-                                    <div className="flex items-center gap-2">
-                                        <Checkbox
-                                            id="padrao"
-                                            checked={!!data.padrao}
-                                            onCheckedChange={(checked) => setData('padrao', checked === true)}
-                                            disabled={processing}
-                                        />
-                                        <Label htmlFor="padrao">Definir como conta padrão</Label>
-                                    </div>
-                                    <InputError message={errors.padrao} />
-
-                                    <DialogFooter>
-                                        <DialogClose asChild>
-                                            <Button variant="secondary" type="button" disabled={processing}>
-                                                Cancelar
-                                            </Button>
-                                        </DialogClose>
-                                        <Button type="submit" className="ml-2" disabled={processing}>
-                                            Salvar
-                                        </Button>
-                                    </DialogFooter>
-                                </form>
-                            </DialogContent>
-                        </Dialog>
+                        <Button variant="primary" size="default" className="inline-flex items-center gap-2" onClick={() => setOpen(true)}>
+                            <Plus className="h-4 w-4" />
+                            Adicionar conta
+                        </Button>
                     }
                 />
+
+                <ContasForm open={open} onOpenChange={setOpen} />
 
                 {/* Edit dialog */}
                 <Dialog open={editOpen} onOpenChange={setEditOpen}>

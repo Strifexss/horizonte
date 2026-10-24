@@ -254,6 +254,7 @@ it('nao consulta uso na listagem e so bloqueia a exclusao quando o usuario confi
         'usuario_id' => $user->id,
     ]);
     $financeiro = Financeiro::query()->create([
+        'forma_pagamento_id' => formaPagamentoEspecieId(),
         'descricao' => 'Compra mouse',
         'valor' => 80,
         'tipo' => 'DESPESA',

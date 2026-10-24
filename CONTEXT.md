@@ -32,6 +32,42 @@ _Avoid_: Vencimento, data de pagamento
 Líquido de um mês: valor das parcelas de receita menos valor das parcelas de despesa daquele mês, pagas ou não.
 _Avoid_: Saldo acumulado, saldo de caixa
 
+**Forma de pagamento**:
+Meio pelo qual um lançamento é pago ou recebido (Espécie, Pix, cartão...). Todo lançamento tem uma.
+_Avoid_: Meio de pagamento, método
+
+**Forma de pagamento padrão**:
+Forma de pagamento do sistema, igual para todos os Usuários e somente leitura para eles.
+_Avoid_: Forma de pagamento global
+
+**Forma de pagamento própria**:
+Forma de pagamento cadastrada por um Usuário, visível só para ele.
+_Avoid_: Forma customizada
+
+**Baixa automática**:
+Propriedade da Forma de pagamento que faz a receita de uma Venda nascer paga; sem ela, a receita nasce em aberto.
+_Avoid_: Pagamento automático
+
+> "Padrão" muda de sentido: em Categoria e Forma de pagamento é "do sistema, para todos"; em Conta é "a conta preferida do Usuário".
+
+### Vendas
+
+**Venda**:
+Conjunto de itens vendidos pelo Usuário com os pagamentos recebidos por eles. Nasce **aberta**, fica **fechada** quando a soma dos pagamentos iguala o total e pode ser **cancelada** a qualquer momento.
+_Avoid_: Pedido, caixa
+
+**Item da venda**:
+Produto, quantidade e valor unitário gravados na Venda; não mudam se o produto mudar depois.
+_Avoid_: Linha, produto da venda
+
+**Pagamento da venda**:
+Parte do total da Venda recebida por uma Forma de pagamento. No fechamento, cada um vira uma receita.
+_Avoid_: Parcela (parcela é do financeiro)
+
+**Cancelar venda**:
+Marcar a Venda como cancelada e excluir as receitas que ela gerou.
+_Avoid_: Excluir venda, estornar
+
 ### Dashboard
 
 **Período de referência**:

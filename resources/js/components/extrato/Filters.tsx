@@ -17,6 +17,7 @@ type FiltersProps = {
     produto_id?: number;
     grupo_id?: number;
     fornecedor_id?: number;
+    forma_pagamento_id?: number;
     status?: string;
 };
 
@@ -86,6 +87,11 @@ function buildPayload(
         payload.fornecedor_nome = values.fornecedor.nome;
     }
 
+    if (values.formaPagamento) {
+        payload.forma_pagamento_id = Number(values.formaPagamento.id);
+        payload.forma_pagamento_nome = values.formaPagamento.nome;
+    }
+
     if (extras.busca) {
         payload.busca = extras.busca;
     }
@@ -130,9 +136,15 @@ export default function ExtratoFilters() {
                       nome: queryNome('fornecedor_nome') || String(filters.fornecedor_id),
                   }
                 : null,
+            formaPagamento: filters.forma_pagamento_id
+                ? {
+                      id: filters.forma_pagamento_id,
+                      nome: queryNome('forma_pagamento_nome') || String(filters.forma_pagamento_id),
+                  }
+                : null,
             status: filters.status ?? 'todos',
         }),
-        [filters.tipo_data, filters.data_inicio, filters.data_fim, filters.conta_id, filters.categoria_id, filters.produto_id, filters.grupo_id, filters.fornecedor_id, filters.status],
+        [filters.tipo_data, filters.data_inicio, filters.data_fim, filters.conta_id, filters.categoria_id, filters.produto_id, filters.grupo_id, filters.fornecedor_id, filters.forma_pagamento_id, filters.status],
     );
 
     const [values, setValues] = useState<ExtratoFilterValues>(initialValues);
@@ -183,6 +195,14 @@ export default function ExtratoFilters() {
         return res.json();
     };
 
+    const loadFormasPagamento = async (q: string): Promise<FilterOption[]> => {
+        const res = await fetch(`/formas-pagamento/autocomplete?q=${encodeURIComponent(q)}`);
+        if (!res.ok) {
+            return [];
+        }
+        return res.json();
+    };
+
     const extras = () => ({
         busca: filters.busca,
         per_page: filters.per_page ?? 20,
@@ -203,6 +223,7 @@ export default function ExtratoFilters() {
             produto: null,
             grupo: null,
             fornecedor: null,
+            formaPagamento: null,
             status: 'todos',
         };
         setValues(next);
@@ -223,6 +244,7 @@ export default function ExtratoFilters() {
                 loadProdutos={loadProdutos}
                 loadGrupos={loadGrupos}
                 loadFornecedores={loadFornecedores}
+                loadFormasPagamento={loadFormasPagamento}
             />
 
             <div className="hidden rounded-lg border border-sidebar-border/70 bg-white p-4 shadow-sm md:block dark:bg-slate-900">
@@ -234,6 +256,7 @@ export default function ExtratoFilters() {
                     loadProdutos={loadProdutos}
                     loadGrupos={loadGrupos}
                     loadFornecedores={loadFornecedores}
+                    loadFormasPagamento={loadFormasPagamento}
                 />
                 <div className="mt-3 flex justify-end md:col-span-8">
                     <Button

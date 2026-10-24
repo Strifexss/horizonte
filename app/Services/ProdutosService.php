@@ -32,7 +32,8 @@ class ProdutosService extends ServiceAbstract implements ProdutosServiceInterfac
     {
         $this->produtoRepository->findForUsuario((int) $id);
 
-        if ($this->produtoRepository->countParcelasByProdutoId((int) $id) > 0) {
+        if ($this->produtoRepository->countParcelasByProdutoId((int) $id) > 0
+            || $this->produtoRepository->countVendaItensByProdutoId((int) $id) > 0) {
             throw new ProdutoEmUsoException;
         }
 

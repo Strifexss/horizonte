@@ -45,4 +45,13 @@ class ContaRepository extends AbstractRepository implements ContaRepositoryInter
 
         return $query->update(['padrao' => 0]);
     }
+
+    public function padraoDoUsuario(int $usuarioId): ?Conta
+    {
+        return $this->model->newQuery()
+            ->where('usuario_id', $usuarioId)
+            ->orderByDesc('padrao')
+            ->orderBy('id')
+            ->first();
+    }
 }

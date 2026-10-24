@@ -26,6 +26,8 @@ class Financeiro extends Model
         'valor',
         'tipo',
         'usuario_id',
+        'forma_pagamento_id',
+        'venda_id',
     ];
 
     /**
@@ -42,7 +44,19 @@ class Financeiro extends Model
             'tipo' => 'string',
             'categoria_id' => 'integer',
             'conta_id' => 'integer',
+            'forma_pagamento_id' => 'integer',
+            'venda_id' => 'integer',
         ];
+    }
+
+    public function formaPagamento()
+    {
+        return $this->belongsTo(FormaPagamento::class, 'forma_pagamento_id');
+    }
+
+    public function venda()
+    {
+        return $this->belongsTo(Venda::class, 'venda_id');
     }
 
     public function usuario()

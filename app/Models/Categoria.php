@@ -10,6 +10,8 @@ class Categoria extends Model
 {
     use HasFactory;
 
+    public const NOME_VENDA = 'Venda';
+
     /**
      * Tabela associada (nome no migration).
      *

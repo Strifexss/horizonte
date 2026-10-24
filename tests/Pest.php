@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\FormaPagamento;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -44,7 +45,10 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+function formaPagamentoEspecieId(): int
 {
-    // ..
+    return (int) FormaPagamento::query()
+        ->where('nome', FormaPagamento::NOME_ESPECIE)
+        ->whereNull('usuario_id')
+        ->value('id');
 }

@@ -7,7 +7,7 @@ Três níveis. A page **orquestra**; markup de domínio vive no nível certo.
 | Nível | Pasta | Quando |
 |---|---|---|
 | `ui` | `resources/js/components/ui/` | Primitivo: Button, Dialog, Card, Input, Label… |
-| `padrões` | `resources/js/components/padrões/` | Vale para **todas** as telas: `PageTitle`, `KpisPanel`, `KpiCard`, `TableWithFilters` (barrel em `index.ts`). |
+| `padrões` | `resources/js/components/padrões/` | Vale para **todas** as telas: `PageTitle`, `KpisPanel`, `KpiCard`, `TableWithFilters`, `TablePagination`, `MobileCardList`, `MobileFab`, `MobileFilterDock`, `FiltroPeriodoDatas` (barrel em `index.ts`). |
 | domínio | `resources/js/components/{plural}/` | Só desta rotina. Nomes PT: `{Plural}Form`, `{Plural}Card`, `{Plural}Empty`, `{Plural}Skeleton`. |
 | page | `resources/js/pages/{plural}/index.tsx` | Layout, `Head`, título, `Deferred`, estado e wiring dos forms. |
 
@@ -17,20 +17,21 @@ Promova a `padrões` quando a **segunda** tela precisar do mesmo bloco. Até lá
 
 ## Page-alvo
 
+Referência viva: `pages/extrato/index.tsx` (completa) e `pages/vendas/index.tsx` (rotina enxuta).
+
 ```tsx
 <AppLayout breadcrumbs={breadcrumbs}>
     <Head title="…" />
-    <PageTitle title="…" subtitle="…" actions={<AbrirCreate />} />
-    <Deferred data="{plural}" fallback={<PluralSkeleton />}>
-        {itens?.length ? itens.map(item => (
-            <PluralCard key={item.id} item={item} onEdit={…} onDelete={…} />
-        )) : (
-            <PluralEmpty onAdd={…} />
-        )}
-    </Deferred>
-    <PluralForm mode="create" … />
-    <PluralForm mode="edit" … />
-    {/* confirm de exclusão: diálogo no domínio ou no Form */}
+    <div className="flex h-full w-full max-w-full min-w-0 flex-1 flex-col gap-2 overflow-x-hidden rounded-xl p-4 pb-28 md:gap-4 md:pb-4">
+        <PageTitle title="…" mobileTitle="…" subtitle="…" actions={<Button className="hidden md:inline-flex">…</Button>} />
+        <MobileFab actions={[/* mesmas ações do PageTitle */]} />
+        <PluralFilters />                     {/* MobileFilterDock + card de filtros `hidden md:block` */}
+        <Deferred data="{plural}" fallback={<PluralTable loaded={false} … />}>
+            <PluralTable loaded items={…} meta={…} … />   {/* TableWithFilters */}
+        </Deferred>
+        <PluralForm … />
+        <ConfirmDeleteModal … />
+    </div>
 </AppLayout>
 ```
 
@@ -45,6 +46,31 @@ Controller: `Inertia::defer` no `index`. Skeleton no `fallback` do `<Deferred>`.
 Ler PHP em [camadas.md](camadas.md). Na page atual de contas, o alvo acima é a forma correta.
 
 `AccountsEmpty` / `AccountsSkeleton` existem; rotina nova usa nomes PT. Dialogs e cards embutidos na page, tipo `Account` com `name`/`balance`, e `patch()` numa rota `PUT` são o desvio — a rotina nova segue o alvo e o verbo da rota.
+
+## Listagem
+
+Toda listagem usa `TableWithFilters` no padrão do Extrato: **tabela no desktop, cards no mobile**. O domínio só declara colunas e encaixes, em `{Plural}Table`.
+
+- `columns: Column<Item>[]` com `label` em caixa alta, `thClassName` (largura/alinhamento, vale também para o `td`), `render` e `sortable` quando o backend ordena por aquela coluna.
+- Encaixes: `toolbar` (busca, abas de status), `mobile` (o `MobileCardList`), `empty` (`{Plural}Empty`), `sort`, `pagination` (props do `TablePagination`, com `itemLabel` no plural), `onRowClick` quando a linha abre o item.
+- Carregando: `loaded={false}` mostra o skeleton padrão. O `fallback` do `<Deferred>` é a própria `{Plural}Table` com `loaded={false}`.
+- Ações da linha no desktop: coluna `AÇÃO` com menu `MoreHorizontal` (Editar, Excluir…).
+
+## Mobile da page
+
+Contrato da rotina abaixo de `md`. Referência viva: Extrato e Vendas (com filtros); Produtos e Formas de pagamento (sem filtros).
+
+| Bloco | Mobile | Componente |
+|---|---|---|
+| Título | `mobileTitle` curto; subtítulo some sozinho | `PageTitle` |
+| Ações da page | bolha `+` fixa no canto, abre a pilha de ações | `MobileFab` (botões do `PageTitle` ficam `hidden md:inline-flex`) |
+| Filtros | barra fixa no rodapé: setas de mês + período + botão **Filtros** com contador; a folha de baixo traz os mesmos campos do desktop | `MobileFilterDock` com `{Plural}FilterFields` como filho; o card de filtros do desktop fica `hidden md:block` |
+| Lista | cards; **toque** abre o item, **segurar 1s** revela a faixa de ações (ação destrutiva com `destructive`) | `MobileCardList` no encaixe `mobile` da `TableWithFilters` |
+| Container | `pb-28 md:pb-4` para a barra de filtros e a bolha não cobrirem o último card | page |
+
+Barra de filtros só existe quando a rotina tem filtros além da busca (período, status, selects). Busca sozinha fica na `toolbar` da `TableWithFilters`, que aparece no mobile também; rotina sem filtro nenhum não tem barra. Bolha e cards valem para toda rotina com listagem.
+
+`{Plural}Filters` guarda o rascunho dos valores e renderiza os dois lados (dock e card), aplicando via `visit{Plural}`. Os campos vivem uma vez só em `{Plural}FilterFields` (prop `idPrefix` para não repetir ids).
 
 ## Modal no mobile
 
@@ -87,4 +113,6 @@ O X de fechar fica `absolute` no `ui`; não entra no fluxo.
 
 Segundo `Dialog` **sem** as classes de tela cheia. Footer sem `flex-row`.
 
-Done: mobile = viewport cheio; eixo principal coluna; abas, botões do form e ações da linha em `row`; lista com scroll próprio.
+Done (modal): mobile = viewport cheio; eixo principal coluna; abas, botões do form e ações da linha em `row`; lista com scroll próprio.
+
+Done (page): listagem em `TableWithFilters` com `mobile` em `MobileCardList`; ações da page no `MobileFab`; filtros no `MobileFilterDock` + card `hidden md:block`; container com `pb-28 md:pb-4`.

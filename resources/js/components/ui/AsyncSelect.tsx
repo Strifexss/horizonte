@@ -16,6 +16,7 @@ interface AsyncSelectProps {
   /** When set, prepends a "+ Cadastrar" option if the typed text has no exact match. */
   creatable?: boolean;
   formatCreateLabel?: (input: string) => string;
+  isDisabled?: boolean;
 }
 
 type SelectOption = { value: number | string; label: string; __raw: Option; __isCreate?: boolean };
@@ -206,6 +207,7 @@ export default function AsyncSelect({
   selectRef,
   creatable = false,
   formatCreateLabel = (input: string) => `+ Cadastrar "${input}"`,
+  isDisabled = false,
 }: AsyncSelectProps) {
   const [options, setOptions] = useState<SelectOption[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -316,6 +318,7 @@ export default function AsyncSelect({
       onChange={handleChange}
       value={selected}
       isClearable={isClearable}
+      isDisabled={isDisabled}
       placeholder={placeholder}
       styles={selectStyles}
       components={{ MenuList: ScrollableMenuList }}

@@ -1,15 +1,10 @@
 import { formatCurrency, formatDateISO, parcelaEhReceita, statusDaParcela } from '@/components/extrato/format';
+import type { Column } from '@/components/padrões';
 import type { ExtratoParcela } from '@/components/extrato/types';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ArrowDownRight, ArrowUpRight, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import type { ReactNode } from 'react';
 
-export type ExtratoTableColumn = {
-    key: string;
-    label: string;
-    thClassName?: string;
-    render: (p: ExtratoParcela) => ReactNode;
-};
+export type ExtratoTableColumn = Column<ExtratoParcela>;
 
 type ExtratoTableColumnsProps = {
     onEdit: (parcela: ExtratoParcela) => void;
@@ -21,12 +16,14 @@ export function extratoTableColumns({ onEdit, onDelete }: ExtratoTableColumnsPro
         {
             key: 'data',
             label: 'DATA',
+            sortable: true,
             thClassName: 'w-24',
             render: (p) => formatDateISO(p.data_competencia),
         },
         {
             key: 'descricao',
             label: 'DESCRIÇÃO',
+            sortable: true,
             thClassName: 'w-48',
             render: (p) => {
                 const isReceita = parcelaEhReceita(p);
@@ -61,6 +58,7 @@ export function extratoTableColumns({ onEdit, onDelete }: ExtratoTableColumnsPro
         {
             key: 'quantidade',
             label: 'QTD',
+            sortable: true,
             thClassName: 'w-16 text-center',
             render: (p) => {
                 const isProduto = p.categoria?.nome?.toUpperCase() === 'PRODUTO' || p.produto_id != null;
@@ -108,8 +106,15 @@ export function extratoTableColumns({ onEdit, onDelete }: ExtratoTableColumnsPro
             render: (p) => <span className="truncate">{p.conta?.nome ?? ''}</span>,
         },
         {
+            key: 'forma_pagamento',
+            label: 'FORMA',
+            thClassName: 'w-28',
+            render: (p) => <span className="truncate">{p.forma_pagamento?.nome ?? ''}</span>,
+        },
+        {
             key: 'valor',
             label: 'VALOR',
+            sortable: true,
             thClassName: 'w-28 text-right',
             render: (p) => (
                 <div className={`text-right ${parcelaEhReceita(p) ? 'text-green-600' : 'text-red-600'}`}>{formatCurrency(Number(p.valor ?? 0))}</div>
@@ -118,6 +123,7 @@ export function extratoTableColumns({ onEdit, onDelete }: ExtratoTableColumnsPro
         {
             key: 'valor_pago',
             label: 'PAGO',
+            sortable: true,
             thClassName: 'w-28 text-right',
             render: (p) => (
                 <div className={`text-right ${parcelaEhReceita(p) ? 'text-green-600' : 'text-red-600'}`}>
@@ -162,10 +168,12 @@ export function extratoTableColumns({ onEdit, onDelete }: ExtratoTableColumnsPro
                                 <Pencil className="mr-2 h-4 w-4" />
                                 Editar
                             </DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => onDelete(p)}>
-                                <Trash2 className="mr-2 h-4 w-4 text-red-600" />
-                                Excluir
-                            </DropdownMenuItem>
+                            {p.venda_id == null ? (
+                                <DropdownMenuItem onSelect={() => onDelete(p)}>
+                                    <Trash2 className="mr-2 h-4 w-4 text-red-600" />
+                                    Excluir
+                                </DropdownMenuItem>
+                            ) : null}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

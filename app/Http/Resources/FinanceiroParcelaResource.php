@@ -33,6 +33,10 @@ class FinanceiroParcelaResource extends JsonResource
             'conta' => $this->conta,
             'quantidade' => $this->quantidade ?? 1,
             'financeiro' => $this->financeiro,
+            'forma_pagamento' => $this->financeiro?->formaPagamento
+                ? ['id' => $this->financeiro->formaPagamento->id, 'nome' => $this->financeiro->formaPagamento->nome]
+                : null,
+            'venda_id' => $this->financeiro?->venda_id,
         ];
     }
 }

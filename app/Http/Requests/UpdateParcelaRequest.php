@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateParcelaRequest extends FormRequest
 {
@@ -44,6 +46,14 @@ class UpdateParcelaRequest extends FormRequest
             'conta_id' => ['nullable', 'integer', 'exists:conta,id'],
             'quantidade' => ['nullable', 'integer', 'min:1'],
             'financeiro_id' => ['nullable', 'integer', 'exists:financeiro,id'],
+            'forma_pagamento_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('forma_pagamento', 'id')
+                    ->where(fn (Builder $query) => $query->where(function (Builder $visiveis) {
+                        $visiveis->whereNull('usuario_id')->orWhere('usuario_id', $this->user()?->id);
+                    })),
+            ],
             'usuario_id' => ['nullable', 'integer', 'exists:users,id'],
         ];
     }

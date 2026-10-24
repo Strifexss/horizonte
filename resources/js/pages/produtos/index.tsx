@@ -1,5 +1,5 @@
 import ConfirmDeleteModal from '@/components/extrato/ConfirmDeleteModal';
-import { PageTitle } from '@/components/padrões';
+import { MobileFab, PageTitle } from '@/components/padrões';
 import ProdutosForm from '@/components/produtos/ProdutosForm';
 import ProdutosTable from '@/components/produtos/ProdutosTable';
 import { visitProdutos } from '@/components/produtos/produtosQuery';
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Deferred, Head, router, usePage } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { Package, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -78,11 +78,23 @@ export default function ProdutosIndex() {
                     title="Produtos"
                     subtitle="Cadastre e gerencie os produtos"
                     actions={
-                        <Button variant="primary" size="default" className="inline-flex items-center gap-2" onClick={openCreate}>
+                        <Button variant="primary" size="default" className="hidden items-center gap-2 md:inline-flex" onClick={openCreate}>
                             <Plus className="h-4 w-4" />
                             Adicionar produto
                         </Button>
                     }
+                />
+
+                <MobileFab
+                    actions={[
+                        {
+                            key: 'novo-produto',
+                            label: '+ Novo Produto',
+                            icon: <Package className="h-4 w-4" />,
+                            className: 'bg-amber-500 text-white hover:bg-amber-600',
+                            onClick: openCreate,
+                        },
+                    ]}
                 />
 
                 <Deferred data="produtos" fallback={<ProdutosTable

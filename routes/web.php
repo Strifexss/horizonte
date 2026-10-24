@@ -5,12 +5,14 @@ use App\Http\Controllers\ContasController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExtratoController;
 use App\Http\Controllers\ExtratoPdfController;
+use App\Http\Controllers\FormasPagamentoController;
 use App\Http\Controllers\FornecedoresController;
 use App\Http\Controllers\FuncionariosController;
 use App\Http\Controllers\GruposController;
 use App\Http\Controllers\ParcelaController;
 use App\Http\Controllers\ProdutosController;
 use App\Http\Controllers\UsuariosController;
+use App\Http\Controllers\VendasController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -71,6 +73,22 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [GruposController::class, 'store'])->name('grupos.store');
         Route::put('/{id}', [GruposController::class, 'update'])->name('grupos.update');
         Route::delete('/{id}', [GruposController::class, 'destroy'])->name('grupos.destroy');
+    });
+
+    Route::group(['prefix' => 'formas-pagamento'], function () {
+        Route::get('/', [FormasPagamentoController::class, 'index'])->name('formas-pagamento');
+        Route::get('/autocomplete', [FormasPagamentoController::class, 'autocomplete'])->name('formas-pagamento.autocomplete');
+        Route::post('/', [FormasPagamentoController::class, 'store'])->name('formas-pagamento.store');
+        Route::put('/{id}', [FormasPagamentoController::class, 'update'])->name('formas-pagamento.update');
+        Route::delete('/{id}', [FormasPagamentoController::class, 'destroy'])->name('formas-pagamento.destroy');
+    });
+
+    Route::group(['prefix' => 'vendas'], function () {
+        Route::get('/', [VendasController::class, 'index'])->name('vendas');
+        Route::get('/produtos', [VendasController::class, 'produtosAutocomplete'])->name('vendas.produtos');
+        Route::post('/', [VendasController::class, 'store'])->name('vendas.store');
+        Route::put('/{id}', [VendasController::class, 'update'])->name('vendas.update');
+        Route::post('/{id}/cancelar', [VendasController::class, 'cancelar'])->name('vendas.cancelar');
     });
 
     Route::group(['prefix' => 'funcionarios'], function () {

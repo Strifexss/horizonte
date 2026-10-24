@@ -5,6 +5,7 @@ namespace App\Repositories\Interfaces;
 use App\DTO\ProdutoSearchDTO;
 use App\Models\Produto;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 
 interface ProdutoRepositoryInterface extends AbstractRepositoryInterface
@@ -29,6 +30,23 @@ interface ProdutoRepositoryInterface extends AbstractRepositoryInterface
     public function findForUsuario(int $id): Produto;
 
     public function countParcelasByProdutoId(int $produtoId): int;
+
+    public function countVendaItensByProdutoId(int $produtoId): int;
+
+    /**
+     * Produtos do usuário autenticado entre os ids informados, indexados por id.
+     *
+     * @param  list<int>  $ids
+     * @return EloquentCollection<int, Produto>
+     */
+    public function findManyDoUsuario(array $ids): EloquentCollection;
+
+    /**
+     * Produtos ativos do usuário autenticado para adicionar numa venda.
+     *
+     * @return EloquentCollection<int, Produto>
+     */
+    public function autocompleteParaVenda(?string $q = null): EloquentCollection;
 
     public function indexFiltrado(ProdutoSearchDTO $filters): LengthAwarePaginator;
 }

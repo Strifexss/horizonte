@@ -21,6 +21,7 @@ it('stores and lists financeiro records for authenticated user', function () {
         'tipo' => 'RECEITA',
         'conta_id' => 1,
         'usuario_id' => $user->id,
+        'forma_pagamento_id' => formaPagamentoEspecieId(),
     ];
 
     // store via repository
@@ -65,6 +66,7 @@ it('rejects extrato store when qtd_parcelas is less than one', function () {
             'data_vencimento' => '2026-08-30',
             'valor_pago' => 10,
             'qtd_parcelas' => 0,
+            'forma_pagamento_id' => formaPagamentoEspecieId(),
         ])
         ->assertRedirect(route('extrato.index'))
         ->assertSessionHasErrors(['qtd_parcelas']);
@@ -86,6 +88,7 @@ it('maps validated extrato payload onto FinanceiroDTO', function () {
         'data_vencimento' => '2026-08-30',
         'valor_pago' => 50,
         'qtd_parcelas' => 3,
+        'forma_pagamento_id' => formaPagamentoEspecieId(),
     ]);
 
     expect($dto->data_vencimento)->toBe('2026-08-30')
@@ -116,6 +119,7 @@ it('creates a lancamento when extrato store payload is valid', function () {
             'data_vencimento' => '2026-08-30',
             'valor_pago' => 50,
             'qtd_parcelas' => 3,
+            'forma_pagamento_id' => formaPagamentoEspecieId(),
         ])
         ->assertRedirect(route('extrato.index'))
         ->assertSessionHas('success');
@@ -185,6 +189,7 @@ it('persists quantidade on create, shows it on extrato, and keeps it after edit'
             'data_competencia' => '2026-10-14',
             'valor_pago' => 50,
             'qtd_parcelas' => 1,
+            'forma_pagamento_id' => formaPagamentoEspecieId(),
         ])
         ->assertRedirect(route('extrato.index'))
         ->assertSessionHas('success');

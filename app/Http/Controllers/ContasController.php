@@ -28,6 +28,10 @@ class ContasController extends Controller
                 ContaDTO::fromArray($request->validated())
             );
 
+            if (str_contains((string) url()->previous(), '/vendas')) {
+                return redirect()->back()->with('success', 'Conta criada com sucesso.');
+            }
+
             return redirect()->route('contas')->with('success', 'Conta criada com sucesso.');
 
         } catch (\Exception $e) {

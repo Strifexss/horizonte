@@ -5,6 +5,7 @@ namespace App\Services;
 use App\DTO\FinanceiroDTO;
 use App\DTO\FinanceiroParcelaDTO;
 use App\DTO\FinanceiroSearchDTO;
+use App\Exceptions\LancamentoDeVendaException;
 use App\Models\FinanceiroParcela;
 use App\Repositories\Interfaces\FinanceiroRepositoryInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
@@ -38,6 +39,15 @@ class ExtratoService extends ServiceAbstract implements ExtratoServiceInterface
     public function show(int $id)
     {
         return $this->repository->find($id);
+    }
+
+    public function delete($id)
+    {
+        if ($this->repository->find((int) $id)->venda_id !== null) {
+            throw new LancamentoDeVendaException;
+        }
+
+        return parent::delete($id);
     }
 
     /**

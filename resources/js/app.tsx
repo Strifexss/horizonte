@@ -1,6 +1,6 @@
 import '../css/app.css';
 
-import { createInertiaApp } from '@inertiajs/react';
+import { createInertiaApp, router } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { route as routeFn } from 'ziggy-js';
@@ -35,3 +35,11 @@ createInertiaApp({
 });
 
 initializeTheme();
+
+/**
+ * Radix trava o body com `pointer-events: none` enquanto há Dialog/Dropdown modal aberto e não o libera
+ * quando duas camadas desmontam juntas (ex.: link dentro de menu dentro de modal), deixando a page seguinte sem clique.
+ */
+router.on('navigate', () => {
+    document.body.style.removeProperty('pointer-events');
+});

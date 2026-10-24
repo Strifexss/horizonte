@@ -7,9 +7,11 @@ use App\DTO\FinanceiroSearchDTO;
 use App\Http\Requests\FinanceiroRequest;
 use App\Http\Requests\FinanceiroSearchRequest;
 use App\Http\Resources\FinanceiroParcelaResource;
+use App\Http\Resources\FormaPagamentoResource;
 use App\Services\Interfaces\CategoriaServiceInterface;
 use App\Services\Interfaces\ContasServiceInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
+use App\Services\Interfaces\FormasPagamentoServiceInterface;
 use App\Services\Interfaces\FornecedoresServiceInterface;
 use App\Services\Interfaces\FuncionariosServiceInterface;
 use App\Services\Interfaces\GruposServiceInterface;
@@ -25,7 +27,8 @@ class ExtratoController extends FinanceiroAbstractController
         private ProdutosServiceInterface $produtosService,
         private FuncionariosServiceInterface $funcionariosService,
         private FornecedoresServiceInterface $fornecedoresService,
-        private GruposServiceInterface $gruposService
+        private GruposServiceInterface $gruposService,
+        private FormasPagamentoServiceInterface $formasPagamentoService
     ) {}
 
     public function index(FinanceiroSearchRequest $request)
@@ -39,6 +42,7 @@ class ExtratoController extends FinanceiroAbstractController
                 'despesa' => ($cat = $this->categoriaService->padraoPorTipo('despesa')->first()) ? ['id' => $cat->id, 'nome' => $cat->nome, 'padrao' => $cat->padrao] : null,
             ],
             'conta_padrao' => ($conta = $this->contaService->index()->sortByDesc('padrao')->first()) ? ['id' => $conta->id, 'nome' => $conta->nome, 'padrao' => $conta->padrao] : null,
+            'formas_pagamento' => FormaPagamentoResource::collection($this->formasPagamentoService->index()),
             'categorias' => Inertia::lazy(fn () => $this->categoriaService->index()),
             'produtos' => Inertia::lazy(fn () => $this->produtosService->index()),
             'funcionarios' => Inertia::lazy(fn () => $this->funcionariosService->index()),

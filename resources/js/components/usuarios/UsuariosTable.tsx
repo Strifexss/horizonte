@@ -1,5 +1,4 @@
-import { TableWithFilters } from '@/components/padrões';
-import { type Column } from '@/components/padrões/TableWithFilters';
+import { TableWithFilters, type Column } from '@/components/padrões';
 import { formatarData } from './formatarData';
 import type { Usuario } from './types';
 import UsuariosAcoes from './UsuariosAcoes';
@@ -12,23 +11,23 @@ type Props = {
 };
 
 export default function UsuariosTable({ usuarios, onEditar, onEntrarComo, onExcluir }: Props) {
-    const columns: Column[] = [
+    const columns: Column<Usuario>[] = [
         { key: 'name', label: 'Nome', className: 'truncate font-medium' },
         { key: 'email', label: 'E-mail', className: 'truncate' },
         {
             key: 'created_at',
             label: 'Cadastro',
             thClassName: 'w-32',
-            render: (usuario: Usuario) => formatarData(usuario.created_at),
+            render: (usuario) => formatarData(usuario.created_at),
         },
         {
             key: 'acoes',
             label: '',
             thClassName: 'w-16',
             className: 'text-right',
-            render: (usuario: Usuario) => <UsuariosAcoes usuario={usuario} onEditar={onEditar} onEntrarComo={onEntrarComo} onExcluir={onExcluir} />,
+            render: (usuario) => <UsuariosAcoes usuario={usuario} onEditar={onEditar} onEntrarComo={onEntrarComo} onExcluir={onExcluir} />,
         },
     ];
 
-    return <TableWithFilters columns={columns} data={usuarios} />;
+    return <TableWithFilters columns={columns} data={usuarios} fixedLayout />;
 }

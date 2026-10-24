@@ -30,7 +30,8 @@ function toModalParcela(parcela: ExtratoParcela): ExtratoModalParcela {
 }
 
 export default function Extrato() {
-    const { filters, resumo, items, meta, loaded, busca, setBusca, statusTab, counts, perPage, categoriasPadrao, visit } = useExtratoList();
+    const { filters, resumo, items, meta, loaded, busca, setBusca, statusTab, counts, perPage, categoriasPadrao, formasPagamento, visit } =
+        useExtratoList();
     const { pdfLoading, handleGeneratePdf } = useExtratoPdf(filters);
 
     const [categoriasOpen, setCategoriasOpen] = useState(false);
@@ -97,6 +98,7 @@ export default function Extrato() {
                     mode={extratoMode}
                     parcela={parcelaEdit}
                     categoriasPadrao={categoriasPadrao ?? null}
+                    formasPagamento={formasPagamento}
                 />
                 <ConfirmDeleteModal
                     open={confirmDeleteOpen}

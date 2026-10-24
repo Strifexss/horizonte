@@ -24,19 +24,17 @@ class FinanceiroSearchDTO extends Dto
 
     public ?int $fornecedor_id = null;
 
+    public ?int $forma_pagamento_id = null;
+
     public int $per_page = 20;
-    
+
     /**
      * Campo de ordenação (ex: data, descricao, quantidade, valor, valor_pago)
-     *
-     * @var string|null
      */
     public ?string $sort = null;
 
     /**
      * Direção da ordenação: 'asc' ou 'desc'
-     *
-     * @var string|null
      */
     public ?string $sort_dir = null;
 
@@ -73,6 +71,12 @@ class FinanceiroSearchDTO extends Dto
             $data['fornecedor_id'] = (int) $data['fornecedor_id'];
         } else {
             $data['fornecedor_id'] = null;
+        }
+
+        if (array_key_exists('forma_pagamento_id', $data) && $data['forma_pagamento_id'] !== null && $data['forma_pagamento_id'] !== '') {
+            $data['forma_pagamento_id'] = (int) $data['forma_pagamento_id'];
+        } else {
+            $data['forma_pagamento_id'] = null;
         }
 
         $perPage = isset($data['per_page']) ? (int) $data['per_page'] : 20;

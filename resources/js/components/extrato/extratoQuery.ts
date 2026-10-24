@@ -13,6 +13,8 @@ export function buildExtratoQuery(filters: ExtratoFilters, override: ExtratoQuer
 
     const contaId = override.conta_id !== undefined ? override.conta_id : filters.conta_id;
     const categoriaId = override.categoria_id !== undefined ? override.categoria_id : filters.categoria_id;
+    const formaPagamentoId =
+        override.forma_pagamento_id !== undefined ? override.forma_pagamento_id : filters.forma_pagamento_id;
     const buscaValue = override.busca !== undefined ? override.busca : filters.busca;
     const sortValue = override.sort !== undefined ? override.sort : (filters.sort ?? 'data');
     const sortDirValue = override.sort_dir !== undefined ? override.sort_dir : (filters.sort_dir ?? 'desc');
@@ -22,6 +24,9 @@ export function buildExtratoQuery(filters: ExtratoFilters, override: ExtratoQuer
     }
     if (categoriaId) {
         payload.categoria_id = Number(categoriaId);
+    }
+    if (formaPagamentoId) {
+        payload.forma_pagamento_id = Number(formaPagamentoId);
     }
     if (buscaValue) {
         payload.busca = String(buscaValue);

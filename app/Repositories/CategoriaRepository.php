@@ -57,6 +57,15 @@ class CategoriaRepository extends AbstractRepository implements CategoriaReposit
         return $query->get(['id', 'nome', 'tipo', 'padrao']);
     }
 
+    public function findDoSistemaPorNome(string $nome): Categoria
+    {
+        return $this->model->newQuery()
+            ->where('nome', $nome)
+            ->where('padrao', 1)
+            ->whereNull('usuario_id')
+            ->firstOrFail();
+    }
+
     public function autocomplete($q = null, ?string $tipo = null)
     {
         $query = $this->model->newQuery();

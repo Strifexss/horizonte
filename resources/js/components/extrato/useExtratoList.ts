@@ -11,6 +11,7 @@ import type {
     ExtratoStatusTab,
 } from '@/components/extrato/types';
 import { parcelasDaPagina } from '@/components/extrato/types';
+import { formasPagamentoDaColecao, type FormaPagamentoItem } from '@/components/formas-pagamento/types';
 
 const EMPTY_COUNTS: Record<ExtratoStatusTab, number> = {
     todos: 0,
@@ -31,6 +32,7 @@ export function useExtratoList(): {
     counts: Record<ExtratoStatusTab, number>;
     perPage: number;
     categoriasPadrao: ExtratoPageProps['categorias_padrao'];
+    formasPagamento: FormaPagamentoItem[];
     visit: (override?: ExtratoQueryOverride) => void;
 } {
     const { props } = usePage<ExtratoPageProps>();
@@ -78,6 +80,7 @@ export function useExtratoList(): {
         counts,
         perPage,
         categoriasPadrao: props.categorias_padrao ?? null,
+        formasPagamento: formasPagamentoDaColecao(props.formas_pagamento) ?? [],
         visit: (override: ExtratoQueryOverride = {}) => visitExtrato(filters, override),
     };
 }

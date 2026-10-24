@@ -39,6 +39,7 @@ function lancarParcelaNoDashboard(
     ]);
 
     $financeiro = Financeiro::query()->create([
+        'forma_pagamento_id' => formaPagamentoEspecieId(),
         'descricao' => $tipo.' '.$competencia,
         'valor' => $valor,
         'tipo' => $tipo,
@@ -73,6 +74,7 @@ function lancarDespesaComCategoriaNoDashboard(
     ]);
 
     $financeiro = Financeiro::query()->create([
+        'forma_pagamento_id' => formaPagamentoEspecieId(),
         'descricao' => 'DESPESA '.$competencia,
         'valor' => $valor,
         'tipo' => 'DESPESA',
@@ -113,6 +115,7 @@ function lancarDespesaComProdutoNoDashboard(
     ]);
 
     $financeiro = Financeiro::query()->create([
+        'forma_pagamento_id' => formaPagamentoEspecieId(),
         'descricao' => 'DESPESA produto '.$competencia,
         'valor' => $valor,
         'tipo' => 'DESPESA',
@@ -388,6 +391,7 @@ it('shows expenses by category for the signed-in user using the default month ra
     ]);
 
     $financeiroReceita = Financeiro::query()->create([
+        'forma_pagamento_id' => formaPagamentoEspecieId(),
         'descricao' => 'RECEITA 2026-06-10',
         'valor' => 123,
         'tipo' => 'RECEITA',
@@ -529,6 +533,7 @@ it('shows expenses by current product group for the signed-in user using the def
     lancarDespesaComCategoriaNoDashboard($user, '2026-06-08', $categoria, 50, 0, $conta);
 
     $financeiroReceita = Financeiro::query()->create([
+        'forma_pagamento_id' => formaPagamentoEspecieId(),
         'descricao' => 'RECEITA produto 2026-06-10',
         'valor' => 123,
         'tipo' => 'RECEITA',
@@ -918,6 +923,7 @@ it('rejects an invalid revenue week', function (array $query, string $campo): vo
 function lancarParcelaNoRanking(User $user, string $tipo, string $competencia, float $valor, array $vinculos): FinanceiroParcela
 {
     $financeiro = Financeiro::query()->create([
+        'forma_pagamento_id' => formaPagamentoEspecieId(),
         'descricao' => $tipo.' ranking '.$competencia,
         'valor' => $valor,
         'tipo' => $tipo,

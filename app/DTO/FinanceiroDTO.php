@@ -34,6 +34,10 @@ class FinanceiroDTO extends Dto
 
     public ?int $fornecedor_id = null;
 
+    public int $forma_pagamento_id;
+
+    public ?int $venda_id = null;
+
     /**
      * @param  array<string, mixed>  $data
      */

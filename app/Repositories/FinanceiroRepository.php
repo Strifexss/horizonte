@@ -34,7 +34,7 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
         $perPage = $data?->per_page ?? 20;
 
         $query = $this->parcelasFiltradasQuery($data)
-            ->with(['categoria', 'conta', 'produto.fornecedor', 'produto.grupo', 'fornecedor', 'funcionario', 'financeiro']);
+            ->with(['categoria', 'conta', 'produto.fornecedor', 'produto.grupo', 'fornecedor', 'funcionario', 'financeiro.formaPagamento']);
 
         // Definir coluna base para data conforme tipo_data
         $colunaData = $data?->tipo_data === 'competencia' ? 'data_competencia' : 'data_vencimento';
@@ -193,6 +193,12 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
 
         if ($data->fornecedor_id !== null) {
             $query->where('fornecedor_id', $data->fornecedor_id);
+        }
+
+        if ($data->forma_pagamento_id !== null) {
+            $query->whereHas('financeiro', function ($fq) use ($data) {
+                $fq->where('forma_pagamento_id', $data->forma_pagamento_id);
+            });
         }
 
         if ($data->busca !== null && $data->busca !== '') {

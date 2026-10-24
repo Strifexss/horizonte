@@ -1,7 +1,10 @@
-export { default as PageTitle } from './PageTitle';
+export { default as CardList, type CardColumn } from './CardList';
 export { default as FiltroPeriodoDatas } from './FiltroPeriodoDatas';
 export { default as KpiCard, type KpiItem } from './KpiCard';
 export { default as KpisPanel } from './KpisPanel';
-export { default as TableWithFilters } from './TableWithFilters';
-export { default as CardList, type CardColumn } from './CardList';
-
+export { default as MobileCardList, type MobileCardAction } from './MobileCardList';
+export { default as MobileFab, type MobileFabAction } from './MobileFab';
+export { default as MobileFilterDock } from './MobileFilterDock';
+export { default as PageTitle } from './PageTitle';
+export { default as TablePagination, type TablePaginationProps } from './TablePagination';
+export { default as TableWithFilters, type Column, type SortDirection, type TableSort } from './TableWithFilters';

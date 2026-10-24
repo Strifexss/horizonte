@@ -3,7 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Models\Categoria;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class FinanceiroRequest extends FormRequest
 {
@@ -18,7 +20,6 @@ class FinanceiroRequest extends FormRequest
             $this->merge(['usuario_id' => $this->user()->id]);
         }
 
-        
     }
 
     public function rules(): array
@@ -36,6 +37,15 @@ class FinanceiroRequest extends FormRequest
             'fornecedor_id' => ['nullable', 'integer', 'exists:fornecedor,id'],
             'quantidade' => $isProduto ? ['required', 'integer', 'min:1'] : ['nullable', 'integer', 'min:1'],
             'conta_id' => ['required', 'exists:conta,id'],
+            'forma_pagamento_id' => [
+                'required',
+                'integer',
+                Rule::exists('forma_pagamento', 'id')
+                    ->where('ativo', true)
+                    ->where(fn (Builder $query) => $query->where(function (Builder $visiveis) {
+                        $visiveis->whereNull('usuario_id')->orWhere('usuario_id', $this->user()?->id);
+                    })),
+            ],
             'data_competencia' => ['nullable', 'date'],
             'usuario_id' => ['nullable', 'exists:users,id'],
             'data_vencimento' => ['required', 'date'],
@@ -58,6 +68,8 @@ class FinanceiroRequest extends FormRequest
             'tipo.in' => 'O tipo deve ser RECEITA ou DESPESA',
             'categoria_id.required' => 'A categoria é obrigatória',
             'conta_id.required' => 'A conta é obrigatória',
+            'forma_pagamento_id.required' => 'A forma de pagamento é obrigatória',
+            'forma_pagamento_id.exists' => 'Forma de pagamento inválida ou inativa',
             'data_vencimento.required' => 'A data de vencimento é obrigatória',
             'data_vencimento.date' => 'A data de vencimento deve ser uma data',
             'data_competencia.date' => 'A data deve ser uma data válida',

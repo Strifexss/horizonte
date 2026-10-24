@@ -67,6 +67,7 @@ it('bloqueia exclusao de produto usado em parcela', function () {
         'usuario_id' => $user->id,
     ]);
     $financeiro = Financeiro::query()->create([
+        'forma_pagamento_id' => formaPagamentoEspecieId(),
         'descricao' => 'Compra mouse',
         'valor' => 80,
         'tipo' => 'DESPESA',
@@ -128,6 +129,7 @@ it('persiste produto_id ao criar lancamento de despesa', function () {
             'data_vencimento' => '2026-09-25',
             'valor_pago' => 150,
             'qtd_parcelas' => 1,
+            'forma_pagamento_id' => formaPagamentoEspecieId(),
         ])
         ->assertRedirect(route('extrato.index'))
         ->assertSessionHas('success');

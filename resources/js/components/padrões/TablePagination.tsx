@@ -1,7 +1,6 @@
-import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-type Props = {
+export type TablePaginationProps = {
     from: number | null;
     to: number | null;
     total: number;
@@ -10,6 +9,8 @@ type Props = {
     perPage: number;
     onPageChange: (page: number) => void;
     onPerPageChange: (perPage: number) => void;
+    /** Plural usado em "Mostrando 1–20 de 40 {itemLabel}". */
+    itemLabel: string;
 };
 
 const PER_PAGE_OPTIONS = [10, 20, 25, 50];
@@ -45,7 +46,7 @@ function buildPageNumbers(currentPage: number, lastPage: number): Array<number |
     return result;
 }
 
-export default function ExtratoFooter({
+export default function TablePagination({
     from,
     to,
     total,
@@ -54,18 +55,17 @@ export default function ExtratoFooter({
     perPage,
     onPageChange,
     onPerPageChange,
-}: Props) {
+    itemLabel,
+}: TablePaginationProps) {
     const pageNumbers = buildPageNumbers(currentPage, Math.max(lastPage, 1));
     const showingLabel =
-        total === 0 || from === null || to === null
-            ? `Mostrando 0 de ${total} lançamentos`
-            : `Mostrando ${from}–${to} de ${total} lançamentos`;
+        total === 0 || from === null || to === null ? `Mostrando 0 de ${total} ${itemLabel}` : `Mostrando ${from}–${to} de ${total} ${itemLabel}`;
 
     return (
-        <div className="extrato-table-footer mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-3">
-                <span className="text-sm text-muted-foreground">{showingLabel}</span>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span className="text-muted-foreground text-sm">{showingLabel}</span>
+                <div className="text-muted-foreground flex items-center gap-2 text-sm">
                     <span>Por página:</span>
                     <select
                         name="perPage"
@@ -85,7 +85,7 @@ export default function ExtratoFooter({
             <div className="flex items-center gap-1 sm:gap-2">
                 <button
                     type="button"
-                    className="extrato-page-button rounded p-2 hover:bg-sidebar-border/20 disabled:opacity-40"
+                    className="hover:bg-sidebar-border/20 rounded p-2 disabled:opacity-40"
                     aria-label="Página anterior"
                     disabled={currentPage <= 1}
                     onClick={() => onPageChange(currentPage - 1)}
@@ -94,16 +94,14 @@ export default function ExtratoFooter({
                 </button>
                 {pageNumbers.map((page, index) =>
                     page === 'ellipsis' ? (
-                        <span key={`ellipsis-${index}`} className="px-1 text-soft">
+                        <span key={`ellipsis-${index}`} className="text-soft px-1">
                             ...
                         </span>
                     ) : (
                         <button
                             key={page}
                             type="button"
-                            className={`extrato-page-button rounded px-3 py-1 ${
-                                page === currentPage ? 'extrato-page-button-active bg-sidebar-border/10' : ''
-                            }`}
+                            className={`rounded px-3 py-1 ${page === currentPage ? 'bg-sidebar-border/10' : ''}`}
                             aria-current={page === currentPage ? 'page' : undefined}
                             onClick={() => onPageChange(page)}
                         >
@@ -113,7 +111,7 @@ export default function ExtratoFooter({
                 )}
                 <button
                     type="button"
-                    className="extrato-page-button rounded p-2 hover:bg-sidebar-border/20 disabled:opacity-40"
+                    className="hover:bg-sidebar-border/20 rounded p-2 disabled:opacity-40"
                     aria-label="Próxima página"
                     disabled={currentPage >= lastPage}
                     onClick={() => onPageChange(currentPage + 1)}

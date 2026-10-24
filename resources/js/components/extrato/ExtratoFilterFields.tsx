@@ -21,6 +21,7 @@ export type ExtratoFilterValues = {
     produto: FilterOption | null;
     grupo: FilterOption | null;
     fornecedor: FilterOption | null;
+    formaPagamento: FilterOption | null;
     status: string;
 };
 
@@ -32,6 +33,7 @@ type Props = {
     loadProdutos: (q: string) => Promise<FilterOption[]>;
     loadGrupos: (q: string) => Promise<FilterOption[]>;
     loadFornecedores: (q: string) => Promise<FilterOption[]>;
+    loadFormasPagamento: (q: string) => Promise<FilterOption[]>;
     idPrefix?: string;
 };
 
@@ -43,6 +45,7 @@ export default function ExtratoFilterFields({
     loadProdutos,
     loadGrupos,
     loadFornecedores,
+    loadFormasPagamento,
     idPrefix = '',
 }: Props) {
     return (
@@ -120,6 +123,17 @@ export default function ExtratoFilterFields({
                     onChange={(fornecedor) => onChange({ fornecedor })}
                     loadOptions={loadFornecedores}
                     placeholder="Todos"
+                    isClearable
+                />
+            </div>
+
+            <div className="flex flex-col gap-1 md:col-span-1">
+                <Label>Forma de pagamento</Label>
+                <AsyncSelect
+                    value={values.formaPagamento}
+                    onChange={(formaPagamento) => onChange({ formaPagamento })}
+                    loadOptions={loadFormasPagamento}
+                    placeholder="Todas"
                     isClearable
                 />
             </div>

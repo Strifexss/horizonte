@@ -1,10 +1,7 @@
 import { formatCurrency, formatDateISO, parcelaEhReceita, statusDaParcela } from '@/components/extrato/format';
 import type { ExtratoParcela } from '@/components/extrato/types';
+import { MobileCardList, type MobileCardAction } from '@/components/padrões';
 import { Pencil, Trash2 } from 'lucide-react';
-import { useEffect, useRef, useState, type PointerEvent } from 'react';
-
-const LONG_PRESS_MS = 1000;
-const MOVE_TOLERANCE_PX = 10;
 
 const STATUS_META = {
     aberto: {
@@ -27,200 +24,58 @@ type Props = {
     onDelete: (item: ExtratoParcela) => void;
 };
 
-function cardKey(item: ExtratoParcela, index: number): string {
-    return String(item.id ?? index);
-}
-
-type CardProps = {
-    item: ExtratoParcela;
-    expanded: boolean;
-    onToggle: () => void;
-    onEdit: (item: ExtratoParcela) => void;
-    onDelete: (item: ExtratoParcela) => void;
-};
-
-function ExtratoMobileCard({ item, expanded, onToggle, onEdit, onDelete }: CardProps) {
-    const [holding, setHolding] = useState(false);
-    const [holdProgress, setHoldProgress] = useState(false);
-    const holdTimer = useRef<number | null>(null);
-    const progressTimer = useRef<number | null>(null);
-    const origin = useRef<{ x: number; y: number } | null>(null);
-    const longPressFired = useRef(false);
-    const suppressClick = useRef(false);
-
+function ExtratoCardContent({ item }: { item: ExtratoParcela }) {
     const isReceita = parcelaEhReceita(item);
-    const status = statusDaParcela(item);
-    const statusMeta = STATUS_META[status];
+    const statusMeta = STATUS_META[statusDaParcela(item)];
     const isCategoriaProduto = String(item.categoria?.nome ?? '').toUpperCase() === 'PRODUTO';
     const produtoNome = item.produto?.nome;
     const grupoNome = item.produto?.grupo?.nome;
     const produtoLabel = produtoNome && grupoNome ? `${produtoNome} - ${grupoNome}` : produtoNome;
     const titulo = isCategoriaProduto && produtoLabel ? produtoLabel : item.descricao || 'Sem descrição';
-    const metaParts = [formatDateISO(item.data_vencimento), item.conta?.nome, item.categoria?.nome].filter(Boolean);
-
-    function clearTimers(): void {
-        if (holdTimer.current !== null) {
-            window.clearTimeout(holdTimer.current);
-            holdTimer.current = null;
-        }
-
-        if (progressTimer.current !== null) {
-            window.clearTimeout(progressTimer.current);
-            progressTimer.current = null;
-        }
-    }
-
-    function cancelHold(): void {
-        clearTimers();
-        origin.current = null;
-        setHolding(false);
-        setHoldProgress(false);
-    }
-
-    useEffect(() => {
-        return () => {
-            clearTimers();
-        };
-    }, []);
-
-    function onPointerDown(event: PointerEvent<HTMLButtonElement>): void {
-        if (event.button !== 0) {
-            return;
-        }
-
-        cancelHold();
-        longPressFired.current = false;
-        origin.current = { x: event.clientX, y: event.clientY };
-        setHolding(true);
-        progressTimer.current = window.setTimeout(() => setHoldProgress(true), 16);
-        holdTimer.current = window.setTimeout(() => {
-            holdTimer.current = null;
-            longPressFired.current = true;
-            origin.current = null;
-            setHolding(false);
-            setHoldProgress(false);
-            onToggle();
-        }, LONG_PRESS_MS);
-    }
-
-    function onPointerMove(event: PointerEvent<HTMLButtonElement>): void {
-        if (!origin.current || holdTimer.current === null) {
-            return;
-        }
-
-        const dx = Math.abs(event.clientX - origin.current.x);
-        const dy = Math.abs(event.clientY - origin.current.y);
-
-        if (dx > MOVE_TOLERANCE_PX || dy > MOVE_TOLERANCE_PX) {
-            cancelHold();
-        }
-    }
-
-    function onPointerUp(): void {
-        if (longPressFired.current) {
-            suppressClick.current = true;
-            longPressFired.current = false;
-            window.setTimeout(() => {
-                suppressClick.current = false;
-            }, 400);
-        }
-
-        cancelHold();
-    }
+    const metaParts = [formatDateISO(item.data_vencimento), item.conta?.nome, item.categoria?.nome, item.forma_pagamento?.nome].filter(Boolean);
 
     return (
-        <article className="border-sidebar-border/70 overflow-hidden rounded-xl border bg-white shadow-sm dark:bg-slate-900">
-            <button
-                type="button"
-                className="relative w-full p-3 text-left transition-colors select-none active:bg-slate-50 dark:active:bg-slate-800"
-                style={{ WebkitTouchCallout: 'none' }}
-                aria-expanded={expanded}
-                onContextMenu={(event) => event.preventDefault()}
-                onPointerDown={onPointerDown}
-                onPointerMove={onPointerMove}
-                onPointerUp={onPointerUp}
-                onPointerCancel={cancelHold}
-                onPointerLeave={cancelHold}
-                onClick={() => {
-                    if (suppressClick.current) {
-                        suppressClick.current = false;
-                        return;
-                    }
-
-                    onEdit(item);
-                }}
-            >
-                <div className="flex min-w-0 items-start justify-between gap-3">
-                    <span className="min-w-0 truncate text-sm font-semibold text-slate-800 dark:text-slate-100">{titulo}</span>
-                    <span className={`shrink-0 text-sm font-bold ${isReceita ? 'text-green-600' : 'text-red-600'}`}>
-                        {formatCurrency(Number(item.valor ?? 0))}
-                    </span>
-                </div>
-                <div className="mt-1.5 flex min-w-0 items-center justify-between gap-2">
-                    <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden text-xs text-slate-500">
-                        <span className="truncate">{metaParts.join(' • ')}</span>
-                    </div>
-                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${statusMeta.className}`}>{statusMeta.label}</span>
-                </div>
-                {holding ? (
-                    <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-amber-100 dark:bg-amber-950/60">
-                        <span
-                            className={`block h-full bg-amber-500 ${holdProgress ? 'w-full' : 'w-0'} transition-[width] duration-1000 ease-linear`}
-                        />
-                    </span>
-                ) : null}
-            </button>
-            <div className={`grid transition-[grid-template-rows] duration-300 ease-out ${expanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
-                <div className="overflow-hidden">
-                    <div className="border-sidebar-border/70 flex border-t">
-                        <button
-                            type="button"
-                            className="hover:bg-accent inline-flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200"
-                            onClick={() => onEdit(item)}
-                        >
-                            <Pencil className="h-4 w-4" />
-                            Editar
-                        </button>
-                        <button
-                            type="button"
-                            className="border-sidebar-border/70 inline-flex flex-1 items-center justify-center gap-2 border-l py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
-                            onClick={() => onDelete(item)}
-                        >
-                            <Trash2 className="h-4 w-4" />
-                            Excluir
-                        </button>
-                    </div>
-                </div>
+        <>
+            <div className="flex min-w-0 items-start justify-between gap-3">
+                <span className="min-w-0 truncate text-sm font-semibold text-slate-800 dark:text-slate-100">{titulo}</span>
+                <span className={`shrink-0 text-sm font-bold ${isReceita ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatCurrency(Number(item.valor ?? 0))}
+                </span>
             </div>
-        </article>
+            <div className="mt-1.5 flex min-w-0 items-center justify-between gap-2">
+                <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden text-xs text-slate-500">
+                    <span className="truncate">{metaParts.join(' • ')}</span>
+                </div>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${statusMeta.className}`}>{statusMeta.label}</span>
+            </div>
+        </>
     );
 }
 
 export default function ExtratoMobileCardList({ data, onEdit, onDelete }: Props) {
-    const [expandedKey, setExpandedKey] = useState<string | null>(null);
-
     return (
-        <div className="flex flex-col gap-2 md:hidden">
-            {data.map((item, index) => {
-                const key = cardKey(item, index);
+        <MobileCardList
+            items={data}
+            getKey={(item, index) => String(item.id ?? index)}
+            renderContent={(item) => <ExtratoCardContent item={item} />}
+            onPress={onEdit}
+            actions={(item) => {
+                const actions: MobileCardAction[] = [
+                    { key: 'editar', label: 'Editar', icon: <Pencil className="h-4 w-4" />, onClick: () => onEdit(item) },
+                ];
 
-                return (
-                    <ExtratoMobileCard
-                        key={key}
-                        item={item}
-                        expanded={expandedKey === key}
-                        onToggle={() => setExpandedKey((current) => (current === key ? null : key))}
-                        onEdit={(current) => {
-                            setExpandedKey(null);
-                            onEdit(current);
-                        }}
-                        onDelete={(current) => {
-                            setExpandedKey(null);
-                            onDelete(current);
-                        }}
-                    />
-                );
-            })}
-        </div>
+                if (item.venda_id == null) {
+                    actions.push({
+                        key: 'excluir',
+                        label: 'Excluir',
+                        icon: <Trash2 className="h-4 w-4" />,
+                        onClick: () => onDelete(item),
+                        destructive: true,
+                    });
+                }
+
+                return actions;
+            }}
+        />
     );
 }

@@ -6,6 +6,7 @@ use App\Repositories\CategoriaRepository;
 use App\Repositories\ContaRepository;
 use App\Repositories\FinanceiroParcelaRepository;
 use App\Repositories\FinanceiroRepository;
+use App\Repositories\FormaPagamentoRepository;
 use App\Repositories\FornecedorRepository;
 use App\Repositories\FuncionarioRepository;
 use App\Repositories\GrupoRepository;
@@ -13,18 +14,22 @@ use App\Repositories\Interfaces\CategoriaRepositoryInterface;
 use App\Repositories\Interfaces\ContaRepositoryInterface;
 use App\Repositories\Interfaces\FinanceiroParcelaRepositoryInterface;
 use App\Repositories\Interfaces\FinanceiroRepositoryInterface;
+use App\Repositories\Interfaces\FormaPagamentoRepositoryInterface;
 use App\Repositories\Interfaces\FornecedorRepositoryInterface;
 use App\Repositories\Interfaces\FuncionarioRepositoryInterface;
 use App\Repositories\Interfaces\GrupoRepositoryInterface;
 use App\Repositories\Interfaces\ProdutoRepositoryInterface;
 use App\Repositories\Interfaces\UsuarioRepositoryInterface;
+use App\Repositories\Interfaces\VendaRepositoryInterface;
 use App\Repositories\ProdutoRepository;
 use App\Repositories\UsuarioRepository;
+use App\Repositories\VendaRepository;
 use App\Services\CategoriaService;
 use App\Services\ContasService;
 use App\Services\DashboardService;
 use App\Services\ExtratoService;
 use App\Services\FinanceiroParcelaService;
+use App\Services\FormasPagamentoService;
 use App\Services\FornecedoresService;
 use App\Services\FuncionariosService;
 use App\Services\GruposService;
@@ -33,15 +38,18 @@ use App\Services\Interfaces\ContasServiceInterface;
 use App\Services\Interfaces\DashboardServiceInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
 use App\Services\Interfaces\FinanceiroParcelaServiceInterface;
+use App\Services\Interfaces\FormasPagamentoServiceInterface;
 use App\Services\Interfaces\FornecedoresServiceInterface;
 use App\Services\Interfaces\FuncionariosServiceInterface;
 use App\Services\Interfaces\GruposServiceInterface;
 use App\Services\Interfaces\ProdutosServiceInterface;
 use App\Services\Interfaces\UsuariosServiceInterface;
 use App\Services\Interfaces\UsuariosTransferServiceInterface;
+use App\Services\Interfaces\VendasServiceInterface;
 use App\Services\ProdutosService;
 use App\Services\UsuariosService;
 use App\Services\UsuariosTransferService;
+use App\Services\VendasService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -71,6 +79,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UsuariosServiceInterface::class, UsuariosService::class);
         $this->app->bind(UsuarioRepositoryInterface::class, UsuarioRepository::class);
         $this->app->bind(UsuariosTransferServiceInterface::class, UsuariosTransferService::class);
+        $this->app->bind(FormasPagamentoServiceInterface::class, FormasPagamentoService::class);
+        $this->app->bind(FormaPagamentoRepositoryInterface::class, FormaPagamentoRepository::class);
+        $this->app->bind(VendasServiceInterface::class, VendasService::class);
+        $this->app->bind(VendaRepositoryInterface::class, VendaRepository::class);
     }
 
     /**

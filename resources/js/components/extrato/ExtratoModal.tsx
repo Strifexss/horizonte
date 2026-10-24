@@ -17,6 +17,8 @@ import MoneyInput, { parseMoneyValue } from '@/components/ui/money-input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import AsyncSelect from '@/components/ui/AsyncSelect';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { FormaPagamentoItem } from '@/components/formas-pagamento/types';
 import ProdutosModal from '@/components/produtos/ProdutosModal';
 import FuncionariosModal from '@/components/funcionarios/FuncionariosModal';
 import FornecedoresModal from '@/components/fornecedores/FornecedoresModal';
@@ -60,7 +62,11 @@ export type ExtratoModalParcela = {
     financeiro?: {
         tipo?: string | null;
     } | null;
+    forma_pagamento?: { id?: number | string; nome?: string | null } | null;
+    venda_id?: number | null;
 };
+
+const NOME_FORMA_PADRAO = 'Espécie';
 
 function hojeISO(): string {
     const hoje = new Date();
@@ -103,12 +109,14 @@ export default function ExtratoModal({
     mode = 'create',
     parcela = null,
     categoriasPadrao,
+    formasPagamento = [],
 }: {
     open: boolean;
     onOpenChange: (b: boolean) => void;
     mode?: ExtratoModalMode;
     parcela?: ExtratoModalParcela | null;
     categoriasPadrao?: { receita?: Option | null; despesa?: Option | null };
+    formasPagamento?: FormaPagamentoItem[];
 }) {
     const initialTipo: 'RECEITA' | 'DESPESA' =
         String(parcela?.tipo ?? parcela?.financeiro?.tipo ?? 'DESPESA').toUpperCase() === 'RECEITA'
@@ -158,7 +166,13 @@ export default function ExtratoModal({
         funcionario_id: (parcela?.funcionario_id ?? null) as number | null,
         conta_id: (parcela?.conta_id ?? null) as number | null,
         quantidade: toInputValue(parcela?.quantidade ?? 1),
+        forma_pagamento_id: (parcela?.forma_pagamento?.id ?? null) as number | null,
     });
+
+    const ehLancamentoDeVenda = mode === 'edit' && parcela?.venda_id != null;
+    const formaSelecionada = formasPagamento.find((forma) => forma.id === Number(data.forma_pagamento_id)) ?? null;
+    const formasDisponiveis = formasPagamento.filter((forma) => forma.ativo || forma.id === Number(data.forma_pagamento_id));
+    const idFormaPadrao = formasPagamento.find((forma) => forma.padrao && forma.nome === NOME_FORMA_PADRAO)?.id ?? null;
 
     const showProdutoField = isCategoriaProduto(selectedCategoria);
     const showFuncionarioField = isCategoriaSalario(selectedCategoria);
@@ -320,6 +334,7 @@ export default function ExtratoModal({
                 conta_id: contaId ? Number(contaId) : null,
                 quantidade: toInputValue(parcela?.quantidade ?? 1),
                 id: parcela?.id ?? null,
+                forma_pagamento_id: parcela?.forma_pagamento?.id ? Number(parcela.forma_pagamento.id) : null,
             });
         } else {
             reset();
@@ -328,6 +343,7 @@ export default function ExtratoModal({
             setData('tipo', initialTab);
             setData('produto_id', null);
             setData('funcionario_id', null);
+            setData('forma_pagamento_id', idFormaPadrao);
             setSelectedProduto(null);
             setSelectedFuncionario(null);
             if (initialTab === 'DESPESA') {
@@ -766,6 +782,13 @@ export default function ExtratoModal({
                             <form onSubmit={submit} noValidate className="grid gap-2">
                                 <Input type="hidden" name="id" />
 
+                                {ehLancamentoDeVenda ? (
+                                    <p className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+                                        Este lançamento foi gerado pela Venda #{parcela?.venda_id}: aqui só é possível dar baixa no valor pago.
+                                        Para mudar valor, forma de pagamento ou excluir, cancele a venda.
+                                    </p>
+                                ) : null}
+
                                 {showProdutoField && (
                                     <div className="grid gap-2">
                                         <Label>Produto</Label>
@@ -1037,7 +1060,7 @@ export default function ExtratoModal({
                                             value={data.descricao}
                                             onChange={(e) => setData('descricao', e.target.value)}
                                             placeholder="Descrição do lançamento"
-                                            disabled={processing}
+                                            disabled={processing || ehLancamentoDeVenda}
                                         />
                                         <InputError message={errors.descricao} />
                                     </div>
@@ -1055,6 +1078,7 @@ export default function ExtratoModal({
                                             loadOptions={loadContas}
                                             placeholder="Selecione a conta..."
                                             isClearable={false}
+                                            isDisabled={ehLancamentoDeVenda}
                                         />
                                         <InputError message={errors.conta_id} />
                                     </div>
@@ -1071,6 +1095,7 @@ export default function ExtratoModal({
                                                     loadOptions={loadCategorias}
                                                     placeholder="Selecione a categoria"
                                                     isClearable
+                                                    isDisabled={ehLancamentoDeVenda}
                                                     formatCreateLabel={(input) =>
                                                         `+ Cadastrar categoria de ${activeTab === 'RECEITA' ? 'receita' : 'despesa'} "${input}"`
                                                     }
@@ -1083,6 +1108,7 @@ export default function ExtratoModal({
                                                 className="shrink-0"
                                                 aria-label="Cadastrar categoria"
                                                 title="Cadastrar categoria"
+                                                disabled={ehLancamentoDeVenda}
                                                 onClick={iniciarCadastroCategoria}
                                             >
                                                 <Plus className="h-4 w-4" />
@@ -1144,7 +1170,7 @@ export default function ExtratoModal({
                                     </div>
                                 </div>
 
-                                <div className="grid md:grid-cols-3 gap-2">
+                                <div className={`grid gap-2 ${activeTab === 'RECEITA' ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
                                     {showProdutoField && (
                                         <div className="grid gap-2">
                                             <Label htmlFor="quantidade">Quantidade</Label>
@@ -1180,14 +1206,15 @@ export default function ExtratoModal({
                                             value={data.valor ? Number(data.valor as any) : null}
                                             onValueChange={(v) => {
                                                 const valor = v === null ? '' : v.toFixed(2);
+                                                const sugereBaixa = formaSelecionada === null || formaSelecionada.baixa_automatica;
                                                 setData({
                                                     ...data,
                                                     valor,
-                                                    valor_pago: valor,
+                                                    valor_pago: sugereBaixa ? valor : data.valor_pago,
                                                 });
                                             }}
                                             placeholder="0,00"
-                                            disabled={processing}
+                                            disabled={processing || ehLancamentoDeVenda}
                                         />
                                         <InputError message={errors.valor} />
                                     </div>
@@ -1204,7 +1231,36 @@ export default function ExtratoModal({
                                     </div>
                                 </div>
 
-                                <div className="grid gap-2">
+                                <div className="grid gap-2 md:grid-cols-2">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="forma_pagamento_id">
+                                            Forma de pagamento <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Select
+                                            value={data.forma_pagamento_id ? String(data.forma_pagamento_id) : ''}
+                                            onValueChange={(value) => {
+                                                const forma = formasPagamento.find((item) => item.id === Number(value));
+                                                setData({
+                                                    ...data,
+                                                    forma_pagamento_id: Number(value),
+                                                    valor_pago: forma?.baixa_automatica && data.valor ? data.valor : data.valor_pago,
+                                                });
+                                            }}
+                                            disabled={processing || ehLancamentoDeVenda}
+                                        >
+                                            <SelectTrigger id="forma_pagamento_id" className="w-full">
+                                                <SelectValue placeholder="Selecione a forma" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {formasDisponiveis.map((forma) => (
+                                                    <SelectItem key={forma.id} value={String(forma.id)}>
+                                                        {forma.nome}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <InputError message={errors.forma_pagamento_id} />
+                                    </div>
                                     <div className="grid gap-2">
                                         <Label htmlFor="data_competencia">Data <span className="text-red-500">*</span></Label>
                                         <Input
@@ -1212,7 +1268,7 @@ export default function ExtratoModal({
                                             type="date"
                                             value={data.data_competencia}
                                             onChange={(e) => setData('data_competencia', e.target.value)}
-                                            disabled={processing}
+                                            disabled={processing || ehLancamentoDeVenda}
                                         />
                                         <InputError
                                             message={
