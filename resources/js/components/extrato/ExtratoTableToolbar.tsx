@@ -1,6 +1,6 @@
-import { Search } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import type { ExtratoStatusTab } from '@/components/extrato/types';
+import { StatusChips, type StatusChip } from '@/components/padrões';
+import { Search } from 'lucide-react';
 
 export type { ExtratoStatusTab };
 
@@ -14,7 +14,7 @@ type Props = {
     counts: Counts;
 };
 
-const TABS: { id: ExtratoStatusTab; label: string }[] = [
+const TABS: StatusChip<ExtratoStatusTab>[] = [
     { id: 'todos', label: 'Todos' },
     { id: 'aberto', label: 'Aberto' },
     { id: 'pago', label: 'Pago' },
@@ -34,44 +34,11 @@ export default function ExtratoTableToolbar({ busca, onBuscaChange, status, onSt
                     value={busca}
                     onChange={(e) => onBuscaChange(e.target.value)}
                     placeholder="Buscar lançamento..."
-                    className="h-10 w-full rounded-md border border-input bg-background py-2 pr-3 pl-9 text-sm placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
+                    className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring h-10 w-full rounded-md border py-2 pr-3 pl-9 text-sm focus-visible:ring-2 focus-visible:outline-hidden"
                 />
             </div>
 
-            <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                <div className="flex w-max items-center gap-1.5 pb-0.5">
-                    {TABS.map((tab) => {
-                        const active = status === tab.id;
-
-                        return (
-                            <button
-                                key={tab.id}
-                                type="button"
-                                aria-pressed={active}
-                                onClick={() => onStatusChange(tab.id)}
-                                className={cn(
-                                    'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors',
-                                    active
-                                        ? 'border-amber-500 bg-amber-500 text-white'
-                                        : 'border-input bg-white text-foreground hover:bg-slate-50 dark:bg-slate-900',
-                                )}
-                            >
-                                {tab.label}
-                                <span
-                                    className={cn(
-                                        'inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-xs font-medium',
-                                        active
-                                            ? 'bg-amber-400 text-white'
-                                            : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
-                                    )}
-                                >
-                                    {counts[tab.id]}
-                                </span>
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
+            <StatusChips chips={TABS} value={status} onChange={onStatusChange} counts={counts} />
         </div>
     );
 }

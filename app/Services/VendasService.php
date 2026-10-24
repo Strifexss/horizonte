@@ -39,6 +39,11 @@ class VendasService extends ServiceAbstract implements VendasServiceInterface
         return $this->vendaRepository->indexFiltrado($filters);
     }
 
+    public function contagemPorStatus(VendaSearchDTO $filters): array
+    {
+        return $this->vendaRepository->contagemPorStatus($filters);
+    }
+
     public function produtosParaVenda(?string $q = null): Collection
     {
         return $this->produtoRepository->autocompleteParaVenda($q);

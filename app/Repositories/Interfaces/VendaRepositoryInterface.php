@@ -11,6 +11,13 @@ interface VendaRepositoryInterface extends AbstractRepositoryInterface
     public function indexFiltrado(VendaSearchDTO $filters): LengthAwarePaginator;
 
     /**
+     * Quantidade de vendas por status no período filtrado (ignora o status), para os chips.
+     *
+     * @return array{todos: int, aberta: int, fechada: int, cancelada: int}
+     */
+    public function contagemPorStatus(VendaSearchDTO $filters): array;
+
+    /**
      * Venda do usuário autenticado com itens e pagamentos.
      */
     public function findDoUsuario(int $id): Venda;

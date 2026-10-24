@@ -1,4 +1,4 @@
-import { MobileCardList, TableWithFilters, type Column, type MobileCardAction } from '@/components/padrões';
+import { MobileCardList, StatusChips, TableWithFilters, type Column, type MobileCardAction, type StatusChip } from '@/components/padrões';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import {
@@ -9,6 +9,7 @@ import {
     parseQuantidade,
     type Venda,
     type VendaPaginationMeta,
+    type VendaStatusTab,
 } from '@/components/vendas/types';
 import { Ban, Eye, MoreHorizontal, Pencil, Plus, ShoppingCart } from 'lucide-react';
 
@@ -16,6 +17,9 @@ type Props = {
     loaded: boolean;
     items: Venda[] | null;
     meta: VendaPaginationMeta | null;
+    status: VendaStatusTab;
+    onStatusChange: (status: VendaStatusTab) => void;
+    counts: Record<VendaStatusTab, number>;
     perPage: number;
     onPageChange: (page: number) => void;
     onPerPageChange: (perPage: number) => void;
@@ -23,6 +27,13 @@ type Props = {
     onCancelar: (venda: Venda) => void;
     onAdd: () => void;
 };
+
+const STATUS_CHIPS: StatusChip<VendaStatusTab>[] = [
+    { id: 'todos', label: 'Todas' },
+    { id: 'aberta', label: 'Aberta' },
+    { id: 'fechada', label: 'Fechada' },
+    { id: 'cancelada', label: 'Cancelada' },
+];
 
 function resumoItens(venda: Venda): string {
     return venda.itens.map((item) => `${item.produto?.nome ?? 'Produto'} × ${formatQuantidade(parseQuantidade(item.quantidade))}`).join(', ');
@@ -121,7 +132,20 @@ function acoesDoCard(venda: Venda, onOpen: Props['onOpen'], onCancelar: Props['o
     return acoes;
 }
 
-export default function VendasTable({ loaded, items, meta, perPage, onPageChange, onPerPageChange, onOpen, onCancelar, onAdd }: Props) {
+export default function VendasTable({
+    loaded,
+    items,
+    meta,
+    status,
+    onStatusChange,
+    counts,
+    perPage,
+    onPageChange,
+    onPerPageChange,
+    onOpen,
+    onCancelar,
+    onAdd,
+}: Props) {
     const rows = items ?? [];
     const columns: Column<Venda>[] = [
         { key: 'id', label: '#', thClassName: 'w-16', render: (venda) => <span className="font-medium">#{venda.id}</span> },
@@ -167,6 +191,7 @@ export default function VendasTable({ loaded, items, meta, perPage, onPageChange
             columns={columns}
             data={rows}
             loaded={loaded}
+            toolbar={<StatusChips chips={STATUS_CHIPS} value={status} onChange={onStatusChange} counts={counts} />}
             empty={<VendasEmpty onAdd={onAdd} />}
             mobile={
                 <MobileCardList

@@ -13,6 +13,11 @@ interface VendasServiceInterface extends AbstractServiceInterface
     public function indexFiltrado(VendaSearchDTO $filters): LengthAwarePaginator;
 
     /**
+     * @return array{todos: int, aberta: int, fechada: int, cancelada: int}
+     */
+    public function contagemPorStatus(VendaSearchDTO $filters): array;
+
+    /**
      * @return Collection<int, Produto>
      */
     public function produtosParaVenda(?string $q = null): Collection;

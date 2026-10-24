@@ -1,5 +1,11 @@
 export type VendaStatus = 'aberta' | 'fechada' | 'cancelada';
 
+export type VendaStatusTab = 'todos' | VendaStatus;
+
+export type VendaResumo = {
+    counts?: Record<VendaStatusTab, number>;
+};
+
 export type VendaNamed = {
     id: number;
     nome: string;
@@ -36,7 +42,7 @@ export type VendaFilters = {
     data_inicio?: string;
     data_fim?: string;
     forma_pagamento_id?: number | null;
-    status?: 'todos' | VendaStatus;
+    status?: VendaStatusTab;
     per_page?: number;
     page?: number;
 };

@@ -397,6 +397,45 @@ it('lista as vendas do usuario filtrando por status e forma de pagamento', funct
         );
 });
 
+it('conta as vendas por status do periodo ignorando o status selecionado', function (): void {
+    $this->withoutVite();
+    config(['inertia.testing.page_paths' => [resource_path('js/pages')]]);
+
+    $user = User::factory()->create();
+    contaDoUsuario($user);
+    $cafe = produtoParaVenda($user);
+    $item = [['produto_id' => $cafe->id, 'quantidade' => 1, 'valor_unitario' => 45.90]];
+
+    $this->actingAs($user)->post(route('vendas.store'), ['itens' => $item]);
+    $this->actingAs($user)->post(route('vendas.store'), ['itens' => $item]);
+    $this->actingAs($user)->post(route('vendas.store'), [
+        'itens' => $item,
+        'pagamentos' => [['forma_pagamento_id' => formaPadraoId('Pix'), 'valor' => 45.90]],
+    ]);
+    $this->actingAs($user)->post(route('vendas.cancelar', Venda::query()->where('usuario_id', $user->id)->value('id')));
+    $alheio = User::factory()->create();
+    $this->actingAs($alheio)->post(route('vendas.store'), [
+        'itens' => [['produto_id' => produtoParaVenda($alheio)->id, 'quantidade' => 1, 'valor_unitario' => 1]],
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('vendas', ['status' => 'fechada']))
+        ->assertInertia(fn (Assert $page) => $page
+            ->loadDeferredProps(fn (Assert $reload) => $reload
+                ->has('vendas.data', 1)
+                ->where('resumo.counts', ['todos' => 3, 'aberta' => 1, 'fechada' => 1, 'cancelada' => 1])
+            )
+        );
+
+    $this->actingAs($user)
+        ->get(route('vendas', ['data_inicio' => now()->addDay()->toDateString()]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->loadDeferredProps(fn (Assert $reload) => $reload
+                ->where('resumo.counts', ['todos' => 0, 'aberta' => 0, 'fechada' => 0, 'cancelada' => 0])
+            )
+        );
+});
+
 it('busca so produtos ativos do usuario com o preco de venda', function (): void {
     $user = User::factory()->create();
     produtoParaVenda($user);

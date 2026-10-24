@@ -2,7 +2,7 @@ import ConfirmDeleteModal from '@/components/extrato/ConfirmDeleteModal';
 import { formasPagamentoDaColecao } from '@/components/formas-pagamento/types';
 import { MobileFab, PageTitle } from '@/components/padrões';
 import { Button } from '@/components/ui/button';
-import { formatCurrency, vendasDaPagina, type Venda, type VendaFilters } from '@/components/vendas/types';
+import { formatCurrency, vendasDaPagina, type Venda, type VendaFilters, type VendaResumo, type VendaStatusTab } from '@/components/vendas/types';
 import VendaModal from '@/components/vendas/VendaModal';
 import VendasFilters from '@/components/vendas/VendasFilters';
 import { visitVendas } from '@/components/vendas/vendasQuery';
@@ -24,7 +24,15 @@ type PageProps = {
     filters: VendaFilters;
     formas_pagamento?: unknown;
     possui_conta: boolean;
+    resumo?: VendaResumo;
     vendas?: unknown;
+};
+
+const EMPTY_COUNTS: Record<VendaStatusTab, number> = {
+    todos: 0,
+    aberta: 0,
+    fechada: 0,
+    cancelada: 0,
 };
 
 function descricaoCancelamento(venda: Venda | null): string {
@@ -44,6 +52,8 @@ export default function VendasIndex() {
     const filters = props.filters;
     const formasPagamento = formasPagamentoDaColecao(props.formas_pagamento) ?? [];
     const { items, meta } = vendasDaPagina(props.vendas);
+    const statusTab: VendaStatusTab = filters.status ?? 'todos';
+    const counts = props.resumo?.counts ?? EMPTY_COUNTS;
     const [modalOpen, setModalOpen] = useState(false);
     const [vendaSelecionada, setVendaSelecionada] = useState<Venda | null>(null);
     const [vendaParaCancelar, setVendaParaCancelar] = useState<Venda | null>(null);
@@ -121,6 +131,9 @@ export default function VendasIndex() {
                             loaded={false}
                             items={null}
                             meta={null}
+                            status={statusTab}
+                            onStatusChange={() => undefined}
+                            counts={counts}
                             perPage={Number(filters.per_page ?? 20)}
                             onPageChange={() => undefined}
                             onPerPageChange={() => undefined}
@@ -134,6 +147,9 @@ export default function VendasIndex() {
                         loaded={props.vendas != null}
                         items={items}
                         meta={meta}
+                        status={statusTab}
+                        onStatusChange={(status) => visitVendas(filters, { status, page: 1 })}
+                        counts={counts}
                         perPage={Number(meta?.per_page ?? filters.per_page ?? 20)}
                         onPageChange={(page) => visitVendas(filters, { page })}
                         onPerPageChange={(perPage) => visitVendas(filters, { per_page: perPage, page: 1 })}

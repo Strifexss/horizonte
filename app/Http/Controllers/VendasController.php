@@ -34,6 +34,7 @@ class VendasController extends Controller
             'filters' => $filters->all(),
             'formas_pagamento' => FormaPagamentoResource::collection($this->formasPagamentoService->index()),
             'possui_conta' => $this->contasService->index()->isNotEmpty(),
+            'resumo' => Inertia::defer(fn () => ['counts' => $this->vendasService->contagemPorStatus($filters)]),
             'vendas' => Inertia::defer(
                 fn () => VendaResource::collection($this->vendasService->indexFiltrado($filters))
             ),
