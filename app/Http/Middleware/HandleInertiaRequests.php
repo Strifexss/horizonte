@@ -2,12 +2,19 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Resources\NovidadeUsuarioResource;
+use App\Services\Interfaces\NovidadesServiceInterface;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
+    public function __construct(
+        private NovidadesServiceInterface $novidadesService
+    ) {}
+
     /**
      * The root template that's loaded on the first page visit.
      *
@@ -56,6 +63,12 @@ class HandleInertiaRequests extends Middleware
                 'fornecedor_criado' => session('fornecedor_criado'),
                 'forma_pagamento_criada' => session('forma_pagamento_criada'),
             ],
+            'novidades_pendentes' => fn () => $request->user()
+                ? NovidadeUsuarioResource::collection($this->novidadesService->pendentesPopup($request->user()->id))->resolve()
+                : [],
+            'novidades' => Inertia::optional(fn () => $request->user()
+                ? NovidadeUsuarioResource::collection($this->novidadesService->historicoDoUsuario($request->user()->id))->resolve()
+                : []),
         ];
     }
 }

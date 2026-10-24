@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\FormaPagamento;
+use App\Models\Novidade;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -51,4 +52,31 @@ function formaPagamentoEspecieId(): int
         ->where('nome', FormaPagamento::NOME_ESPECIE)
         ->whereNull('usuario_id')
         ->value('id');
+}
+
+/**
+ * @param  array<string, mixed>  $atributos
+ */
+function novidade(array $atributos = []): Novidade
+{
+    return Novidade::query()->create([
+        'titulo' => 'Nova tela de vendas',
+        'descricao' => 'Agora é possível registrar vendas com vários pagamentos.',
+        'categoria' => Novidade::CATEGORIA_NOVO,
+        'status' => Novidade::STATUS_RASCUNHO,
+        ...$atributos,
+    ]);
+}
+
+/**
+ * @param  array<string, mixed>  $atributos
+ */
+function novidadePublicada(array $atributos = []): Novidade
+{
+    return novidade([
+        'status' => Novidade::STATUS_PUBLICADO,
+        'publicada_em' => now(),
+        'popup_automatico' => true,
+        ...$atributos,
+    ]);
 }

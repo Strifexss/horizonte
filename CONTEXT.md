@@ -68,6 +68,20 @@ _Avoid_: Parcela (parcela é do financeiro)
 Marcar a Venda como cancelada e excluir as receitas que ela gerou.
 _Avoid_: Excluir venda, estornar
 
+### Novidades
+
+**Novidade**:
+Aviso do Administrador sobre o que mudou no sistema (Novo, Melhoria ou Correção). Nasce **rascunho** e só os Usuários a veem depois de **publicada**; a data de publicação é a da primeira publicação.
+_Avoid_: Release note, changelog, aviso
+
+**Pop-up automático**:
+Propriedade da Novidade publicada que a faz abrir sozinha para cada Usuário até ele dispensá-la.
+_Avoid_: Modal obrigatório
+
+**Dispensar novidade**:
+Ação do Usuário de marcar "Não mostrar novamente": a Novidade para de abrir sozinha para ele, mas continua no histórico de novidades.
+_Avoid_: Marcar como lida, excluir novidade
+
 ### Dashboard
 
 **Período de referência**:

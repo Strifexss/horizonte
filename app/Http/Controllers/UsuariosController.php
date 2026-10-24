@@ -33,6 +33,7 @@ class UsuariosController extends Controller
                 'autocomplete' => route('admin.usuarios.autocomplete'),
                 'transfer' => route('admin.usuarios.transfer'),
                 'transfer_counts' => route('admin.usuarios.transfer.counts', '__ID__'),
+                'novidades' => route('admin.novidades'),
             ],
             'usuarios' => Inertia::defer(
                 fn () => UsuarioResource::collection($this->usuariosService->index($filters))->resolve()

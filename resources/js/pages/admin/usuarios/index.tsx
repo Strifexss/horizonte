@@ -79,7 +79,7 @@ export default function UsuariosIndex({ filters, urls, usuarios }: Props) {
     };
 
     return (
-        <AdminLayout usuariosUrl={urls.index}>
+        <AdminLayout usuariosUrl={urls.index} novidadesUrl={urls.novidades}>
             <Head title="Painel Administrativo" />
 
             <div className="flex h-full w-full min-w-0 flex-1 flex-col gap-4 p-4">

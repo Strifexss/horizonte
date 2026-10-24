@@ -18,9 +18,11 @@ use App\Repositories\Interfaces\FormaPagamentoRepositoryInterface;
 use App\Repositories\Interfaces\FornecedorRepositoryInterface;
 use App\Repositories\Interfaces\FuncionarioRepositoryInterface;
 use App\Repositories\Interfaces\GrupoRepositoryInterface;
+use App\Repositories\Interfaces\NovidadeRepositoryInterface;
 use App\Repositories\Interfaces\ProdutoRepositoryInterface;
 use App\Repositories\Interfaces\UsuarioRepositoryInterface;
 use App\Repositories\Interfaces\VendaRepositoryInterface;
+use App\Repositories\NovidadeRepository;
 use App\Repositories\ProdutoRepository;
 use App\Repositories\UsuarioRepository;
 use App\Repositories\VendaRepository;
@@ -42,10 +44,12 @@ use App\Services\Interfaces\FormasPagamentoServiceInterface;
 use App\Services\Interfaces\FornecedoresServiceInterface;
 use App\Services\Interfaces\FuncionariosServiceInterface;
 use App\Services\Interfaces\GruposServiceInterface;
+use App\Services\Interfaces\NovidadesServiceInterface;
 use App\Services\Interfaces\ProdutosServiceInterface;
 use App\Services\Interfaces\UsuariosServiceInterface;
 use App\Services\Interfaces\UsuariosTransferServiceInterface;
 use App\Services\Interfaces\VendasServiceInterface;
+use App\Services\NovidadesService;
 use App\Services\ProdutosService;
 use App\Services\UsuariosService;
 use App\Services\UsuariosTransferService;
@@ -83,6 +87,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(FormaPagamentoRepositoryInterface::class, FormaPagamentoRepository::class);
         $this->app->bind(VendasServiceInterface::class, VendasService::class);
         $this->app->bind(VendaRepositoryInterface::class, VendaRepository::class);
+        $this->app->bind(NovidadesServiceInterface::class, NovidadesService::class);
+        $this->app->bind(NovidadeRepositoryInterface::class, NovidadeRepository::class);
     }
 
     /**

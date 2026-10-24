@@ -9,6 +9,8 @@ use App\Http\Controllers\FormasPagamentoController;
 use App\Http\Controllers\FornecedoresController;
 use App\Http\Controllers\FuncionariosController;
 use App\Http\Controllers\GruposController;
+use App\Http\Controllers\NovidadesController;
+use App\Http\Controllers\NovidadesUsuarioController;
 use App\Http\Controllers\ParcelaController;
 use App\Http\Controllers\ProdutosController;
 use App\Http\Controllers\UsuariosController;
@@ -98,6 +100,10 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{id}', [FuncionariosController::class, 'update'])->name('funcionarios.update');
         Route::delete('/{id}', [FuncionariosController::class, 'destroy'])->name('funcionarios.destroy');
     });
+
+    Route::group(['prefix' => 'novidades'], function () {
+        Route::post('/{id}/dispensar', [NovidadesUsuarioController::class, 'dispensar'])->name('novidades.dispensar');
+    });
 });
 
 if (filled(config('admin.path'))) {
@@ -113,6 +119,15 @@ if (filled(config('admin.path'))) {
             Route::post('/usuarios/transfer', [UsuariosController::class, 'transfer'])->name('usuarios.transfer');
             Route::get('/usuarios/{id}/transfer-counts', [UsuariosController::class, 'transferCounts'])->name('usuarios.transfer.counts');
             Route::post('/usuarios/{id}/entrar-como', [UsuariosController::class, 'entrarComo'])->name('usuarios.entrar-como');
+
+            Route::get('/novidades', [NovidadesController::class, 'index'])->name('novidades');
+            Route::post('/novidades', [NovidadesController::class, 'store'])->name('novidades.store');
+            Route::put('/novidades/{id}', [NovidadesController::class, 'update'])->name('novidades.update');
+            Route::delete('/novidades/{id}', [NovidadesController::class, 'destroy'])->name('novidades.destroy');
+            Route::put('/novidades/{id}/status', [NovidadesController::class, 'status'])->name('novidades.status');
+            Route::delete('/novidades/imagens/{arquivo}', [NovidadesController::class, 'excluirImagem'])
+                ->where('arquivo', '[A-Za-z0-9_-]+\.[A-Za-z0-9]+')
+                ->name('novidades.imagens.destroy');
         });
 }
 

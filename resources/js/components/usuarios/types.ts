@@ -17,6 +17,7 @@ export type UsuariosUrls = {
     transfer: string;
     /** Contém o marcador `__ID__`, substituído pelo id do usuário de origem. */
     transfer_counts: string;
+    novidades: string;
 };
 
 export type UsuariosFilters = {

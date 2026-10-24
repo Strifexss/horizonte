@@ -7,12 +7,13 @@ import { type ReactNode } from 'react';
 type AdminLayoutProps = {
     children: ReactNode;
     usuariosUrl: string;
+    novidadesUrl: string;
 };
 
-export default function AdminLayout({ children, usuariosUrl }: AdminLayoutProps) {
+export default function AdminLayout({ children, usuariosUrl, novidadesUrl }: AdminLayoutProps) {
     return (
         <AppShell variant="header">
-            <AdminHeader usuariosUrl={usuariosUrl} />
+            <AdminHeader usuariosUrl={usuariosUrl} novidadesUrl={novidadesUrl} />
             <AppContent>{children}</AppContent>
             <ToastFlash />
         </AppShell>

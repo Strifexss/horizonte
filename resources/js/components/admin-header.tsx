@@ -8,24 +8,26 @@ import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { ArrowLeft, Menu, Users } from 'lucide-react';
+import { ArrowLeft, Megaphone, Menu, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 type AdminHeaderProps = {
     usuariosUrl: string;
+    novidadesUrl: string;
 };
 
 function pathOf(url: string): string {
     return new URL(url, window.location.origin).pathname;
 }
 
-export function AdminHeader({ usuariosUrl }: AdminHeaderProps) {
+export function AdminHeader({ usuariosUrl, novidadesUrl }: AdminHeaderProps) {
     const page = usePage<SharedData>();
     const { auth } = page.props;
     const getInitials = useInitials();
 
     const navItems: NavItem[] = [
         { title: 'Usuários', url: usuariosUrl, icon: Users },
+        { title: 'Novidades', url: novidadesUrl, icon: Megaphone },
         { title: 'Voltar ao sistema', url: route('extrato.index'), icon: ArrowLeft },
     ];
 
