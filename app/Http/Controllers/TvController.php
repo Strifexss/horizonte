@@ -38,7 +38,6 @@ class TvController extends Controller
 
         return Inertia::render('tv/board', [
             'board' => $board ? TvBoardResource::make($board)->resolve() : null,
-            'sincronizado_em' => now()->toIso8601String(),
         ]);
     }
 

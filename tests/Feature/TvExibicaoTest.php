@@ -78,7 +78,7 @@ it('exibe o board ativo com destaques separados e sem dados financeiros', functi
             ->component('tv/board')
             ->where('board.nome', 'Menu Almoço')
             ->where('board.tema', 'dark')
-            ->where('board.estabelecimento', 'Bistrô Sabor da Casa')
+            ->missing('board.estabelecimento')
             ->has('board.destaques', 1)
             ->where('board.destaques.0.nome', 'Parmegiana')
             ->where('board.destaques.0.descricao', 'Arroz e fritas')
@@ -86,7 +86,7 @@ it('exibe o board ativo com destaques separados e sem dados financeiros', functi
             ->missing('board.destaques.0.preco_compra')
             ->has('board.itens', 1)
             ->where('board.itens.0.nome', 'Suco')
-            ->has('sincronizado_em')
+            ->missing('sincronizado_em')
         );
 });
 

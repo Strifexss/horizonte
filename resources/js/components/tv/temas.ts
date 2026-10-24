@@ -4,7 +4,6 @@ export type EstiloTv = {
     fundo: string;
     texto: string;
     suave: string;
-    marca: string;
     regua: string;
     peso: string;
     cardDestaque: string;
@@ -24,7 +23,6 @@ export const ESTILOS_TV: Record<TemaMenuBoard, EstiloTv> = {
         fundo: 'bg-[#070d1a]',
         texto: 'text-slate-50',
         suave: 'text-slate-400',
-        marca: 'text-amber-500',
         regua: 'bg-amber-500',
         peso: 'font-semibold',
         cardDestaque: 'bg-[#0f1d33] border-amber-500/35',
@@ -42,7 +40,6 @@ export const ESTILOS_TV: Record<TemaMenuBoard, EstiloTv> = {
         fundo: 'bg-slate-50',
         texto: 'text-slate-900',
         suave: 'text-slate-600',
-        marca: 'text-amber-700',
         regua: 'bg-slate-900',
         peso: 'font-semibold',
         cardDestaque: 'bg-white border-slate-200',
@@ -60,7 +57,6 @@ export const ESTILOS_TV: Record<TemaMenuBoard, EstiloTv> = {
         fundo: 'bg-red-700',
         texto: 'text-white',
         suave: 'text-red-200',
-        marca: 'text-yellow-300',
         regua: 'bg-yellow-300',
         peso: 'font-bold',
         cardDestaque: 'bg-yellow-400 border-yellow-400',
@@ -87,7 +83,6 @@ export type ProdutoNaTv = {
 export type TvBoard = {
     nome: string;
     tema: TemaMenuBoard;
-    estabelecimento: string | null;
     destaques: ProdutoNaTv[];
     itens: ProdutoNaTv[];
 };
