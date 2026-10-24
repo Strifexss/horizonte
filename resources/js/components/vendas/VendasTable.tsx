@@ -1,4 +1,12 @@
-import { MobileCardList, StatusChips, TableWithFilters, type Column, type MobileCardAction, type StatusChip } from '@/components/padrões';
+import {
+    MobileCardList,
+    SearchInput,
+    StatusChips,
+    TableWithFilters,
+    type Column,
+    type MobileCardAction,
+    type StatusChip,
+} from '@/components/padrões';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import {
@@ -17,6 +25,8 @@ type Props = {
     loaded: boolean;
     items: Venda[] | null;
     meta: VendaPaginationMeta | null;
+    busca: string;
+    onBuscaChange: (value: string) => void;
     status: VendaStatusTab;
     onStatusChange: (status: VendaStatusTab) => void;
     counts: Record<VendaStatusTab, number>;
@@ -136,6 +146,8 @@ export default function VendasTable({
     loaded,
     items,
     meta,
+    busca,
+    onBuscaChange,
     status,
     onStatusChange,
     counts,
@@ -191,7 +203,12 @@ export default function VendasTable({
             columns={columns}
             data={rows}
             loaded={loaded}
-            toolbar={<StatusChips chips={STATUS_CHIPS} value={status} onChange={onStatusChange} counts={counts} />}
+            toolbar={
+                <div className="flex min-w-0 flex-col gap-3">
+                    <SearchInput value={busca} onChange={onBuscaChange} placeholder="Buscar por código, produto ou observação..." />
+                    <StatusChips chips={STATUS_CHIPS} value={status} onChange={onStatusChange} counts={counts} />
+                </div>
+            }
             empty={<VendasEmpty onAdd={onAdd} />}
             mobile={
                 <MobileCardList

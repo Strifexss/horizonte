@@ -436,6 +436,42 @@ it('conta as vendas por status do periodo ignorando o status selecionado', funct
         );
 });
 
+it('busca vendas pelo codigo, pelo produto ou pela observacao', function (): void {
+    $this->withoutVite();
+    config(['inertia.testing.page_paths' => [resource_path('js/pages')]]);
+
+    $user = User::factory()->create();
+    $cafe = produtoParaVenda($user);
+    $pao = produtoParaVenda($user, ['nome' => 'Pão de Queijo']);
+
+    $this->actingAs($user)->post(route('vendas.store'), ['itens' => [['produto_id' => $cafe->id, 'quantidade' => 1, 'valor_unitario' => 45.90]]]);
+    $this->actingAs($user)->post(route('vendas.store'), [
+        'itens' => [['produto_id' => $pao->id, 'quantidade' => 2, 'valor_unitario' => 8.50]],
+        'observacao' => 'Encomenda da Maria',
+    ]);
+    [$vendaCafe, $vendaPao] = Venda::query()->where('usuario_id', $user->id)->orderBy('id')->get();
+
+    $buscar = fn (string $busca) => $this->actingAs($user)
+        ->get(route('vendas', ['busca' => $busca]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('filters.busca', $busca)
+            ->loadDeferredProps(fn (Assert $reload) => $reload->has('vendas.data', 1))
+        );
+
+    $buscar("#{$vendaCafe->id}")->assertInertia(fn (Assert $page) => $page
+        ->loadDeferredProps(fn (Assert $reload) => $reload->where('vendas.data.0.id', $vendaCafe->id))
+    );
+    $buscar('pao de')->assertInertia(fn (Assert $page) => $page
+        ->loadDeferredProps(fn (Assert $reload) => $reload->where('vendas.data.0.id', $vendaPao->id))
+    );
+    $buscar('maria')->assertInertia(fn (Assert $page) => $page
+        ->loadDeferredProps(fn (Assert $reload) => $reload
+            ->where('vendas.data.0.id', $vendaPao->id)
+            ->where('resumo.counts.todos', 1)
+        )
+    );
+});
+
 it('busca so produtos ativos do usuario com o preco de venda', function (): void {
     $user = User::factory()->create();
     produtoParaVenda($user);

@@ -6,6 +6,7 @@ export { default as MobileCardList, type MobileCardAction } from './MobileCardLi
 export { default as MobileFab, type MobileFabAction } from './MobileFab';
 export { default as MobileFilterDock } from './MobileFilterDock';
 export { default as PageTitle } from './PageTitle';
+export { default as SearchInput } from './SearchInput';
 export { default as StatusChips, type StatusChip } from './StatusChips';
 export { default as TablePagination, type TablePaginationProps } from './TablePagination';
 export { default as TableWithFilters, type Column, type SortDirection, type TableSort } from './TableWithFilters';

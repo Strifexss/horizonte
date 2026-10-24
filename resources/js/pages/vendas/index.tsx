@@ -11,7 +11,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Deferred, Head, router, usePage } from '@inertiajs/react';
 import { CreditCard, Plus, ShoppingCart } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -54,10 +54,26 @@ export default function VendasIndex() {
     const { items, meta } = vendasDaPagina(props.vendas);
     const statusTab: VendaStatusTab = filters.status ?? 'todos';
     const counts = props.resumo?.counts ?? EMPTY_COUNTS;
+    const [busca, setBusca] = useState(filters.busca ?? '');
     const [modalOpen, setModalOpen] = useState(false);
     const [vendaSelecionada, setVendaSelecionada] = useState<Venda | null>(null);
     const [vendaParaCancelar, setVendaParaCancelar] = useState<Venda | null>(null);
     const [cancelando, setCancelando] = useState(false);
+
+    useEffect(() => {
+        setBusca(filters.busca ?? '');
+    }, [filters.busca]);
+
+    useEffect(() => {
+        const termo = busca.trim();
+        if (termo === (filters.busca ?? '').trim()) {
+            return;
+        }
+
+        const timer = window.setTimeout(() => visitVendas(filters, { busca: termo || null, page: 1 }), 400);
+
+        return () => window.clearTimeout(timer);
+    }, [busca]);
 
     function abrirNova(): void {
         setVendaSelecionada(null);
@@ -131,6 +147,8 @@ export default function VendasIndex() {
                             loaded={false}
                             items={null}
                             meta={null}
+                            busca={busca}
+                            onBuscaChange={setBusca}
                             status={statusTab}
                             onStatusChange={() => undefined}
                             counts={counts}
@@ -147,6 +165,8 @@ export default function VendasIndex() {
                         loaded={props.vendas != null}
                         items={items}
                         meta={meta}
+                        busca={busca}
+                        onBuscaChange={setBusca}
                         status={statusTab}
                         onStatusChange={(status) => visitVendas(filters, { status, page: 1 })}
                         counts={counts}

@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\DTO\VendaSearchDTO;
 use App\Models\Financeiro;
 use App\Models\FinanceiroParcela;
+use App\Models\Produto;
 use App\Models\Venda;
 use App\Repositories\Interfaces\VendaRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -101,6 +102,38 @@ class VendaRepository extends AbstractRepository implements VendaRepositoryInter
             });
         }
 
+        if ($filters->busca !== null) {
+            $this->aplicarBusca($query, $filters->busca);
+        }
+
         return $query;
+    }
+
+    /**
+     * Busca pelo código da venda (com ou sem "#"), pelo nome dos produtos ou pela observação.
+     *
+     * @param  Builder<Venda>  $query
+     */
+    private function aplicarBusca(Builder $query, string $busca): void
+    {
+        $codigo = ltrim($busca, '#');
+
+        $produtosQuery = Produto::query()->where('usuario_id', Auth::id());
+        $this->applyAccentInsensitiveLike($produtosQuery, 'nome', $busca);
+        $produtoIds = $produtosQuery->pluck('id');
+
+        $query->where(function (Builder $q) use ($busca, $codigo, $produtoIds) {
+            if ($codigo !== '' && ctype_digit($codigo)) {
+                $q->orWhere('id', (int) $codigo);
+            }
+
+            if ($produtoIds->isNotEmpty()) {
+                $q->orWhereHas('itens', fn (Builder $itens) => $itens->whereIn('produto_id', $produtoIds));
+            }
+
+            $q->orWhere(function (Builder $observacao) use ($busca) {
+                $this->applyAccentInsensitiveLike($observacao, 'observacao', $busca);
+            });
+        });
     }
 }

@@ -15,6 +15,11 @@ export function buildVendasQuery(filters: VendaFilters, override: VendaQueryOver
         payload.forma_pagamento_id = Number(formaPagamentoId);
     }
 
+    const busca = override.busca !== undefined ? override.busca : filters.busca;
+    if (busca) {
+        payload.busca = String(busca);
+    }
+
     return payload;
 }
 

@@ -12,6 +12,8 @@ class VendaSearchDTO extends Dto
 
     public string $status = 'todos';
 
+    public ?string $busca = null;
+
     public int $per_page = 20;
 
     public int $page = 1;
@@ -26,6 +28,9 @@ class VendaSearchDTO extends Dto
 
         $status = is_string($data['status'] ?? null) ? $data['status'] : 'todos';
         $data['status'] = in_array($status, ['todos', 'aberta', 'fechada', 'cancelada'], true) ? $status : 'todos';
+
+        $busca = is_string($data['busca'] ?? null) ? trim($data['busca']) : '';
+        $data['busca'] = $busca !== '' ? $busca : null;
 
         $perPage = isset($data['per_page']) ? (int) $data['per_page'] : 20;
         $data['per_page'] = in_array($perPage, [10, 20, 25, 50], true) ? $perPage : 20;

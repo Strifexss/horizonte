@@ -43,6 +43,7 @@ export type VendaFilters = {
     data_fim?: string;
     forma_pagamento_id?: number | null;
     status?: VendaStatusTab;
+    busca?: string | null;
     per_page?: number;
     page?: number;
 };
