@@ -2,31 +2,36 @@
 
 namespace App\Providers;
 
+use App\Jobs\GerarAnaliseDashboard;
 use App\Repositories\CategoriaRepository;
 use App\Repositories\ContaRepository;
+use App\Repositories\DashboardAnaliseRepository;
 use App\Repositories\FinanceiroParcelaRepository;
 use App\Repositories\FinanceiroRepository;
 use App\Repositories\FormaPagamentoRepository;
 use App\Repositories\FornecedorRepository;
 use App\Repositories\FuncionarioRepository;
 use App\Repositories\GrupoRepository;
+use App\Repositories\InsightAcaoRepository;
 use App\Repositories\Interfaces\CategoriaRepositoryInterface;
 use App\Repositories\Interfaces\ContaRepositoryInterface;
+use App\Repositories\Interfaces\DashboardAnaliseRepositoryInterface;
 use App\Repositories\Interfaces\FinanceiroParcelaRepositoryInterface;
 use App\Repositories\Interfaces\FinanceiroRepositoryInterface;
 use App\Repositories\Interfaces\FormaPagamentoRepositoryInterface;
 use App\Repositories\Interfaces\FornecedorRepositoryInterface;
 use App\Repositories\Interfaces\FuncionarioRepositoryInterface;
 use App\Repositories\Interfaces\GrupoRepositoryInterface;
-use App\Repositories\Interfaces\NovidadeRepositoryInterface;
+use App\Repositories\Interfaces\InsightAcaoRepositoryInterface;
 use App\Repositories\Interfaces\MenuBoardRepositoryInterface;
+use App\Repositories\Interfaces\NovidadeRepositoryInterface;
 use App\Repositories\Interfaces\ProdutoRepositoryInterface;
 use App\Repositories\Interfaces\TvDispositivoRepositoryInterface;
 use App\Repositories\Interfaces\TvPareamentoPinRepositoryInterface;
 use App\Repositories\Interfaces\UsuarioRepositoryInterface;
 use App\Repositories\Interfaces\VendaRepositoryInterface;
-use App\Repositories\NovidadeRepository;
 use App\Repositories\MenuBoardRepository;
+use App\Repositories\NovidadeRepository;
 use App\Repositories\ProdutoRepository;
 use App\Repositories\TvDispositivoRepository;
 use App\Repositories\TvPareamentoPinRepository;
@@ -34,6 +39,7 @@ use App\Repositories\UsuarioRepository;
 use App\Repositories\VendaRepository;
 use App\Services\CategoriaService;
 use App\Services\ContasService;
+use App\Services\DashboardInsightsService;
 use App\Services\DashboardService;
 use App\Services\ExtratoService;
 use App\Services\FinanceiroParcelaService;
@@ -41,8 +47,10 @@ use App\Services\FormasPagamentoService;
 use App\Services\FornecedoresService;
 use App\Services\FuncionariosService;
 use App\Services\GruposService;
+use App\Services\IndicadoresInsightsService;
 use App\Services\Interfaces\CategoriaServiceInterface;
 use App\Services\Interfaces\ContasServiceInterface;
+use App\Services\Interfaces\DashboardInsightsServiceInterface;
 use App\Services\Interfaces\DashboardServiceInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
 use App\Services\Interfaces\FinanceiroParcelaServiceInterface;
@@ -50,20 +58,23 @@ use App\Services\Interfaces\FormasPagamentoServiceInterface;
 use App\Services\Interfaces\FornecedoresServiceInterface;
 use App\Services\Interfaces\FuncionariosServiceInterface;
 use App\Services\Interfaces\GruposServiceInterface;
-use App\Services\Interfaces\NovidadesServiceInterface;
+use App\Services\Interfaces\IndicadoresInsightsServiceInterface;
 use App\Services\Interfaces\MenuBoardsServiceInterface;
+use App\Services\Interfaces\NovidadesServiceInterface;
 use App\Services\Interfaces\ProdutosServiceInterface;
 use App\Services\Interfaces\TvPareamentoServiceInterface;
 use App\Services\Interfaces\UsuariosServiceInterface;
 use App\Services\Interfaces\UsuariosTransferServiceInterface;
 use App\Services\Interfaces\VendasServiceInterface;
-use App\Services\NovidadesService;
 use App\Services\MenuBoardsService;
+use App\Services\NovidadesService;
 use App\Services\ProdutosService;
 use App\Services\TvPareamentoService;
 use App\Services\UsuariosService;
 use App\Services\UsuariosTransferService;
 use App\Services\VendasService;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -104,6 +115,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TvPareamentoServiceInterface::class, TvPareamentoService::class);
         $this->app->bind(TvDispositivoRepositoryInterface::class, TvDispositivoRepository::class);
         $this->app->bind(TvPareamentoPinRepositoryInterface::class, TvPareamentoPinRepository::class);
+        $this->app->bind(DashboardInsightsServiceInterface::class, DashboardInsightsService::class);
+        $this->app->bind(DashboardAnaliseRepositoryInterface::class, DashboardAnaliseRepository::class);
+        $this->app->bind(IndicadoresInsightsServiceInterface::class, IndicadoresInsightsService::class);
+        $this->app->bind(InsightAcaoRepositoryInterface::class, InsightAcaoRepository::class);
     }
 
     /**
@@ -111,6 +126,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        RateLimiter::for(GerarAnaliseDashboard::LIMITADOR, fn (): Limit => Limit::perMinute(max(1, (int) config('insights.requisicoes_por_minuto'))));
     }
 }

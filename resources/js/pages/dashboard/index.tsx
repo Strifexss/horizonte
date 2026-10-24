@@ -10,16 +10,22 @@ import DashboardReceitasSkeleton from '@/components/dashboard/DashboardReceitasS
 import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton';
 import { type CriterioRanking, type DashboardPageProps, type FatiaPizza, type PontoMensal, type SeriesMensais } from '@/components/dashboard/types';
 import ExtratoKpis, { ExtratoKpisSkeleton } from '@/components/extrato/ExtratoKpis';
+import InsightsPainel from '@/components/insights/InsightsPainel';
+import { rotuloDoPeriodo, type AcaoInsight, type AnaliseDashboard, type Insight, type MotivoDispensa } from '@/components/insights/types';
 import { PageTitle } from '@/components/padrões';
+import { Button } from '@/components/ui/button';
 import { useSidebar } from '@/components/ui/sidebar';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import { useEffect, useRef, useState } from 'react';
+import { Sparkles } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/dashboard' }];
 
 const COR_RECEITA = '#082845';
+
+const INTERVALO_CONSULTA_ANALISE_MS = 3000;
 const COR_DESPESA = '#f59e0b';
 
 const CARD_WRAP =
@@ -76,12 +82,102 @@ export default function Dashboard({
     despesasPorGrupoDeProduto,
     receitasPorDiaDaSemana,
     ranking,
+    insights,
 }: DashboardPageProps) {
     const [anoSelecionado, setAnoSelecionado] = useState<number>(ano);
     const [mesSelecionado, setMesSelecionado] = useState<number>(mes);
     const [semanaSelecionada, setSemanaSelecionada] = useState<string>(semana);
     const [criterioRanking, setCriterioRanking] = useState<CriterioRanking>(rankingCriterio);
     const [recarregando, setRecarregando] = useState<string[]>([]);
+    const [analiseAberta, setAnaliseAberta] = useState(false);
+    const [gerandoAnalise, setGerandoAnalise] = useState(false);
+    const [erroAnalise, setErroAnalise] = useState<string | null>(null);
+    const [acaoEmAndamento, setAcaoEmAndamento] = useState(false);
+    const analiseDoPeriodo = insights && insights.ano === anoSelecionado && insights.mes === mesSelecionado ? insights : null;
+    const analiseEmAndamento = analiseDoPeriodo?.status === 'processando';
+
+    useEffect(() => {
+        if (!analiseAberta || !analiseEmAndamento) {
+            return;
+        }
+
+        const consulta = window.setTimeout(() => router.reload({ only: ['insights'] }), INTERVALO_CONSULTA_ANALISE_MS);
+
+        return () => window.clearTimeout(consulta);
+    }, [analiseAberta, analiseEmAndamento, insights]);
+
+    function gerarAnalise(forcar: boolean): void {
+        setErroAnalise(null);
+        router.post(
+            route('dashboard.insights.store'),
+            { ano: anoSelecionado, mes: mesSelecionado, forcar },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                only: ['insights', 'flash'],
+                onStart: () => setGerandoAnalise(true),
+                onSuccess: (page) => {
+                    const flash = page.props.flash as { error?: string | null } | undefined;
+
+                    if (flash?.error) {
+                        setErroAnalise(flash.error);
+                    }
+                },
+                onFinish: () => setGerandoAnalise(false),
+            },
+        );
+    }
+
+    function abrirAnalise(): void {
+        let precisaGerar = false;
+
+        setAnaliseAberta(true);
+        setErroAnalise(null);
+        router.reload({
+            only: ['insights'],
+            onStart: () => setGerandoAnalise(true),
+            onSuccess: (page) => {
+                const atual = page.props.insights as AnaliseDashboard | null | undefined;
+                precisaGerar = !atual || atual.ano !== anoSelecionado || atual.mes !== mesSelecionado;
+            },
+            onFinish: () => {
+                if (precisaGerar) {
+                    gerarAnalise(false);
+                    return;
+                }
+
+                setGerandoAnalise(false);
+            },
+        });
+    }
+
+    function opcoesDeAcao() {
+        return {
+            preserveScroll: true,
+            preserveState: true,
+            only: ['insights'],
+            onStart: () => setAcaoEmAndamento(true),
+            onFinish: () => setAcaoEmAndamento(false),
+        };
+    }
+
+    function registrarAcao(insight: Insight, acao: AcaoInsight, motivo: MotivoDispensa | null = null): void {
+        if (!analiseDoPeriodo) {
+            return;
+        }
+
+        router.post(route('dashboard.insights.acoes.store', analiseDoPeriodo.id), { chave: insight.chave, acao, motivo }, opcoesDeAcao());
+    }
+
+    function desfazerAcao(insight: Insight): void {
+        if (!analiseDoPeriodo) {
+            return;
+        }
+
+        router.delete(route('dashboard.insights.acoes.destroy', [analiseDoPeriodo.id, insight.chave]), opcoesDeAcao());
+    }
+
+    const fecharAnalise = useCallback(() => setAnaliseAberta(false), []);
 
     function recarregar(query: Record<string, string>, only: string[]): void {
         router.get(route('dashboard'), query, {
@@ -132,7 +228,15 @@ export default function Dashboard({
             <RecolherSidebarNoDashboard />
             <Head title="Dashboard" />
             <div className="flex h-full min-w-0 flex-1 flex-col gap-6 rounded-xl p-4 md:p-6">
-                <PageTitle title="Dashboard" />
+                <PageTitle
+                    title="Dashboard"
+                    actions={
+                        <Button type="button" variant="primary" className="inline-flex items-center gap-2" onClick={abrirAnalise}>
+                            <Sparkles className="h-4 w-4" />
+                            Analisar com IA
+                        </Button>
+                    }
+                />
 
                 <DashboardPeriodoReferencia ano={anoSelecionado} mes={mesSelecionado} anos={anos} onPeriodoChange={trocarPeriodo} />
 
@@ -236,6 +340,21 @@ export default function Dashboard({
                     </div>
                 </div>
             </div>
+
+            {analiseAberta ? (
+                <InsightsPainel
+                    periodo={rotuloDoPeriodo(anoSelecionado, mesSelecionado)}
+                    analise={analiseDoPeriodo?.status === 'concluida' ? analiseDoPeriodo : null}
+                    carregando={gerandoAnalise || analiseEmAndamento}
+                    erro={erroAnalise ?? (analiseDoPeriodo?.status === 'falhou' ? analiseDoPeriodo.erro : null)}
+                    ocupado={acaoEmAndamento}
+                    onFechar={fecharAnalise}
+                    onGerar={gerarAnalise}
+                    onVouFazer={(insight) => registrarAcao(insight, 'feito')}
+                    onDispensar={(insight, motivo) => registrarAcao(insight, 'dispensado', motivo)}
+                    onDesfazer={desfazerAcao}
+                />
+            ) : null}
         </AppLayout>
     );
 }

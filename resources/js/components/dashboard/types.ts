@@ -1,4 +1,5 @@
 import type { ExtratoResumo } from '@/components/extrato/types';
+import type { AnaliseDashboard } from '@/components/insights/types';
 
 export type SaldoMensal = {
     mes: number;
@@ -74,4 +75,5 @@ export type DashboardPageProps = {
     despesasPorGrupoDeProduto?: DespesaPorGrupoDeProduto[];
     receitasPorDiaDaSemana?: ReceitaPorDiaDaSemana[];
     ranking?: Ranking;
+    insights?: AnaliseDashboard | null;
 };

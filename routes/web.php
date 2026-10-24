@@ -3,15 +3,16 @@
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ContasController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DashboardInsightsController;
 use App\Http\Controllers\ExtratoController;
 use App\Http\Controllers\ExtratoPdfController;
 use App\Http\Controllers\FormasPagamentoController;
 use App\Http\Controllers\FornecedoresController;
 use App\Http\Controllers\FuncionariosController;
 use App\Http\Controllers\GruposController;
+use App\Http\Controllers\MenuBoardsController;
 use App\Http\Controllers\NovidadesController;
 use App\Http\Controllers\NovidadesUsuarioController;
-use App\Http\Controllers\MenuBoardsController;
 use App\Http\Controllers\ParcelaController;
 use App\Http\Controllers\ProdutosController;
 use App\Http\Controllers\TvController;
@@ -29,6 +30,9 @@ Route::post('/tv/parear', [TvController::class, 'parear'])->middleware('throttle
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/dashboard/insights', [DashboardInsightsController::class, 'store'])->name('dashboard.insights.store');
+    Route::post('/dashboard/insights/{id}/acoes', [DashboardInsightsController::class, 'acaoStore'])->name('dashboard.insights.acoes.store');
+    Route::delete('/dashboard/insights/{id}/acoes/{chave}', [DashboardInsightsController::class, 'acaoDestroy'])->name('dashboard.insights.acoes.destroy');
 
     Route::group(['prefix' => 'extrato'], function () {
         Route::get('/', [ExtratoController::class, 'index'])->name('extrato.index');

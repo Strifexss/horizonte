@@ -136,6 +136,18 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
             ->get();
     }
 
+    public function ativosComPrecoDeVendaSuspeito(int $usuarioId): Collection
+    {
+        return $this->model->newQuery()
+            ->where('usuario_id', $usuarioId)
+            ->where('ativo', true)
+            ->where(fn ($query) => $query
+                ->where('preco_venda', '<=', 0)
+                ->orWhereColumn('preco_venda', '<', 'preco_compra'))
+            ->orderBy('nome')
+            ->get(['id', 'nome', 'preco_compra', 'preco_venda']);
+    }
+
     public function atualizarFoto(int $id, ?string $fotoPath): Produto
     {
         $produto = $this->model->newQuery()->findOrFail($id);

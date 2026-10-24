@@ -1,6 +1,6 @@
 # Análise com IA no Dashboard
 
-Status: needs-triage
+Status: ready-for-human
 
 Planejamento de 24/10/2026. Design no canvas "Menu Board Digital", linha "Dashboard · Análise com IA" (IaDashboard, IaCarregando, IaPainel, IaMobile).
 
@@ -104,6 +104,16 @@ Meses fictícios rodados a cada mudança nas instruções:
 1. Insights com o que o Dashboard já calcula: tendência, dias da semana, concentração de receita, margem do mês, despesa fora do padrão, caixa e atrasos.
 2. Vendas e margem por produto, custo por unidade, fornecedores, custos fixos e Sinal positivo.
 3. Alertas automáticos (ex.: aviso no painel de Novidades).
+
+## Decisões tomadas (25/10/2026)
+
+- SDK oficial `laravel/ai` na série 0.11 (a 1.x conflita com o `laravel/mcp` exigido pelo Boost). PHP ^8.3.
+- Provedor Gemini (`gemini-flash-latest`), plano gratuito, configurado por `.env` (`AI_DEFAULT_PROVIDER`, `GEMINI_API_KEY`, `GEMINI_TEXT_MODEL`).
+- A chamada leva perto de 1 minuto no plano gratuito: a análise roda em job na fila (`GerarAnaliseDashboard`) e a tela consulta o andamento a cada 3 s. Exige worker de fila em produção.
+- Análise presa em "processando" por mais de 10 minutos vira falha.
+- O plano gratuito do Gemini aceita 15 requisições por minuto por chave, somando todos os usuários. Um limitador global (`INSIGHTS_REQUISICOES_POR_MINUTO`, padrão 15) segura os jobs na fila até haver vaga; cada execução do job faz uma única chamada. Resposta 429 ou 503 devolve o job à fila após 30 s, por até 8 minutos; depois disso a análise vira falha. O limitador usa o cache, que precisa ser compartilhado entre os workers (database ou redis).
+- Limite diário por usuário em `INSIGHTS_LIMITE_DIARIO` (padrão 5); análise reaproveitada do cache não conta.
+- Desenvolvimento na branch `feature-insight`.
 
 ## Decisões em aberto
 

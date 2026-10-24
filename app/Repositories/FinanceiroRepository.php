@@ -315,6 +315,63 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
             ->get();
     }
 
+    public function comprasPorProdutoNoPeriodo(int $usuarioId, string $dataInicio, string $dataFim): Collection
+    {
+        return FinanceiroParcela::query()
+            ->toBase()
+            ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
+            ->join('produto', 'produto.id', '=', 'financeiro_parcela.produto_id')
+            ->leftJoin('grupos', 'grupos.id', '=', 'produto.grupo_id')
+            ->where('financeiro_parcela.usuario_id', $usuarioId)
+            ->whereRaw("UPPER(financeiro.tipo) = 'DESPESA'")
+            ->whereBetween('financeiro_parcela.data_competencia', [$dataInicio, $dataFim])
+            ->selectRaw('produto.id as produto_id')
+            ->selectRaw('produto.nome as produto')
+            ->selectRaw('grupos.nome as grupo')
+            ->selectRaw('SUM(COALESCE(financeiro_parcela.quantidade, 0)) as quantidade')
+            ->selectRaw('SUM(financeiro_parcela.valor) as custo')
+            ->selectRaw('COUNT(*) as lancamentos')
+            ->groupBy('produto.id', 'produto.nome', 'grupos.nome')
+            ->get();
+    }
+
+    public function totaisNoPeriodo(int $usuarioId, string $dataInicio, string $dataFim): array
+    {
+        $linha = FinanceiroParcela::query()
+            ->toBase()
+            ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
+            ->where('financeiro_parcela.usuario_id', $usuarioId)
+            ->whereBetween('financeiro_parcela.data_competencia', [$dataInicio, $dataFim])
+            ->selectRaw("SUM(CASE WHEN UPPER(financeiro.tipo) = 'RECEITA' THEN financeiro_parcela.valor ELSE 0 END) as receitas")
+            ->selectRaw("SUM(CASE WHEN UPPER(financeiro.tipo) = 'DESPESA' THEN financeiro_parcela.valor ELSE 0 END) as despesas")
+            ->selectRaw('COUNT(*) as lancamentos')
+            ->first();
+
+        return [
+            'receitas' => round((float) ($linha->receitas ?? 0), 2),
+            'despesas' => round((float) ($linha->despesas ?? 0), 2),
+            'lancamentos' => (int) ($linha->lancamentos ?? 0),
+        ];
+    }
+
+    public function emAbertoComVencimentoEntre(int $usuarioId, string $dataInicio, string $dataFim): array
+    {
+        $linha = FinanceiroParcela::query()
+            ->toBase()
+            ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
+            ->where('financeiro_parcela.usuario_id', $usuarioId)
+            ->whereBetween('financeiro_parcela.data_vencimento', [$dataInicio, $dataFim])
+            ->whereColumn('financeiro_parcela.valor_pago', '<', 'financeiro_parcela.valor')
+            ->selectRaw("SUM(CASE WHEN UPPER(financeiro.tipo) = 'RECEITA' THEN financeiro_parcela.valor - COALESCE(financeiro_parcela.valor_pago, 0) ELSE 0 END) as a_receber")
+            ->selectRaw("SUM(CASE WHEN UPPER(financeiro.tipo) = 'DESPESA' THEN financeiro_parcela.valor - COALESCE(financeiro_parcela.valor_pago, 0) ELSE 0 END) as a_pagar")
+            ->first();
+
+        return [
+            'a_receber' => round((float) ($linha->a_receber ?? 0), 2),
+            'a_pagar' => round((float) ($linha->a_pagar ?? 0), 2),
+        ];
+    }
+
     public function receitasPorDiaDaSemanaNoPeriodo(string $dataInicio, string $dataFim): Collection
     {
         $coluna = 'financeiro_parcela.data_competencia';

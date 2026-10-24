@@ -61,6 +61,13 @@ interface ProdutoRepositoryInterface extends AbstractRepositoryInterface
     public function atualizarFoto(int $id, ?string $fotoPath): Produto;
 
     /**
+     * Produtos ativos do usuário sem preço de venda ou vendidos abaixo do custo.
+     *
+     * @return Collection<int, Produto>
+     */
+    public function ativosComPrecoDeVendaSuspeito(int $usuarioId): Collection;
+
+    /**
      * Grava o arquivo da foto no disco de produtos e retorna o caminho.
      */
     public function salvarArquivoFoto(UploadedFile $foto, int $usuarioId): string;

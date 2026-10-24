@@ -10,6 +10,7 @@ use App\Models\Venda;
 use App\Repositories\Interfaces\VendaRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class VendaRepository extends AbstractRepository implements VendaRepositoryInterface
@@ -135,5 +136,49 @@ class VendaRepository extends AbstractRepository implements VendaRepositoryInter
                 $this->applyAccentInsensitiveLike($observacao, 'observacao', $busca);
             });
         });
+    }
+
+    public function vendasPorProdutoNoPeriodo(int $usuarioId, string $dataInicio, string $dataFim): Collection
+    {
+        return $this->model->newQuery()
+            ->toBase()
+            ->join('venda_item', 'venda_item.venda_id', '=', 'venda.id')
+            ->join('produto', 'produto.id', '=', 'venda_item.produto_id')
+            ->where('venda.usuario_id', $usuarioId)
+            ->where('venda.status', Venda::STATUS_FECHADA)
+            ->whereBetween('venda.data_venda', [$dataInicio.' 00:00:00', $dataFim.' 23:59:59'])
+            ->selectRaw('produto.id as produto_id')
+            ->selectRaw('produto.nome as produto')
+            ->selectRaw('SUM(venda_item.quantidade) as quantidade')
+            ->selectRaw('SUM(venda_item.valor_total) as receita')
+            ->groupBy('produto.id', 'produto.nome')
+            ->get();
+    }
+
+    public function resumoNoPeriodo(int $usuarioId, string $dataInicio, string $dataFim): array
+    {
+        $periodo = [$dataInicio.' 00:00:00', $dataFim.' 23:59:59'];
+
+        $vendas = $this->model->newQuery()
+            ->where('usuario_id', $usuarioId)
+            ->where('status', Venda::STATUS_FECHADA)
+            ->whereBetween('data_venda', $periodo)
+            ->selectRaw('COUNT(*) as vendas, SUM(total) as total')
+            ->toBase()
+            ->first();
+
+        $itens = $this->model->newQuery()
+            ->toBase()
+            ->join('venda_item', 'venda_item.venda_id', '=', 'venda.id')
+            ->where('venda.usuario_id', $usuarioId)
+            ->where('venda.status', Venda::STATUS_FECHADA)
+            ->whereBetween('venda.data_venda', $periodo)
+            ->count();
+
+        return [
+            'vendas' => (int) ($vendas->vendas ?? 0),
+            'total' => round((float) ($vendas->total ?? 0), 2),
+            'itens' => $itens,
+        ];
     }
 }
