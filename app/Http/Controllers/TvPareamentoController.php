@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\Interfaces\TvPareamentoServiceInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class TvPareamentoController extends Controller
@@ -12,7 +13,7 @@ class TvPareamentoController extends Controller
         private TvPareamentoServiceInterface $tvPareamentoService
     ) {}
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         try {
             $this->tvPareamentoService->gerarPin((int) $request->user()->id);
@@ -23,10 +24,10 @@ class TvPareamentoController extends Controller
         }
     }
 
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, int $id): RedirectResponse
     {
         try {
-            $this->tvPareamentoService->revogar((int) $id, (int) $request->user()->id);
+            $this->tvPareamentoService->revogar($id, (int) $request->user()->id);
 
             return redirect()->back()->with('success', 'TV desconectada.');
         } catch (ModelNotFoundException $e) {

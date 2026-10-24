@@ -49,7 +49,7 @@ export default function MenuBoardsCard({ board, ativando, onAtivar, onDelete }: 
                         type="button"
                         variant="outline"
                         disabled
-                        className="h-11 flex-1 border-green-200 bg-green-50 text-green-700 disabled:opacity-100 md:h-10 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300"
+                        className="h-11 min-w-0 flex-1 border-green-200 bg-green-50 text-green-700 disabled:opacity-100 md:h-10 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300"
                     >
                         <Check />
                         Na TV agora
@@ -59,17 +59,16 @@ export default function MenuBoardsCard({ board, ativando, onAtivar, onDelete }: 
                         type="button"
                         variant="primary"
                         loading={ativando}
-                        className="h-11 flex-1 justify-center text-sm md:h-10"
+                        className="h-11 min-w-0 flex-1 justify-center text-sm md:h-10"
                         onClick={() => onAtivar(board)}
                     >
                         <Tv />
                         Ativar na TV
                     </Button>
                 )}
-                <Button type="button" variant="outline" className="h-11 shrink-0 md:h-10" asChild>
-                    <Link href={route('menu-boards.edit', board.id)} aria-label={`Editar ${board.nome}`}>
+                <Button type="button" variant="outline" size="icon" className="size-11 shrink-0 md:size-10" asChild>
+                    <Link href={route('menu-boards.edit', board.id)} aria-label={`Editar ${board.nome}`} title="Editar">
                         <Pencil />
-                        <span className="hidden sm:inline">Editar</span>
                     </Link>
                 </Button>
                 <Button
@@ -78,6 +77,7 @@ export default function MenuBoardsCard({ board, ativando, onAtivar, onDelete }: 
                     size="icon"
                     className="size-11 shrink-0 text-red-600 hover:text-red-700 md:size-10"
                     aria-label={`Excluir ${board.nome}`}
+                    title="Excluir"
                     onClick={() => onDelete(board)}
                 >
                     <Trash2 />

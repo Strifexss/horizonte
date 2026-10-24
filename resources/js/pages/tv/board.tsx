@@ -1,4 +1,3 @@
-import { formatarHora } from '@/components/menu-boards/types';
 import TvCardDestaque from '@/components/tv/TvCardDestaque';
 import TvCardItem from '@/components/tv/TvCardItem';
 import { ESTILOS_TV, type TvBoard } from '@/components/tv/temas';
@@ -8,7 +7,6 @@ import { useState } from 'react';
 
 type PageProps = {
     board: TvBoard | null;
-    sincronizado_em: string;
 };
 
 export default function TvBoardPage() {
@@ -26,7 +24,7 @@ export default function TvBoardPage() {
         let concluiu = false;
 
         router.reload({
-            only: ['board', 'sincronizado_em'],
+            only: ['board'],
             onStart: () => setSincronizando(true),
             onSuccess: () => {
                 concluiu = true;
@@ -49,18 +47,8 @@ export default function TvBoardPage() {
             >
                 {board ? (
                     <>
-                        <header className="flex items-end justify-between gap-[1.7vw]">
-                            <div className="flex flex-col gap-[0.3vw]">
-                                {board.estabelecimento ? (
-                                    <span className={`text-[1.15vw] font-semibold tracking-[0.2em] uppercase ${estilo.marca}`}>
-                                        {board.estabelecimento}
-                                    </span>
-                                ) : null}
-                                <h1 className={`text-[3.3vw] leading-none tracking-tight ${estilo.peso}`}>{board.nome}</h1>
-                            </div>
-                            <span className={`pb-[0.4vw] text-[1.15vw] ${estilo.suave}`}>
-                                {falhou ? 'Sem conexão · ' : ''}Atualizado às {formatarHora(props.sincronizado_em)}
-                            </span>
+                        <header>
+                            <h1 className={`text-[3.3vw] leading-none tracking-tight ${estilo.peso}`}>{board.nome}</h1>
                         </header>
 
                         <div aria-hidden="true" className={`h-[0.2vw] w-[5vw] rounded-sm ${estilo.regua}`} />
@@ -103,10 +91,10 @@ export default function TvBoardPage() {
                     type="button"
                     onClick={sincronizar}
                     aria-label="Sincronizar dados do board"
-                    className={`absolute right-[1.25vw] bottom-[1vw] inline-flex h-[2.5vw] min-h-11 items-center gap-[0.5vw] rounded-full px-[0.95vw] text-[0.95vw] font-semibold opacity-20 transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none ${estilo.sync}`}
+                    className={`absolute right-[1.25vw] bottom-[1vw] inline-flex h-[2.5vw] min-h-11 items-center gap-[0.5vw] rounded-full px-[0.95vw] text-[0.95vw] font-semibold transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none ${falhou ? 'opacity-100' : 'opacity-20'} ${estilo.sync}`}
                 >
                     <RefreshCw className={`size-[1.15vw] ${sincronizando ? 'animate-spin' : ''}`} />
-                    {sincronizando ? 'Sincronizando...' : 'Sync'}
+                    {sincronizando ? 'Sincronizando...' : falhou ? 'Sem conexão · Tentar de novo' : 'Sync'}
                 </button>
             </main>
         </>

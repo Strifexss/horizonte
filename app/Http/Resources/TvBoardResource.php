@@ -22,7 +22,6 @@ class TvBoardResource extends JsonResource
         return [
             'nome' => $this->nome,
             'tema' => $this->tema,
-            'estabelecimento' => $this->user?->name,
             'destaques' => $destaques->map(fn (MenuBoardItem $item) => $this->produtoNaTv($item))->values(),
             'itens' => $itens->map(fn (MenuBoardItem $item) => $this->produtoNaTv($item))->values(),
         ];

@@ -86,6 +86,28 @@ _Avoid_: Marcar como lida, excluir novidade
 Ação do administrador sobre uma Novidade publicada: apaga a dispensa de todos os Usuários e move a data de publicação para agora, então o Pop-up automático volta a abrir para todos. O administrador também pode marcar ou desmarcar a dispensa de um Usuário específico.
 _Avoid_: Republicar, duplicar novidade
 
+### Menu Board
+
+**Menu Board**:
+Cardápio que o Usuário monta para mostrar na TV do balcão: um tema, os produtos exibidos e, entre eles, os Destaques. O Usuário pode ter vários, mas só um fica **ativo na TV** por vez.
+_Avoid_: Cardápio digital, vitrine, board da TV
+
+**Destaque**:
+Produto exibido no Menu Board que aparece em card grande, separado dos demais.
+_Avoid_: Promoção, favorito
+
+**TV**:
+Tela pareada a um Usuário que mostra o Menu Board ativo dele. Continua conectada até o Usuário desconectá-la.
+_Avoid_: Dispositivo, monitor, player
+
+**PIN de pareamento**:
+Código de 4 dígitos gerado no ERP que a TV digita para se conectar ao Usuário. Vale 10 minutos e só pode ser usado uma vez; gerar outro invalida o anterior.
+_Avoid_: Senha da TV, código de acesso
+
+**Sync**:
+Ação manual na TV de buscar de novo o Menu Board ativo; a TV não se atualiza sozinha.
+_Avoid_: Atualização automática, refresh
+
 ### Dashboard
 
 **Período de referência**:

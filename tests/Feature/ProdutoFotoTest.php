@@ -2,6 +2,8 @@
 
 use App\Models\Produto;
 use App\Models\User;
+use App\Repositories\Interfaces\ProdutoRepositoryInterface;
+use App\Repositories\ProdutoRepository;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -47,6 +49,28 @@ it('troca a foto e apaga o arquivo anterior', function (): void {
 
     Storage::disk('public')->assertMissing('produtos/antiga.jpg');
     expect($produto->fresh()->foto_path)->not->toBe('produtos/antiga.jpg');
+});
+
+it('apaga o arquivo novo quando a foto nao e gravada no produto', function (): void {
+    $user = User::factory()->create();
+    $produto = produtoComFoto($user);
+
+    app()->bind(ProdutoRepositoryInterface::class, fn () => new class(new Produto) extends ProdutoRepository
+    {
+        public function atualizarFoto(int $id, ?string $fotoPath): Produto
+        {
+            throw new RuntimeException('Falha ao gravar');
+        }
+    });
+
+    $this->actingAs($user)
+        ->post(route('produtos.foto.store', $produto->id), [
+            'foto' => UploadedFile::fake()->image('parmegiana.jpg'),
+        ])
+        ->assertSessionHas('error');
+
+    Storage::disk('public')->assertDirectoryEmpty('produtos/'.$user->id);
+    expect($produto->fresh()->foto_path)->toBeNull();
 });
 
 it('remove a foto do produto', function (): void {

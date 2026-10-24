@@ -32,6 +32,11 @@ interface MenuBoardRepositoryInterface extends AbstractRepositoryInterface
     public function sincronizarItens(int $menuBoardId, array $itens): void;
 
     /**
+     * Trava os boards do usuário até o fim da transação corrente.
+     */
+    public function travarDoUsuario(int $usuarioId): void;
+
+    /**
      * Desmarca o board ativo do usuário.
      */
     public function desativarDoUsuario(int $usuarioId): int;

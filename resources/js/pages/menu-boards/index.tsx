@@ -4,12 +4,12 @@ import MenuBoardsEmpty from '@/components/menu-boards/MenuBoardsEmpty';
 import MenuBoardsPareamento from '@/components/menu-boards/MenuBoardsPareamento';
 import MenuBoardsSkeleton from '@/components/menu-boards/MenuBoardsSkeleton';
 import type { MenuBoardResumo, PareamentoTv } from '@/components/menu-boards/types';
-import { PageTitle } from '@/components/padrões';
+import { MobileFab, PageTitle } from '@/components/padrões';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Deferred, Head, Link, router, usePage } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { Plus, Tv } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -66,13 +66,25 @@ export default function MenuBoardsIndex() {
                     mobileTitle="Menu Boards"
                     subtitle="Monte cardápios para a TV do balcão. Só um board fica ativo na TV por vez."
                     actions={
-                        <Button variant="primary" size="default" className="inline-flex items-center gap-2" asChild>
+                        <Button variant="primary" size="default" className="hidden items-center gap-2 md:inline-flex" asChild>
                             <Link href={route('menu-boards.create')}>
                                 <Plus className="h-4 w-4" />
                                 Novo Menu Board
                             </Link>
                         </Button>
                     }
+                />
+
+                <MobileFab
+                    actions={[
+                        {
+                            key: 'novo-menu-board',
+                            label: '+ Novo Menu Board',
+                            icon: <Tv className="h-4 w-4" />,
+                            className: 'bg-amber-500 text-white hover:bg-amber-600',
+                            onClick: () => router.visit(route('menu-boards.create')),
+                        },
+                    ]}
                 />
 
                 <div className="flex flex-wrap items-start gap-4">

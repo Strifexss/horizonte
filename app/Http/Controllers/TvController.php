@@ -7,8 +7,10 @@ use App\Http\Requests\ParearTvRequest;
 use App\Http\Resources\TvBoardResource;
 use App\Services\Interfaces\MenuBoardsServiceInterface;
 use App\Services\Interfaces\TvPareamentoServiceInterface;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 /**
  * Modo Exibição da TV: rota pública, identificada pelo cookie do dispositivo pareado.
@@ -24,7 +26,7 @@ class TvController extends Controller
         private MenuBoardsServiceInterface $menuBoardsService,
     ) {}
 
-    public function show(Request $request)
+    public function show(Request $request): Response
     {
         $dispositivo = $this->tvPareamentoService->resolverDispositivo($request->cookie(self::COOKIE_DISPOSITIVO));
 
@@ -36,11 +38,10 @@ class TvController extends Controller
 
         return Inertia::render('tv/board', [
             'board' => $board ? TvBoardResource::make($board)->resolve() : null,
-            'sincronizado_em' => now()->toIso8601String(),
         ]);
     }
 
-    public function parear(ParearTvRequest $request)
+    public function parear(ParearTvRequest $request): RedirectResponse
     {
         try {
             $token = $this->tvPareamentoService->parear($request->validated('pin'));

@@ -48,6 +48,17 @@ it('mostra a tela de pareamento para tv desconectada', function (): void {
         ->assertInertia(fn (Assert $page) => $page->component('tv/pareamento'));
 });
 
+it('volta para a tela de pareamento depois que o usuario desconecta a tv', function (): void {
+    $user = User::factory()->create();
+    $dispositivo = tvPareada($user);
+
+    $this->actingAs($user)->delete(route('tv.dispositivos.destroy', $dispositivo->id));
+
+    $this->withCookie(TvController::COOKIE_DISPOSITIVO, 'token-da-tv')
+        ->get(route('tv'))
+        ->assertInertia(fn (Assert $page) => $page->component('tv/pareamento'));
+});
+
 it('exibe o board ativo com destaques separados e sem dados financeiros', function (): void {
     $user = User::factory()->create(['name' => 'Bistrô Sabor da Casa']);
     tvPareada($user);
@@ -67,7 +78,7 @@ it('exibe o board ativo com destaques separados e sem dados financeiros', functi
             ->component('tv/board')
             ->where('board.nome', 'Menu Almoço')
             ->where('board.tema', 'dark')
-            ->where('board.estabelecimento', 'Bistrô Sabor da Casa')
+            ->missing('board.estabelecimento')
             ->has('board.destaques', 1)
             ->where('board.destaques.0.nome', 'Parmegiana')
             ->where('board.destaques.0.descricao', 'Arroz e fritas')
@@ -75,7 +86,7 @@ it('exibe o board ativo com destaques separados e sem dados financeiros', functi
             ->missing('board.destaques.0.preco_compra')
             ->has('board.itens', 1)
             ->where('board.itens.0.nome', 'Suco')
-            ->has('sincronizado_em')
+            ->missing('sincronizado_em')
         );
 });
 

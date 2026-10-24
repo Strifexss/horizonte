@@ -9,7 +9,7 @@ type Props = {
 
 export default function MenuBoardsTemaPicker({ value, onChange }: Props) {
     return (
-        <fieldset className="flex flex-col gap-3">
+        <fieldset className="flex min-w-0 flex-col gap-3">
             <legend className="mb-3 text-sm font-medium">Modelo / Tema Visual</legend>
             <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0">
                 {TEMAS.map((tema) => {
