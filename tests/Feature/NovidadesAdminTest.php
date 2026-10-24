@@ -12,7 +12,8 @@ beforeEach(function (): void {
         'admin.emails' => ['admin@horizonte.test'],
         'inertia.testing.page_paths' => [resource_path('js/pages')],
     ]);
-    Storage::fake(Novidade::DISCO_IMAGEM);
+    Storage::fake(Novidade::discoImagens());
+    Storage::fake('public');
 });
 
 function administradorDasNovidades(): User
@@ -40,7 +41,7 @@ function imagemDaNovidade(Novidade $novidade, string $nome = 'banner.png', int $
 {
     return NovidadeImagem::query()->create([
         'novidade_id' => $novidade->id,
-        'caminho' => UploadedFile::fake()->image($nome)->store(Novidade::PASTA_IMAGENS, Novidade::DISCO_IMAGEM),
+        'caminho' => UploadedFile::fake()->image($nome)->store(Novidade::PASTA_IMAGENS, Novidade::discoImagens()),
         'ordem' => $ordem,
     ]);
 }
@@ -88,7 +89,21 @@ it('cria a novidade como rascunho guardando todas as imagens enviadas', function
         ->and($criada->publicada_em)->toBeNull()
         ->and($criada->imagens)->toHaveCount(3)
         ->and($criada->imagens->pluck('ordem')->all())->toBe([1, 2, 3]);
-    $criada->imagens->each(fn (NovidadeImagem $imagem) => Storage::disk(Novidade::DISCO_IMAGEM)->assertExists($imagem->caminho));
+    $criada->imagens->each(fn (NovidadeImagem $imagem) => Storage::disk(Novidade::discoImagens())->assertExists($imagem->caminho));
+});
+
+it('guarda as imagens no disco configurado para as novidades', function (): void {
+    config(['filesystems.novidades_disk' => 'r2']);
+    Storage::fake('r2');
+
+    $this->actingAs(administradorDasNovidades())
+        ->post(route('admin.novidades.store'), payloadNovidade(['imagens' => [UploadedFile::fake()->image('banner.png')]]))
+        ->assertRedirect(route('admin.novidades'));
+
+    $imagem = NovidadeImagem::query()->sole();
+    Storage::disk('r2')->assertExists($imagem->caminho);
+    Storage::disk('public')->assertMissing($imagem->caminho);
+    expect($imagem->url())->toBe(Storage::disk('r2')->url($imagem->caminho));
 });
 
 it('exige titulo, descricao e categoria', function (): void {
@@ -112,7 +127,7 @@ it('rejeita valores invalidos sem gravar arquivo', function (string $campo, mixe
         ->assertSessionHasErrors([$campoDoErro => $mensagem]);
 
     expect(Novidade::query()->count())->toBe(0)
-        ->and(Storage::disk(Novidade::DISCO_IMAGEM)->allFiles())->toBe([]);
+        ->and(Storage::disk(Novidade::discoImagens())->allFiles())->toBe([]);
 })->with([
     'categoria fora da lista' => fn (): array => ['categoria', 'outra', 'categoria', 'Categoria inválida.'],
     'link sem http' => fn (): array => ['cta_url', 'javascript:alert(1)', 'cta_url', 'Informe um link válido, começando com http:// ou https://.'],
@@ -156,9 +171,9 @@ it('adiciona imagens ao fim e remove as marcadas apagando os arquivos', function
         ->and($novidade->imagens)->toHaveCount(2)
         ->and($novidade->imagens->first()->id)->toBe($mantida->id);
     $this->assertModelMissing($removida);
-    Storage::disk(Novidade::DISCO_IMAGEM)->assertMissing($removida->caminho);
-    Storage::disk(Novidade::DISCO_IMAGEM)->assertExists($mantida->caminho);
-    Storage::disk(Novidade::DISCO_IMAGEM)->assertExists($novidade->imagens->last()->caminho);
+    Storage::disk(Novidade::discoImagens())->assertMissing($removida->caminho);
+    Storage::disk(Novidade::discoImagens())->assertExists($mantida->caminho);
+    Storage::disk(Novidade::discoImagens())->assertExists($novidade->imagens->last()->caminho);
 });
 
 it('ignora pedido de remover imagem de outra novidade', function (): void {
@@ -171,7 +186,7 @@ it('ignora pedido de remover imagem de outra novidade', function (): void {
         ->assertRedirect(route('admin.novidades'));
 
     $this->assertModelExists($imagemDaOutra);
-    Storage::disk(Novidade::DISCO_IMAGEM)->assertExists($imagemDaOutra->caminho);
+    Storage::disk(Novidade::discoImagens())->assertExists($imagemDaOutra->caminho);
 });
 
 it('exclui a novidade junto com todas as imagens', function (): void {
@@ -186,7 +201,7 @@ it('exclui a novidade junto com todas as imagens', function (): void {
 
     $this->assertModelMissing($novidade);
     $this->assertModelMissing($primeira);
-    Storage::disk(Novidade::DISCO_IMAGEM)->assertMissing([$primeira->caminho, $segunda->caminho]);
+    Storage::disk(Novidade::discoImagens())->assertMissing([$primeira->caminho, $segunda->caminho]);
 });
 
 it('lista a pasta de imagens indicando a novidade dona de cada arquivo', function (): void {
@@ -194,9 +209,9 @@ it('lista a pasta de imagens indicando a novidade dona de cada arquivo', functio
     $this->travelTo('2026-10-01 09:00:00');
     $usada = imagemDaNovidade($novidade);
     $this->travelTo('2026-10-02 09:00:00');
-    $solta = UploadedFile::fake()->image('solta.png')->store(Novidade::PASTA_IMAGENS, Novidade::DISCO_IMAGEM);
-    touch(Storage::disk(Novidade::DISCO_IMAGEM)->path($usada->caminho), strtotime('2026-10-01 09:00:00'));
-    touch(Storage::disk(Novidade::DISCO_IMAGEM)->path($solta), strtotime('2026-10-02 09:00:00'));
+    $solta = UploadedFile::fake()->image('solta.png')->store(Novidade::PASTA_IMAGENS, Novidade::discoImagens());
+    touch(Storage::disk(Novidade::discoImagens())->path($usada->caminho), strtotime('2026-10-01 09:00:00'));
+    touch(Storage::disk(Novidade::discoImagens())->path($solta), strtotime('2026-10-02 09:00:00'));
 
     $this->actingAs(administradorDasNovidades())
         ->get(route('admin.novidades'))
@@ -222,17 +237,17 @@ it('exclui da pasta a imagem e o vinculo com a novidade', function (): void {
         ->assertSessionHas('success', 'Imagem excluída com sucesso.');
 
     $this->assertModelMissing($imagem);
-    Storage::disk(Novidade::DISCO_IMAGEM)->assertMissing($imagem->caminho);
+    Storage::disk(Novidade::discoImagens())->assertMissing($imagem->caminho);
 });
 
 it('responde 404 ao excluir imagem que nao esta na pasta', function (): void {
-    Storage::disk(Novidade::DISCO_IMAGEM)->put('fora-da-pasta.png', 'conteudo');
+    Storage::disk(Novidade::discoImagens())->put('fora-da-pasta.png', 'conteudo');
 
     $this->actingAs(administradorDasNovidades())
         ->delete(route('admin.novidades.imagens.destroy', 'fora-da-pasta.png'))
         ->assertNotFound();
 
-    Storage::disk(Novidade::DISCO_IMAGEM)->assertExists('fora-da-pasta.png');
+    Storage::disk(Novidade::discoImagens())->assertExists('fora-da-pasta.png');
 });
 
 it('grava a data na primeira publicacao e a mantem ao republicar', function (): void {
@@ -283,7 +298,7 @@ it('responde 404 para usuario comum em qualquer rota do admin de novidades', fun
     ]);
     expect(Novidade::query()->count())->toBe(1);
     $this->assertModelExists($imagem);
-    Storage::disk(Novidade::DISCO_IMAGEM)->assertExists($imagem->caminho);
+    Storage::disk(Novidade::discoImagens())->assertExists($imagem->caminho);
 })->with([
     'listar' => ['GET', 'admin.novidades'],
     'criar' => ['POST', 'admin.novidades.store'],

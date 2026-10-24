@@ -21,8 +21,6 @@ class Novidade extends Model
 
     public const STATUS = [self::STATUS_RASCUNHO, self::STATUS_PUBLICADO];
 
-    public const DISCO_IMAGEM = 'public';
-
     public const PASTA_IMAGENS = 'novidades';
 
     /**
@@ -71,6 +69,11 @@ class Novidade extends Model
     public function imagens(): HasMany
     {
         return $this->hasMany(NovidadeImagem::class, 'novidade_id')->orderBy('ordem')->orderBy('id');
+    }
+
+    public static function discoImagens(): string
+    {
+        return config('filesystems.novidades_disk');
     }
 
     public function estaPublicada(): bool

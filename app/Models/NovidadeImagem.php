@@ -41,6 +41,6 @@ class NovidadeImagem extends Model
 
     public function url(): string
     {
-        return Storage::disk(Novidade::DISCO_IMAGEM)->url($this->caminho);
+        return Storage::disk(Novidade::discoImagens())->url($this->caminho);
     }
 }

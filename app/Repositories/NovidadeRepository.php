@@ -65,12 +65,12 @@ class NovidadeRepository extends AbstractRepository implements NovidadeRepositor
 
     public function salvarImagem(UploadedFile $imagem): string
     {
-        return $imagem->store(Novidade::PASTA_IMAGENS, Novidade::DISCO_IMAGEM);
+        return $imagem->store(Novidade::PASTA_IMAGENS, Novidade::discoImagens());
     }
 
     public function apagarImagem(string $caminho): void
     {
-        Storage::disk(Novidade::DISCO_IMAGEM)->delete($caminho);
+        Storage::disk(Novidade::discoImagens())->delete($caminho);
     }
 
     public function adicionarImagens(int $novidadeId, array $caminhos): void
@@ -105,7 +105,7 @@ class NovidadeRepository extends AbstractRepository implements NovidadeRepositor
 
     public function diretorioImagens(): Collection
     {
-        $disco = Storage::disk(Novidade::DISCO_IMAGEM);
+        $disco = Storage::disk(Novidade::discoImagens());
         $caminhos = $disco->files(Novidade::PASTA_IMAGENS);
         $donas = NovidadeImagem::query()
             ->with('novidade:id,titulo')
@@ -130,7 +130,7 @@ class NovidadeRepository extends AbstractRepository implements NovidadeRepositor
     {
         $caminho = Novidade::PASTA_IMAGENS.'/'.$arquivo;
 
-        if (! Storage::disk(Novidade::DISCO_IMAGEM)->exists($caminho)) {
+        if (! Storage::disk(Novidade::discoImagens())->exists($caminho)) {
             throw (new ModelNotFoundException)->setModel(NovidadeImagem::class);
         }
 

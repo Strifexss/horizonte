@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Novidades Images Disk
+    |--------------------------------------------------------------------------
+    |
+    | Disk that stores the images of the Novidades. It must serve public URLs.
+    | On Laravel Cloud the local disk is wiped on every deploy and is not shared
+    | between replicas, so production points this to the attached bucket.
+    |
+    */
+
+    'novidades_disk' => env('NOVIDADES_DISK', 'public'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |
