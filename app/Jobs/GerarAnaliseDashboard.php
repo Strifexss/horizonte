@@ -7,6 +7,7 @@ use DateTimeInterface;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\Middleware\RateLimited;
+use Illuminate\Support\Facades\Log;
 use Laravel\Ai\Exceptions\FailoverableException;
 use Throwable;
 
@@ -41,7 +42,13 @@ class GerarAnaliseDashboard implements ShouldQueue
     {
         try {
             $dashboardInsightsService->processar($this->analiseId);
-        } catch (FailoverableException) {
+        } catch (FailoverableException $erro) {
+            Log::warning('Análise do dashboard devolvida à fila: '.$erro::class.': '.$erro->getMessage(), [
+                'analise_id' => $this->analiseId,
+                'tentativa' => $this->attempts(),
+                'detalhe' => $erro->getPrevious()?->getMessage(),
+            ]);
+
             $this->release((int) config('insights.pausa_apos_sobrecarga_segundos'));
         }
     }

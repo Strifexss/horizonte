@@ -15,6 +15,7 @@ use App\Models\VendaItem;
 use App\Services\Interfaces\DashboardInsightsServiceInterface;
 use App\Services\Interfaces\IndicadoresInsightsServiceInterface;
 use Illuminate\JsonSchema\JsonSchemaTypeFactory;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Ai\Exceptions\ProviderOverloadedException;
@@ -200,8 +201,9 @@ it('libera nova análise quando a janela de minutos passa', function (): void {
     expect(DashboardAnalise::query()->count())->toBe(2);
 });
 
-it('devolve o job para a fila quando o provedor está sobrecarregado, sem marcar falha', function (): void {
+it('devolve o job para a fila quando o provedor está sobrecarregado, sem marcar falha, e registra o motivo', function (): void {
     Queue::fake();
+    Log::spy();
     $user = insightUsuarioComReceita();
     $this->actingAs($user)->post(route('dashboard.insights.store'), ['ano' => now()->year, 'mes' => now()->month]);
     $analise = DashboardAnalise::query()->sole();
@@ -213,6 +215,10 @@ it('devolve o job para a fila quando o provedor está sobrecarregado, sem marcar
     $job->assertReleased(30);
     AnalistaDashboard::assertPromptedTimes(1);
     expect($analise->fresh()->status)->toBe(DashboardAnalise::STATUS_PROCESSANDO);
+    Log::shouldHaveReceived('warning')
+        ->withArgs(fn (string $mensagem, array $contexto): bool => str_contains($mensagem, ProviderOverloadedException::class)
+            && $contexto['analise_id'] === $analise->id)
+        ->once();
 });
 
 it('marca a análise como falha quando o job esgota o tempo na fila', function (): void {
