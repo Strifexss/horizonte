@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Ai\Exceptions\ProviderOverloadedException;
+use Laravel\Ai\Exceptions\RateLimitedException;
 use Laravel\Ai\ObjectSchema;
 
 beforeEach(function (): void {
@@ -217,6 +218,27 @@ it('devolve o job para a fila quando o provedor está sobrecarregado, sem marcar
     expect($analise->fresh()->status)->toBe(DashboardAnalise::STATUS_PROCESSANDO);
     Log::shouldHaveReceived('warning')
         ->withArgs(fn (string $mensagem, array $contexto): bool => str_contains($mensagem, ProviderOverloadedException::class)
+            && $contexto['analise_id'] === $analise->id)
+        ->once();
+});
+
+it('marca a análise como falha sem voltar para a fila quando a cota do provedor acaba, e registra no log', function (): void {
+    Queue::fake();
+    Log::spy();
+    $user = insightUsuarioComReceita();
+    $this->actingAs($user)->post(route('dashboard.insights.store'), ['ano' => now()->year, 'mes' => now()->month]);
+    $analise = DashboardAnalise::query()->sole();
+    AnalistaDashboard::fake(fn () => throw RateLimitedException::forProvider('gemini', 429));
+
+    $job = (new GerarAnaliseDashboard($analise->id))->withFakeQueueInteractions();
+    $job->handle(app(DashboardInsightsServiceInterface::class));
+
+    $job->assertNotReleased();
+    expect($analise->fresh())
+        ->status->toBe(DashboardAnalise::STATUS_FALHOU)
+        ->erro->toBe('Não foi possível gerar a análise agora. Tente novamente mais tarde.');
+    Log::shouldHaveReceived('error')
+        ->withArgs(fn (string $mensagem, array $contexto): bool => str_contains($mensagem, RateLimitedException::class)
             && $contexto['analise_id'] === $analise->id)
         ->once();
 });

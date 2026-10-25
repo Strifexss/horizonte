@@ -12,8 +12,12 @@ use App\Repositories\Interfaces\InsightAcaoRepositoryInterface;
 use App\Services\Interfaces\DashboardInsightsServiceInterface;
 use App\Services\Interfaces\IndicadoresInsightsServiceInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Laravel\Ai\Exceptions\FailoverableException;
+use Laravel\Ai\Exceptions\InsufficientCreditsException;
+use Laravel\Ai\Exceptions\RateLimitedException;
 use Throwable;
 
 class DashboardInsightsService extends ServiceAbstract implements DashboardInsightsServiceInterface
@@ -95,6 +99,16 @@ class DashboardInsightsService extends ServiceAbstract implements DashboardInsig
 
         try {
             $resposta = $this->perguntarAIa($analise->pacote ?? []);
+        } catch (RateLimitedException|InsufficientCreditsException $erro) {
+            Log::error('Análise do dashboard interrompida: cota ou créditos do provedor de IA esgotados. '.$erro::class.': '.$erro->getMessage(), [
+                'analise_id' => $analise->id,
+                'detalhe' => $erro->getPrevious() instanceof RequestException
+                    ? $erro->getPrevious()->response->body()
+                    : $erro->getPrevious()?->getMessage(),
+            ]);
+            $this->registrarFalha($analise->id, 'Não foi possível gerar a análise agora. Tente novamente mais tarde.');
+
+            return;
         } catch (FailoverableException $erro) {
             throw $erro;
         } catch (Throwable $erro) {
@@ -170,8 +184,9 @@ class DashboardInsightsService extends ServiceAbstract implements DashboardInsig
     }
 
     /**
-     * Uma única chamada à IA. Sobrecarga e limite do provedor sobem como FailoverableException
-     * para o job tentar de novo depois, sem gastar mais requisições do minuto.
+     * Uma única chamada à IA. Sobrecarga e falha de conexão sobem como FailoverableException
+     * para o job tentar de novo depois. O 429 não volta para a fila: o limitador global já
+     * respeita o limite por minuto, então um 429 do provedor indica cota esgotada.
      *
      * @param  array<string, mixed>  $pacote
      * @return array<string, mixed>

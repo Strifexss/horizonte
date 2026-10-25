@@ -17,7 +17,8 @@ return [
     | compartilhado entre os workers (database ou redis).
     |
     | pausa_apos_sobrecarga_segundos: espera antes de tentar de novo quando o
-    | provedor responde 429 ou 503.
+    | provedor responde 503 ou a conexão falha. O 429 (cota esgotada) não é
+    | tentado de novo: a análise vira falha na hora.
     |
     | minutos_na_fila: tempo máximo tentando antes de marcar a análise como falha.
     |
