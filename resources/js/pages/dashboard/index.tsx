@@ -25,7 +25,7 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/dashboard' 
 
 const COR_RECEITA = '#082845';
 
-const INTERVALO_CONSULTA_ANALISE_MS = 3000;
+const INTERVALO_CONSULTA_ANALISE_MS = 20000;
 const COR_DESPESA = '#f59e0b';
 
 const CARD_WRAP =

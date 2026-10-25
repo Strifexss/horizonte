@@ -25,7 +25,8 @@ beforeEach(function (): void {
 
     config([
         'inertia.testing.page_paths' => [resource_path('js/pages')],
-        'insights.limite_diario' => 5,
+        'insights.limite_analises' => 5,
+        'insights.janela_limite_minutos' => 10,
         'insights.requisicoes_por_minuto' => 15,
     ]);
 });
@@ -172,17 +173,31 @@ it('reaproveita a análise quando os dados não mudaram e gera de novo ao força
     expect(DashboardAnalise::query()->count())->toBe(2);
 });
 
-it('bloqueia novas análises acima do limite diário', function (): void {
-    config(['insights.limite_diario' => 1]);
+it('bloqueia novas análises acima do limite da janela de minutos', function (): void {
+    config(['insights.limite_analises' => 1]);
     $user = insightUsuarioComReceita();
     AnalistaDashboard::fake([insightResposta(), insightResposta()]);
     $periodo = ['ano' => now()->year, 'mes' => now()->month, 'forcar' => true];
 
     $this->actingAs($user)->post(route('dashboard.insights.store'), $periodo);
     $this->actingAs($user)->post(route('dashboard.insights.store'), $periodo)
-        ->assertSessionHas('error', 'Você já gerou 1 análises hoje. Tente novamente amanhã.');
+        ->assertSessionHas('error', 'Você já gerou 1 análises nos últimos 10 minutos. Aguarde alguns minutos e tente de novo.');
 
     expect(DashboardAnalise::query()->count())->toBe(1);
+});
+
+it('libera nova análise quando a janela de minutos passa', function (): void {
+    config(['insights.limite_analises' => 1]);
+    $user = insightUsuarioComReceita();
+    AnalistaDashboard::fake([insightResposta(), insightResposta()]);
+    $periodo = ['ano' => now()->year, 'mes' => now()->month, 'forcar' => true];
+
+    $this->actingAs($user)->post(route('dashboard.insights.store'), $periodo);
+    $this->travel(11)->minutes();
+    $this->actingAs($user)->post(route('dashboard.insights.store'), $periodo)
+        ->assertSessionMissing('error');
+
+    expect(DashboardAnalise::query()->count())->toBe(2);
 });
 
 it('devolve o job para a fila quando o provedor está sobrecarregado, sem marcar falha', function (): void {

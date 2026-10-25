@@ -64,10 +64,11 @@ class DashboardInsightsService extends ServiceAbstract implements DashboardInsig
             return $ultima;
         }
 
-        $limite = (int) config('insights.limite_diario');
+        $limite = (int) config('insights.limite_analises');
+        $janelaEmMinutos = (int) config('insights.janela_limite_minutos');
 
-        if ($this->dashboardAnaliseRepository->contarGeradasDesde($usuarioId, now()->startOfDay()) >= $limite) {
-            throw new LimiteDeAnalisesException($limite);
+        if ($this->dashboardAnaliseRepository->contarGeradasDesde($usuarioId, now()->subMinutes($janelaEmMinutos)) >= $limite) {
+            throw new LimiteDeAnalisesException($limite, $janelaEmMinutos);
         }
 
         $analise = $this->dashboardAnaliseRepository->store([

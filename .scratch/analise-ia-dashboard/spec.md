@@ -95,7 +95,7 @@ Meses fictícios rodados a cada mudança nas instruções:
 ## Operação
 
 - Cache por usuário, período e hash do pacote; sem mudança nos dados, não chama a IA de novo.
-- Limite de análises por dia por usuário.
+- Limite de análises por usuário a cada 10 minutos.
 - Chamada direta com tela de carregamento; se passar de cerca de 15 s, vira job em fila e a tela recarrega ao terminar (sem WebSocket).
 - Chave da API no `.env`.
 
@@ -109,11 +109,10 @@ Meses fictícios rodados a cada mudança nas instruções:
 
 - SDK oficial `laravel/ai` na série 0.11 (a 1.x conflita com o `laravel/mcp` exigido pelo Boost). PHP ^8.3.
 - Provedor Gemini (`gemini-flash-latest`), plano gratuito, configurado por `.env` (`AI_DEFAULT_PROVIDER`, `GEMINI_API_KEY`, `GEMINI_TEXT_MODEL`).
-- A chamada leva perto de 1 minuto no plano gratuito: a análise roda em job na fila (`GerarAnaliseDashboard`) e a tela consulta o andamento a cada 3 s. Exige worker de fila em produção.
+- A chamada leva perto de 1 minuto no plano gratuito: a análise roda em job na fila (`GerarAnaliseDashboard`) e a tela consulta o andamento a cada 20 s. Exige worker de fila em produção.
 - Análise presa em "processando" por mais de 10 minutos vira falha.
 - O plano gratuito do Gemini aceita 15 requisições por minuto por chave, somando todos os usuários. Um limitador global (`INSIGHTS_REQUISICOES_POR_MINUTO`, padrão 15) segura os jobs na fila até haver vaga; cada execução do job faz uma única chamada. Resposta 429 ou 503 devolve o job à fila após 30 s, por até 8 minutos; depois disso a análise vira falha. O limitador usa o cache, que precisa ser compartilhado entre os workers (database ou redis).
-- Limite diário por usuário em `INSIGHTS_LIMITE_DIARIO` (padrão 5); análise reaproveitada do cache não conta.
-- Desenvolvimento na branch `feature-insight`.
+- Limite por usuário em `INSIGHTS_LIMITE_ANALISES` (padrão 5) a cada `INSIGHTS_JANELA_LIMITE_MINUTOS` (padrão 10), em janela móvel contada a partir de agora; análise reaproveitada do cache não conta.- Desenvolvimento na branch `feature-insight`.
 
 ## Decisões em aberto
 

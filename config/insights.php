@@ -7,8 +7,9 @@ return [
     | Análise com IA do Dashboard
     |--------------------------------------------------------------------------
     |
-    | limite_diario: análises novas por usuário por dia (respostas em cache
-    | não contam).
+    | limite_analises / janela_limite_minutos: análises novas por usuário a
+    | cada janela de minutos, contada para trás a partir de agora (respostas
+    | em cache não contam).
     |
     | requisicoes_por_minuto: chamadas à IA por minuto somando todos os
     | usuários. O plano gratuito do Gemini aceita 15 por minuto por chave.
@@ -22,7 +23,9 @@ return [
     |
     */
 
-    'limite_diario' => (int) env('INSIGHTS_LIMITE_DIARIO', 5),
+    'limite_analises' => (int) env('INSIGHTS_LIMITE_ANALISES', 5),
+
+    'janela_limite_minutos' => (int) env('INSIGHTS_JANELA_LIMITE_MINUTOS', 10),
 
     'requisicoes_por_minuto' => (int) env('INSIGHTS_REQUISICOES_POR_MINUTO', 15),
 
