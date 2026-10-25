@@ -63,7 +63,7 @@ Base das instruções de sistema. Cada regra deve ter caso de teste (ver abaixo)
 11. **Ação proporcional:** não sugerir cortar o que gera lucro. Em crescimento com custo maior, a ação é proteger (negociar volume, garantir abastecimento).
 12. **Respeitar o histórico do usuário:** não repetir insights dispensados com "Não se aplica". Os dispensados com "Já sei disso" só voltam se o número piorar. Priorizar tipos que o usuário costuma seguir.
 13. **Acompanhar o "Vou fazer":** para cada ação marcada no período anterior, informar se o indicador ligado a ela melhorou, piorou ou não mudou, com os números.
-14. **Formato:** saída estruturada; cada insight com tipo, prioridade, título, explicação, números usados, impacto em R$ (quando calculável), ação e base. Sem insight relevante, dizer isso; não forçar quantidade.
+14. **Formato:** saída estruturada; cada insight com tipo, prioridade, título, explicação, números usados, impacto em R$ (quando calculável), ação e base. Entre 4 e 8 insights; com menos de 4 pontos relevantes, completar com insights de prioridade "acompanhar" ou "baixa" (indicadores a observar ou que foram bem), sem inventar números, causas ou problemas, e dizer no resumo quando o mês não exigiu ação.
 
 ## Validação no backend
 

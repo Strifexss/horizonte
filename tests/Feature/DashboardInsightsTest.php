@@ -14,9 +14,11 @@ use App\Models\Venda;
 use App\Models\VendaItem;
 use App\Services\Interfaces\DashboardInsightsServiceInterface;
 use App\Services\Interfaces\IndicadoresInsightsServiceInterface;
+use Illuminate\JsonSchema\JsonSchemaTypeFactory;
 use Illuminate\Support\Facades\Queue;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Ai\Exceptions\ProviderOverloadedException;
+use Laravel\Ai\ObjectSchema;
 
 beforeEach(function (): void {
     $this->withoutVite();
@@ -136,6 +138,13 @@ it('descarta insight que cita número fora do pacote', function (): void {
 
     expect(collect($analise->insights)->pluck('titulo')->all())->toBe(['Receita do mês'])
         ->and($analise->insights_descartados)->toBe(1);
+});
+
+it('exige da IA entre 4 e 8 insights', function (): void {
+    $schema = (new ObjectSchema((new AnalistaDashboard)->schema(new JsonSchemaTypeFactory)))->toArray();
+
+    expect($schema['properties']['insights'])
+        ->toMatchArray(['minItems' => 4, 'maxItems' => 8]);
 });
 
 it('descarta insight com tipo desconhecido', function (): void {

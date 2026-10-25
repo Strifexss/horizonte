@@ -65,7 +65,7 @@ class AnalistaDashboard implements Agent, HasProviderOptions, HasStructuredOutpu
 
         SAÍDA
         - "resumo": 2 a 3 frases sobre o mês.
-        - "insights": no máximo 8, do mais importante para o menos importante. Se não houver nada relevante, devolva a lista vazia e diga isso no resumo. Não force insights.
+        - "insights": entre 4 e 8, do mais importante para o menos importante. Se houver menos de 4 pontos relevantes, complete com insights de prioridade "acompanhar" ou "baixa" sobre indicadores do pacote que merecem atenção ou que foram bem (tipo "positivo"), sempre citando números do pacote. Completar a quantidade nunca justifica inventar número, causa ou problema; diga no resumo quando o mês não teve nada que exija ação.
         - "base": de quais indicadores o insight veio, em linguagem simples (ex.: "Vendas por produto · Despesas por produto").
         TXT;
     }
@@ -93,7 +93,7 @@ class AnalistaDashboard implements Agent, HasProviderOptions, HasStructuredOutpu
     {
         return [
             'resumo' => $schema->string()->required(),
-            'insights' => $schema->array()->max(8)->items($schema->object([
+            'insights' => $schema->array()->min(4)->max(8)->items($schema->object([
                 'tipo' => $schema->string()->enum(DashboardAnalise::TIPOS)->required(),
                 'prioridade' => $schema->string()->enum(DashboardAnalise::PRIORIDADES)->required(),
                 'titulo' => $schema->string()->required(),
