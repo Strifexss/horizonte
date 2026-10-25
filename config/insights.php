@@ -22,6 +22,9 @@ return [
     |
     | minutos_na_fila: tempo máximo tentando antes de marcar a análise como falha.
     |
+    | timeout_ia_segundos: espera pela resposta da IA em cada chamada. Precisa
+    | ficar abaixo do timeout do job GerarAnaliseDashboard (180 s).
+    |
     */
 
     'limite_analises' => (int) env('INSIGHTS_LIMITE_ANALISES', 5),
@@ -33,6 +36,8 @@ return [
     'pausa_apos_sobrecarga_segundos' => (int) env('INSIGHTS_PAUSA_SOBRECARGA', 30),
 
     'minutos_na_fila' => (int) env('INSIGHTS_MINUTOS_NA_FILA', 8),
+
+    'timeout_ia_segundos' => (int) env('INSIGHTS_TIMEOUT_IA', 150),
 
     'gemini_nivel_de_raciocinio' => env('INSIGHTS_GEMINI_RACIOCINIO'),
 

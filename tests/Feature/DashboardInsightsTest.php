@@ -153,6 +153,12 @@ it('exige da IA entre 4 e 8 insights', function (): void {
         ->toMatchArray(['minItems' => 4, 'maxItems' => 8]);
 });
 
+it('espera a resposta da IA por menos tempo que o timeout do job', function (): void {
+    expect(AnalistaDashboard::make()->timeout())
+        ->toBe(150)
+        ->toBeLessThan((new GerarAnaliseDashboard(1))->timeout);
+});
+
 it('descarta insight com tipo desconhecido', function (): void {
     $user = insightUsuarioComReceita();
     AnalistaDashboard::fake([insightResposta(tipo: 'investimento')]);

@@ -6,7 +6,6 @@ use App\Models\DashboardAnalise;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Attributes\MaxTokens;
 use Laravel\Ai\Attributes\Temperature;
-use Laravel\Ai\Attributes\Timeout;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\HasProviderOptions;
 use Laravel\Ai\Contracts\HasStructuredOutput;
@@ -20,7 +19,6 @@ use Stringable;
  */
 #[Temperature(0.2)]
 #[MaxTokens(6000)]
-#[Timeout(90)]
 class AnalistaDashboard implements Agent, HasProviderOptions, HasStructuredOutput
 {
     use Promptable;
@@ -68,6 +66,14 @@ class AnalistaDashboard implements Agent, HasProviderOptions, HasStructuredOutpu
         - "insights": entre 4 e 8, do mais importante para o menos importante. Se houver menos de 4 pontos relevantes, complete com insights de prioridade "acompanhar" ou "baixa" sobre indicadores do pacote que merecem atenção ou que foram bem (tipo "positivo"), sempre citando números do pacote. Completar a quantidade nunca justifica inventar número, causa ou problema; diga no resumo quando o mês não teve nada que exija ação.
         - "base": de quais indicadores o insight veio, em linguagem simples (ex.: "Vendas por produto · Despesas por produto").
         TXT;
+    }
+
+    /**
+     * Segundos esperando a resposta do provedor. Precisa ficar abaixo do timeout do job GerarAnaliseDashboard.
+     */
+    public function timeout(): int
+    {
+        return (int) config('insights.timeout_ia_segundos');
     }
 
     /**
