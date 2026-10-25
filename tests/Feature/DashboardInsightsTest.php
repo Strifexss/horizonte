@@ -14,6 +14,9 @@ use App\Models\Venda;
 use App\Models\VendaItem;
 use App\Services\Interfaces\DashboardInsightsServiceInterface;
 use App\Services\Interfaces\IndicadoresInsightsServiceInterface;
+use GuzzleHttp\Psr7\Response as Psr7Response;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
 use Illuminate\JsonSchema\JsonSchemaTypeFactory;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
@@ -228,7 +231,9 @@ it('marca a análise como falha sem voltar para a fila quando a cota do provedor
     $user = insightUsuarioComReceita();
     $this->actingAs($user)->post(route('dashboard.insights.store'), ['ano' => now()->year, 'mes' => now()->month]);
     $analise = DashboardAnalise::query()->sole();
-    AnalistaDashboard::fake(fn () => throw RateLimitedException::forProvider('gemini', 429));
+    $corpoDaResposta = json_encode(['error' => ['code' => 429, 'message' => 'You exceeded your current quota, please check your plan and billing details. '.str_repeat('x', 200)]]);
+    $respostaDoProvedor = new RequestException(new Response(new Psr7Response(429, [], $corpoDaResposta)));
+    AnalistaDashboard::fake(fn () => throw RateLimitedException::forProvider('gemini', 429, $respostaDoProvedor));
 
     $job = (new GerarAnaliseDashboard($analise->id))->withFakeQueueInteractions();
     $job->handle(app(DashboardInsightsServiceInterface::class));
@@ -239,7 +244,8 @@ it('marca a análise como falha sem voltar para a fila quando a cota do provedor
         ->erro->toBe('Não foi possível gerar a análise agora. Tente novamente mais tarde.');
     Log::shouldHaveReceived('error')
         ->withArgs(fn (string $mensagem, array $contexto): bool => str_contains($mensagem, RateLimitedException::class)
-            && $contexto['analise_id'] === $analise->id)
+            && $contexto['analise_id'] === $analise->id
+            && $contexto['detalhe'] === $corpoDaResposta)
         ->once();
 });
 
