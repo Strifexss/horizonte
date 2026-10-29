@@ -1,16 +1,19 @@
+import ConfirmDeleteModal from '@/components/extrato/ConfirmDeleteModal';
 import InputError from '@/components/input-error';
+import MenuBoardsDados from '@/components/menu-boards/MenuBoardsDados';
 import MenuBoardsFotoModal from '@/components/menu-boards/MenuBoardsFotoModal';
-import MenuBoardsPareamento from '@/components/menu-boards/MenuBoardsPareamento';
-import MenuBoardsProdutos from '@/components/menu-boards/MenuBoardsProdutos';
-import MenuBoardsTemaPicker from '@/components/menu-boards/MenuBoardsTemaPicker';
-import type { MenuBoardEdicao, MenuBoardFormValues, PareamentoTv, ProdutoDoBoard } from '@/components/menu-boards/types';
+import MenuBoardsLayoutPicker from '@/components/menu-boards/MenuBoardsLayoutPicker';
+import MenuBoardsPaginaEditor from '@/components/menu-boards/MenuBoardsPaginaEditor';
+import MenuBoardsPaginas from '@/components/menu-boards/MenuBoardsPaginas';
+import MenuBoardsPrevia from '@/components/menu-boards/MenuBoardsPrevia';
+import MenuBoardsStatusTv from '@/components/menu-boards/MenuBoardsStatusTv';
+import { gruposDosProdutos, infoDoLayout, novaChave, novaPagina, paginaDoServidor } from '@/components/menu-boards/layouts';
+import type { LayoutPagina, MenuBoardEdicao, MenuBoardFormValues, PaginaForm, PareamentoTv, ProdutoDoBoard } from '@/components/menu-boards/types';
 import { PageTitle } from '@/components/padrões';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Check } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 type Props = {
     titulo: string;
@@ -19,50 +22,163 @@ type Props = {
     pareamento: PareamentoTv;
 };
 
-export default function MenuBoardsForm({ titulo, board, produtos, pareamento }: Props) {
-    const [fotoProdutoId, setFotoProdutoId] = useState<number | null>(null);
+type EscolhaDeLayout = { modo: 'nova' } | { modo: 'trocar'; indice: number };
 
-    const { data, setData, post, put, processing, errors } = useForm<MenuBoardFormValues>({
+/**
+ * O que define se a página mudou desde que o editor abriu (o arquivo escolhido conta pelo nome).
+ */
+function assinatura(pagina: PaginaForm): string {
+    const { chave, imagem, imagem_url, ...resto } = pagina;
+    void chave;
+    void imagem_url;
+
+    return JSON.stringify({ ...resto, imagem: imagem?.name ?? null });
+}
+
+export default function MenuBoardsForm({ titulo, board, produtos, pareamento }: Props) {
+    const { data, setData, post, transform, processing, errors, isDirty } = useForm<MenuBoardFormValues>({
         nome: board?.nome ?? '',
         tema: board?.tema ?? 'dark',
-        itens: board?.itens ?? [],
+        paginas: board?.paginas.map(paginaDoServidor) ?? [],
     });
+    const [iniciais] = useState(() => new Map(data.paginas.map((pagina) => [pagina.chave, assinatura(pagina)])));
+    const [selecionada, setSelecionada] = useState(0);
+    const [escolhaDeLayout, setEscolhaDeLayout] = useState<EscolhaDeLayout | null>(null);
+    const [paginaParaExcluir, setPaginaParaExcluir] = useState<number | null>(null);
+    const [fotoProdutoId, setFotoProdutoId] = useState<number | null>(null);
 
-    function toggleExibir(produto: ProdutoDoBoard): void {
-        const exibindo = data.itens.some((item) => item.produto_id === produto.id);
+    const grupos = useMemo(() => gruposDosProdutos(produtos), [produtos]);
+    const erros = errors as Record<string, string | undefined>;
+    const pagina = data.paginas[selecionada];
 
-        setData(
-            'itens',
-            exibindo ? data.itens.filter((item) => item.produto_id !== produto.id) : [...data.itens, { produto_id: produto.id, destaque: false }],
+    const imagensPrevias = useMemo(() => {
+        const urls: Record<string, string> = {};
+        data.paginas.forEach((item) => {
+            if (item.imagem) {
+                urls[item.chave] = URL.createObjectURL(item.imagem);
+            }
+        });
+
+        return urls;
+    }, [data.paginas]);
+
+    useEffect(() => () => Object.values(imagensPrevias).forEach((url) => URL.revokeObjectURL(url)), [imagensPrevias]);
+
+    const alteradas = useMemo(
+        () => new Set(data.paginas.filter((item) => iniciais.get(item.chave) !== assinatura(item)).map((item) => item.chave)),
+        [data.paginas, iniciais],
+    );
+
+    const comErro = useMemo(() => {
+        const indices = new Set<number>();
+        Object.keys(erros).forEach((campo) => {
+            const achado = campo.match(/^paginas\.(\d+)\./);
+            if (achado) {
+                indices.add(Number(achado[1]));
+            }
+        });
+
+        return indices;
+    }, [erros]);
+
+    function errosDaPagina(indice: number): Record<string, string | undefined> {
+        const prefixo = `paginas.${indice}.`;
+
+        return Object.fromEntries(
+            Object.entries(erros)
+                .filter(([campo]) => campo.startsWith(prefixo))
+                .map(([campo, mensagem]) => [campo.slice(prefixo.length).replace(/^itens\.\d+\..*/, 'itens'), mensagem]),
         );
     }
 
-    function toggleDestaque(produto: ProdutoDoBoard): void {
+    function alterarPagina(indice: number, campos: Partial<PaginaForm>): void {
         setData(
-            'itens',
-            data.itens.map((item) => (item.produto_id === produto.id ? { ...item, destaque: !item.destaque } : item)),
+            'paginas',
+            data.paginas.map((item, atual) => (atual === indice ? { ...item, ...campos } : item)),
         );
+    }
+
+    function escolherLayout(layout: LayoutPagina): void {
+        if (escolhaDeLayout?.modo === 'trocar') {
+            const atual = data.paginas[escolhaDeLayout.indice];
+            const nova = novaPagina(layout);
+            const nomePadrao = atual.nome === infoDoLayout(atual.layout).nomePadrao;
+
+            alterarPagina(escolhaDeLayout.indice, {
+                layout,
+                nome: nomePadrao ? nova.nome : atual.nome,
+                configuracao: { ...nova.configuracao, ...atual.configuracao },
+            });
+        } else {
+            setData('paginas', [...data.paginas, novaPagina(layout)]);
+            setSelecionada(data.paginas.length);
+        }
+
+        setEscolhaDeLayout(null);
+    }
+
+    function duplicar(indice: number): void {
+        const copia = { ...data.paginas[indice], chave: novaChave(), nome: `${data.paginas[indice].nome} (cópia)` };
+        const paginas = [...data.paginas];
+        paginas.splice(indice + 1, 0, copia);
+        setData('paginas', paginas);
+        setSelecionada(indice + 1);
+    }
+
+    function excluir(): void {
+        if (paginaParaExcluir === null) {
+            return;
+        }
+
+        setData(
+            'paginas',
+            data.paginas.filter((_, indice) => indice !== paginaParaExcluir),
+        );
+        setSelecionada(Math.max(0, Math.min(selecionada, data.paginas.length - 2)));
+        setPaginaParaExcluir(null);
     }
 
     function salvar(event: React.FormEvent): void {
         event.preventDefault();
 
-        if (board) {
-            put(route('menu-boards.update', board.id));
-            return;
-        }
+        transform((dados) => ({
+            ...dados,
+            paginas: dados.paginas.map(({ chave, imagem_url, ...resto }) => {
+                void chave;
+                void imagem_url;
 
-        post(route('menu-boards.store'));
+                return resto;
+            }),
+            ...(board ? { _method: 'put' } : {}),
+        }));
+
+        post(board ? route('menu-boards.update', board.id) : route('menu-boards.store'), {
+            forceFormData: true,
+            preserveScroll: true,
+            onError: (recebidos) => {
+                const primeira = Object.keys(recebidos)
+                    .map((campo) => campo.match(/^paginas\.(\d+)\./)?.[1])
+                    .find((indice) => indice !== undefined);
+                if (primeira !== undefined) {
+                    setSelecionada(Number(primeira));
+                }
+            },
+        });
     }
 
-    const erroItens = Object.entries(errors).find(([campo]) => campo.startsWith('itens'))?.[1];
     const fotoProduto = produtos.find((produto) => produto.id === fotoProdutoId) ?? null;
+    const avisoNaoSalvo = isDirty ? (
+        <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-amber-700 dark:text-amber-400">
+            <span aria-hidden="true" className="size-2 rounded-full bg-amber-600" />
+            Alterações não salvas
+        </span>
+    ) : null;
 
     return (
         <>
             <form
                 onSubmit={salvar}
-                className="flex h-full w-full max-w-full min-w-0 flex-1 flex-col gap-2 overflow-x-hidden rounded-xl p-4 pb-28 md:gap-4 md:pb-4"
+                className="flex h-full w-full max-w-full min-w-0 flex-1 flex-col gap-3 rounded-xl p-4 pb-32 md:gap-4 md:pb-4"
                 noValidate
             >
                 <Link
@@ -75,8 +191,14 @@ export default function MenuBoardsForm({ titulo, board, produtos, pareamento }: 
 
                 <PageTitle
                     title={titulo}
+                    subtitle={
+                        board
+                            ? 'Monte as páginas que a TV vai alternar e quanto tempo cada uma fica na tela.'
+                            : 'Dê um nome, escolha o tema e adicione a primeira página.'
+                    }
                     actions={
-                        <div className="hidden gap-2 md:flex">
+                        <div className="hidden items-center gap-3 md:flex">
+                            {avisoNaoSalvo}
                             <Button type="button" variant="outline" asChild>
                                 <Link href={route('menu-boards')}>Cancelar</Link>
                             </Button>
@@ -89,50 +211,100 @@ export default function MenuBoardsForm({ titulo, board, produtos, pareamento }: 
                 />
 
                 <div className="flex flex-wrap items-start gap-4 md:gap-6">
-                    <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-4 md:gap-6">
-                        <section className="border-sidebar-border/70 flex flex-col gap-5 rounded-xl border bg-white p-4 shadow-sm md:p-6 dark:bg-slate-900">
-                            <h2 className="text-base font-semibold">Dados do board</h2>
-                            <div className="grid gap-2">
-                                <Label htmlFor="menu_board_nome">Nome do Board</Label>
-                                <Input
-                                    id="menu_board_nome"
-                                    value={data.nome}
-                                    onChange={(event) => setData('nome', event.target.value)}
-                                    placeholder="Ex.: Menu Almoço"
-                                    maxLength={80}
-                                    className="h-11 max-w-md text-base md:h-10 md:text-sm"
-                                />
-                                <span className="text-muted-foreground text-xs">Aparece no cabeçalho da TV.</span>
-                                <InputError message={errors.nome} />
-                            </div>
-                            <MenuBoardsTemaPicker value={data.tema} onChange={(tema) => setData('tema', tema)} />
-                            <InputError message={errors.tema} />
-                        </section>
-
-                        <MenuBoardsProdutos
-                            produtos={produtos}
-                            itens={data.itens}
-                            onToggleExibir={toggleExibir}
-                            onToggleDestaque={toggleDestaque}
-                            onFoto={(produto) => setFotoProdutoId(produto.id)}
+                    <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-3 md:gap-4">
+                        <MenuBoardsDados
+                            nome={data.nome}
+                            tema={data.tema}
+                            abertoDeInicio={!board}
+                            erros={{ nome: errors.nome, tema: errors.tema }}
+                            onNome={(nome) => setData('nome', nome)}
+                            onTema={(tema) => setData('tema', tema)}
                         />
-                        <InputError message={erroItens} />
+
+                        <MenuBoardsPaginas
+                            paginas={data.paginas}
+                            selecionada={selecionada}
+                            alteradas={alteradas}
+                            comErro={comErro}
+                            onSelecionar={setSelecionada}
+                            onNovaPagina={() => setEscolhaDeLayout({ modo: 'nova' })}
+                        />
+                        <InputError message={erros.paginas} />
+
+                        {pagina ? (
+                            <MenuBoardsPaginaEditor
+                                key={pagina.chave}
+                                indice={selecionada}
+                                total={data.paginas.length}
+                                pagina={pagina}
+                                produtos={produtos}
+                                grupos={grupos}
+                                imagemPrevia={imagensPrevias[pagina.chave] ?? null}
+                                erros={errosDaPagina(selecionada)}
+                                onAlterar={(campos) => alterarPagina(selecionada, campos)}
+                                onConfig={(campos) => alterarPagina(selecionada, { configuracao: { ...pagina.configuracao, ...campos } })}
+                                onItens={(itens) => alterarPagina(selecionada, { itens })}
+                                onImagem={(imagem) => alterarPagina(selecionada, { imagem })}
+                                onTrocarLayout={() => setEscolhaDeLayout({ modo: 'trocar', indice: selecionada })}
+                                onDuplicar={() => duplicar(selecionada)}
+                                onExcluir={() => setPaginaParaExcluir(selecionada)}
+                                onFoto={(produto) => setFotoProdutoId(produto.id)}
+                            />
+                        ) : null}
                     </div>
 
-                    <div className="min-w-0 flex-[1_1_320px]">
-                        <MenuBoardsPareamento pareamento={pareamento} />
-                    </div>
+                    <aside className="flex min-w-0 flex-[1_1_440px] flex-col gap-4 md:sticky md:top-4">
+                        <MenuBoardsPrevia
+                            nomeBoard={data.nome}
+                            tema={data.tema}
+                            paginas={data.paginas}
+                            selecionada={selecionada}
+                            produtos={produtos}
+                            imagensPrevias={imagensPrevias}
+                            onSelecionar={setSelecionada}
+                        />
+                        <MenuBoardsStatusTv ativo={Boolean(board?.ativo)} tvsConectadas={pareamento.dispositivos.length} />
+                    </aside>
                 </div>
 
-                <div className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-2 gap-2 border-t bg-white px-4 pt-3 pb-5 md:hidden dark:bg-slate-900">
-                    <Button type="button" variant="outline" className="h-12 text-base" asChild>
-                        <Link href={route('menu-boards')}>Cancelar</Link>
-                    </Button>
-                    <Button type="submit" variant="primary" className="h-12 justify-center" loading={processing}>
-                        Salvar Board
-                    </Button>
+                <div className="fixed inset-x-0 bottom-0 z-20 flex flex-col gap-2 border-t bg-white px-4 pt-2.5 pb-5 md:hidden dark:bg-slate-900">
+                    {avisoNaoSalvo}
+                    <div className="grid grid-cols-2 gap-2">
+                        <Button type="button" variant="outline" className="h-12 text-base" asChild>
+                            <Link href={route('menu-boards')}>Cancelar</Link>
+                        </Button>
+                        <Button type="submit" variant="primary" className="h-12 justify-center" loading={processing}>
+                            Salvar Board
+                        </Button>
+                    </div>
                 </div>
             </form>
+
+            <MenuBoardsLayoutPicker
+                aberto={escolhaDeLayout !== null}
+                titulo={escolhaDeLayout?.modo === 'trocar' ? 'Trocar layout' : 'Nova página'}
+                textoConfirmar={escolhaDeLayout?.modo === 'trocar' ? 'Trocar layout' : 'Criar página'}
+                atual={escolhaDeLayout?.modo === 'trocar' ? data.paginas[escolhaDeLayout.indice]?.layout : undefined}
+                onOpenChange={(aberto) => {
+                    if (!aberto) {
+                        setEscolhaDeLayout(null);
+                    }
+                }}
+                onEscolher={escolherLayout}
+            />
+
+            <ConfirmDeleteModal
+                open={paginaParaExcluir !== null}
+                onOpenChange={(aberto) => {
+                    if (!aberto) {
+                        setPaginaParaExcluir(null);
+                    }
+                }}
+                title="Excluir página"
+                description={`Deseja excluir a página "${paginaParaExcluir !== null ? data.paginas[paginaParaExcluir]?.nome : ''}"? Ela sai do board quando você salvar.`}
+                processing={false}
+                onConfirm={excluir}
+            />
 
             <MenuBoardsFotoModal
                 produto={fotoProduto}

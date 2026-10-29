@@ -13,7 +13,12 @@ class MenuBoard extends Model
      *
      * @var list<string>
      */
-    public const TEMAS = ['dark', 'clean', 'vibrante'];
+    public const TEMAS = ['dark', 'clean', 'vibrante', 'rustico', 'natural', 'doce', 'oceano', 'premium'];
+
+    /**
+     * Limite de páginas por board.
+     */
+    public const MAXIMO_PAGINAS = 20;
 
     /**
      * @var string
@@ -56,8 +61,8 @@ class MenuBoard extends Model
         return $this->belongsTo(User::class, 'usuario_id');
     }
 
-    public function itens(): HasMany
+    public function paginas(): HasMany
     {
-        return $this->hasMany(MenuBoardItem::class, 'menu_board_id')->orderBy('ordem');
+        return $this->hasMany(MenuBoardPagina::class, 'menu_board_id')->orderBy('ordem');
     }
 }
