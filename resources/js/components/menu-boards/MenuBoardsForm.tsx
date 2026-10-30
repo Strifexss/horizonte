@@ -13,7 +13,7 @@ import type { LayoutPagina, MenuBoardEdicao, MenuBoardFormValues, PaginaForm, Pa
 import { PageTitle } from '@/components/padrões';
 import { Button } from '@/components/ui/button';
 import { Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, Check } from 'lucide-react';
+import { ArrowLeft, Check, Package } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 type Props = {
@@ -24,6 +24,17 @@ type Props = {
 };
 
 type EscolhaDeLayout = { modo: 'nova' } | { modo: 'trocar'; indice: number };
+
+function BotaoEditarProdutos({ className }: { className?: string }) {
+    return (
+        <Button type="button" variant="outline" className={className} asChild>
+            <a href={route('produtos')} target="_blank" rel="noopener noreferrer">
+                <Package className="h-4 w-4" />
+                Editar produtos
+            </a>
+        </Button>
+    );
+}
 
 /**
  * O que define se a página mudou desde que o editor abriu (o arquivo escolhido conta pelo nome).
@@ -177,6 +188,7 @@ export default function MenuBoardsForm({ titulo, board, produtos, pareamento }: 
         </span>
     ) : null;
 
+
     return (
         <>
             <form
@@ -202,6 +214,7 @@ export default function MenuBoardsForm({ titulo, board, produtos, pareamento }: 
                     actions={
                         <div className="hidden items-center gap-3 md:flex">
                             {avisoNaoSalvo}
+                            <BotaoEditarProdutos />
                             <Button type="button" variant="outline" asChild>
                                 <Link href={route('menu-boards')}>Cancelar</Link>
                             </Button>
@@ -267,17 +280,30 @@ export default function MenuBoardsForm({ titulo, board, produtos, pareamento }: 
                             onSelecionar={setSelecionada}
                         />
                         <MenuBoardsStatusTv ativo={Boolean(board?.ativo)} tvsConectadas={pareamento.dispositivos.length} />
+                        <div className="hidden flex-col gap-2 md:flex">
+                            <BotaoEditarProdutos />
+                            <div className="grid grid-cols-2 gap-2">
+                                <Button type="button" variant="outline" asChild>
+                                    <Link href={route('menu-boards')}>Cancelar</Link>
+                                </Button>
+                                <Button type="submit" variant="primary" loading={processing}>
+                                    <Check className="h-4 w-4" />
+                                    Salvar Board
+                                </Button>
+                            </div>
+                        </div>
                     </aside>
                 </div>
 
                 <div className="fixed inset-x-0 bottom-0 z-20 flex flex-col gap-2 border-t bg-white px-4 pt-2.5 pb-5 md:hidden dark:bg-slate-900">
                     {avisoNaoSalvo}
-                    <div className="grid grid-cols-2 gap-2">
-                        <Button type="button" variant="outline" className="h-12 text-base" asChild>
+                    <div className="grid grid-cols-3 gap-2">
+                        <Button type="button" variant="outline" className="h-12 min-w-0 px-2 text-xs" asChild>
                             <Link href={route('menu-boards')}>Cancelar</Link>
                         </Button>
-                        <Button type="submit" variant="primary" className="h-12 justify-center" loading={processing}>
-                            Salvar Board
+                        <BotaoEditarProdutos className="h-12 min-w-0 px-2 text-xs" />
+                        <Button type="submit" variant="primary" className="h-12 min-w-0 justify-center px-2 text-xs" loading={processing}>
+                            Salvar
                         </Button>
                     </div>
                 </div>
