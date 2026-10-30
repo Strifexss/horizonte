@@ -67,7 +67,7 @@ export default function MenuBoardsProdutos({ produtos, selecionados, onToggle, o
                     {selecionados.length} de {produtos.length} produtos na página
                 </span>
             </div>
-            <ul className="max-h-[28rem] overflow-y-auto">
+            <ul>
                 {filtrados.map((produto) => {
                     const marcado = selecionados.includes(produto.id);
 

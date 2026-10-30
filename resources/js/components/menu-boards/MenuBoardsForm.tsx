@@ -181,7 +181,7 @@ export default function MenuBoardsForm({ titulo, board, produtos, pareamento }: 
         <>
             <form
                 onSubmit={salvar}
-                className="flex h-full w-full max-w-full min-w-0 flex-1 flex-col gap-3 rounded-xl p-4 pb-32 md:gap-4 md:pb-4"
+                className="flex h-full min-h-0 w-full max-w-full min-w-0 flex-1 flex-col gap-3 overflow-x-hidden overflow-y-auto rounded-xl p-4 pb-32 md:gap-4 md:pb-4"
                 noValidate
             >
                 <Link
