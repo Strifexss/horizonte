@@ -16,7 +16,7 @@ class MenuBoardItem extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'menu_board_id',
+        'menu_board_pagina_id',
         'produto_id',
         'destaque',
         'ordem',
@@ -29,16 +29,16 @@ class MenuBoardItem extends Model
     {
         return [
             'id' => 'integer',
-            'menu_board_id' => 'integer',
+            'menu_board_pagina_id' => 'integer',
             'produto_id' => 'integer',
             'destaque' => 'boolean',
             'ordem' => 'integer',
         ];
     }
 
-    public function menuBoard(): BelongsTo
+    public function pagina(): BelongsTo
     {
-        return $this->belongsTo(MenuBoard::class, 'menu_board_id');
+        return $this->belongsTo(MenuBoardPagina::class, 'menu_board_pagina_id');
     }
 
     public function produto(): BelongsTo

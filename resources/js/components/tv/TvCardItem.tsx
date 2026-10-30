@@ -8,14 +8,14 @@ type Props = {
 export default function TvCardItem({ produto, estilo }: Props) {
     if (produto.foto_url) {
         return (
-            <article className={`flex min-h-[7.8vw] items-center gap-[1vw] rounded-[0.95vw] border-2 p-[1vw] ${estilo.card}`}>
-                <img src={produto.foto_url} alt="" className="size-[5.7vw] shrink-0 rounded-[0.6vw] object-cover" />
+            <article className={`flex min-h-[7.8cqw] items-center gap-[1cqw] rounded-[0.95cqw] border-2 p-[1cqw] ${estilo.card}`}>
+                <img src={produto.foto_url} alt="" className="size-[5.7cqw] shrink-0 rounded-[0.6cqw] object-cover" />
                 <div className="min-w-0 flex-1">
-                    <h3 className={`truncate text-[1.55vw] leading-tight ${estilo.peso} ${estilo.textoCard}`}>{produto.nome}</h3>
-                    {produto.descricao ? <p className={`truncate text-[1.05vw] ${estilo.suaveCard}`}>{produto.descricao}</p> : null}
-                    <p className={`mt-[0.15vw] flex items-baseline gap-[0.3vw] font-bold tabular-nums ${estilo.precoCard}`}>
-                        <span className="text-[1.25vw] font-semibold">R$</span>
-                        <span className="text-[2.1vw] leading-none tracking-tight">{formatarPrecoTv(produto.preco)}</span>
+                    <h3 className={`truncate text-[1.55cqw] leading-tight ${estilo.peso} ${estilo.textoCard}`}>{produto.nome}</h3>
+                    {produto.descricao ? <p className={`truncate text-[1.05cqw] ${estilo.suaveCard}`}>{produto.descricao}</p> : null}
+                    <p className={`mt-[0.15cqw] flex items-baseline gap-[0.3cqw] font-bold tabular-nums ${estilo.precoCard}`}>
+                        <span className="text-[1.25cqw] font-semibold">R$</span>
+                        <span className="text-[2.1cqw] leading-none tracking-tight">{formatarPrecoTv(produto.preco)}</span>
                     </p>
                 </div>
             </article>
@@ -24,15 +24,15 @@ export default function TvCardItem({ produto, estilo }: Props) {
 
     return (
         <article
-            className={`flex min-h-[7.8vw] items-center justify-between gap-[1.25vw] rounded-[0.95vw] border-2 px-[1.7vw] py-[1.25vw] ${estilo.card}`}
+            className={`flex min-h-[7.8cqw] items-center justify-between gap-[1.25cqw] rounded-[0.95cqw] border-2 px-[1.7cqw] py-[1.25cqw] ${estilo.card}`}
         >
             <div className="min-w-0">
-                <h3 className={`line-clamp-2 text-[1.8vw] leading-tight ${estilo.peso} ${estilo.textoCard}`}>{produto.nome}</h3>
-                {produto.descricao ? <p className={`truncate text-[1.15vw] ${estilo.suaveCard}`}>{produto.descricao}</p> : null}
+                <h3 className={`line-clamp-2 text-[1.8cqw] leading-tight ${estilo.peso} ${estilo.textoCard}`}>{produto.nome}</h3>
+                {produto.descricao ? <p className={`truncate text-[1.15cqw] ${estilo.suaveCard}`}>{produto.descricao}</p> : null}
             </div>
-            <p className={`flex shrink-0 items-baseline gap-[0.3vw] font-bold tabular-nums ${estilo.precoCard}`}>
-                <span className="text-[1.25vw] font-semibold">R$</span>
-                <span className="text-[2.7vw] leading-none tracking-tight">{formatarPrecoTv(produto.preco)}</span>
+            <p className={`flex shrink-0 items-baseline gap-[0.3cqw] font-bold tabular-nums ${estilo.precoCard}`}>
+                <span className="text-[1.25cqw] font-semibold">R$</span>
+                <span className="text-[2.7cqw] leading-none tracking-tight">{formatarPrecoTv(produto.preco)}</span>
             </p>
         </article>
     );

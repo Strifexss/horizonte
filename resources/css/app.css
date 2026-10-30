@@ -191,3 +191,12 @@
         background-clip: padding-box;
     }
 }
+
+@keyframes tv-progresso {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
+}

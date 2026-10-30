@@ -9,6 +9,7 @@ use App\Services\Interfaces\MenuBoardsServiceInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class MenuBoardsService extends ServiceAbstract implements MenuBoardsServiceInterface
 {
@@ -23,9 +24,9 @@ class MenuBoardsService extends ServiceAbstract implements MenuBoardsServiceInte
         return $this->menuBoardRepository->indexComContagens($usuarioId);
     }
 
-    public function findComItens(int $id, int $usuarioId): MenuBoard
+    public function findComPaginas(int $id, int $usuarioId): MenuBoard
     {
-        return $this->menuBoardRepository->findComItens($id, $usuarioId);
+        return $this->menuBoardRepository->findComPaginas($id, $usuarioId);
     }
 
     /**
@@ -33,9 +34,9 @@ class MenuBoardsService extends ServiceAbstract implements MenuBoardsServiceInte
      */
     public function store($data)
     {
-        return DB::transaction(function () use ($data) {
+        return $this->salvarComImagens($data, [], function (array $paginas) use ($data) {
             $board = $this->menuBoardRepository->store($data->dadosDoBoard());
-            $this->menuBoardRepository->sincronizarItens($board->id, $data->itens);
+            $this->menuBoardRepository->sincronizarPaginas($board->id, $paginas);
 
             return $board;
         });
@@ -47,10 +48,11 @@ class MenuBoardsService extends ServiceAbstract implements MenuBoardsServiceInte
     public function update($id, $data)
     {
         $this->menuBoardRepository->findForUsuario((int) $id, (int) Auth::id());
+        $imagensAtuais = $this->menuBoardRepository->imagensDoBoard((int) $id);
 
-        return DB::transaction(function () use ($id, $data) {
+        return $this->salvarComImagens($data, $imagensAtuais, function (array $paginas) use ($id, $data) {
             $board = $this->menuBoardRepository->update($id, $data->dadosDoBoard());
-            $this->menuBoardRepository->sincronizarItens((int) $id, $data->itens);
+            $this->menuBoardRepository->sincronizarPaginas((int) $id, $paginas);
 
             return $board;
         });
@@ -59,8 +61,12 @@ class MenuBoardsService extends ServiceAbstract implements MenuBoardsServiceInte
     public function delete($id)
     {
         $this->menuBoardRepository->findForUsuario((int) $id, (int) Auth::id());
+        $imagens = $this->menuBoardRepository->imagensDoBoard((int) $id);
 
-        return parent::delete($id);
+        $excluido = parent::delete($id);
+        array_map(fn (string $imagem) => $this->menuBoardRepository->apagarArquivoImagem($imagem), $imagens);
+
+        return $excluido;
     }
 
     /**
@@ -82,5 +88,43 @@ class MenuBoardsService extends ServiceAbstract implements MenuBoardsServiceInte
     public function findAtivoDoUsuario(int $usuarioId): ?MenuBoard
     {
         return $this->menuBoardRepository->findAtivoDoUsuario($usuarioId);
+    }
+
+    /**
+     * Grava as imagens novas antes da transação e só apaga as que saíram do board depois do commit.
+     * Uma página só pode manter uma imagem que já era deste board; se algo falhar, as novas são removidas.
+     *
+     * @param  list<string>  $imagensAtuais
+     * @param  callable(list<array<string, mixed>>): MenuBoard  $salvar
+     */
+    private function salvarComImagens(MenuBoardDTO $data, array $imagensAtuais, callable $salvar): MenuBoard
+    {
+        $usuarioId = (int) ($data->usuario_id ?? Auth::id());
+        $novas = [];
+
+        try {
+            $paginas = array_map(function (array $pagina) use ($imagensAtuais, $usuarioId, &$novas): array {
+                $imagemPath = in_array($pagina['imagem_atual'], $imagensAtuais, true) ? $pagina['imagem_atual'] : null;
+
+                if ($pagina['imagem'] !== null) {
+                    $imagemPath = $novas[] = $this->menuBoardRepository->salvarArquivoImagem($pagina['imagem'], $usuarioId);
+                }
+
+                return [...$pagina, 'imagem_path' => $imagemPath];
+            }, $data->paginas);
+
+            $board = DB::transaction(fn () => $salvar($paginas));
+        } catch (Throwable $e) {
+            array_map(fn (string $imagem) => $this->menuBoardRepository->apagarArquivoImagem($imagem), $novas);
+
+            throw $e;
+        }
+
+        $mantidas = array_filter(array_column($paginas, 'imagem_path'));
+        foreach (array_diff($imagensAtuais, $mantidas) as $imagem) {
+            $this->menuBoardRepository->apagarArquivoImagem($imagem);
+        }
+
+        return $board;
     }
 }

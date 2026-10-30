@@ -1,5 +1,7 @@
+import MenuBoardsMiniatura from '@/components/menu-boards/MenuBoardsMiniatura';
+import { infoDoLayout } from '@/components/menu-boards/layouts';
 import { nomeDoTema } from '@/components/menu-boards/temas';
-import { formatarData, type MenuBoardResumo } from '@/components/menu-boards/types';
+import { formatarCiclo, formatarData, type MenuBoardResumo } from '@/components/menu-boards/types';
 import { Button } from '@/components/ui/button';
 import { Link } from '@inertiajs/react';
 import { Check, Pencil, Trash2, Tv } from 'lucide-react';
@@ -12,6 +14,12 @@ type Props = {
 };
 
 export default function MenuBoardsCard({ board, ativando, onAtivar, onDelete }: Props) {
+    const resumo = !board.paginas_count
+        ? 'Nenhuma página ainda'
+        : board.paginas_count === 1
+          ? '1 página · fica fixa na TV'
+          : `${board.paginas_count} páginas · ciclo de ${formatarCiclo(board.ciclo_segundos)}`;
+
     return (
         <article
             className={`flex flex-col gap-4 rounded-xl border bg-white p-4 shadow-sm md:p-5 dark:bg-slate-900 ${
@@ -21,9 +29,7 @@ export default function MenuBoardsCard({ board, ativando, onAtivar, onDelete }: 
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                     <h2 className="truncate text-base font-semibold md:text-lg">{board.nome}</h2>
-                    <p className="text-muted-foreground text-sm">
-                        {board.itens_count} itens · {board.destaques_count} destaques
-                    </p>
+                    <p className="text-muted-foreground text-sm">{resumo}</p>
                 </div>
                 {board.ativo ? (
                     <span className="inline-flex h-6 shrink-0 items-center gap-1.5 rounded-full bg-green-50 px-2.5 text-xs font-semibold text-green-700 dark:bg-green-950/40 dark:text-green-300">
@@ -37,6 +43,19 @@ export default function MenuBoardsCard({ board, ativando, onAtivar, onDelete }: 
                     </span>
                 )}
             </div>
+
+            {board.paginas.length ? (
+                <ul aria-label="Páginas" className="grid grid-cols-5 gap-1.5">
+                    {board.paginas.slice(0, 5).map((pagina, indice) => (
+                        <li key={indice} className="flex min-w-0 flex-col gap-1">
+                            <MenuBoardsMiniatura layout={pagina.layout} />
+                            <span className="text-muted-foreground truncate text-[11px]">
+                                {pagina.nome || infoDoLayout(pagina.layout).nome} · {pagina.duracao_segundos} s
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+            ) : null}
 
             <p className="text-muted-foreground text-xs">
                 {nomeDoTema(board.tema)}

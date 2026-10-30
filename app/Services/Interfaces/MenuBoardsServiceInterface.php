@@ -13,7 +13,7 @@ interface MenuBoardsServiceInterface extends AbstractServiceInterface
      */
     public function indexDoUsuario(int $usuarioId): Collection;
 
-    public function findComItens(int $id, int $usuarioId): MenuBoard;
+    public function findComPaginas(int $id, int $usuarioId): MenuBoard;
 
     /**
      * @param  MenuBoardDTO  $data

@@ -43,6 +43,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Menu Boards Images Disk
+    |--------------------------------------------------------------------------
+    |
+    | Disk that stores the images of the Menu Board pages (banners and the
+    | image of the "Imagem + Lista" layout). Same requirements as the disks
+    | above: public URLs, bucket in production.
+    |
+    */
+
+    'menu_boards_disk' => env('MENU_BOARDS_DISK', 'public'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |

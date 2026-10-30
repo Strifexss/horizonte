@@ -50,7 +50,7 @@ class MenuBoardsController extends Controller
     public function edit(Request $request, int $id): Response
     {
         $usuarioId = (int) $request->user()->id;
-        $board = $this->menuBoardsService->findComItens($id, $usuarioId);
+        $board = $this->menuBoardsService->findComPaginas($id, $usuarioId);
 
         return Inertia::render('menu-boards/form', [
             'board' => MenuBoardResource::make($board)->resolve(),
