@@ -20,9 +20,9 @@ export default function AuthHorizonteLayout({
     texto = 'Receitas, despesas e o saldo do mês num só lugar, pela competência.',
 }: AuthHorizonteLayoutProps) {
     return (
-        <div className="dark:bg-background flex min-h-svh items-center justify-center bg-slate-100 p-4 md:p-10">
-            <div className="grid w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-xl shadow-slate-900/10 md:min-h-[38rem] md:grid-cols-2 dark:bg-slate-900 dark:shadow-black/40">
-                <div className="relative isolate flex min-h-[13rem] flex-col overflow-hidden p-6 text-white md:min-h-0 md:p-10">
+        <div className="dark:bg-background flex min-h-svh items-stretch justify-center bg-slate-100 p-0 md:items-center md:p-10">
+            <div className="flex min-h-svh w-full max-w-none flex-col overflow-hidden rounded-none bg-white shadow-xl shadow-slate-900/10 md:grid md:min-h-[38rem] md:max-w-5xl md:grid-cols-2 md:rounded-2xl dark:bg-slate-900 dark:shadow-black/40">
+                <div className="relative isolate flex min-h-[13rem] shrink-0 flex-col overflow-hidden p-6 text-white md:min-h-0 md:p-10">
                     <HorizonteIlustracao className="absolute inset-0 -z-10 h-full w-full" />
 
                     <Link href={route('home')} className="flex items-center gap-2 self-start">
@@ -38,7 +38,7 @@ export default function AuthHorizonteLayout({
                     </div>
                 </div>
 
-                <div className="flex flex-col justify-center gap-8 p-6 sm:p-10 md:px-14">
+                <div className="flex flex-1 flex-col justify-center gap-8 p-6 sm:p-10 md:px-14">
                     <div className="space-y-2 text-center">
                         <h1 className="text-2xl font-semibold text-[#082845] dark:text-white">{title}</h1>
                         <p className="text-muted-foreground text-sm">{description}</p>
