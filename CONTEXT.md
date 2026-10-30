@@ -1,6 +1,6 @@
 # Horizonte
 
-Gestão financeira corporativa: contas, parcelas, categorias, produtos, fornecedores, grupos e funcionários, sempre pertencentes a um usuário.
+Gestão financeira corporativa: contas, parcelas, categorias, produtos, fornecedores, grupos e funcionários, sempre pertencentes a um usuário — em transição para pertencerem a uma Empresa (ver `docs/adr/0001-dados-pertencem-a-empresa.md`).
 
 ## Language
 
@@ -21,6 +21,38 @@ _Avoid_: Backoffice, admin
 **Entrar como**:
 Ação do Administrador de trocar a própria sessão pela sessão de um Usuário, sem caminho de volta além de sair e entrar de novo.
 _Avoid_: Impersonar, logar como
+
+### Empresa e assinatura
+
+**Empresa**:
+Negócio dono dos dados próprios (contas, lançamentos, produtos...). Toda conta de Usuário trabalha dentro de uma Empresa.
+_Avoid_: Tenant, organização, loja
+
+**Cargo**:
+Papel do Usuário na Empresa: admin master, gerente ou atendente.
+_Avoid_: Perfil, role
+
+**Módulo**:
+Ramo escolhido no onboarding (Varejo, Restaurante) que só define quais funcionalidades nascem ligadas; não limita nada depois.
+_Avoid_: Vertical, segmento
+
+**Plano**:
+Conjunto de regras (liga/desliga ou cota) com ciclo de 1 mês, editável pelo Administrador.
+_Avoid_: Pacote, tier
+
+**Funcionalidade disponível**:
+Funcionalidade ligada na Empresa e permitida pelo Plano; sem as duas, some da interface.
+_Avoid_: Feature flag
+
+**Trial**:
+49 dias com o Plano mais completo concedidos a uma Empresa nova.
+_Avoid_: Teste grátis, período de avaliação
+
+**Status da assinatura**:
+Calculado, nesta ordem: bloqueada (pelo Administrador), em trial, ativa, expirada. Bloqueada ou expirada impede usar o sistema e leva à página de pagamento.
+_Avoid_: Situação, estado do plano
+
+> Contas com senha e contas Google são independentes, mesmo com o mesmo e-mail.
 
 ### Dinheiro
 
