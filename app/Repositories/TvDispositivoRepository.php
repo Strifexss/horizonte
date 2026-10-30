@@ -21,19 +21,19 @@ class TvDispositivoRepository extends AbstractRepository implements TvDispositiv
             ->first();
     }
 
-    public function ativosDoUsuario(int $usuarioId): Collection
+    public function ativosDaEmpresa(int $empresaId): Collection
     {
         return $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->whereNull('revogado_em')
             ->orderByDesc('id')
             ->get();
     }
 
-    public function findAtivoForUsuario(int $id, int $usuarioId): TvDispositivo
+    public function findAtivoDaEmpresa(int $id, int $empresaId): TvDispositivo
     {
         return $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->whereNull('revogado_em')
             ->findOrFail($id);
     }

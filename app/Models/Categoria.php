@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\PertenceAEmpresa;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Categoria extends Model
 {
-    use HasFactory;
+    use HasFactory, PertenceAEmpresa;
 
     public const NOME_VENDA = 'Venda';
 
@@ -53,5 +54,13 @@ class Categoria extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'usuario_id');
+    }
+
+    /**
+     * Sem autor, o registro é padrão do sistema (sem Empresa).
+     */
+    protected function ehRegistroDoSistema(): bool
+    {
+        return true;
     }
 }

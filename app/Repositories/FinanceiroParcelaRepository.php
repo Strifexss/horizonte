@@ -2,10 +2,10 @@
 
 namespace App\Repositories;
 
+use App\Models\Empresa;
 use App\Models\Financeiro;
 use App\Models\FinanceiroParcela;
 use App\Repositories\Interfaces\FinanceiroParcelaRepositoryInterface;
-use Illuminate\Support\Facades\Auth;
 
 class FinanceiroParcelaRepository extends AbstractRepository implements FinanceiroParcelaRepositoryInterface
 {
@@ -14,10 +14,10 @@ class FinanceiroParcelaRepository extends AbstractRepository implements Financei
         parent::__construct($financeiroParcela);
     }
 
-    public function findDoUsuarioComFinanceiro(int $id): FinanceiroParcela
+    public function findDaEmpresaComFinanceiro(int $id): FinanceiroParcela
     {
         return $this->model->newQuery()
-            ->where('usuario_id', Auth::id())
+            ->where('empresa_id', Empresa::atualId())
             ->with('financeiro')
             ->findOrFail($id);
     }

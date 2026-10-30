@@ -14,12 +14,12 @@ interface TvPareamentoPinRepositoryInterface extends AbstractRepositoryInterface
     /**
      * PIN válido mais recente do usuário.
      */
-    public function findValidoDoUsuario(int $usuarioId): ?TvPareamentoPin;
+    public function findValidoDaEmpresa(int $empresaId): ?TvPareamentoPin;
 
     /**
      * Expira os PINs ainda válidos do usuário.
      */
-    public function invalidarDoUsuario(int $usuarioId): int;
+    public function invalidarDaEmpresa(int $empresaId): int;
 
     /**
      * Apaga os PINs usados ou expirados, liberando os códigos para novos pareamentos.

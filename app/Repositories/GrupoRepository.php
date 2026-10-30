@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Empresa;
 use App\Models\Grupo;
 use App\Repositories\Interfaces\GrupoRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
@@ -17,16 +18,16 @@ class GrupoRepository extends AbstractRepository implements GrupoRepositoryInter
     {
         $query = $this->model->newQuery();
         if (Auth::check()) {
-            $query->where('usuario_id', Auth::id());
+            $query->where('empresa_id', Empresa::atualId());
         }
 
         return $query->orderBy('nome')->get();
     }
 
-    public function findForUsuario(int $id): Grupo
+    public function findDaEmpresa(int $id): Grupo
     {
         return $this->model->newQuery()
-            ->where('usuario_id', Auth::id())
+            ->where('empresa_id', Empresa::atualId())
             ->findOrFail($id);
     }
 }

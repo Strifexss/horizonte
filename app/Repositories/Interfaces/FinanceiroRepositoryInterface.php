@@ -85,19 +85,19 @@ interface FinanceiroRepositoryInterface extends AbstractRepositoryInterface
      *
      * @return Collection<int, object{produto_id: int, produto: string, grupo: ?string, quantidade: float|string, custo: float|string, lancamentos: int}>
      */
-    public function comprasPorProdutoNoPeriodo(int $usuarioId, string $dataInicio, string $dataFim): Collection;
+    public function comprasPorProdutoNoPeriodo(int $empresaId, string $dataInicio, string $dataFim): Collection;
 
     /**
      * Soma de receitas e despesas do usuário no período, pela competência.
      *
      * @return array{receitas: float, despesas: float, lancamentos: int}
      */
-    public function totaisNoPeriodo(int $usuarioId, string $dataInicio, string $dataFim): array;
+    public function totaisNoPeriodo(int $empresaId, string $dataInicio, string $dataFim): array;
 
     /**
      * Saldo ainda não pago (valor − valor pago) por tipo, com vencimento no intervalo.
      *
      * @return array{a_receber: float, a_pagar: float}
      */
-    public function emAbertoComVencimentoEntre(int $usuarioId, string $dataInicio, string $dataFim): array;
+    public function emAbertoComVencimentoEntre(int $empresaId, string $dataInicio, string $dataFim): array;
 }

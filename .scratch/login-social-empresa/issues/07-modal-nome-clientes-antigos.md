@@ -1,6 +1,6 @@
 # 07 — Modal do nome para clientes antigos
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 01
 
 ## O quê

@@ -17,6 +17,8 @@ class UsuarioResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'created_at' => $this->created_at?->toDateString(),
+            'empresa' => $this->relationLoaded('empresas') ? $this->empresas->first()?->nome : $this->empresa()?->nome,
+            'conta_google' => $this->ehContaGoogle(),
             'urls' => [
                 'update' => route('admin.usuarios.update', $this->id),
                 'destroy' => route('admin.usuarios.destroy', $this->id),

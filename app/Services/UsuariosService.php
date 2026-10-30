@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DTO\UsuarioDTO;
+use App\Models\Empresa;
 use App\Models\User;
 use App\Repositories\Interfaces\UsuarioRepositoryInterface;
 use App\Services\Interfaces\FornecedoresServiceInterface;
@@ -29,6 +30,26 @@ class UsuariosService extends ServiceAbstract implements UsuariosServiceInterfac
     }
 
     /**
+     * Conta criada pelo Administrador nasce com a sua Empresa, ainda com nome a confirmar.
+     *
+     * @param  UsuarioDTO  $data
+     */
+    public function store($data)
+    {
+        return DB::transaction(function () use ($data) {
+            $usuario = parent::store($data);
+
+            $empresa = Empresa::query()->create([
+                'nome' => mb_substr('Empresa de '.$usuario->name, 0, 120),
+                'modulo' => Empresa::MODULO_VAREJO,
+            ]);
+            $usuario->empresas()->attach($empresa->id, ['cargo' => Empresa::CARGO_ADMIN_MASTER]);
+
+            return $usuario;
+        });
+    }
+
+    /**
      * @param  UsuarioDTO  $data
      */
     public function update($id, $data, ?string $sessaoAtualId = null)
@@ -49,7 +70,7 @@ class UsuariosService extends ServiceAbstract implements UsuariosServiceInterfac
         /** @var User $usuario */
         $usuario = $this->usuarioRepository->find($id);
 
-        if ($this->isAdministrador($usuario->email)) {
+        if (! $usuario->ehContaGoogle() && $this->isAdministrador($usuario->email)) {
             throw new DomainException('Não é possível entrar como um Administrador.');
         }
 
@@ -59,7 +80,16 @@ class UsuariosService extends ServiceAbstract implements UsuariosServiceInterfac
     public function delete($id)
     {
         return DB::transaction(function () use ($id) {
-            $this->fornecedoresService->deleteByUsuario((int) $id);
+            $empresasSoDele = Empresa::query()
+                ->whereHas('usuarios', fn ($query) => $query->whereKey($id))
+                ->withCount('usuarios')
+                ->get()
+                ->filter(fn (Empresa $empresa) => $empresa->usuarios_count === 1);
+
+            foreach ($empresasSoDele as $empresa) {
+                $this->fornecedoresService->deleteByEmpresa($empresa->id);
+                $empresa->delete();
+            }
 
             return parent::delete($id);
         });

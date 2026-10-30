@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Empresa;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -21,7 +22,7 @@ class UpdateParcelaRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        if (! $this->has('usuario_id') && $this->user()) {
+        if ($this->user()) {
             $this->merge(['usuario_id' => $this->user()->id]);
         }
     }
@@ -51,7 +52,7 @@ class UpdateParcelaRequest extends FormRequest
                 'integer',
                 Rule::exists('forma_pagamento', 'id')
                     ->where(fn (Builder $query) => $query->where(function (Builder $visiveis) {
-                        $visiveis->whereNull('usuario_id')->orWhere('usuario_id', $this->user()?->id);
+                        $visiveis->whereNull('empresa_id')->orWhere('empresa_id', Empresa::atualId());
                     })),
             ],
             'usuario_id' => ['nullable', 'integer', 'exists:users,id'],

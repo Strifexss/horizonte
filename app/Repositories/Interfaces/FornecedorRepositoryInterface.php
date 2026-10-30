@@ -10,19 +10,19 @@ interface FornecedorRepositoryInterface extends AbstractRepositoryInterface
     public function nullifyFornecedorIdOnProdutos(int $fornecedorId): int;
 
     /**
-     * Apaga todos os fornecedores do usuário (a coluna usuario_id não tem cascata).
+     * Apaga todos os fornecedores da Empresa.
      */
-    public function deleteByUsuario(int $usuarioId): int;
+    public function deleteByEmpresa(int $empresaId): int;
 
     /**
      * Conta quantos fornecedores um usuário possui.
      */
-    public function countByUsuario(int $usuarioId): int;
+    public function countByEmpresa(int $empresaId): int;
 
     /**
      * Retorna todos os fornecedores do usuário.
      *
      * @return mixed
      */
-    public function getByUsuario(int $usuarioId);
+    public function getByEmpresa(int $empresaId);
 }

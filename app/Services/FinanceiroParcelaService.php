@@ -23,7 +23,7 @@ class FinanceiroParcelaService extends ServiceAbstract implements FinanceiroParc
      */
     public function update($id, $dto)
     {
-        $parcela = $this->financeiroParcelaRepository->findDoUsuarioComFinanceiro((int) $id);
+        $parcela = $this->financeiroParcelaRepository->findDaEmpresaComFinanceiro((int) $id);
 
         if ($this->veioDeVenda($parcela)) {
             return $this->darBaixaEmParcelaDeVenda($parcela, $dto);
@@ -55,7 +55,7 @@ class FinanceiroParcelaService extends ServiceAbstract implements FinanceiroParc
      */
     public function delete($id)
     {
-        $parcela = $this->financeiroParcelaRepository->findDoUsuarioComFinanceiro((int) $id);
+        $parcela = $this->financeiroParcelaRepository->findDaEmpresaComFinanceiro((int) $id);
 
         if ($this->veioDeVenda($parcela)) {
             throw new LancamentoDeVendaException;

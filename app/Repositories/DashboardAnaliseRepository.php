@@ -13,10 +13,10 @@ class DashboardAnaliseRepository extends AbstractRepository implements Dashboard
         parent::__construct($dashboardAnalise);
     }
 
-    public function ultimaDoPeriodo(int $usuarioId, int $ano, int $mes): ?DashboardAnalise
+    public function ultimaDoPeriodo(int $empresaId, int $ano, int $mes): ?DashboardAnalise
     {
         return $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->where('ano', $ano)
             ->where('mes', $mes)
             ->with('acoes')
@@ -24,17 +24,17 @@ class DashboardAnaliseRepository extends AbstractRepository implements Dashboard
             ->first();
     }
 
-    public function findForUsuario(int $id, int $usuarioId): DashboardAnalise
+    public function findDaEmpresa(int $id, int $empresaId): DashboardAnalise
     {
         return $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->findOrFail($id);
     }
 
-    public function contarGeradasDesde(int $usuarioId, Carbon $desde): int
+    public function contarGeradasDesde(int $empresaId, Carbon $desde): int
     {
         return $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->where('created_at', '>=', $desde)
             ->count();
     }

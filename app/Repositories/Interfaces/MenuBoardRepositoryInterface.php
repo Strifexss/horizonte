@@ -13,17 +13,17 @@ interface MenuBoardRepositoryInterface extends AbstractRepositoryInterface
      *
      * @return Collection<int, MenuBoard>
      */
-    public function indexComContagens(int $usuarioId): Collection;
+    public function indexComContagens(int $empresaId): Collection;
 
     /**
      * Garante que o board pertence ao usuário informado.
      */
-    public function findForUsuario(int $id, int $usuarioId): MenuBoard;
+    public function findDaEmpresa(int $id, int $empresaId): MenuBoard;
 
     /**
      * Board do usuário com as páginas e os itens de produtos ativos carregados.
      */
-    public function findComPaginas(int $id, int $usuarioId): MenuBoard;
+    public function findComPaginas(int $id, int $empresaId): MenuBoard;
 
     /**
      * Substitui as páginas do board pela lista informada, na ordem recebida.
@@ -39,19 +39,19 @@ interface MenuBoardRepositoryInterface extends AbstractRepositoryInterface
      */
     public function imagensDoBoard(int $menuBoardId): array;
 
-    public function salvarArquivoImagem(UploadedFile $imagem, int $usuarioId): string;
+    public function salvarArquivoImagem(UploadedFile $imagem, int $empresaId): string;
 
     public function apagarArquivoImagem(string $imagemPath): void;
 
     /**
      * Trava os boards do usuário até o fim da transação corrente.
      */
-    public function travarDoUsuario(int $usuarioId): void;
+    public function travarDaEmpresa(int $empresaId): void;
 
     /**
      * Desmarca o board ativo do usuário.
      */
-    public function desativarDoUsuario(int $usuarioId): int;
+    public function desativarDaEmpresa(int $empresaId): int;
 
     public function marcarAtivo(int $id): void;
 
@@ -59,5 +59,5 @@ interface MenuBoardRepositoryInterface extends AbstractRepositoryInterface
      * Board ativo do usuário pronto para a TV: itens de produtos ativos e, nas páginas por grupo,
      * os produtos ativos do grupo.
      */
-    public function findAtivoDoUsuario(int $usuarioId): ?MenuBoard;
+    public function findAtivoDaEmpresa(int $empresaId): ?MenuBoard;
 }

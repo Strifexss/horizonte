@@ -224,3 +224,47 @@ it('responde 404 para usuario comum que acessa o painel', function () {
         ->get(route('admin.usuarios'))
         ->assertNotFound();
 });
+
+it('mostra a empresa e o metodo de login de cada usuario na listagem', function () {
+    $admin = administrador();
+    $google = User::factory()->google()->create(['name' => 'Bruna Google']);
+    $google->empresa()->update(['nome' => 'Padaria Bom Dia']);
+
+    $this->actingAs($admin)
+        ->get(route('admin.usuarios'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->loadDeferredProps(fn (Assert $reload) => $reload
+                ->where('usuarios.0.name', 'Administrador')
+                ->where('usuarios.0.conta_google', false)
+                ->where('usuarios.1.empresa', 'Padaria Bom Dia')
+                ->where('usuarios.1.conta_google', true)));
+});
+
+it('cria o usuario do painel com a propria empresa ainda a confirmar', function () {
+    $this->actingAs(administrador())->post(route('admin.usuarios.store'), [
+        'name' => 'Carlos Lima',
+        'email' => 'carlos@email.com',
+        'password' => 'senha-segura-123',
+    ]);
+
+    $empresa = User::query()->where('email', 'carlos@email.com')->firstOrFail()->empresa();
+    expect($empresa->nome)->toBe('Empresa de Carlos Lima')
+        ->and($empresa->nomeConfirmado())->toBeFalse();
+});
+
+it('exclui a empresa junto com o usuario que era o unico membro dela', function () {
+    $alvo = User::factory()->create();
+    $empresaId = $alvo->empresa()->id;
+
+    $this->actingAs(administrador())->delete(route('admin.usuarios.destroy', $alvo->id));
+
+    $this->assertDatabaseMissing('empresas', ['id' => $empresaId]);
+});
+
+it('nao trata como administrador a conta google com e-mail de administrador', function () {
+    $googleDoAdmin = User::factory()->google()->create(['email' => 'admin@horizonte.test']);
+
+    $this->actingAs($googleDoAdmin)
+        ->get(route('admin.usuarios'))
+        ->assertNotFound();
+});

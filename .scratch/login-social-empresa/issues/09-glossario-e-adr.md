@@ -1,6 +1,6 @@
 # 09 — Glossário e ADR
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 03
 
 ## O quê

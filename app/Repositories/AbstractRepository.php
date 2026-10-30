@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\DTO\Dto;
+use App\Models\Empresa;
 use App\Repositories\Interfaces\AbstractRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -29,8 +30,8 @@ class AbstractRepository implements AbstractRepositoryInterface
     {
         $query = $this->model->newQuery();
 
-        if (Auth::check() && Schema::hasColumn($this->model->getTable(), 'usuario_id')) {
-            $query->where('usuario_id', Auth::id());
+        if (Auth::check() && Schema::hasColumn($this->model->getTable(), 'empresa_id')) {
+            $query->where('empresa_id', Empresa::atualId());
         }
 
         return $query->get();
@@ -68,10 +69,10 @@ class AbstractRepository implements AbstractRepositoryInterface
             $this->applyAccentInsensitiveLike($query, 'nome', $q);
         }
 
-        if (Schema::hasColumn($this->model->getTable(), 'usuario_id') && Auth::check()) {
-            // Include both system-wide (usuario_id IS NULL) and user-specific records.
+        if (Schema::hasColumn($this->model->getTable(), 'empresa_id') && Auth::check()) {
+            // Padrões do sistema (empresa_id nulo) e registros da Empresa ativa.
             $query->where(function ($q) {
-                $q->whereNull('usuario_id')->orWhere('usuario_id', Auth::id());
+                $q->whereNull('empresa_id')->orWhere('empresa_id', Empresa::atualId());
             });
         }
 

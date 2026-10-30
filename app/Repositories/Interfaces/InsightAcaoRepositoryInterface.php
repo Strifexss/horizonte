@@ -10,7 +10,7 @@ interface InsightAcaoRepositoryInterface extends AbstractRepositoryInterface
     /**
      * Grava (ou substitui) a ação do usuário sobre um insight da análise.
      *
-     * @param  array{usuario_id: int, dashboard_analise_id: int, chave: string, tipo: string, titulo: string, acao: string, motivo: ?string, ano: int, mes: int}  $dados
+     * @param  array{empresa_id: int, usuario_id: int, dashboard_analise_id: int, chave: string, tipo: string, titulo: string, acao: string, motivo: ?string, ano: int, mes: int}  $dados
      */
     public function registrar(array $dados): InsightAcao;
 
@@ -21,5 +21,5 @@ interface InsightAcaoRepositoryInterface extends AbstractRepositoryInterface
      *
      * @return Collection<int, InsightAcao>
      */
-    public function historicoDoUsuario(int $usuarioId, int $limite = 30): Collection;
+    public function historicoDaEmpresa(int $empresaId, int $limite = 30): Collection;
 }

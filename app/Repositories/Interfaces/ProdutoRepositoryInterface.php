@@ -19,16 +19,16 @@ interface ProdutoRepositoryInterface extends AbstractRepositoryInterface
     /**
      * Conta quantos produtos um usuário possui.
      */
-    public function countByUsuario(int $usuarioId): int;
+    public function countByEmpresa(int $empresaId): int;
 
     /**
      * Retorna todos os produtos de um usuário (sem paginação).
      *
      * @return Collection|array
      */
-    public function getByUsuario(int $usuarioId): mixed;
+    public function getByEmpresa(int $empresaId): mixed;
 
-    public function findForUsuario(int $id): Produto;
+    public function findDaEmpresa(int $id): Produto;
 
     public function countParcelasByProdutoId(int $produtoId): int;
 
@@ -40,7 +40,7 @@ interface ProdutoRepositoryInterface extends AbstractRepositoryInterface
      * @param  list<int>  $ids
      * @return EloquentCollection<int, Produto>
      */
-    public function findManyDoUsuario(array $ids): EloquentCollection;
+    public function findManyDaEmpresa(array $ids): EloquentCollection;
 
     /**
      * Produtos ativos do usuário autenticado para adicionar numa venda.
@@ -56,7 +56,7 @@ interface ProdutoRepositoryInterface extends AbstractRepositoryInterface
      *
      * @return Collection<int, Produto>
      */
-    public function ativosDoUsuario(int $usuarioId): Collection;
+    public function ativosDaEmpresa(int $empresaId): Collection;
 
     public function atualizarFoto(int $id, ?string $fotoPath): Produto;
 
@@ -65,12 +65,12 @@ interface ProdutoRepositoryInterface extends AbstractRepositoryInterface
      *
      * @return Collection<int, Produto>
      */
-    public function ativosComPrecoDeVendaSuspeito(int $usuarioId): Collection;
+    public function ativosComPrecoDeVendaSuspeito(int $empresaId): Collection;
 
     /**
      * Grava o arquivo da foto no disco de produtos e retorna o caminho.
      */
-    public function salvarArquivoFoto(UploadedFile $foto, int $usuarioId): string;
+    public function salvarArquivoFoto(UploadedFile $foto, int $empresaId): string;
 
     public function apagarArquivoFoto(string $fotoPath): void;
 }

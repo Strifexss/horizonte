@@ -20,10 +20,10 @@ class MenuBoardRepository extends AbstractRepository implements MenuBoardReposit
         parent::__construct($menuBoard);
     }
 
-    public function indexComContagens(int $usuarioId): Collection
+    public function indexComContagens(int $empresaId): Collection
     {
         return $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->withCount('paginas')
             ->withSum('paginas', 'duracao_segundos')
             ->with('paginas:id,menu_board_id,ordem,nome,layout,duracao_segundos')
@@ -32,17 +32,17 @@ class MenuBoardRepository extends AbstractRepository implements MenuBoardReposit
             ->get();
     }
 
-    public function findForUsuario(int $id, int $usuarioId): MenuBoard
+    public function findDaEmpresa(int $id, int $empresaId): MenuBoard
     {
         return $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->findOrFail($id);
     }
 
-    public function findComPaginas(int $id, int $usuarioId): MenuBoard
+    public function findComPaginas(int $id, int $empresaId): MenuBoard
     {
         return $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->with(['paginas.itens' => fn ($query) => $query->whereHas('produto', fn (Builder $produto) => $produto->where('ativo', true))])
             ->findOrFail($id);
     }
@@ -84,9 +84,9 @@ class MenuBoardRepository extends AbstractRepository implements MenuBoardReposit
             ->all();
     }
 
-    public function salvarArquivoImagem(UploadedFile $imagem, int $usuarioId): string
+    public function salvarArquivoImagem(UploadedFile $imagem, int $empresaId): string
     {
-        return $imagem->store('menu-boards/'.$usuarioId, MenuBoardPagina::discoImagens());
+        return $imagem->store('menu-boards/'.$empresaId, MenuBoardPagina::discoImagens());
     }
 
     public function apagarArquivoImagem(string $imagemPath): void
@@ -94,18 +94,18 @@ class MenuBoardRepository extends AbstractRepository implements MenuBoardReposit
         Storage::disk(MenuBoardPagina::discoImagens())->delete($imagemPath);
     }
 
-    public function travarDoUsuario(int $usuarioId): void
+    public function travarDaEmpresa(int $empresaId): void
     {
         $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->lockForUpdate()
             ->pluck('id');
     }
 
-    public function desativarDoUsuario(int $usuarioId): int
+    public function desativarDaEmpresa(int $empresaId): int
     {
         return $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->where('ativo', true)
             ->update(['ativo' => false]);
     }
@@ -115,17 +115,17 @@ class MenuBoardRepository extends AbstractRepository implements MenuBoardReposit
         $this->model->newQuery()->whereKey($id)->update(['ativo' => true]);
     }
 
-    public function findAtivoDoUsuario(int $usuarioId): ?MenuBoard
+    public function findAtivoDaEmpresa(int $empresaId): ?MenuBoard
     {
         $board = $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->where('ativo', true)
             ->with(['paginas.itens' => fn ($query) => $query
                 ->whereHas('produto', fn (Builder $produto) => $produto->where('ativo', true))
                 ->with('produto')])
             ->first();
 
-        $board?->paginas->each(fn (MenuBoardPagina $pagina) => $this->carregarGrupo($pagina, $usuarioId));
+        $board?->paginas->each(fn (MenuBoardPagina $pagina) => $this->carregarGrupo($pagina, $empresaId));
 
         return $board;
     }
@@ -133,7 +133,7 @@ class MenuBoardRepository extends AbstractRepository implements MenuBoardReposit
     /**
      * Páginas que listam um grupo recebem os produtos ativos dele e o nome do grupo.
      */
-    private function carregarGrupo(MenuBoardPagina $pagina, int $usuarioId): void
+    private function carregarGrupo(MenuBoardPagina $pagina, int $empresaId): void
     {
         $grupoId = $pagina->config('grupo_id');
         $listaGrupo = $pagina->layout === MenuBoardPagina::LAYOUT_CATEGORIA
@@ -144,7 +144,7 @@ class MenuBoardRepository extends AbstractRepository implements MenuBoardReposit
         }
 
         $query = Produto::query()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->where('grupo_id', $grupoId)
             ->where('ativo', true);
 

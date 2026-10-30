@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Categoria;
+use App\Models\Empresa;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -16,7 +17,7 @@ class FinanceiroRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        if (! $this->has('usuario_id') && $this->user()) {
+        if ($this->user()) {
             $this->merge(['usuario_id' => $this->user()->id]);
         }
 
@@ -43,7 +44,7 @@ class FinanceiroRequest extends FormRequest
                 Rule::exists('forma_pagamento', 'id')
                     ->where('ativo', true)
                     ->where(fn (Builder $query) => $query->where(function (Builder $visiveis) {
-                        $visiveis->whereNull('usuario_id')->orWhere('usuario_id', $this->user()?->id);
+                        $visiveis->whereNull('empresa_id')->orWhere('empresa_id', Empresa::atualId());
                     })),
             ],
             'data_competencia' => ['nullable', 'date'],

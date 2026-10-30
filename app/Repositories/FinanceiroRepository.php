@@ -4,13 +4,13 @@ namespace App\Repositories;
 
 use App\DTO\FinanceiroParcelaDTO;
 use App\DTO\FinanceiroSearchDTO;
+use App\Models\Empresa;
 use App\Models\Financeiro;
 use App\Models\FinanceiroParcela;
 use App\Repositories\Interfaces\FinanceiroRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class FinanceiroRepository extends AbstractRepository implements FinanceiroRepositoryInterface
@@ -23,7 +23,7 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
     public function index($data = null)
     {
         return $this->model->newQuery()
-            ->where('usuario_id', Auth::id())
+            ->where('empresa_id', Empresa::atualId())
             ->with('categoria')
             ->orderBy('data_criacao', 'desc')
             ->get();
@@ -147,7 +147,7 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
     private function parcelasFiltradasQuery(?FinanceiroSearchDTO $data = null, bool $ignoreStatus = false): Builder
     {
         $query = FinanceiroParcela::query()
-            ->where('usuario_id', Auth::id());
+            ->where('empresa_id', Empresa::atualId());
 
         if (! $data instanceof FinanceiroSearchDTO) {
             return $query;
@@ -242,7 +242,7 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
         return FinanceiroParcela::query()
             ->toBase()
             ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
-            ->where('financeiro_parcela.usuario_id', Auth::id())
+            ->where('financeiro_parcela.empresa_id', Empresa::atualId())
             ->whereRaw('UPPER(financeiro.tipo) = ?', [$tipo])
             ->whereYear($coluna, $ano)
             ->selectRaw($mes.' as mes')
@@ -258,7 +258,7 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
             ->toBase()
             ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
             ->leftJoin('categoria', 'categoria.id', '=', 'financeiro_parcela.categoria_id')
-            ->where('financeiro_parcela.usuario_id', Auth::id())
+            ->where('financeiro_parcela.empresa_id', Empresa::atualId())
             ->whereRaw("UPPER(financeiro.tipo) = 'DESPESA'")
             ->whereBetween('financeiro_parcela.data_competencia', [$dataInicio, $dataFim])
             ->selectRaw("COALESCE(categoria.nome, 'Sem categoria') as categoria")
@@ -276,7 +276,7 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
             ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
             ->join('produto', 'produto.id', '=', 'financeiro_parcela.produto_id')
             ->leftJoin('grupos', 'grupos.id', '=', 'produto.grupo_id')
-            ->where('financeiro_parcela.usuario_id', Auth::id())
+            ->where('financeiro_parcela.empresa_id', Empresa::atualId())
             ->whereRaw("UPPER(financeiro.tipo) = 'DESPESA'")
             ->whereBetween('financeiro_parcela.data_competencia', [$dataInicio, $dataFim])
             ->selectRaw("COALESCE(grupos.nome, 'Sem grupo') as grupo")
@@ -292,7 +292,7 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
         $query = FinanceiroParcela::query()
             ->toBase()
             ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
-            ->where('financeiro_parcela.usuario_id', Auth::id())
+            ->where('financeiro_parcela.empresa_id', Empresa::atualId())
             ->whereBetween('financeiro_parcela.data_competencia', [$dataInicio, $dataFim]);
 
         [$tabela, $chave, $tipo] = match ($criterio) {
@@ -315,14 +315,14 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
             ->get();
     }
 
-    public function comprasPorProdutoNoPeriodo(int $usuarioId, string $dataInicio, string $dataFim): Collection
+    public function comprasPorProdutoNoPeriodo(int $empresaId, string $dataInicio, string $dataFim): Collection
     {
         return FinanceiroParcela::query()
             ->toBase()
             ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
             ->join('produto', 'produto.id', '=', 'financeiro_parcela.produto_id')
             ->leftJoin('grupos', 'grupos.id', '=', 'produto.grupo_id')
-            ->where('financeiro_parcela.usuario_id', $usuarioId)
+            ->where('financeiro_parcela.empresa_id', $empresaId)
             ->whereRaw("UPPER(financeiro.tipo) = 'DESPESA'")
             ->whereBetween('financeiro_parcela.data_competencia', [$dataInicio, $dataFim])
             ->selectRaw('produto.id as produto_id')
@@ -335,12 +335,12 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
             ->get();
     }
 
-    public function totaisNoPeriodo(int $usuarioId, string $dataInicio, string $dataFim): array
+    public function totaisNoPeriodo(int $empresaId, string $dataInicio, string $dataFim): array
     {
         $linha = FinanceiroParcela::query()
             ->toBase()
             ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
-            ->where('financeiro_parcela.usuario_id', $usuarioId)
+            ->where('financeiro_parcela.empresa_id', $empresaId)
             ->whereBetween('financeiro_parcela.data_competencia', [$dataInicio, $dataFim])
             ->selectRaw("SUM(CASE WHEN UPPER(financeiro.tipo) = 'RECEITA' THEN financeiro_parcela.valor ELSE 0 END) as receitas")
             ->selectRaw("SUM(CASE WHEN UPPER(financeiro.tipo) = 'DESPESA' THEN financeiro_parcela.valor ELSE 0 END) as despesas")
@@ -354,12 +354,12 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
         ];
     }
 
-    public function emAbertoComVencimentoEntre(int $usuarioId, string $dataInicio, string $dataFim): array
+    public function emAbertoComVencimentoEntre(int $empresaId, string $dataInicio, string $dataFim): array
     {
         $linha = FinanceiroParcela::query()
             ->toBase()
             ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
-            ->where('financeiro_parcela.usuario_id', $usuarioId)
+            ->where('financeiro_parcela.empresa_id', $empresaId)
             ->whereBetween('financeiro_parcela.data_vencimento', [$dataInicio, $dataFim])
             ->whereColumn('financeiro_parcela.valor_pago', '<', 'financeiro_parcela.valor')
             ->selectRaw("SUM(CASE WHEN UPPER(financeiro.tipo) = 'RECEITA' THEN financeiro_parcela.valor - COALESCE(financeiro_parcela.valor_pago, 0) ELSE 0 END) as a_receber")
@@ -380,7 +380,7 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
         return FinanceiroParcela::query()
             ->toBase()
             ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
-            ->where('financeiro_parcela.usuario_id', Auth::id())
+            ->where('financeiro_parcela.empresa_id', Empresa::atualId())
             ->whereRaw("UPPER(financeiro.tipo) = 'RECEITA'")
             ->whereBetween($coluna, [$dataInicio, $dataFim])
             ->selectRaw($dia.' as dia')

@@ -1,6 +1,6 @@
 # 0001 — Dados pertencem à Empresa (SaaS multi-empresa)
 
-Status: aceito (não implementado)
+Status: aceito (MVP1 — Empresa, dono dos dados e Login com Google — implementado em `feature-login-social-empresa`)
 
 ## Contexto
 
@@ -8,13 +8,13 @@ Hoje todo dado financeiro pertence a um Usuário. Para virar um SaaS com planos,
 
 ## Decisão
 
-- **Isolamento**: banco único; tabelas com dados próprios ganham `empresa_id` e um global scope filtra pela Empresa ativa. Nada de banco ou schema por cliente.
+- **Isolamento**: banco único; tabelas com dados próprios ganham `empresa_id` e os repositórios filtram pela Empresa ativa (`Empresa::atualId()`). Nada de banco ou schema por cliente. Ao criar, o model preenche `empresa_id` a partir do autor (trait `PertenceAEmpresa`).
 - **Dados próprios** passam a ser da Empresa; `user_id` fica como autor do registro.
 - **Padrões do sistema** (categorias, formas de pagamento) continuam globais e somente leitura.
 - **Tabelas existentes não são renomeadas** (`users` continua `users`).
 - **Vínculo** `empresa_user` com cargo (`admin_master`, `gerente`, `atendente`). Por enquanto uma Empresa por conta; convites e várias empresas ficam para depois.
 - **Login**: e-mail e senha ou Google, como **contas independentes** — mesmo e-mail em métodos diferentes são contas e Empresas diferentes. A unicidade do e-mail passa a ser por método de login; recuperar senha só vale para contas com senha.
-- **Clientes antigos**: a migration cria "Empresa de [nome]", vincula como `admin_master`, no plano mais completo com acesso de 1 mês, e marca o nome como não confirmado (modal pede o nome oficial).
+- **Clientes antigos**: a migration cria "Empresa de [nome]", vincula como `admin_master` e marca o nome como não confirmado (modal pede o nome oficial). Plano mais completo com acesso de 1 mês entra junto com os planos.
 - **Onboarding** de conta nova sem Empresa: nome do negócio e módulo; ganha 49 dias de trial no plano mais completo.
 - **Planos**: ciclo de 1 mês; regras em chave/valor (liga/desliga ou cota, ex.: `ia_por_dia: 10`), editáveis no Painel Administrativo sem deploy. Consumo de cotas em tabela própria.
 - **Módulo** é só preset das funcionalidades ligadas na criação; o Administrador liga qualquer funcionalidade em qualquer Empresa.

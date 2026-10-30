@@ -30,5 +30,5 @@ interface MenuBoardsServiceInterface extends AbstractServiceInterface
      */
     public function ativar(int $id, int $usuarioId): MenuBoard;
 
-    public function findAtivoDoUsuario(int $usuarioId): ?MenuBoard;
+    public function findAtivoDaEmpresa(int $empresaId): ?MenuBoard;
 }

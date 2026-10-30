@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Empresa;
 use App\Models\MenuBoard;
 use App\Models\MenuBoardPagina;
 use Illuminate\Foundation\Http\FormRequest;
@@ -31,7 +32,7 @@ class StoreMenuBoardRequest extends FormRequest
      */
     public function rules(): array
     {
-        $usuarioId = $this->user()?->id;
+        $empresaId = Empresa::atualId();
 
         return [
             'nome' => ['required', 'string', 'max:80'],
@@ -46,7 +47,7 @@ class StoreMenuBoardRequest extends FormRequest
             'paginas.*.configuracao.grupo_id' => [
                 'nullable',
                 'integer',
-                Rule::exists('grupos', 'id')->where('usuario_id', $usuarioId),
+                Rule::exists('grupos', 'id')->where('empresa_id', $empresaId),
             ],
             'paginas.*.configuracao.ordenacao' => ['nullable', Rule::in(MenuBoardPagina::ORDENACOES)],
             'paginas.*.configuracao.ocultar_destaques' => ['nullable', 'boolean'],
@@ -65,7 +66,7 @@ class StoreMenuBoardRequest extends FormRequest
             'paginas.*.itens.*.produto_id' => [
                 'required',
                 'integer',
-                Rule::exists('produto', 'id')->where('usuario_id', $usuarioId),
+                Rule::exists('produto', 'id')->where('empresa_id', $empresaId),
             ],
             'paginas.*.itens.*.destaque' => ['sometimes', 'boolean'],
         ];

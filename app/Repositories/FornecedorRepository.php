@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Empresa;
 use App\Models\Fornecedor;
 use App\Models\Produto;
 use App\Repositories\Interfaces\FornecedorRepositoryInterface;
@@ -24,7 +25,7 @@ class FornecedorRepository extends AbstractRepository implements FornecedorRepos
         }
 
         if (Auth::check()) {
-            $query->where('usuario_id', Auth::id());
+            $query->where('empresa_id', Empresa::atualId());
         }
 
         return $query->orderBy('nome')->limit(20)->get(['id', 'nome']);
@@ -37,26 +38,26 @@ class FornecedorRepository extends AbstractRepository implements FornecedorRepos
             ->update(['fornecedor_id' => null]);
     }
 
-    public function deleteByUsuario(int $usuarioId): int
+    public function deleteByEmpresa(int $empresaId): int
     {
         return $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->delete();
     }
 
-    public function findForUsuario(int $id): Fornecedor
+    public function findDaEmpresa(int $id): Fornecedor
     {
         return $this->model->newQuery()
-            ->where('usuario_id', Auth::id())
+            ->where('empresa_id', Empresa::atualId())
             ->findOrFail($id);
     }
 
     /**
      * Conta quantos fornecedores pertencem ao usuário informado.
      */
-    public function countByUsuario(int $usuarioId): int
+    public function countByEmpresa(int $empresaId): int
     {
-        return $this->model->newQuery()->where('usuario_id', $usuarioId)->count();
+        return $this->model->newQuery()->where('empresa_id', $empresaId)->count();
     }
 
     /**
@@ -64,8 +65,8 @@ class FornecedorRepository extends AbstractRepository implements FornecedorRepos
      *
      * @return Collection<int, Fornecedor>
      */
-    public function getByUsuario(int $usuarioId): mixed
+    public function getByEmpresa(int $empresaId): mixed
     {
-        return $this->model->newQuery()->where('usuario_id', $usuarioId)->orderBy('id')->get();
+        return $this->model->newQuery()->where('empresa_id', $empresaId)->orderBy('id')->get();
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\DTO\VendaSearchDTO;
+use App\Models\Empresa;
 use App\Models\Financeiro;
 use App\Models\FinanceiroParcela;
 use App\Models\Produto;
@@ -11,7 +12,6 @@ use App\Repositories\Interfaces\VendaRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 
 class VendaRepository extends AbstractRepository implements VendaRepositoryInterface
 {
@@ -49,10 +49,10 @@ class VendaRepository extends AbstractRepository implements VendaRepositoryInter
         ];
     }
 
-    public function findDoUsuario(int $id): Venda
+    public function findDaEmpresa(int $id): Venda
     {
         return $this->model->newQuery()
-            ->where('usuario_id', Auth::id())
+            ->where('empresa_id', Empresa::atualId())
             ->with(['itens.produto:id,nome', 'pagamentos.formaPagamento:id,nome'])
             ->findOrFail($id);
     }
@@ -83,7 +83,7 @@ class VendaRepository extends AbstractRepository implements VendaRepositoryInter
      */
     private function vendasFiltradasQuery(VendaSearchDTO $filters, bool $ignoreStatus = false): Builder
     {
-        $query = $this->model->newQuery()->where('usuario_id', Auth::id());
+        $query = $this->model->newQuery()->where('empresa_id', Empresa::atualId());
 
         if ($filters->data_inicio !== null) {
             $query->whereDate('data_venda', '>=', $filters->data_inicio);
@@ -119,7 +119,7 @@ class VendaRepository extends AbstractRepository implements VendaRepositoryInter
     {
         $codigo = ltrim($busca, '#');
 
-        $produtosQuery = Produto::query()->where('usuario_id', Auth::id());
+        $produtosQuery = Produto::query()->where('empresa_id', Empresa::atualId());
         $this->applyAccentInsensitiveLike($produtosQuery, 'nome', $busca);
         $produtoIds = $produtosQuery->pluck('id');
 
@@ -138,13 +138,13 @@ class VendaRepository extends AbstractRepository implements VendaRepositoryInter
         });
     }
 
-    public function vendasPorProdutoNoPeriodo(int $usuarioId, string $dataInicio, string $dataFim): Collection
+    public function vendasPorProdutoNoPeriodo(int $empresaId, string $dataInicio, string $dataFim): Collection
     {
         return $this->model->newQuery()
             ->toBase()
             ->join('venda_item', 'venda_item.venda_id', '=', 'venda.id')
             ->join('produto', 'produto.id', '=', 'venda_item.produto_id')
-            ->where('venda.usuario_id', $usuarioId)
+            ->where('venda.empresa_id', $empresaId)
             ->where('venda.status', Venda::STATUS_FECHADA)
             ->whereBetween('venda.data_venda', [$dataInicio.' 00:00:00', $dataFim.' 23:59:59'])
             ->selectRaw('produto.id as produto_id')
@@ -155,12 +155,12 @@ class VendaRepository extends AbstractRepository implements VendaRepositoryInter
             ->get();
     }
 
-    public function resumoNoPeriodo(int $usuarioId, string $dataInicio, string $dataFim): array
+    public function resumoNoPeriodo(int $empresaId, string $dataInicio, string $dataFim): array
     {
         $periodo = [$dataInicio.' 00:00:00', $dataFim.' 23:59:59'];
 
         $vendas = $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->where('status', Venda::STATUS_FECHADA)
             ->whereBetween('data_venda', $periodo)
             ->selectRaw('COUNT(*) as vendas, SUM(total) as total')
@@ -170,7 +170,7 @@ class VendaRepository extends AbstractRepository implements VendaRepositoryInter
         $itens = $this->model->newQuery()
             ->toBase()
             ->join('venda_item', 'venda_item.venda_id', '=', 'venda.id')
-            ->where('venda.usuario_id', $usuarioId)
+            ->where('venda.empresa_id', $empresaId)
             ->where('venda.status', Venda::STATUS_FECHADA)
             ->whereBetween('venda.data_venda', $periodo)
             ->count();

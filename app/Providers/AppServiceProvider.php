@@ -41,6 +41,7 @@ use App\Services\CategoriaService;
 use App\Services\ContasService;
 use App\Services\DashboardInsightsService;
 use App\Services\DashboardService;
+use App\Services\EmpresasService;
 use App\Services\ExtratoService;
 use App\Services\FinanceiroParcelaService;
 use App\Services\FormasPagamentoService;
@@ -52,6 +53,7 @@ use App\Services\Interfaces\CategoriaServiceInterface;
 use App\Services\Interfaces\ContasServiceInterface;
 use App\Services\Interfaces\DashboardInsightsServiceInterface;
 use App\Services\Interfaces\DashboardServiceInterface;
+use App\Services\Interfaces\EmpresasServiceInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
 use App\Services\Interfaces\FinanceiroParcelaServiceInterface;
 use App\Services\Interfaces\FormasPagamentoServiceInterface;
@@ -85,6 +87,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(DashboardServiceInterface::class, DashboardService::class);
+        $this->app->bind(EmpresasServiceInterface::class, EmpresasService::class);
         $this->app->bind(ContasServiceInterface::class, ContasService::class);
         $this->app->bind(ContaRepositoryInterface::class, ContaRepository::class);
         $this->app->bind(CategoriaServiceInterface::class, CategoriaService::class);

@@ -27,14 +27,14 @@ class ProdutosService extends ServiceAbstract implements ProdutosServiceInterfac
 
     public function update($id, $data)
     {
-        $this->produtoRepository->findForUsuario((int) $id);
+        $this->produtoRepository->findDaEmpresa((int) $id);
 
         return parent::update($id, $data);
     }
 
     public function delete($id)
     {
-        $produto = $this->produtoRepository->findForUsuario((int) $id);
+        $produto = $this->produtoRepository->findDaEmpresa((int) $id);
 
         if ($this->produtoRepository->countParcelasByProdutoId((int) $id) > 0
             || $this->produtoRepository->countVendaItensByProdutoId((int) $id) > 0) {
@@ -47,16 +47,16 @@ class ProdutosService extends ServiceAbstract implements ProdutosServiceInterfac
         return $excluido;
     }
 
-    public function ativosDoUsuario(int $usuarioId): Collection
+    public function ativosDaEmpresa(int $empresaId): Collection
     {
-        return $this->produtoRepository->ativosDoUsuario($usuarioId);
+        return $this->produtoRepository->ativosDaEmpresa($empresaId);
     }
 
     public function salvarFoto(int $id, UploadedFile $foto): Produto
     {
-        $produto = $this->produtoRepository->findForUsuario($id);
+        $produto = $this->produtoRepository->findDaEmpresa($id);
         $fotoAnterior = $produto->foto_path;
-        $fotoPath = $this->produtoRepository->salvarArquivoFoto($foto, (int) $produto->usuario_id);
+        $fotoPath = $this->produtoRepository->salvarArquivoFoto($foto, (int) $produto->empresa_id);
 
         try {
             $produto = $this->produtoRepository->atualizarFoto($id, $fotoPath);
@@ -73,7 +73,7 @@ class ProdutosService extends ServiceAbstract implements ProdutosServiceInterfac
 
     public function removerFoto(int $id): Produto
     {
-        $produto = $this->produtoRepository->findForUsuario($id);
+        $produto = $this->produtoRepository->findDaEmpresa($id);
         $fotoAnterior = $produto->foto_path;
 
         $produto = $this->produtoRepository->atualizarFoto($id, null);

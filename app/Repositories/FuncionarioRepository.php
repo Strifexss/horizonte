@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Empresa;
 use App\Models\FinanceiroParcela;
 use App\Models\Funcionario;
 use App\Repositories\Interfaces\FuncionarioRepositoryInterface;
@@ -23,7 +24,7 @@ class FuncionarioRepository extends AbstractRepository implements FuncionarioRep
         }
 
         if (Auth::check()) {
-            $query->where('usuario_id', Auth::id());
+            $query->where('empresa_id', Empresa::atualId());
         }
 
         return $query
@@ -39,10 +40,10 @@ class FuncionarioRepository extends AbstractRepository implements FuncionarioRep
             ->update(['funcionario_id' => null]);
     }
 
-    public function findForUsuario(int $id): Funcionario
+    public function findDaEmpresa(int $id): Funcionario
     {
         return $this->model->newQuery()
-            ->where('usuario_id', Auth::id())
+            ->where('empresa_id', Empresa::atualId())
             ->findOrFail($id);
     }
 }

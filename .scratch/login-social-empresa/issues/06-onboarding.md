@@ -1,6 +1,6 @@
 # 06 — Onboarding de conta sem Empresa
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 01, 03
 
 ## O quê

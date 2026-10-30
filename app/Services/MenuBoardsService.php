@@ -3,11 +3,11 @@
 namespace App\Services;
 
 use App\DTO\MenuBoardDTO;
+use App\Models\Empresa;
 use App\Models\MenuBoard;
 use App\Repositories\Interfaces\MenuBoardRepositoryInterface;
 use App\Services\Interfaces\MenuBoardsServiceInterface;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -21,12 +21,12 @@ class MenuBoardsService extends ServiceAbstract implements MenuBoardsServiceInte
 
     public function indexDoUsuario(int $usuarioId): Collection
     {
-        return $this->menuBoardRepository->indexComContagens($usuarioId);
+        return $this->menuBoardRepository->indexComContagens((int) Empresa::idDoUsuario($usuarioId));
     }
 
     public function findComPaginas(int $id, int $usuarioId): MenuBoard
     {
-        return $this->menuBoardRepository->findComPaginas($id, $usuarioId);
+        return $this->menuBoardRepository->findComPaginas($id, (int) Empresa::idDoUsuario($usuarioId));
     }
 
     /**
@@ -47,7 +47,7 @@ class MenuBoardsService extends ServiceAbstract implements MenuBoardsServiceInte
      */
     public function update($id, $data)
     {
-        $this->menuBoardRepository->findForUsuario((int) $id, (int) Auth::id());
+        $this->menuBoardRepository->findDaEmpresa((int) $id, (int) Empresa::atualId());
         $imagensAtuais = $this->menuBoardRepository->imagensDoBoard((int) $id);
 
         return $this->salvarComImagens($data, $imagensAtuais, function (array $paginas) use ($id, $data) {
@@ -60,7 +60,7 @@ class MenuBoardsService extends ServiceAbstract implements MenuBoardsServiceInte
 
     public function delete($id)
     {
-        $this->menuBoardRepository->findForUsuario((int) $id, (int) Auth::id());
+        $this->menuBoardRepository->findDaEmpresa((int) $id, (int) Empresa::atualId());
         $imagens = $this->menuBoardRepository->imagensDoBoard((int) $id);
 
         $excluido = parent::delete($id);
@@ -70,24 +70,26 @@ class MenuBoardsService extends ServiceAbstract implements MenuBoardsServiceInte
     }
 
     /**
-     * Os boards do usuário ficam travados até o commit, então ativações simultâneas entram em fila
+     * Os boards da Empresa ficam travados até o commit, então ativações simultâneas entram em fila
      * e só um board termina ativo.
      */
     public function ativar(int $id, int $usuarioId): MenuBoard
     {
-        return DB::transaction(function () use ($id, $usuarioId) {
-            $this->menuBoardRepository->travarDoUsuario($usuarioId);
-            $this->menuBoardRepository->findForUsuario($id, $usuarioId);
-            $this->menuBoardRepository->desativarDoUsuario($usuarioId);
+        $empresaId = (int) Empresa::idDoUsuario($usuarioId);
+
+        return DB::transaction(function () use ($id, $empresaId) {
+            $this->menuBoardRepository->travarDaEmpresa($empresaId);
+            $this->menuBoardRepository->findDaEmpresa($id, $empresaId);
+            $this->menuBoardRepository->desativarDaEmpresa($empresaId);
             $this->menuBoardRepository->marcarAtivo($id);
 
-            return $this->menuBoardRepository->findForUsuario($id, $usuarioId);
+            return $this->menuBoardRepository->findDaEmpresa($id, $empresaId);
         });
     }
 
-    public function findAtivoDoUsuario(int $usuarioId): ?MenuBoard
+    public function findAtivoDaEmpresa(int $empresaId): ?MenuBoard
     {
-        return $this->menuBoardRepository->findAtivoDoUsuario($usuarioId);
+        return $this->menuBoardRepository->findAtivoDaEmpresa($empresaId);
     }
 
     /**
@@ -99,15 +101,15 @@ class MenuBoardsService extends ServiceAbstract implements MenuBoardsServiceInte
      */
     private function salvarComImagens(MenuBoardDTO $data, array $imagensAtuais, callable $salvar): MenuBoard
     {
-        $usuarioId = (int) ($data->usuario_id ?? Auth::id());
+        $empresaId = (int) ($data->usuario_id !== null ? Empresa::idDoUsuario($data->usuario_id) : Empresa::atualId());
         $novas = [];
 
         try {
-            $paginas = array_map(function (array $pagina) use ($imagensAtuais, $usuarioId, &$novas): array {
+            $paginas = array_map(function (array $pagina) use ($imagensAtuais, $empresaId, &$novas): array {
                 $imagemPath = in_array($pagina['imagem_atual'], $imagensAtuais, true) ? $pagina['imagem_atual'] : null;
 
                 if ($pagina['imagem'] !== null) {
-                    $imagemPath = $novas[] = $this->menuBoardRepository->salvarArquivoImagem($pagina['imagem'], $usuarioId);
+                    $imagemPath = $novas[] = $this->menuBoardRepository->salvarArquivoImagem($pagina['imagem'], $empresaId);
                 }
 
                 return [...$pagina, 'imagem_path' => $imagemPath];

@@ -1,6 +1,6 @@
 # 03 — Todo fluxo passa a filtrar por Empresa
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 02
 
 Nenhuma leitura, escrita, unicidade ou posse pode continuar usando `usuario_id` / `Auth::id()` como dono. Ao gravar, preencher `empresa_id` (Empresa ativa) e `usuario_id` (autor).

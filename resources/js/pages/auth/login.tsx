@@ -2,6 +2,7 @@ import { Head, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
+import BotaoGoogle from '@/components/empresa/BotaoGoogle';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
@@ -96,6 +97,8 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                     </Button>
                 </div>
             </form>
+
+            <BotaoGoogle />
 
             {status && <div className="mb-4 text-center text-sm font-medium text-green-600">{status}</div>}
         </AuthHorizonteLayout>

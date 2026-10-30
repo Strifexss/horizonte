@@ -15,12 +15,15 @@ class EnsureAdministrador
 
     /**
      * Responde 404 para quem não é Administrador, escondendo a existência do painel.
+     * Só a conta com senha do e-mail autorizado é Administrador; a conta Google de mesmo e-mail não.
      *
      * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $this->usuariosService->isAdministrador($request->user()?->email)) {
+        $usuario = $request->user();
+
+        if (! $usuario || $usuario->ehContaGoogle() || ! $this->usuariosService->isAdministrador($usuario->email)) {
             abort(404);
         }
 

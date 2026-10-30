@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Empresa;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -26,7 +27,7 @@ class StoreVendaRequest extends FormRequest
      */
     public function rules(): array
     {
-        $usuarioId = $this->user()?->id;
+        $empresaId = Empresa::atualId();
 
         return [
             'usuario_id' => ['required', 'integer', 'exists:users,id'],
@@ -35,7 +36,7 @@ class StoreVendaRequest extends FormRequest
             'itens.*.produto_id' => [
                 'required',
                 'integer',
-                Rule::exists('produto', 'id')->where('usuario_id', $usuarioId),
+                Rule::exists('produto', 'id')->where('empresa_id', $empresaId),
             ],
             'itens.*.quantidade' => ['required', 'numeric', 'gt:0', 'max:9999999.999'],
             'itens.*.valor_unitario' => ['required', 'numeric', 'gt:0', 'max:9999999999999.99'],
@@ -45,8 +46,8 @@ class StoreVendaRequest extends FormRequest
                 'integer',
                 Rule::exists('forma_pagamento', 'id')
                     ->where('ativo', true)
-                    ->where(fn (Builder $query) => $query->where(function (Builder $visiveis) use ($usuarioId) {
-                        $visiveis->whereNull('usuario_id')->orWhere('usuario_id', $usuarioId);
+                    ->where(fn (Builder $query) => $query->where(function (Builder $visiveis) use ($empresaId) {
+                        $visiveis->whereNull('empresa_id')->orWhere('empresa_id', $empresaId);
                     })),
             ],
             'pagamentos.*.valor' => ['required', 'numeric', 'gt:0', 'max:9999999999999.99'],

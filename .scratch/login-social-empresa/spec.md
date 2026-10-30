@@ -1,6 +1,6 @@
 # MVP1 — Login Social + Empresa
 
-Status: ready-for-agent
+Status: implementado (aguardando teste do login Google com credenciais reais)
 Branch: `feature-login-social-empresa`
 Decisões: `docs/adr/0001-dados-pertencem-a-empresa.md` (vale o que está lá; abaixo, o recorte do MVP1)
 Design: canvas "Horizonte SaaS — Telas" (Login, Onboarding 1/2 e 2/2, Cliente antigo — nome; desktop e mobile)
@@ -24,7 +24,7 @@ Planos, trial, status de assinatura, bloqueio/pagamento, admin de Empresas e Pla
 - O módulo só é gravado: não muda menus nem telas no MVP1.
 
 ### Dono dos dados
-- Toda tabela que hoje tem `usuario_id` como dono ganha `empresa_id` (FK `empresas`, cascade on delete), preenchido a partir da Empresa do dono atual, depois `NOT NULL` — exceto nas tabelas com registros padrão do sistema, onde `empresa_id` nulo = padrão.
+- Toda tabela que hoje tem `usuario_id` como dono ganha `empresa_id` (FK `empresas`, cascade on delete), preenchido a partir da Empresa do dono atual. A coluna fica nullable no banco (nulo = padrão do sistema em categoria e forma de pagamento); a aplicação sempre grava a Empresa nos demais.
 - `usuario_id` permanece como **autor** do registro (quem criou); deixa de filtrar acesso.
 - Toda leitura, escrita, validação de unicidade e checagem de posse passa a usar `empresa_id` da Empresa ativa.
 - **Padrões do sistema** (categorias e formas de pagamento com `usuario_id` nulo) continuam globais e somente leitura: passam a ser identificados por `empresa_id` nulo.
@@ -62,9 +62,11 @@ Planos, trial, status de assinatura, bloqueio/pagamento, admin de Empresas e Pla
 - "Transferir dados" passa a transferir entre as Empresas dos usuários escolhidos.
 - Excluir um usuário que é o único membro da Empresa exclui a Empresa e seus dados (mesmo efeito de hoje).
 
-## Em aberto
+## Decidido durante a implementação
 
-- **Administrador com e-mail duplicado**: com contas por método, a lista `ADMIN_EMAILS` reconheceria as duas contas do mesmo e-mail. Proposta: só a conta **com senha** é Administrador. Confirmar antes do ticket 06.
+- **Administrador com e-mail duplicado**: só a conta **com senha** do e-mail em `ADMIN_EMAILS` é Administrador; a conta Google de mesmo e-mail não acessa o painel.
+- Formulários ignoram `usuario_id` enviado pelo navegador: o autor é sempre quem está logado (antes dava para gravar em nome de outro usuário).
+- Conta Google exclui a própria conta sem digitar senha.
 
 ## Tickets
 

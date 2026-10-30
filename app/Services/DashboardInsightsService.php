@@ -6,6 +6,7 @@ use App\Ai\Agents\AnalistaDashboard;
 use App\Exceptions\LimiteDeAnalisesException;
 use App\Jobs\GerarAnaliseDashboard;
 use App\Models\DashboardAnalise;
+use App\Models\Empresa;
 use App\Models\InsightAcao;
 use App\Repositories\Interfaces\DashboardAnaliseRepositoryInterface;
 use App\Repositories\Interfaces\InsightAcaoRepositoryInterface;
@@ -41,7 +42,7 @@ class DashboardInsightsService extends ServiceAbstract implements DashboardInsig
 
     public function analiseDoPeriodo(int $usuarioId, int $ano, int $mes): ?DashboardAnalise
     {
-        $analise = $this->dashboardAnaliseRepository->ultimaDoPeriodo($usuarioId, $ano, $mes);
+        $analise = $this->dashboardAnaliseRepository->ultimaDoPeriodo((int) Empresa::idDoUsuario($usuarioId), $ano, $mes);
 
         if ($analise && $this->travada($analise)) {
             $analise = $this->dashboardAnaliseRepository->update($analise->id, [
@@ -61,7 +62,8 @@ class DashboardInsightsService extends ServiceAbstract implements DashboardInsig
             return $ultima;
         }
 
-        $pacote = $this->indicadoresInsightsService->montar($usuarioId, $ano, $mes);
+        $empresaId = (int) Empresa::idDoUsuario($usuarioId);
+        $pacote = $this->indicadoresInsightsService->montar($empresaId, $ano, $mes);
         $hash = hash('sha256', (string) json_encode($pacote));
 
         if (! $forcar && $ultima && $ultima->status === DashboardAnalise::STATUS_CONCLUIDA && $ultima->hash_dados === $hash) {
@@ -71,11 +73,12 @@ class DashboardInsightsService extends ServiceAbstract implements DashboardInsig
         $limite = (int) config('insights.limite_analises');
         $janelaEmMinutos = (int) config('insights.janela_limite_minutos');
 
-        if ($this->dashboardAnaliseRepository->contarGeradasDesde($usuarioId, now()->subMinutes($janelaEmMinutos)) >= $limite) {
+        if ($this->dashboardAnaliseRepository->contarGeradasDesde($empresaId, now()->subMinutes($janelaEmMinutos)) >= $limite) {
             throw new LimiteDeAnalisesException($limite, $janelaEmMinutos);
         }
 
         $analise = $this->dashboardAnaliseRepository->store([
+            'empresa_id' => $empresaId,
             'usuario_id' => $usuarioId,
             'ano' => $ano,
             'mes' => $mes,
@@ -132,7 +135,7 @@ class DashboardInsightsService extends ServiceAbstract implements DashboardInsig
 
     public function registrarAcao(int $analiseId, int $usuarioId, string $chave, string $acao, ?string $motivo = null): InsightAcao
     {
-        $analise = $this->dashboardAnaliseRepository->findForUsuario($analiseId, $usuarioId);
+        $analise = $this->dashboardAnaliseRepository->findDaEmpresa($analiseId, (int) Empresa::idDoUsuario($usuarioId));
         $insight = collect($analise->insights)->firstWhere('chave', $chave);
 
         if (! $insight) {
@@ -140,6 +143,7 @@ class DashboardInsightsService extends ServiceAbstract implements DashboardInsig
         }
 
         return $this->insightAcaoRepository->registrar([
+            'empresa_id' => $analise->empresa_id,
             'usuario_id' => $usuarioId,
             'dashboard_analise_id' => $analise->id,
             'chave' => $chave,
@@ -154,7 +158,7 @@ class DashboardInsightsService extends ServiceAbstract implements DashboardInsig
 
     public function desfazerAcao(int $analiseId, int $usuarioId, string $chave): void
     {
-        $analise = $this->dashboardAnaliseRepository->findForUsuario($analiseId, $usuarioId);
+        $analise = $this->dashboardAnaliseRepository->findDaEmpresa($analiseId, (int) Empresa::idDoUsuario($usuarioId));
 
         $this->insightAcaoRepository->remover($analise->id, $chave);
     }

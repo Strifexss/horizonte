@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -34,7 +35,7 @@ class PasswordResetLinkController extends Controller
         ]);
 
         Password::sendResetLink(
-            $request->only('email')
+            [...$request->only('email'), User::somenteContasComSenha(...)]
         );
 
         return back()->with('status', __('A reset link will be sent if the account exists.'));

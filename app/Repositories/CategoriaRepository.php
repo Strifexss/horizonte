@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Categoria;
+use App\Models\Empresa;
 use App\Repositories\Interfaces\CategoriaRepositoryInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +22,7 @@ class CategoriaRepository extends AbstractRepository implements CategoriaReposit
 
         if (Auth::check()) {
             $query->where(function ($q) {
-                $q->where('usuario_id', Auth::id())
+                $q->where('empresa_id', Empresa::atualId())
                     ->orWhere('padrao', 1);
             });
         }
@@ -62,7 +63,7 @@ class CategoriaRepository extends AbstractRepository implements CategoriaReposit
         return $this->model->newQuery()
             ->where('nome', $nome)
             ->where('padrao', 1)
-            ->whereNull('usuario_id')
+            ->whereNull('empresa_id')
             ->firstOrFail();
     }
 
@@ -80,7 +81,7 @@ class CategoriaRepository extends AbstractRepository implements CategoriaReposit
 
         if (Auth::check()) {
             $query->where(function ($q) {
-                $q->where('usuario_id', Auth::id())
+                $q->where('empresa_id', Empresa::atualId())
                     ->orWhere('padrao', 1);
             });
         }

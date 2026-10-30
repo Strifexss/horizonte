@@ -16,14 +16,14 @@ class FuncionariosService extends ServiceAbstract implements FuncionariosService
 
     public function update($id, $data)
     {
-        $this->funcionarioRepository->findForUsuario((int) $id);
+        $this->funcionarioRepository->findDaEmpresa((int) $id);
 
         return parent::update($id, $data);
     }
 
     public function delete($id)
     {
-        $this->funcionarioRepository->findForUsuario((int) $id);
+        $this->funcionarioRepository->findDaEmpresa((int) $id);
 
         return DB::transaction(function () use ($id) {
             $this->funcionarioRepository->nullifyFuncionarioIdOnParcelas((int) $id);

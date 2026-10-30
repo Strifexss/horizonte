@@ -18,18 +18,18 @@ class TvPareamentoPinRepository extends AbstractRepository implements TvPareamen
         return $this->validos()->where('pin', $pin)->first();
     }
 
-    public function findValidoDoUsuario(int $usuarioId): ?TvPareamentoPin
+    public function findValidoDaEmpresa(int $empresaId): ?TvPareamentoPin
     {
         return $this->validos()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->latest('id')
             ->first();
     }
 
-    public function invalidarDoUsuario(int $usuarioId): int
+    public function invalidarDaEmpresa(int $empresaId): int
     {
         return $this->validos()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->update(['expira_em' => now()]);
     }
 

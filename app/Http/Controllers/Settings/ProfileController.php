@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Services\Interfaces\UsuariosServiceInterface;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -29,7 +30,13 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $dados = $request->validated();
+
+        if ($request->user()->ehContaGoogle()) {
+            unset($dados['email']);
+        }
+
+        $request->user()->fill($dados);
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
@@ -43,17 +50,19 @@ class ProfileController extends Controller
     /**
      * Delete the user's account.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request, UsuariosServiceInterface $usuariosService): RedirectResponse
     {
-        $request->validate([
-            'password' => ['required', 'current_password'],
-        ]);
-
         $user = $request->user();
+
+        if (! $user->ehContaGoogle()) {
+            $request->validate([
+                'password' => ['required', 'current_password'],
+            ]);
+        }
 
         Auth::logout();
 
-        $user->delete();
+        $usuariosService->delete($user->id);
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

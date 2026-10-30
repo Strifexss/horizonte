@@ -28,7 +28,7 @@ class UsuarioRequest extends FormRequest
                 'lowercase',
                 'email',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($usuarioId),
+                Rule::unique('users', 'email')->ignore($usuarioId)->whereNull('google_id'),
             ],
             'password' => [$usuarioId === null ? 'required' : 'nullable', 'string', Password::defaults()],
         ];

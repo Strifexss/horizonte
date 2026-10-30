@@ -2,6 +2,7 @@ import { Head, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
+import BotaoGoogle from '@/components/empresa/BotaoGoogle';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
@@ -106,6 +107,8 @@ export default function Register() {
                         Create account
                     </Button>
                 </div>
+
+                <BotaoGoogle texto="Cadastrar com Google" />
 
                 <div className="text-muted-foreground text-center text-sm">
                     Already have an account?{' '}

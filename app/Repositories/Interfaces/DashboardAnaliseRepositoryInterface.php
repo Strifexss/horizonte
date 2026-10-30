@@ -10,15 +10,15 @@ interface DashboardAnaliseRepositoryInterface extends AbstractRepositoryInterfac
     /**
      * Análise mais recente do usuário no período, com as ações registradas.
      */
-    public function ultimaDoPeriodo(int $usuarioId, int $ano, int $mes): ?DashboardAnalise;
+    public function ultimaDoPeriodo(int $empresaId, int $ano, int $mes): ?DashboardAnalise;
 
     /**
      * Garante que a análise pertence ao usuário informado.
      */
-    public function findForUsuario(int $id, int $usuarioId): DashboardAnalise;
+    public function findDaEmpresa(int $id, int $empresaId): DashboardAnalise;
 
     /**
      * Quantidade de análises geradas pelo usuário a partir do instante informado.
      */
-    public function contarGeradasDesde(int $usuarioId, Carbon $desde): int;
+    public function contarGeradasDesde(int $empresaId, Carbon $desde): int;
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Empresa;
 use App\Repositories\Interfaces\FornecedorRepositoryInterface;
 use App\Repositories\Interfaces\ProdutoRepositoryInterface;
 use App\Services\Interfaces\UsuariosTransferServiceInterface;
@@ -19,8 +20,8 @@ class UsuariosTransferService implements UsuariosTransferServiceInterface
     public function contagens(int $usuarioId): array
     {
         return [
-            'produtos' => $this->produtoRepository->countByUsuario($usuarioId),
-            'fornecedores' => $this->fornecedorRepository->countByUsuario($usuarioId),
+            'produtos' => $this->produtoRepository->countByEmpresa((int) Empresa::idDoUsuario($usuarioId)),
+            'fornecedores' => $this->fornecedorRepository->countByEmpresa((int) Empresa::idDoUsuario($usuarioId)),
         ];
     }
 
@@ -30,6 +31,8 @@ class UsuariosTransferService implements UsuariosTransferServiceInterface
         $destino = (int) ($payload['destino_id'] ?? 0);
         $modulos = $payload['modulos'] ?? [];
         $migrar = (bool) ($payload['migrar_relacionamentos'] ?? false);
+        $empresaOrigem = (int) Empresa::idDoUsuario($origem);
+        $empresaDestino = (int) Empresa::idDoUsuario($destino);
 
         $max = (int) config('admin.transferencia.max', 1000);
         $chunk = (int) config('admin.transferencia.chunk', 100);
@@ -38,11 +41,11 @@ class UsuariosTransferService implements UsuariosTransferServiceInterface
         $total = 0;
         $counts = [];
         if (in_array('produtos', $modulos, true)) {
-            $counts['produtos'] = $this->produtoRepository->countByUsuario($origem);
+            $counts['produtos'] = $this->produtoRepository->countByEmpresa($empresaOrigem);
             $total += $counts['produtos'];
         }
         if (in_array('fornecedores', $modulos, true)) {
-            $counts['fornecedores'] = $this->fornecedorRepository->countByUsuario($origem);
+            $counts['fornecedores'] = $this->fornecedorRepository->countByEmpresa($empresaOrigem);
             $total += $counts['fornecedores'];
         }
 
@@ -58,20 +61,17 @@ class UsuariosTransferService implements UsuariosTransferServiceInterface
         $skipped = ['produtos' => [], 'fornecedores' => []];
         $created = ['produtos' => 0, 'fornecedores' => 0];
 
-        DB::transaction(function () use (&$skipped, &$created, $origem, $destino, $modulos, $migrar, $chunk) {
+        DB::transaction(function () use (&$skipped, &$created, $empresaOrigem, $empresaDestino, $destino, $modulos, $migrar, $chunk) {
             // If fornecedores selected and migrate relationships true, duplicate fornecedores first to build map
             $fornecedorMap = [];
             if (in_array('fornecedores', $modulos, true)) {
-                $fornecedores = $this->fornecedorRepository->getByUsuario($origem);
+                $fornecedores = $this->fornecedorRepository->getByEmpresa($empresaOrigem);
                 foreach ($fornecedores->chunk($chunk) as $batch) {
                     foreach ($batch as $fornecedor) {
                         $attrs = $fornecedor->toArray();
                         unset($attrs['id'], $attrs['created_at'], $attrs['updated_at']);
                         $attrs['usuario_id'] = $destino;
-                        // ensure required defaults
-                        if (! array_key_exists('usuario_id', $attrs)) {
-                            $attrs['usuario_id'] = $destino;
-                        }
+                        $attrs['empresa_id'] = $empresaDestino;
 
                         try {
                             $novo = $this->fornecedorRepository->store($attrs);
@@ -87,7 +87,7 @@ class UsuariosTransferService implements UsuariosTransferServiceInterface
 
             // Produtos
             if (in_array('produtos', $modulos, true)) {
-                $produtos = $this->produtoRepository->getByUsuario($origem);
+                $produtos = $this->produtoRepository->getByEmpresa($empresaOrigem);
                 foreach ($produtos->chunk($chunk) as $batch) {
                     foreach ($batch as $produto) {
                         try {
@@ -98,6 +98,7 @@ class UsuariosTransferService implements UsuariosTransferServiceInterface
                                 $novo->fornecedor_id = $fornecedorMap[$novo->fornecedor_id];
                             }
                             $novo->usuario_id = $destino;
+                            $novo->empresa_id = $empresaDestino;
                             $novo->push(); // saves the model
                             $created['produtos']++;
                         } catch (QueryException $e) {

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Empresa;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -31,6 +32,40 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
+    }
+
+    /**
+     * Toda conta trabalha dentro de uma Empresa: por padrão nasce com a sua, como admin master.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (User $user): void {
+            $user->empresas()->attach(Empresa::factory()->create(), ['cargo' => Empresa::CARGO_ADMIN_MASTER]);
+        });
+    }
+
+    /**
+     * Conta que ainda não passou pelo onboarding.
+     */
+    public function semEmpresa(): static
+    {
+        return $this->afterCreating(function (User $user): void {
+            $empresas = $user->empresas()->pluck('empresas.id');
+            $user->empresas()->detach();
+            Empresa::query()->whereKey($empresas)->delete();
+            $user->esquecerEmpresaAtiva();
+        });
+    }
+
+    /**
+     * Conta criada pelo login com Google (sem senha).
+     */
+    public function google(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'google_id' => (string) fake()->unique()->numerify('#####################'),
+            'password' => null,
+        ]);
     }
 
     /**

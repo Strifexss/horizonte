@@ -2,13 +2,13 @@
 
 namespace App\Repositories;
 
+use App\Models\Empresa;
 use App\Models\Financeiro;
 use App\Models\FormaPagamento;
 use App\Models\VendaPagamento;
 use App\Repositories\Interfaces\FormaPagamentoRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 
 class FormaPagamentoRepository extends AbstractRepository implements FormaPagamentoRepositoryInterface
 {
@@ -66,7 +66,7 @@ class FormaPagamentoRepository extends AbstractRepository implements FormaPagame
     private function visiveisQuery(): Builder
     {
         return $this->model->newQuery()->where(function (Builder $query) {
-            $query->whereNull('usuario_id')->orWhere('usuario_id', Auth::id());
+            $query->whereNull('empresa_id')->orWhere('empresa_id', Empresa::atualId());
         });
     }
 }

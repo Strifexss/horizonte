@@ -51,7 +51,9 @@ class HandleInertiaRequests extends Middleware
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),
+                'conta_google' => (bool) $request->user()?->ehContaGoogle(),
             ],
+            'empresa' => fn () => $this->empresaAtiva($request),
             'flash' => [
                 'success' => session('success'),
                 'error' => session('error'),
@@ -69,6 +71,25 @@ class HandleInertiaRequests extends Middleware
             'novidades' => Inertia::optional(fn () => $request->user()
                 ? NovidadeUsuarioResource::collection($this->novidadesService->historicoDoUsuario($request->user()->id))->resolve()
                 : []),
+        ];
+    }
+
+    /**
+     * @return array{id: int, nome: string, modulo: string, nome_confirmado: bool}|null
+     */
+    private function empresaAtiva(Request $request): ?array
+    {
+        $empresa = $request->user()?->empresa();
+
+        if ($empresa === null) {
+            return null;
+        }
+
+        return [
+            'id' => $empresa->id,
+            'nome' => $empresa->nome,
+            'modulo' => $empresa->modulo,
+            'nome_confirmado' => $empresa->nomeConfirmado(),
         ];
     }
 }

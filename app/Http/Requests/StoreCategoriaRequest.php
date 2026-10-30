@@ -19,7 +19,7 @@ class StoreCategoriaRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        if (! $this->has('usuario_id') && $this->user()) {
+        if ($this->user()) {
             $this->merge(['usuario_id' => $this->user()->id]);
         }
     }

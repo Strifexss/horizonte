@@ -4,6 +4,7 @@ use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ContasController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardInsightsController;
+use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\ExtratoController;
 use App\Http\Controllers\ExtratoPdfController;
 use App\Http\Controllers\FormasPagamentoController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\GruposController;
 use App\Http\Controllers\MenuBoardsController;
 use App\Http\Controllers\NovidadesController;
 use App\Http\Controllers\NovidadesUsuarioController;
+use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ParcelaController;
 use App\Http\Controllers\ProdutosController;
 use App\Http\Controllers\TvController;
@@ -29,6 +31,13 @@ Route::get('/tv', [TvController::class, 'show'])->name('tv');
 Route::post('/tv/parear', [TvController::class, 'parear'])->middleware('throttle:5,1')->name('tv.parear');
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/onboarding', [OnboardingController::class, 'create'])->name('onboarding');
+    Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
+});
+
+Route::middleware(['auth', 'empresa'])->group(function () {
+    Route::put('/empresa/nome', [EmpresaController::class, 'confirmarNome'])->name('empresa.nome.update');
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/dashboard/insights', [DashboardInsightsController::class, 'store'])->name('dashboard.insights.store');
     Route::post('/dashboard/insights/{id}/acoes', [DashboardInsightsController::class, 'acaoStore'])->name('dashboard.insights.acoes.store');

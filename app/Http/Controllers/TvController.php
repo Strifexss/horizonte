@@ -34,7 +34,7 @@ class TvController extends Controller
             return Inertia::render('tv/pareamento');
         }
 
-        $board = $this->menuBoardsService->findAtivoDoUsuario($dispositivo->usuario_id);
+        $board = $this->menuBoardsService->findAtivoDaEmpresa($dispositivo->empresa_id);
 
         return Inertia::render('tv/board', [
             'board' => $board ? TvBoardResource::make($board)->resolve() : null,

@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\PertenceAEmpresa;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FormaPagamento extends Model
 {
+    use PertenceAEmpresa;
+
     public const NOME_ESPECIE = 'Espécie';
 
     /**
@@ -57,5 +60,13 @@ class FormaPagamento extends Model
     public function ehPadrao(): bool
     {
         return (int) $this->padrao === 1 || $this->usuario_id === null;
+    }
+
+    /**
+     * Sem autor, o registro é padrão do sistema (sem Empresa).
+     */
+    protected function ehRegistroDoSistema(): bool
+    {
+        return true;
     }
 }

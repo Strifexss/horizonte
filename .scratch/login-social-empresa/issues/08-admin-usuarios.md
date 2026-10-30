@@ -1,9 +1,8 @@
 # 08 — Painel Administrativo: usuários com Empresa e método
 
-Status: needs-info
+Status: resolved
 Blocked by: 03, 04
 
-needs-info: regra de Administrador com e-mail duplicado (spec, "Em aberto").
 
 ## O quê
 - Listagem de usuários (tabela e cards mobile) mostra nome da Empresa e selo Senha/Google.

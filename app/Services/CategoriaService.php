@@ -69,7 +69,7 @@ class CategoriaService extends ServiceAbstract implements CategoriaServiceInterf
 
     private function assertNaoEhCategoriaDoSistema(mixed $categoria): void
     {
-        if ((int) $categoria->padrao === 1 || $categoria->usuario_id === null) {
+        if ((int) $categoria->padrao === 1 || $categoria->empresa_id === null) {
             throw new \Exception(self::SISTEMA_BLOQUEIO_MSG);
         }
     }

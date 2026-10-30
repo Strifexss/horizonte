@@ -18,6 +18,8 @@ class PasswordController extends Controller
      */
     public function edit(Request $request): Response
     {
+        abort_if($request->user()->ehContaGoogle(), 404);
+
         return Inertia::render('settings/password', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => $request->session()->get('status'),
@@ -29,6 +31,8 @@ class PasswordController extends Controller
      */
     public function update(Request $request): RedirectResponse
     {
+        abort_if($request->user()->ehContaGoogle(), 404);
+
         $validated = $request->validate([
             'current_password' => ['required', 'current_password'],
             'password' => ['required', Password::defaults(), 'confirmed'],

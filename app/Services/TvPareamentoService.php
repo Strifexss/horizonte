@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\PinPareamentoInvalidoException;
+use App\Models\Empresa;
 use App\Models\TvDispositivo;
 use App\Models\TvPareamentoPin;
 use App\Repositories\Interfaces\TvDispositivoRepositoryInterface;
@@ -31,7 +32,7 @@ class TvPareamentoService extends ServiceAbstract implements TvPareamentoService
     {
         return DB::transaction(function () use ($usuarioId) {
             $this->tvPareamentoPinRepository->liberarPinsVencidos();
-            $this->tvPareamentoPinRepository->invalidarDoUsuario($usuarioId);
+            $this->tvPareamentoPinRepository->invalidarDaEmpresa((int) Empresa::idDoUsuario($usuarioId));
 
             return $this->gravarPinLivre($usuarioId);
         });
@@ -39,7 +40,7 @@ class TvPareamentoService extends ServiceAbstract implements TvPareamentoService
 
     public function pinValidoDoUsuario(int $usuarioId): ?TvPareamentoPin
     {
-        return $this->tvPareamentoPinRepository->findValidoDoUsuario($usuarioId);
+        return $this->tvPareamentoPinRepository->findValidoDaEmpresa((int) Empresa::idDoUsuario($usuarioId));
     }
 
     public function parear(string $pin): string
@@ -54,6 +55,7 @@ class TvPareamentoService extends ServiceAbstract implements TvPareamentoService
             $token = Str::random(64);
 
             $this->tvDispositivoRepository->store([
+                'empresa_id' => $pareamento->empresa_id,
                 'usuario_id' => $pareamento->usuario_id,
                 'token_hash' => $this->hashToken($token),
                 'ultimo_acesso_em' => now(),
@@ -80,12 +82,12 @@ class TvPareamentoService extends ServiceAbstract implements TvPareamentoService
 
     public function dispositivosDoUsuario(int $usuarioId): Collection
     {
-        return $this->tvDispositivoRepository->ativosDoUsuario($usuarioId);
+        return $this->tvDispositivoRepository->ativosDaEmpresa((int) Empresa::idDoUsuario($usuarioId));
     }
 
     public function revogar(int $id, int $usuarioId): void
     {
-        $dispositivo = $this->tvDispositivoRepository->findAtivoForUsuario($id, $usuarioId);
+        $dispositivo = $this->tvDispositivoRepository->findAtivoDaEmpresa($id, (int) Empresa::idDoUsuario($usuarioId));
 
         $this->tvDispositivoRepository->revogar($dispositivo->id);
     }

@@ -34,19 +34,19 @@ class IndicadoresInsightsService extends ServiceAbstract implements IndicadoresI
         parent::__construct($financeiroRepository);
     }
 
-    public function montar(int $usuarioId, int $ano, int $mes): array
+    public function montar(int $empresaId, int $ano, int $mes): array
     {
         $inicio = Carbon::create($ano, $mes, 1)->startOfDay();
         $fim = $inicio->copy()->endOfMonth();
         $anteriores = $this->mesesAnteriores($inicio);
 
-        $totais = $this->financeiroRepository->totaisNoPeriodo($usuarioId, $inicio->toDateString(), $fim->toDateString());
+        $totais = $this->financeiroRepository->totaisNoPeriodo($empresaId, $inicio->toDateString(), $fim->toDateString());
         $totaisAnteriores = array_map(
-            fn (array $periodo): array => $this->financeiroRepository->totaisNoPeriodo($usuarioId, $periodo[0], $periodo[1]),
+            fn (array $periodo): array => $this->financeiroRepository->totaisNoPeriodo($empresaId, $periodo[0], $periodo[1]),
             $anteriores,
         );
         $anoAnterior = $this->financeiroRepository->totaisNoPeriodo(
-            $usuarioId,
+            $empresaId,
             $inicio->copy()->subYear()->toDateString(),
             $fim->copy()->subYear()->endOfMonth()->toDateString(),
         );
@@ -80,12 +80,12 @@ class IndicadoresInsightsService extends ServiceAbstract implements IndicadoresI
                 ] : null,
             ],
             'despesas_por_categoria' => $this->despesasPorCategoria($inicio, $fim, $anteriores),
-            'produtos' => $this->produtos($usuarioId, $inicio, $fim, $anteriores),
-            'vendas' => $this->vendas($usuarioId, $inicio, $fim, $anteriores),
+            'produtos' => $this->produtos($empresaId, $inicio, $fim, $anteriores),
+            'vendas' => $this->vendas($empresaId, $inicio, $fim, $anteriores),
             'receitas_por_dia_da_semana_ultimas_4_semanas' => $this->receitasPorDiaDaSemana($fim),
             'maiores_fornecedores' => $this->fornecedores($inicio, $fim),
-            'caixa' => $this->caixa($usuarioId, $inicio),
-            'produtos_com_preco_suspeito' => $this->produtoRepository->ativosComPrecoDeVendaSuspeito($usuarioId)
+            'caixa' => $this->caixa($empresaId, $inicio),
+            'produtos_com_preco_suspeito' => $this->produtoRepository->ativosComPrecoDeVendaSuspeito($empresaId)
                 ->map(fn ($produto): array => [
                     'produto' => $produto->nome,
                     'preco_compra' => round((float) $produto->preco_compra, 2),
@@ -93,7 +93,7 @@ class IndicadoresInsightsService extends ServiceAbstract implements IndicadoresI
                 ])
                 ->values()
                 ->all(),
-            'historico_do_usuario' => $this->historico($usuarioId),
+            'historico_do_usuario' => $this->historico($empresaId),
         ];
     }
 
@@ -149,12 +149,12 @@ class IndicadoresInsightsService extends ServiceAbstract implements IndicadoresI
      * @param  list<array{0: string, 1: string}>  $anteriores
      * @return list<array<string, mixed>>
      */
-    private function produtos(int $usuarioId, Carbon $inicio, Carbon $fim, array $anteriores): array
+    private function produtos(int $empresaId, Carbon $inicio, Carbon $fim, array $anteriores): array
     {
-        $compras = $this->financeiroRepository->comprasPorProdutoNoPeriodo($usuarioId, $inicio->toDateString(), $fim->toDateString())->keyBy('produto_id');
-        $vendas = $this->vendaRepository->vendasPorProdutoNoPeriodo($usuarioId, $inicio->toDateString(), $fim->toDateString())->keyBy('produto_id');
-        $comprasAnteriores = collect($anteriores)->map(fn (array $p): Collection => $this->financeiroRepository->comprasPorProdutoNoPeriodo($usuarioId, $p[0], $p[1])->keyBy('produto_id'));
-        $vendasAnteriores = collect($anteriores)->map(fn (array $p): Collection => $this->vendaRepository->vendasPorProdutoNoPeriodo($usuarioId, $p[0], $p[1])->keyBy('produto_id'));
+        $compras = $this->financeiroRepository->comprasPorProdutoNoPeriodo($empresaId, $inicio->toDateString(), $fim->toDateString())->keyBy('produto_id');
+        $vendas = $this->vendaRepository->vendasPorProdutoNoPeriodo($empresaId, $inicio->toDateString(), $fim->toDateString())->keyBy('produto_id');
+        $comprasAnteriores = collect($anteriores)->map(fn (array $p): Collection => $this->financeiroRepository->comprasPorProdutoNoPeriodo($empresaId, $p[0], $p[1])->keyBy('produto_id'));
+        $vendasAnteriores = collect($anteriores)->map(fn (array $p): Collection => $this->vendaRepository->vendasPorProdutoNoPeriodo($empresaId, $p[0], $p[1])->keyBy('produto_id'));
 
         return $compras->keys()
             ->merge($vendas->keys())
@@ -225,11 +225,11 @@ class IndicadoresInsightsService extends ServiceAbstract implements IndicadoresI
      * @param  list<array{0: string, 1: string}>  $anteriores
      * @return array<string, mixed>
      */
-    private function vendas(int $usuarioId, Carbon $inicio, Carbon $fim, array $anteriores): array
+    private function vendas(int $empresaId, Carbon $inicio, Carbon $fim, array $anteriores): array
     {
-        $atual = $this->indicadoresDeVenda($this->vendaRepository->resumoNoPeriodo($usuarioId, $inicio->toDateString(), $fim->toDateString()));
+        $atual = $this->indicadoresDeVenda($this->vendaRepository->resumoNoPeriodo($empresaId, $inicio->toDateString(), $fim->toDateString()));
         $historico = array_map(
-            fn (array $p): array => $this->indicadoresDeVenda($this->vendaRepository->resumoNoPeriodo($usuarioId, $p[0], $p[1])),
+            fn (array $p): array => $this->indicadoresDeVenda($this->vendaRepository->resumoNoPeriodo($empresaId, $p[0], $p[1])),
             $anteriores,
         );
         $comVendas = array_values(array_filter($historico, fn (array $h): bool => $h['vendas'] > 0));
@@ -305,14 +305,14 @@ class IndicadoresInsightsService extends ServiceAbstract implements IndicadoresI
      *
      * @return array<string, mixed>
      */
-    private function caixa(int $usuarioId, Carbon $inicio): array
+    private function caixa(int $empresaId, Carbon $inicio): array
     {
         $hoje = now()->startOfDay();
-        $atrasados = $this->financeiroRepository->emAbertoComVencimentoEntre($usuarioId, '1900-01-01', $hoje->copy()->subDay()->toDateString());
+        $atrasados = $this->financeiroRepository->emAbertoComVencimentoEntre($empresaId, '1900-01-01', $hoje->copy()->subDay()->toDateString());
         $proximos = null;
 
         if ($inicio->isSameMonth($hoje)) {
-            $previsto = $this->financeiroRepository->emAbertoComVencimentoEntre($usuarioId, $hoje->toDateString(), $hoje->copy()->addDays(30)->toDateString());
+            $previsto = $this->financeiroRepository->emAbertoComVencimentoEntre($empresaId, $hoje->toDateString(), $hoje->copy()->addDays(30)->toDateString());
             $proximos = [
                 ...$previsto,
                 'diferenca' => round($previsto['a_receber'] - $previsto['a_pagar'], 2),
@@ -328,9 +328,9 @@ class IndicadoresInsightsService extends ServiceAbstract implements IndicadoresI
     /**
      * @return array{seguidos: list<array<string, mixed>>, dispensados: list<array<string, mixed>>}
      */
-    private function historico(int $usuarioId): array
+    private function historico(int $empresaId): array
     {
-        $acoes = $this->insightAcaoRepository->historicoDoUsuario($usuarioId);
+        $acoes = $this->insightAcaoRepository->historicoDaEmpresa($empresaId);
         $formatar = fn (InsightAcao $acao): array => array_filter([
             'tipo' => $acao->tipo,
             'titulo' => $acao->titulo,

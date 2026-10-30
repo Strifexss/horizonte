@@ -7,6 +7,7 @@ use App\Http\Requests\StoreMenuBoardRequest;
 use App\Http\Resources\MenuBoardResource;
 use App\Http\Resources\ProdutoResource;
 use App\Http\Resources\TvDispositivoResource;
+use App\Models\Empresa;
 use App\Services\Interfaces\MenuBoardsServiceInterface;
 use App\Services\Interfaces\ProdutosServiceInterface;
 use App\Services\Interfaces\TvPareamentoServiceInterface;
@@ -42,7 +43,7 @@ class MenuBoardsController extends Controller
 
         return Inertia::render('menu-boards/form', [
             'board' => null,
-            'produtos' => fn () => ProdutoResource::collection($this->produtosService->ativosDoUsuario($usuarioId))->resolve(),
+            'produtos' => fn () => ProdutoResource::collection($this->produtosService->ativosDaEmpresa((int) Empresa::idDoUsuario($usuarioId)))->resolve(),
             'pareamento' => fn () => $this->pareamento($usuarioId),
         ]);
     }
@@ -54,7 +55,7 @@ class MenuBoardsController extends Controller
 
         return Inertia::render('menu-boards/form', [
             'board' => MenuBoardResource::make($board)->resolve(),
-            'produtos' => fn () => ProdutoResource::collection($this->produtosService->ativosDoUsuario($usuarioId))->resolve(),
+            'produtos' => fn () => ProdutoResource::collection($this->produtosService->ativosDaEmpresa((int) Empresa::idDoUsuario($usuarioId)))->resolve(),
             'pareamento' => fn () => $this->pareamento($usuarioId),
         ]);
     }

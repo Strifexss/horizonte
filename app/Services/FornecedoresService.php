@@ -16,14 +16,14 @@ class FornecedoresService extends ServiceAbstract implements FornecedoresService
 
     public function update($id, $data)
     {
-        $this->fornecedorRepository->findForUsuario((int) $id);
+        $this->fornecedorRepository->findDaEmpresa((int) $id);
 
         return parent::update($id, $data);
     }
 
     public function delete($id)
     {
-        $this->fornecedorRepository->findForUsuario((int) $id);
+        $this->fornecedorRepository->findDaEmpresa((int) $id);
 
         return DB::transaction(function () use ($id) {
             $this->fornecedorRepository->nullifyFornecedorIdOnProdutos((int) $id);
@@ -32,8 +32,8 @@ class FornecedoresService extends ServiceAbstract implements FornecedoresService
         });
     }
 
-    public function deleteByUsuario(int $usuarioId): int
+    public function deleteByEmpresa(int $empresaId): int
     {
-        return $this->fornecedorRepository->deleteByUsuario($usuarioId);
+        return $this->fornecedorRepository->deleteByEmpresa($empresaId);
     }
 }

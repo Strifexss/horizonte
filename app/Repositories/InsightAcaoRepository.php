@@ -29,10 +29,10 @@ class InsightAcaoRepository extends AbstractRepository implements InsightAcaoRep
             ->delete();
     }
 
-    public function historicoDoUsuario(int $usuarioId, int $limite = 30): Collection
+    public function historicoDaEmpresa(int $empresaId, int $limite = 30): Collection
     {
         return $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->latest('id')
             ->limit($limite)
             ->get();

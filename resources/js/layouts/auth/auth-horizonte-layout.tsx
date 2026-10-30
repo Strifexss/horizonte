@@ -6,9 +6,19 @@ interface AuthHorizonteLayoutProps {
     children: React.ReactNode;
     title: string;
     description: string;
+    saudacao?: string;
+    destaque?: string;
+    texto?: string;
 }
 
-export default function AuthHorizonteLayout({ children, title, description }: AuthHorizonteLayoutProps) {
+export default function AuthHorizonteLayout({
+    children,
+    title,
+    description,
+    saudacao = 'Que bom ver você de novo',
+    destaque = 'BEM-VINDO',
+    texto = 'Receitas, despesas e o saldo do mês num só lugar, pela competência.',
+}: AuthHorizonteLayoutProps) {
     return (
         <div className="dark:bg-background flex min-h-svh items-center justify-center bg-slate-100 p-4 md:p-10">
             <div className="grid w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-xl shadow-slate-900/10 md:min-h-[38rem] md:grid-cols-2 dark:bg-slate-900 dark:shadow-black/40">
@@ -21,10 +31,10 @@ export default function AuthHorizonteLayout({ children, title, description }: Au
                     </Link>
 
                     <div className="mt-16 hidden max-w-xs flex-col gap-3 md:flex">
-                        <p className="text-sm text-white/80">Que bom ver você de novo</p>
-                        <p className="text-4xl leading-tight font-semibold tracking-wide">BEM-VINDO</p>
+                        <p className="text-sm text-white/80">{saudacao}</p>
+                        <p className="text-4xl leading-tight font-semibold tracking-wide">{destaque}</p>
                         <span className="h-1 w-12 rounded-full bg-[#2563eb]" />
-                        <p className="text-sm leading-relaxed text-white/75">Receitas, despesas e o saldo do mês num só lugar, pela competência.</p>
+                        <p className="text-sm leading-relaxed text-white/75">{texto}</p>
                     </div>
                 </div>
 

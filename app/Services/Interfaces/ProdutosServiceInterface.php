@@ -17,7 +17,7 @@ interface ProdutosServiceInterface extends AbstractServiceInterface
      *
      * @return Collection<int, Produto>
      */
-    public function ativosDoUsuario(int $usuarioId): Collection;
+    public function ativosDaEmpresa(int $empresaId): Collection;
 
     /**
      * Grava a foto do produto do usuário autenticado, substituindo a anterior.

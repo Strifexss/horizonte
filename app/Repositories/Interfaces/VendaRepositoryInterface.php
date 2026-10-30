@@ -21,7 +21,7 @@ interface VendaRepositoryInterface extends AbstractRepositoryInterface
     /**
      * Venda do usuário autenticado com itens e pagamentos.
      */
-    public function findDoUsuario(int $id): Venda;
+    public function findDaEmpresa(int $id): Venda;
 
     /**
      * @param  list<array{produto_id: int, quantidade: float, valor_unitario: float, valor_total: float}>  $itens
@@ -43,12 +43,12 @@ interface VendaRepositoryInterface extends AbstractRepositoryInterface
      *
      * @return Collection<int, object{produto_id: int, produto: string, quantidade: float|string, receita: float|string}>
      */
-    public function vendasPorProdutoNoPeriodo(int $usuarioId, string $dataInicio, string $dataFim): Collection;
+    public function vendasPorProdutoNoPeriodo(int $empresaId, string $dataInicio, string $dataFim): Collection;
 
     /**
      * Quantidade de vendas fechadas, total vendido e quantidade de itens no período.
      *
      * @return array{vendas: int, total: float, itens: int}
      */
-    public function resumoNoPeriodo(int $usuarioId, string $dataInicio, string $dataFim): array;
+    public function resumoNoPeriodo(int $empresaId, string $dataInicio, string $dataFim): array;
 }

@@ -8,6 +8,7 @@ use App\DTO\VendaSearchDTO;
 use App\Exceptions\VendaInvalidaException;
 use App\Models\Categoria;
 use App\Models\Conta;
+use App\Models\Empresa;
 use App\Models\FormaPagamento;
 use App\Models\Venda;
 use App\Repositories\Interfaces\CategoriaRepositoryInterface;
@@ -62,7 +63,7 @@ class VendasService extends ServiceAbstract implements VendasServiceInterface
      */
     public function update($id, $data): Venda
     {
-        $venda = $this->vendaRepository->findDoUsuario((int) $id);
+        $venda = $this->vendaRepository->findDaEmpresa((int) $id);
 
         if (! $venda->estaAberta()) {
             throw new VendaInvalidaException('venda', 'Só é possível alterar uma venda aberta.');
@@ -73,7 +74,7 @@ class VendasService extends ServiceAbstract implements VendasServiceInterface
 
     public function cancelar(int $id): Venda
     {
-        $venda = $this->vendaRepository->findDoUsuario($id);
+        $venda = $this->vendaRepository->findDaEmpresa($id);
 
         if ($venda->status === Venda::STATUS_CANCELADA) {
             throw new VendaInvalidaException('venda', 'Esta venda já está cancelada.');
@@ -83,7 +84,7 @@ class VendasService extends ServiceAbstract implements VendasServiceInterface
             $this->vendaRepository->excluirFinanceirosDaVenda($venda->id);
             $this->vendaRepository->update($venda->id, ['status' => Venda::STATUS_CANCELADA]);
 
-            return $this->vendaRepository->findDoUsuario($venda->id);
+            return $this->vendaRepository->findDaEmpresa($venda->id);
         });
     }
 
@@ -100,7 +101,7 @@ class VendasService extends ServiceAbstract implements VendasServiceInterface
         }
 
         $fecha = $pagoCentavos === $totalCentavos;
-        $conta = $fecha ? $this->contaRepository->padraoDoUsuario($dto->usuario_id) : null;
+        $conta = $fecha ? $this->contaRepository->padraoDaEmpresa((int) Empresa::idDoUsuario($dto->usuario_id)) : null;
 
         if ($fecha && $conta === null) {
             throw new VendaInvalidaException(VendaInvalidaException::CAMPO_CONTA, 'Cadastre uma conta para fechar a venda.');
@@ -131,7 +132,7 @@ class VendasService extends ServiceAbstract implements VendasServiceInterface
                 $this->gerarReceitas($venda, $pagamentos, $conta);
             }
 
-            return $this->vendaRepository->findDoUsuario($venda->id);
+            return $this->vendaRepository->findDaEmpresa($venda->id);
         });
     }
 
@@ -160,7 +161,7 @@ class VendasService extends ServiceAbstract implements VendasServiceInterface
             $porProduto[$produtoId] = $item;
         }
 
-        $produtos = $this->produtoRepository->findManyDoUsuario(array_keys($porProduto));
+        $produtos = $this->produtoRepository->findManyDaEmpresa(array_keys($porProduto));
         $produtosJaNaVenda = $venda?->itens->pluck('produto_id')->all() ?? [];
 
         $itens = [];

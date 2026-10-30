@@ -9,5 +9,5 @@ interface IndicadoresInsightsServiceInterface extends AbstractServiceInterface
      *
      * @return array<string, mixed>
      */
-    public function montar(int $usuarioId, int $ano, int $mes): array;
+    public function montar(int $empresaId, int $ano, int $mes): array;
 }

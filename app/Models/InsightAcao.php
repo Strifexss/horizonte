@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\PertenceAEmpresa;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class InsightAcao extends Model
 {
+    use PertenceAEmpresa;
+
     public const ACAO_FEITO = 'feito';
 
     public const ACAO_DISPENSADO = 'dispensado';

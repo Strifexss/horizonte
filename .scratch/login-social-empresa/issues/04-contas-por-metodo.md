@@ -1,6 +1,6 @@
 # 04 — Contas por método de login
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 01
 
 ## O quê

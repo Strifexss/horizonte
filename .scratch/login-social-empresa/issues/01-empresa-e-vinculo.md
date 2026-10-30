@@ -1,6 +1,6 @@
 # 01 — Empresa e vínculo
 
-Status: ready-for-agent
+Status: resolved
 
 ## O quê
 - Migrations `empresas` e `empresa_user` (spec, "Empresa").

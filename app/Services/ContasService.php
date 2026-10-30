@@ -3,9 +3,9 @@
 namespace App\Services;
 
 use App\DTO\ContaDTO;
+use App\Models\Empresa;
 use App\Repositories\Interfaces\ContaRepositoryInterface;
 use App\Services\Interfaces\ContasServiceInterface;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ContasService extends ServiceAbstract implements ContasServiceInterface
@@ -23,8 +23,7 @@ class ContasService extends ServiceAbstract implements ContasServiceInterface
     {
         return DB::transaction(function () use ($data) {
             if ($data instanceof ContaDTO && (int) $data->padrao === 1) {
-                $usuarioId = (int) ($data->usuario_id ?? Auth::id());
-                $this->contaRepository->clearPadraoForUsuario($usuarioId);
+                $this->contaRepository->clearPadraoDaEmpresa($this->empresaDoAutor($data));
             }
 
             return parent::store($data);
@@ -38,8 +37,7 @@ class ContasService extends ServiceAbstract implements ContasServiceInterface
     {
         return DB::transaction(function () use ($id, $data) {
             if ($data instanceof ContaDTO && (int) $data->padrao === 1) {
-                $usuarioId = (int) ($data->usuario_id ?? Auth::id());
-                $this->contaRepository->clearPadraoForUsuario($usuarioId, (int) $id);
+                $this->contaRepository->clearPadraoDaEmpresa($this->empresaDoAutor($data), (int) $id);
             }
 
             return parent::update($id, $data);
@@ -49,5 +47,10 @@ class ContasService extends ServiceAbstract implements ContasServiceInterface
     public function index($data = null)
     {
         return parent::index($data);
+    }
+
+    private function empresaDoAutor(ContaDTO $data): int
+    {
+        return (int) ($data->usuario_id !== null ? Empresa::idDoUsuario($data->usuario_id) : Empresa::atualId());
     }
 }

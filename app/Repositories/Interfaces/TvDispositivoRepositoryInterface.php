@@ -17,12 +17,12 @@ interface TvDispositivoRepositoryInterface extends AbstractRepositoryInterface
      *
      * @return Collection<int, TvDispositivo>
      */
-    public function ativosDoUsuario(int $usuarioId): Collection;
+    public function ativosDaEmpresa(int $empresaId): Collection;
 
     /**
      * Garante que o dispositivo ativo pertence ao usuário informado.
      */
-    public function findAtivoForUsuario(int $id, int $usuarioId): TvDispositivo;
+    public function findAtivoDaEmpresa(int $id, int $empresaId): TvDispositivo;
 
     public function registrarAcesso(int $id): void;
 

@@ -2,6 +2,14 @@ import { LucideIcon } from 'lucide-react';
 
 export interface Auth {
     user: User;
+    conta_google: boolean;
+}
+
+export interface EmpresaAtiva {
+    id: number;
+    nome: string;
+    modulo: 'varejo' | 'restaurante';
+    nome_confirmado: boolean;
 }
 
 export interface BreadcrumbItem {
@@ -25,6 +33,7 @@ export interface SharedData {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
+    empresa: EmpresaAtiva | null;
     [key: string]: unknown;
 }
 

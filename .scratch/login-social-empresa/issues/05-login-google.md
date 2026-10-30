@@ -1,6 +1,6 @@
 # 05 — Login com Google
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 04
 
 ## O quê

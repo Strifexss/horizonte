@@ -1,4 +1,5 @@
-import { useForm } from '@inertiajs/react';
+import { type SharedData } from '@/types';
+import { useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler, useRef } from 'react';
 
 // Components...
@@ -12,6 +13,7 @@ import HeadingSmall from '@/components/heading-small';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 export default function DeleteUser() {
+    const contaGoogle = usePage<SharedData>().props.auth.conta_google;
     const passwordInput = useRef<HTMLInputElement>(null);
     const { data, setData, delete: destroy, processing, reset, errors, clearErrors } = useForm({ password: '' });
 
@@ -47,11 +49,11 @@ export default function DeleteUser() {
                     <DialogContent>
                         <DialogTitle>Are you sure you want to delete your account?</DialogTitle>
                         <DialogDescription>
-                            Once your account is deleted, all of its resources and data will also be permanently deleted. Please enter your password
-                            to confirm you would like to permanently delete your account.
+                            Once your account is deleted, all of its resources and data will also be permanently deleted.
+                            {!contaGoogle && ' Please enter your password to confirm you would like to permanently delete your account.'}
                         </DialogDescription>
                         <form className="space-y-6" onSubmit={deleteUser}>
-                            <div className="grid gap-2">
+                            <div className={contaGoogle ? 'hidden' : 'grid gap-2'}>
                                 <Label htmlFor="password" className="sr-only">
                                     Password
                                 </Label>

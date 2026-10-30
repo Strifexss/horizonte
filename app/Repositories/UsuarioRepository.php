@@ -28,7 +28,7 @@ class UsuarioRepository extends AbstractRepository implements UsuarioRepositoryI
             });
         }
 
-        return $query->orderBy('name')->get();
+        return $query->with('empresas')->orderBy('name')->get();
     }
 
     public function autocomplete($q = null)

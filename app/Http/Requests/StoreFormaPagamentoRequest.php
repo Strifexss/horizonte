@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Empresa;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -28,7 +29,7 @@ class StoreFormaPagamentoRequest extends FormRequest
      */
     public function rules(): array
     {
-        $usuarioId = $this->user()?->id;
+        $empresaId = Empresa::atualId();
 
         return [
             'nome' => [
@@ -37,8 +38,8 @@ class StoreFormaPagamentoRequest extends FormRequest
                 'max:100',
                 Rule::unique('forma_pagamento', 'nome')
                     ->ignore($this->route('id'))
-                    ->where(fn (Builder $query) => $query->where(function (Builder $visiveis) use ($usuarioId) {
-                        $visiveis->whereNull('usuario_id')->orWhere('usuario_id', $usuarioId);
+                    ->where(fn (Builder $query) => $query->where(function (Builder $visiveis) use ($empresaId) {
+                        $visiveis->whereNull('empresa_id')->orWhere('empresa_id', $empresaId);
                     })),
             ],
             'ativo' => ['boolean'],

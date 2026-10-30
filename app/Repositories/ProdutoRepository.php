@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\DTO\ProdutoSearchDTO;
+use App\Models\Empresa;
 use App\Models\FinanceiroParcela;
 use App\Models\Produto;
 use App\Models\VendaItem;
@@ -29,7 +30,7 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
         }
 
         if (Auth::check()) {
-            $query->where('usuario_id', Auth::id());
+            $query->where('empresa_id', Empresa::atualId());
         }
 
         return $query
@@ -47,7 +48,7 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
         $query = $this->model->newQuery();
 
         if (Auth::check()) {
-            $query->where('usuario_id', Auth::id());
+            $query->where('empresa_id', Empresa::atualId());
         }
 
         return $query->with('fornecedor', 'grupo')->orderBy('nome')->get();
@@ -58,7 +59,7 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
         $query = $this->model->newQuery();
 
         if (Auth::check()) {
-            $query->where('usuario_id', Auth::id());
+            $query->where('empresa_id', Empresa::atualId());
         }
 
         if ($filters->busca) {
@@ -101,10 +102,10 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
             ->count();
     }
 
-    public function findManyDoUsuario(array $ids): Collection
+    public function findManyDaEmpresa(array $ids): Collection
     {
         return $this->model->newQuery()
-            ->where('usuario_id', Auth::id())
+            ->where('empresa_id', Empresa::atualId())
             ->whereIn('id', $ids)
             ->get()
             ->keyBy('id');
@@ -113,7 +114,7 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
     public function autocompleteParaVenda(?string $q = null): Collection
     {
         $query = $this->model->newQuery()
-            ->where('usuario_id', Auth::id())
+            ->where('empresa_id', Empresa::atualId())
             ->where('ativo', true);
 
         if ($q !== null && $q !== '') {
@@ -126,20 +127,20 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
             ->get(['id', 'nome', 'preco_venda']);
     }
 
-    public function ativosDoUsuario(int $usuarioId): Collection
+    public function ativosDaEmpresa(int $empresaId): Collection
     {
         return $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->where('ativo', true)
             ->with('grupo')
             ->orderBy('nome')
             ->get();
     }
 
-    public function ativosComPrecoDeVendaSuspeito(int $usuarioId): Collection
+    public function ativosComPrecoDeVendaSuspeito(int $empresaId): Collection
     {
         return $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->where('ativo', true)
             ->where(fn ($query) => $query
                 ->where('preco_venda', '<=', 0)
@@ -156,9 +157,9 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
         return $produto;
     }
 
-    public function salvarArquivoFoto(UploadedFile $foto, int $usuarioId): string
+    public function salvarArquivoFoto(UploadedFile $foto, int $empresaId): string
     {
-        return $foto->store('produtos/'.$usuarioId, Produto::discoFotos());
+        return $foto->store('produtos/'.$empresaId, Produto::discoFotos());
     }
 
     public function apagarArquivoFoto(string $fotoPath): void
@@ -169,19 +170,19 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
     /**
      * Garante que o produto pertence ao usuário autenticado.
      */
-    public function findForUsuario(int $id): Produto
+    public function findDaEmpresa(int $id): Produto
     {
         return $this->model->newQuery()
-            ->where('usuario_id', Auth::id())
+            ->where('empresa_id', Empresa::atualId())
             ->findOrFail($id);
     }
 
     /**
      * Conta quantos produtos pertencem ao usuário informado.
      */
-    public function countByUsuario(int $usuarioId): int
+    public function countByEmpresa(int $empresaId): int
     {
-        return $this->model->newQuery()->where('usuario_id', $usuarioId)->count();
+        return $this->model->newQuery()->where('empresa_id', $empresaId)->count();
     }
 
     /**
@@ -189,10 +190,10 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
      *
      * @return Collection<int, Produto>
      */
-    public function getByUsuario(int $usuarioId): mixed
+    public function getByEmpresa(int $empresaId): mixed
     {
         return $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->with('fornecedor', 'grupo')
             ->orderBy('id')
             ->get();

@@ -1,6 +1,6 @@
 # 02 — Migração de esquema: `empresa_id` nas tabelas
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 01
 
 ## Tabelas (todas com `usuario_id` hoje)

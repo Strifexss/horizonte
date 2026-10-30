@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\PertenceAEmpresa;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TvDispositivo extends Model
 {
+    use PertenceAEmpresa;
+
     /**
      * @var string
      */

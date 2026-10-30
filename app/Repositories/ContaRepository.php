@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Conta;
+use App\Models\Empresa;
 use App\Repositories\Interfaces\ContaRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
 
@@ -23,7 +24,7 @@ class ContaRepository extends AbstractRepository implements ContaRepositoryInter
         }
 
         if (Auth::check()) {
-            $query->where('usuario_id', Auth::id());
+            $query->where('empresa_id', Empresa::atualId());
         }
 
         return $query
@@ -33,10 +34,10 @@ class ContaRepository extends AbstractRepository implements ContaRepositoryInter
             ->get(['id', 'nome', 'padrao']);
     }
 
-    public function clearPadraoForUsuario(int $usuarioId, ?int $exceptId = null): int
+    public function clearPadraoDaEmpresa(int $empresaId, ?int $exceptId = null): int
     {
         $query = $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->where('padrao', 1);
 
         if ($exceptId !== null) {
@@ -46,10 +47,10 @@ class ContaRepository extends AbstractRepository implements ContaRepositoryInter
         return $query->update(['padrao' => 0]);
     }
 
-    public function padraoDoUsuario(int $usuarioId): ?Conta
+    public function padraoDaEmpresa(int $empresaId): ?Conta
     {
         return $this->model->newQuery()
-            ->where('usuario_id', $usuarioId)
+            ->where('empresa_id', $empresaId)
             ->orderByDesc('padrao')
             ->orderBy('id')
             ->first();

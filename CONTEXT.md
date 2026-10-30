@@ -1,6 +1,6 @@
 # Horizonte
 
-Gestão financeira corporativa: contas, parcelas, categorias, produtos, fornecedores, grupos e funcionários, sempre pertencentes a um usuário — em transição para pertencerem a uma Empresa (ver `docs/adr/0001-dados-pertencem-a-empresa.md`).
+Gestão financeira corporativa: contas, parcelas, categorias, produtos, fornecedores, grupos e funcionários, sempre pertencentes a uma Empresa (ver `docs/adr/0001-dados-pertencem-a-empresa.md`).
 
 ## Language
 
@@ -11,7 +11,7 @@ Pessoa com login no sistema, dona dos próprios dados financeiros.
 _Avoid_: Cliente, conta (conta é outra coisa no domínio)
 
 **Administrador**:
-Usuário cujo e-mail está na lista de e-mails autorizados do ambiente; não é um papel gravado no banco.
+Conta com senha cujo e-mail está na lista de e-mails autorizados do ambiente; não é um papel gravado no banco. A conta Google de mesmo e-mail não é Administrador.
 _Avoid_: Admin role, superusuário
 
 **Painel Administrativo**:
@@ -25,7 +25,7 @@ _Avoid_: Impersonar, logar como
 ### Empresa e assinatura
 
 **Empresa**:
-Negócio dono dos dados próprios (contas, lançamentos, produtos...). Toda conta de Usuário trabalha dentro de uma Empresa.
+Negócio dono dos dados próprios (contas, lançamentos, produtos...). Toda conta de Usuário trabalha dentro de uma Empresa. Dispensar novidade continua sendo escolha de cada Usuário.
 _Avoid_: Tenant, organização, loja
 
 **Cargo**:
@@ -69,23 +69,23 @@ Meio pelo qual um lançamento é pago ou recebido (Espécie, Pix, cartão...). T
 _Avoid_: Meio de pagamento, método
 
 **Forma de pagamento padrão**:
-Forma de pagamento do sistema, igual para todos os Usuários e somente leitura para eles.
+Forma de pagamento do sistema, igual para todas as Empresas e somente leitura para elas.
 _Avoid_: Forma de pagamento global
 
 **Forma de pagamento própria**:
-Forma de pagamento cadastrada por um Usuário, visível só para ele.
+Forma de pagamento cadastrada por uma Empresa, visível só para ela.
 _Avoid_: Forma customizada
 
 **Baixa automática**:
 Propriedade da Forma de pagamento que faz a receita de uma Venda nascer paga; sem ela, a receita nasce em aberto.
 _Avoid_: Pagamento automático
 
-> "Padrão" muda de sentido: em Categoria e Forma de pagamento é "do sistema, para todos"; em Conta é "a conta preferida do Usuário".
+> "Padrão" muda de sentido: em Categoria e Forma de pagamento é "do sistema, para todos"; em Conta é "a conta preferida da Empresa".
 
 ### Vendas
 
 **Venda**:
-Conjunto de itens vendidos pelo Usuário com os pagamentos recebidos por eles. Nasce **aberta**, fica **fechada** quando a soma dos pagamentos iguala o total e pode ser **cancelada** a qualquer momento.
+Conjunto de itens vendidos pela Empresa com os pagamentos recebidos por eles. Nasce **aberta**, fica **fechada** quando a soma dos pagamentos iguala o total e pode ser **cancelada** a qualquer momento.
 _Avoid_: Pedido, caixa
 
 **Item da venda**:
@@ -121,7 +121,7 @@ _Avoid_: Republicar, duplicar novidade
 ### Menu Board
 
 **Menu Board**:
-Cardápio que o Usuário monta para mostrar na TV do balcão: um tema, os produtos exibidos e, entre eles, os Destaques. O Usuário pode ter vários, mas só um fica **ativo na TV** por vez.
+Cardápio que a Empresa monta para mostrar na TV do balcão: um tema, os produtos exibidos e, entre eles, os Destaques. A Empresa pode ter vários, mas só um fica **ativo na TV** por vez.
 _Avoid_: Cardápio digital, vitrine, board da TV
 
 **Destaque**:
@@ -129,11 +129,11 @@ Produto exibido no Menu Board que aparece em card grande, separado dos demais.
 _Avoid_: Promoção, favorito
 
 **TV**:
-Tela pareada a um Usuário que mostra o Menu Board ativo dele. Continua conectada até o Usuário desconectá-la.
+Tela pareada a uma Empresa que mostra o Menu Board ativo dela. Continua conectada até alguém da Empresa desconectá-la.
 _Avoid_: Dispositivo, monitor, player
 
 **PIN de pareamento**:
-Código de 4 dígitos gerado no ERP que a TV digita para se conectar ao Usuário. Vale 10 minutos e só pode ser usado uma vez; gerar outro invalida o anterior.
+Código de 4 dígitos gerado no ERP que a TV digita para se conectar à Empresa. Vale 10 minutos e só pode ser usado uma vez; gerar outro invalida o anterior.
 _Avoid_: Senha da TV, código de acesso
 
 **Sync**:
