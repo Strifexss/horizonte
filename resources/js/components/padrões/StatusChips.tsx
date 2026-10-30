@@ -29,7 +29,7 @@ export default function StatusChips<T extends string>({ chips, value, onChange, 
                             className={cn(
                                 'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors',
                                 active
-                                    ? 'border-amber-500 bg-amber-500 text-white'
+                                    ? 'border-blue-600 bg-blue-600 text-white'
                                     : 'border-input text-foreground bg-white hover:bg-slate-50 dark:bg-slate-900',
                             )}
                         >
@@ -37,7 +37,7 @@ export default function StatusChips<T extends string>({ chips, value, onChange, 
                             <span
                                 className={cn(
                                     'inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-xs font-medium',
-                                    active ? 'bg-amber-400 text-white' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
+                                    active ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
                                 )}
                             >
                                 {counts[chip.id]}

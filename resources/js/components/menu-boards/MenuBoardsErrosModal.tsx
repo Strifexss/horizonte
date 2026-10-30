@@ -136,7 +136,7 @@ export default function MenuBoardsErrosModal({
                             {paginasComErro.map(({ indice, pagina, erros: errosPagina }) => (
                                 <div key={pagina.chave} className="flex flex-col gap-4 rounded-lg border border-slate-100 p-3 dark:border-slate-800">
                                     <div className="flex flex-col gap-1">
-                                        <p className="text-xs font-semibold tracking-wide text-amber-700 dark:text-amber-400">
+                                        <p className="text-xs font-semibold tracking-wide text-blue-700 dark:text-blue-500">
                                             PÁGINA {indice + 1} · {infoDoLayout(pagina.layout).nome}
                                         </p>
                                         <div className="grid gap-2">

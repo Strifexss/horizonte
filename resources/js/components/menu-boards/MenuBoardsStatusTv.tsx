@@ -14,7 +14,7 @@ export default function MenuBoardsStatusTv({ ativo, tvsConectadas }: Props) {
         <section className="border-sidebar-border/70 flex flex-col gap-3 rounded-xl border bg-white p-4 shadow-sm md:p-5 dark:bg-slate-900">
             <div className="flex items-center gap-3">
                 <span
-                    className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${ativo ? 'bg-[#082845] text-amber-500' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'}`}
+                    className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${ativo ? 'bg-[#082845] text-blue-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'}`}
                 >
                     <Tv className="size-[18px]" />
                 </span>
@@ -33,7 +33,7 @@ export default function MenuBoardsStatusTv({ ativo, tvsConectadas }: Props) {
                     da TV. As páginas continuam alternando normalmente.
                 </p>
             ) : null}
-            <Link href={route('menu-boards')} className="text-[13px] font-semibold text-amber-700 hover:text-amber-800 dark:text-amber-400">
+            <Link href={route('menu-boards')} className="text-[13px] font-semibold text-blue-700 hover:text-blue-800 dark:text-blue-400">
                 Gerenciar TVs e pareamento
             </Link>
         </section>

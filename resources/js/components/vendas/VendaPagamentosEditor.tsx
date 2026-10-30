@@ -92,7 +92,7 @@ export default function VendaPagamentosEditor({ pagamentos, onChange, total, for
                 <span className="text-xs font-bold tracking-wide text-slate-700 uppercase dark:text-slate-200">Forma de pagamento</span>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <button type="button" className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 hover:text-amber-700">
+                        <button type="button" className="inline-flex items-center gap-1 text-xs font-semibold text-blue-700 hover:text-blue-800">
                             <Settings className="h-3.5 w-3.5" />
                             Mais
                         </button>
@@ -129,8 +129,8 @@ export default function VendaPagamentosEditor({ pagamentos, onChange, total, for
                             aria-pressed={selecionada}
                             className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-lg border-2 px-2 py-3 text-sm transition-colors ${
                                 selecionada
-                                    ? 'border-amber-500 bg-amber-500 text-white shadow-md'
-                                    : 'border-slate-200 bg-white text-slate-700 hover:border-amber-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
+                                    ? 'border-blue-600 bg-blue-600 text-white shadow-md'
+                                    : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
                             }`}
                             onClick={() => escolherForma(forma)}
                         >
@@ -183,7 +183,7 @@ export default function VendaPagamentosEditor({ pagamentos, onChange, total, for
             <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
                 <button
                     type="button"
-                    className="font-semibold text-amber-600 hover:text-amber-700 disabled:opacity-40"
+                    className="font-semibold text-blue-700 hover:text-blue-800 disabled:opacity-40"
                     disabled={pagamentos.length === 0}
                     onClick={dividirPagamento}
                 >

@@ -81,7 +81,7 @@ export default function MenuBoardsIndex() {
                             key: 'novo-menu-board',
                             label: '+ Novo Menu Board',
                             icon: <Tv className="h-4 w-4" />,
-                            className: 'bg-amber-500 text-white hover:bg-amber-600',
+                            className: 'bg-blue-600 text-white hover:bg-blue-700',
                             onClick: () => router.visit(route('menu-boards.create')),
                         },
                     ]}

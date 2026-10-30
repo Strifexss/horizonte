@@ -214,7 +214,7 @@ export default function NovidadesForm({ open, onOpenChange, novidade, storeUrl }
                                             <img
                                                 src={url}
                                                 alt="Nova imagem"
-                                                className="aspect-square w-full rounded-md border border-amber-400 object-cover"
+                                                className="aspect-square w-full rounded-md border border-blue-500 object-cover"
                                             />
                                             <button
                                                 type="button"
@@ -225,7 +225,7 @@ export default function NovidadesForm({ open, onOpenChange, novidade, storeUrl }
                                             >
                                                 <X className="h-3.5 w-3.5" />
                                             </button>
-                                            <span className="absolute inset-x-0 bottom-1 text-center text-[10px] font-medium text-amber-700">
+                                            <span className="absolute inset-x-0 bottom-1 text-center text-[10px] font-medium text-blue-700">
                                                 Nova
                                             </span>
                                         </div>

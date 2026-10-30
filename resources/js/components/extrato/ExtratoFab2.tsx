@@ -30,7 +30,7 @@ export default function ExtratoFab2({ onNovoLancamento, onCadastrarFuncionario, 
                     key: 'produto',
                     label: '+ Cadastrar Produto',
                     icon: <Package className="h-4 w-4" />,
-                    className: 'bg-amber-500 text-white hover:bg-amber-600',
+                    className: 'bg-blue-600 text-white hover:bg-blue-700',
                     onClick: onCadastrarProduto,
                 },
                 {

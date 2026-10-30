@@ -93,7 +93,7 @@ export default function InsightsPainel({
             className="animate-in fade-in-0 slide-in-from-bottom-2 fixed inset-0 z-40 flex flex-col overflow-hidden bg-slate-50 shadow-xl duration-200 md:inset-y-2 md:right-2 md:left-[calc(var(--sidebar-width-icon)+1rem+2px)] md:rounded-xl dark:bg-slate-950"
         >
             <header className="flex shrink-0 items-center gap-3 border-b bg-white px-4 py-3 md:px-6 md:py-4 dark:bg-slate-900">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#082845] text-amber-500 md:size-10">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#082845] text-blue-400 md:size-10">
                     <Sparkles className="size-5" />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -179,7 +179,7 @@ export default function InsightsPainel({
                                                 <span
                                                     className={`inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs ${
                                                         filtro === item.id
-                                                            ? 'bg-amber-500 text-[#082845]'
+                                                            ? 'bg-blue-600 text-white'
                                                             : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
                                                     }`}
                                                 >

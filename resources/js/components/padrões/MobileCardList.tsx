@@ -124,9 +124,9 @@ function MobileCard({ expanded, onToggle, onPress, actions, children }: CardProp
             >
                 {children}
                 {holding ? (
-                    <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-amber-100 dark:bg-amber-950/60">
+                    <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-blue-100 dark:bg-blue-950/60">
                         <span
-                            className={`block h-full bg-amber-500 ${holdProgress ? 'w-full' : 'w-0'} transition-[width] duration-1000 ease-linear`}
+                            className={`block h-full bg-blue-600 ${holdProgress ? 'w-full' : 'w-0'} transition-[width] duration-1000 ease-linear`}
                         />
                     </span>
                 ) : null}

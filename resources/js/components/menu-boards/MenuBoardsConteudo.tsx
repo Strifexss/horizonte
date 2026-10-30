@@ -137,7 +137,7 @@ function Destaques({ pagina, produtos, grupos, erros, onConfig, onItens, onFoto,
             <Bloco
                 titulo={
                     <span className="flex items-center gap-2">
-                        <Star aria-hidden="true" className="size-4 fill-amber-600 text-amber-600" />
+                        <Star aria-hidden="true" className="size-4 fill-blue-700 text-blue-700" />
                         Destaques
                     </span>
                 }
@@ -375,7 +375,7 @@ function ProdutoDestaque({ pagina, produtos, erros, onConfig, onItens, onFoto, .
                             onClick={() => onConfig({ foto_posicao: lado })}
                             className={`h-11 rounded-lg px-4 text-sm md:h-10 ${
                                 posicao === lado
-                                    ? 'border-2 border-amber-500 bg-amber-50 font-semibold dark:bg-amber-950/30'
+                                    ? 'border-2 border-blue-600 bg-blue-50 font-semibold dark:bg-blue-950/30'
                                     : 'border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900'
                             }`}
                         >
@@ -394,7 +394,7 @@ function FotoProduto({ produto, grande = false }: { produto: ProdutoDoBoard; gra
     return produto.foto_url ? (
         <img src={produto.foto_url} alt="" className={`${tamanho} shrink-0 rounded-lg object-cover`} />
     ) : (
-        <span aria-hidden="true" className={`${tamanho} flex shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700`}>
+        <span aria-hidden="true" className={`${tamanho} flex shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-700`}>
             <ImageIcon className="size-4" />
         </span>
     );
@@ -419,16 +419,16 @@ function SeletorImagem({ indice, pagina, imagemPrevia, erros, onImagem, dica }: 
             {imagem ? (
                 <div className="flex flex-wrap items-center gap-4">
                     <img src={imagem} alt={`Imagem da página ${indice + 1}`} className="aspect-video w-56 rounded-lg bg-slate-100 object-cover" />
-                    <label className="hover:bg-accent inline-flex h-11 cursor-pointer items-center gap-2 rounded-md border px-4 text-sm font-medium focus-within:ring-2 focus-within:ring-amber-500 md:h-10">
+                    <label className="hover:bg-accent inline-flex h-11 cursor-pointer items-center gap-2 rounded-md border px-4 text-sm font-medium focus-within:ring-2 focus-within:ring-blue-600 md:h-10">
                         {seletor}
                         <Upload className="size-4" />
                         Trocar imagem
                     </label>
                 </div>
             ) : (
-                <label className="text-muted-foreground flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-[1.5px] border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center focus-within:ring-2 focus-within:ring-amber-500 hover:border-amber-500 hover:bg-amber-50 dark:border-slate-600 dark:bg-slate-800">
+                <label className="text-muted-foreground flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-[1.5px] border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center focus-within:ring-2 focus-within:ring-blue-600 hover:border-blue-600 hover:bg-blue-50 dark:border-slate-600 dark:bg-slate-800">
                     {seletor}
-                    <span className="flex size-12 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                    <span className="flex size-12 items-center justify-center rounded-full bg-blue-100 text-blue-700">
                         <Upload className="size-5" />
                     </span>
                     <span className="text-foreground font-semibold">Escolher imagem</span>

@@ -31,7 +31,7 @@ export default function InsightsCarregando({ periodo }: Props) {
                                 <Check className="size-3 stroke-[3]" />
                             </span>
                         ) : indice === etapa ? (
-                            <span className="m-0.5 size-4 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+                            <span className="m-0.5 size-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
                         ) : (
                             <span className="flex size-5 items-center justify-center">
                                 <span className="size-2 rounded-full bg-slate-300" />

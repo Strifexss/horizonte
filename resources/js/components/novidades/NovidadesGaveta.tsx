@@ -43,7 +43,7 @@ export default function NovidadesGaveta() {
             <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative h-9 w-9">
                     <Megaphone className="h-5 w-5" />
-                    {temPendentes ? <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-amber-500" /> : null}
+                    {temPendentes ? <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-blue-600" /> : null}
                     <span className="sr-only">Novidades</span>
                 </Button>
             </SheetTrigger>

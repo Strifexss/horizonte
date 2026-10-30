@@ -55,7 +55,7 @@ export default function MenuBoardsPaginas({ paginas, selecionada, alteradas, com
                                 onClick={() => onSelecionar(indice)}
                                 className={`flex w-36 shrink-0 flex-col gap-1.5 rounded-lg text-left md:w-52 md:gap-2 ${
                                     ativa
-                                        ? 'border-2 border-amber-500 bg-amber-50 p-1.5 md:p-2 dark:bg-amber-950/30'
+                                        ? 'border-2 border-blue-600 bg-blue-50 p-1.5 md:p-2 dark:bg-blue-950/30'
                                         : 'border border-slate-200 bg-white p-[7px] md:p-[9px] dark:border-slate-700 dark:bg-slate-900'
                                 }`}
                             >
@@ -71,7 +71,7 @@ export default function MenuBoardsPaginas({ paginas, selecionada, alteradas, com
                                         </>
                                     ) : alteradas.has(pagina.chave) ? (
                                         <>
-                                            <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-amber-600" />
+                                            <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-blue-700" />
                                             <span className="sr-only">, alterações não salvas</span>
                                         </>
                                     ) : null}
@@ -100,7 +100,7 @@ export default function MenuBoardsPaginas({ paginas, selecionada, alteradas, com
                     <button
                         type="button"
                         onClick={onNovaPagina}
-                        className="mt-1 inline-flex h-11 items-center gap-2 rounded-lg bg-amber-500 px-4 text-sm font-semibold text-white hover:bg-amber-600 md:h-10"
+                        className="mt-1 inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white hover:bg-blue-700 md:h-10"
                     >
                         <Plus className="size-4" />
                         Adicionar primeira página

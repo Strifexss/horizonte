@@ -23,7 +23,7 @@ export default function InsightsResumo({ analise }: Props) {
         <div className="flex flex-col gap-4">
             <div className="flex flex-wrap gap-4">
                 <div className="flex flex-[2_1_420px] flex-col gap-2 rounded-xl bg-[#082845] p-5 text-white">
-                    <span className="text-xs font-semibold tracking-[0.1em] text-amber-400">RESUMO DO MÊS</span>
+                    <span className="text-xs font-semibold tracking-[0.1em] text-blue-500">RESUMO DO MÊS</span>
                     <p className="text-[15px] leading-6">{analise.resumo}</p>
                 </div>
                 <div className="grid flex-[1_1_260px] gap-2">

@@ -55,7 +55,7 @@ export default function MenuBoardsPareamento({ pareamento }: Props) {
                 className="border-sidebar-border/70 flex flex-col gap-5 rounded-xl border bg-white p-4 shadow-sm md:p-6 dark:bg-slate-900"
             >
                 <div className="flex items-center gap-3">
-                    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#082845] text-amber-500">
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#082845] text-blue-400">
                         <Tv className="size-[18px]" />
                     </span>
                     <h2 id="pareamento-titulo" className="text-base font-semibold">

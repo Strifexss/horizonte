@@ -174,7 +174,7 @@ export default function MobileFilterDock({
                                 className="inline-flex min-w-0 items-center justify-center gap-1 px-1 py-1.5 text-xs font-medium"
                                 onClick={() => setPeriodOpen(true)}
                             >
-                                <CalendarDays className="h-3.5 w-3.5 shrink-0 text-amber-600" />
+                                <CalendarDays className="h-3.5 w-3.5 shrink-0 text-blue-700" />
                                 <span className="truncate">{formatPeriodPill(dataInicio, dataFim)}</span>
                             </button>
                             <button
@@ -197,7 +197,7 @@ export default function MobileFilterDock({
                             <SlidersHorizontal className="h-3.5 w-3.5" />
                             <span>Filtros</span>
                             {activeCount > 0 ? (
-                                <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-semibold text-white">
+                                <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-[10px] font-semibold text-white">
                                     {activeCount}
                                 </span>
                             ) : null}

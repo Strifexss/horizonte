@@ -10,7 +10,7 @@ type PareamentoFormValues = {
 const TECLAS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
 const TECLA =
-    'h-[4.4vw] min-h-12 rounded-[0.75vw] border-2 border-slate-800 bg-[#0e1a2e] text-[1.7vw] font-semibold text-slate-50 hover:border-amber-500 hover:bg-[#1b2d4a] focus-visible:border-amber-500 focus-visible:bg-[#1b2d4a] focus-visible:outline-none';
+    'h-[4.4vw] min-h-12 rounded-[0.75vw] border-2 border-slate-800 bg-[#0e1a2e] text-[1.7vw] font-semibold text-slate-50 hover:border-blue-600 hover:bg-[#1b2d4a] focus-visible:border-blue-600 focus-visible:bg-[#1b2d4a] focus-visible:outline-none';
 
 export default function TvPareamentoForm() {
     const [limiteAtingido, setLimiteAtingido] = useState(false);
@@ -57,7 +57,7 @@ export default function TvPareamentoForm() {
                         value={data.pin}
                         onChange={(event) => definirPin(event.target.value)}
                         placeholder="····"
-                        className={`h-[8.3vw] w-[27vw] rounded-[1vw] border-[3px] bg-[#0b1527] pl-[0.4em] text-center text-[5.4vw] font-semibold tracking-[0.4em] text-white tabular-nums focus:border-amber-500 focus:ring-[6px] focus:ring-amber-500/20 focus:outline-none ${
+                        className={`h-[8.3vw] w-[27vw] rounded-[1vw] border-[3px] bg-[#0b1527] pl-[0.4em] text-center text-[5.4vw] font-semibold tracking-[0.4em] text-white tabular-nums focus:border-blue-600 focus:ring-[6px] focus:ring-blue-600/20 focus:outline-none ${
                             errors.pin || limiteAtingido ? 'border-red-500' : 'border-slate-700'
                         }`}
                     />
@@ -70,7 +70,7 @@ export default function TvPareamentoForm() {
                     <button
                         type="submit"
                         disabled={data.pin.length < 4 || processing}
-                        className="h-[4.2vw] min-h-12 w-[27vw] rounded-[0.85vw] bg-amber-500 text-[1.45vw] font-bold text-[#082845] hover:bg-amber-600 focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
+                        className="h-[4.2vw] min-h-12 w-[27vw] rounded-[0.85vw] bg-blue-600 text-[1.45vw] font-bold text-white hover:bg-blue-700 focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-blue-300 disabled:cursor-not-allowed disabled:opacity-40"
                     >
                         {processing ? 'Conectando...' : 'Conectar TV'}
                     </button>

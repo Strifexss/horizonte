@@ -79,7 +79,7 @@ export default function DashboardRanking({ criterio, onCriterioChange, itens }: 
                                     aria-label={`Participação de ${item.nome}`}
                                 >
                                     <div
-                                        className="h-full rounded-full bg-gradient-to-r from-amber-100 to-[#f59e0b]"
+                                        className="h-full rounded-full bg-gradient-to-r from-blue-100 to-[#2563eb]"
                                         style={{ width: `${Math.min(100, Math.max(0, item.percentual))}%` }}
                                     />
                                 </div>

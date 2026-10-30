@@ -51,7 +51,7 @@ export default function MenuBoardsLayoutPicker({ aberto, titulo, textoConfirmar,
                                 onDoubleClick={() => onEscolher(layout.id)}
                                 className={`flex items-center gap-3 rounded-xl text-left md:flex-col md:items-stretch ${
                                     selecionado
-                                        ? 'border-2 border-amber-500 bg-amber-50 p-[9px] md:p-[11px] dark:bg-amber-950/30'
+                                        ? 'border-2 border-blue-600 bg-blue-50 p-[9px] md:p-[11px] dark:bg-blue-950/30'
                                         : 'border border-slate-200 bg-white p-2.5 md:p-3 dark:border-slate-700 dark:bg-slate-900'
                                 }`}
                             >
@@ -60,7 +60,7 @@ export default function MenuBoardsLayoutPicker({ aberto, titulo, textoConfirmar,
                                     <span className="flex items-center justify-between gap-2 text-[15px] font-semibold">
                                         {layout.nome}
                                         {selecionado ? (
-                                            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-amber-500 text-[#082845]">
+                                            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white">
                                                 <Check className="size-3 stroke-[3]" />
                                             </span>
                                         ) : null}

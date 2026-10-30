@@ -70,7 +70,7 @@ export default function ExtratoPageActions({
             </button>
             <button
                 type="button"
-                className="hidden items-center gap-3 rounded-lg bg-amber-500 px-4 py-2 text-base font-medium text-white hover:bg-amber-600 md:inline-flex"
+                className="hidden items-center gap-3 rounded-lg bg-blue-600 px-4 py-2 text-base font-medium text-white hover:bg-blue-700 md:inline-flex"
                 onClick={onNovoLancamento}
             >
                 <Plus className="h-5 w-5" />

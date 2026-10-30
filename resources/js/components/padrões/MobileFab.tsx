@@ -72,7 +72,7 @@ export default function MobileFab({ actions }: Props) {
                     type="button"
                     aria-expanded={open}
                     aria-label={open ? 'Fechar ações rápidas' : 'Abrir ações rápidas'}
-                    className={`inline-flex h-14 w-14 items-center justify-center rounded-full bg-amber-500 text-white shadow-xl transition-transform hover:bg-amber-600 ${open ? 'rotate-45' : ''}`}
+                    className={`inline-flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-xl transition-transform hover:bg-blue-700 ${open ? 'rotate-45' : ''}`}
                     onClick={() => setOpen((v) => !v)}
                 >
                     <Plus className="h-7 w-7" />

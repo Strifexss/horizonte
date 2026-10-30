@@ -33,7 +33,7 @@ export default function InsightsCard({ insight, ocupado, onVouFazer, onDispensar
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="shrink-0 text-amber-700"
+                        className="shrink-0 text-blue-700"
                         disabled={ocupado}
                         onClick={() => onDesfazer(insight)}
                     >
@@ -87,7 +87,7 @@ export default function InsightsCard({ insight, ocupado, onVouFazer, onDispensar
                     </div>
                 ) : null}
                 <div className="flex gap-2">
-                    <ArrowRight className="mt-0.5 size-4 shrink-0 text-amber-700" />
+                    <ArrowRight className="mt-0.5 size-4 shrink-0 text-blue-700" />
                     <span>
                         <strong className="font-semibold">O que fazer:</strong> {insight.acao}
                     </span>

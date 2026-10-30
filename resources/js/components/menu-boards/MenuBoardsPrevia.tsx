@@ -112,7 +112,7 @@ export default function MenuBoardsPrevia({ nomeBoard, tema, paginas, selecionada
                 <TvProgresso
                     duracoes={paginas.map((item) => Number(item.duracao_segundos) || 0)}
                     atual={selecionada}
-                    corAtiva="bg-amber-500"
+                    corAtiva="bg-blue-600"
                     corTrilho="bg-slate-200 dark:bg-slate-700"
                     className="[&>span]:h-1"
                 />
@@ -123,7 +123,7 @@ export default function MenuBoardsPrevia({ nomeBoard, tema, paginas, selecionada
             {aberta ? null : (
                 <button
                     type="button"
-                    className="fixed right-4 bottom-24 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-amber-500 text-white shadow-xl hover:bg-amber-600 md:hidden"
+                    className="fixed right-4 bottom-24 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-xl hover:bg-blue-700 md:hidden"
                     aria-label="Abrir prévia na TV"
                     onClick={() => setAberta(true)}
                 >
@@ -145,7 +145,7 @@ export default function MenuBoardsPrevia({ nomeBoard, tema, paginas, selecionada
                         <TvProgresso
                             duracoes={paginas.map((item) => Number(item.duracao_segundos) || 0)}
                             atual={selecionada}
-                            corAtiva="bg-amber-500"
+                            corAtiva="bg-blue-600"
                             corTrilho="bg-slate-200 dark:bg-slate-700"
                             className="w-full [&>span]:h-1"
                         />

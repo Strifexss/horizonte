@@ -15,7 +15,7 @@ function Calendar({ className, classNames, showOutsideDays = true, locale = ptBR
             <style>{`
                 .rdp-range_middle { background-color: #fde68a; }
                 .rdp-range_middle .rdp-day_button { background-color: #fde68a !important; border-radius: 0; }
-                .rdp-range_start .rdp-day_button, .rdp-range_end .rdp-day_button { background-color: #f59e0b !important; color: #fff !important; }
+                .rdp-range_start .rdp-day_button, .rdp-range_end .rdp-day_button { background-color: #2563eb !important; color: #fff !important; }
             `}</style>
             <DayPicker
                 showOutsideDays={showOutsideDays}

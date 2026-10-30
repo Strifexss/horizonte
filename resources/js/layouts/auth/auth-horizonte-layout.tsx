@@ -23,7 +23,7 @@ export default function AuthHorizonteLayout({ children, title, description }: Au
                     <div className="mt-16 hidden max-w-xs flex-col gap-3 md:flex">
                         <p className="text-sm text-white/80">Que bom ver você de novo</p>
                         <p className="text-4xl leading-tight font-semibold tracking-wide">BEM-VINDO</p>
-                        <span className="h-1 w-12 rounded-full bg-[#f59e0b]" />
+                        <span className="h-1 w-12 rounded-full bg-[#2563eb]" />
                         <p className="text-sm leading-relaxed text-white/75">Receitas, despesas e o saldo do mês num só lugar, pela competência.</p>
                     </div>
                 </div>

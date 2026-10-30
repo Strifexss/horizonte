@@ -40,7 +40,7 @@ export default function MenuBoardsPaginaEditor(props: Props) {
         >
             <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3.5 md:px-6 md:py-5 dark:border-slate-800">
                 <div className="min-w-0">
-                    <span className="text-xs font-semibold tracking-wide text-amber-700 dark:text-amber-400">
+                    <span className="text-xs font-semibold tracking-wide text-blue-700 dark:text-blue-500">
                         PÁGINA {indice + 1} DE {total}
                     </span>
                     <h2 id="pagina-titulo" className="truncate text-[17px] font-semibold md:text-lg">
@@ -101,7 +101,7 @@ export default function MenuBoardsPaginaEditor(props: Props) {
                                         onClick={() => onAlterar({ duracao_segundos: tempo })}
                                         className={`h-11 rounded-lg px-3.5 text-sm md:h-10 ${
                                             ativo
-                                                ? 'border-2 border-amber-500 bg-amber-50 font-semibold dark:bg-amber-950/30'
+                                                ? 'border-2 border-blue-600 bg-blue-50 font-semibold dark:bg-blue-950/30'
                                                 : 'border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900'
                                         }`}
                                     >
@@ -112,7 +112,7 @@ export default function MenuBoardsPaginaEditor(props: Props) {
                             <label
                                 className={`flex h-11 items-center gap-1.5 rounded-lg px-2.5 text-sm md:h-10 ${
                                     personalizado
-                                        ? 'border-2 border-amber-500 bg-amber-50 dark:bg-amber-950/30'
+                                        ? 'border-2 border-blue-600 bg-blue-50 dark:bg-blue-950/30'
                                         : 'text-muted-foreground border border-slate-200 dark:border-slate-700'
                                 }`}
                             >

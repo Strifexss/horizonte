@@ -23,7 +23,7 @@ export default function MenuBoardsTemaPicker({ value, onChange }: Props) {
                             title={tema.descricao}
                             onClick={() => onChange(tema.id)}
                             className={`flex min-h-15 min-w-0 flex-col gap-1.5 rounded-lg bg-white text-left dark:bg-slate-900 ${
-                                selecionado ? 'border-2 border-amber-500 p-1.5' : 'border border-slate-200 p-[7px] dark:border-slate-700'
+                                selecionado ? 'border-2 border-blue-600 p-1.5' : 'border border-slate-200 p-[7px] dark:border-slate-700'
                             }`}
                         >
                             <span aria-hidden="true" className={`flex h-6 flex-col justify-between rounded p-1 md:h-7 ${tema.amostra.fundo}`}>
@@ -35,7 +35,7 @@ export default function MenuBoardsTemaPicker({ value, onChange }: Props) {
                             </span>
                             <span className="flex items-center justify-between gap-1 text-xs font-semibold md:text-[13px]">
                                 <span className="truncate">{tema.nome}</span>
-                                {selecionado ? <Check aria-hidden="true" className="size-3.5 shrink-0 text-amber-600" /> : null}
+                                {selecionado ? <Check aria-hidden="true" className="size-3.5 shrink-0 text-blue-700" /> : null}
                             </span>
                         </button>
                     );

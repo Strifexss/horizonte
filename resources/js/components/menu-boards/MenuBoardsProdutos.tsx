@@ -18,7 +18,7 @@ function Miniatura({ produto, onFoto, tamanho }: { produto: ProdutoDoBoard; onFo
             type="button"
             onClick={() => onFoto(produto)}
             aria-label={produto.foto_url ? `Trocar foto de ${produto.nome}` : `Adicionar foto a ${produto.nome}`}
-            className={`${tamanho} flex shrink-0 items-center justify-center overflow-hidden rounded-lg hover:border-amber-500 ${
+            className={`${tamanho} flex shrink-0 items-center justify-center overflow-hidden rounded-lg hover:border-blue-600 ${
                 produto.foto_url
                     ? 'border border-transparent'
                     : 'border-[1.5px] border-dashed border-slate-300 bg-slate-50 text-slate-400 dark:border-slate-600 dark:bg-slate-800'
