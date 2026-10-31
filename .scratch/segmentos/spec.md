@@ -1,6 +1,6 @@
 # MVP2 — Segmentos e módulos
 
-Status: ready-for-agent
+Status: resolved
 Branch: `feature`
 Antes: `.scratch/login-social-empresa/spec.md` (MVP1) e `docs/adr/0001-dados-pertencem-a-empresa.md`
 

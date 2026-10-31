@@ -1,12 +1,12 @@
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
+import { type NavItem, type SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
 import { CreditCard, FileText, Landmark, LayoutGrid, Package, ShoppingCart, Tv } from 'lucide-react';
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
+const mainNavItems: (NavItem & { modulo?: string })[] = [
     {
         title: 'Dashboard',
         url: '/dashboard',
@@ -40,11 +40,15 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Menu Board',
         url: '/menu-boards',
+        modulo: 'menu_board',
         icon: Tv,
     },
 ];
 
 export function AppSidebar() {
+    const modulos = usePage<SharedData>().props.empresa?.modulos ?? [];
+    const itens = mainNavItems.filter((item) => item.modulo === undefined || modulos.includes(item.modulo));
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -60,7 +64,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={itens} />
             </SidebarContent>
 
             <SidebarFooter>

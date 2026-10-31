@@ -54,6 +54,12 @@ class HandleInertiaRequests extends Middleware
                 'conta_google' => (bool) $request->user()?->ehContaGoogle(),
             ],
             'empresa' => fn () => $this->empresaAtiva($request),
+            'admin_navegacao' => fn () => $request->routeIs('admin.*') ? [
+                'usuarios' => route('admin.usuarios'),
+                'empresas' => route('admin.empresas'),
+                'segmentos' => route('admin.segmentos'),
+                'novidades' => route('admin.novidades'),
+            ] : null,
             'flash' => [
                 'success' => session('success'),
                 'error' => session('error'),
@@ -75,7 +81,7 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
-     * @return array{id: int, nome: string, modulo: string, nome_confirmado: bool}|null
+     * @return array{id: int, nome: string, segmento: ?string, modulos: list<string>, nome_confirmado: bool}|null
      */
     private function empresaAtiva(Request $request): ?array
     {
@@ -88,7 +94,8 @@ class HandleInertiaRequests extends Middleware
         return [
             'id' => $empresa->id,
             'nome' => $empresa->nome,
-            'modulo' => $empresa->modulo,
+            'segmento' => $empresa->segmento?->nome,
+            'modulos' => $empresa->modulosDisponiveis(),
             'nome_confirmado' => $empresa->nomeConfirmado(),
         ];
     }

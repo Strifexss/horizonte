@@ -1,6 +1,6 @@
 # 03 — `Empresa::podeUsar()` e prop compartilhada
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 02
 
 ## O quê

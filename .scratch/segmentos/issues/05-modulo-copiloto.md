@@ -1,6 +1,6 @@
 # 05 — Copiloto atrás do módulo `copiloto`
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 03
 
 ## O quê

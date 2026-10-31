@@ -1,6 +1,6 @@
 # 04 — Menu Board atrás do módulo `menu_board`
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 03
 
 ## O quê

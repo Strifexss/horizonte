@@ -81,7 +81,7 @@ it('mantem as categorias padrao do sistema visiveis para todas as empresas', fun
 });
 
 it('ativa um unico menu board por empresa, mesmo ativado por usuarios diferentes', function () {
-    $dono = User::factory()->create();
+    $dono = User::factory()->restaurante()->create();
     $colega = colegaDe($dono);
     $primeiro = MenuBoard::query()->create(['nome' => 'Manha', 'tema' => 'dark', 'usuario_id' => $dono->id, 'ativo' => true]);
     $segundo = MenuBoard::query()->create(['nome' => 'Noite', 'tema' => 'dark', 'usuario_id' => $dono->id]);

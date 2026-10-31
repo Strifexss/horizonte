@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Empresa;
+use App\Models\Segmento;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -53,6 +54,17 @@ class UserFactory extends Factory
             $empresas = $user->empresas()->pluck('empresas.id');
             $user->empresas()->detach();
             Empresa::query()->whereKey($empresas)->delete();
+            $user->esquecerEmpresaAtiva();
+        });
+    }
+
+    /**
+     * Conta cuja Empresa é do Segmento Restaurante (tem Menu Board).
+     */
+    public function restaurante(): static
+    {
+        return $this->afterCreating(function (User $user): void {
+            $user->empresa()?->update(['segmento_id' => Segmento::query()->where('chave', Segmento::RESTAURANTE)->value('id')]);
             $user->esquecerEmpresaAtiva();
         });
     }

@@ -8,6 +8,7 @@ use App\Jobs\GerarAnaliseDashboard;
 use App\Models\DashboardAnalise;
 use App\Models\Empresa;
 use App\Models\InsightAcao;
+use App\Models\Segmento;
 use App\Repositories\Interfaces\DashboardAnaliseRepositoryInterface;
 use App\Repositories\Interfaces\InsightAcaoRepositoryInterface;
 use App\Services\Interfaces\DashboardInsightsServiceInterface;
@@ -97,6 +98,12 @@ class DashboardInsightsService extends ServiceAbstract implements DashboardInsig
         $analise = $this->dashboardAnaliseRepository->find($analiseId);
 
         if ($analise->status !== DashboardAnalise::STATUS_PROCESSANDO) {
+            return;
+        }
+
+        if (! $analise->empresa?->podeUsar(Segmento::MODULO_COPILOTO)) {
+            $this->registrarFalha($analise->id, 'O Copiloto não está disponível para esta empresa.');
+
             return;
         }
 

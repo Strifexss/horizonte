@@ -1,8 +1,14 @@
 <?php
 
 use App\Models\Empresa;
+use App\Models\Segmento;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
+
+function segmentoId(string $chave): int
+{
+    return (int) Segmento::query()->where('chave', $chave)->value('id');
+}
 
 beforeEach(function () {
     config(['inertia.testing.page_paths' => [resource_path('js/pages')]]);
@@ -17,7 +23,6 @@ it('cria empresa nao confirmada como admin master para cada usuario antigo na mi
     $empresa = $antigo->fresh()->empresa();
     expect($empresa->nome)->toBe('Empresa de João Silva')
         ->and($empresa->nomeConfirmado())->toBeFalse()
-        ->and($empresa->modulo)->toBe(Empresa::MODULO_VAREJO)
         ->and($antigo->empresas()->first()->pivot->cargo)->toBe(Empresa::CARGO_ADMIN_MASTER);
 });
 
@@ -36,12 +41,12 @@ it('cria a empresa no onboarding e libera o sistema', function () {
     $user = User::factory()->semEmpresa()->create();
 
     $this->actingAs($user)
-        ->post(route('onboarding.store'), ['nome' => 'Padaria Bom Dia', 'modulo' => 'restaurante'])
+        ->post(route('onboarding.store'), ['nome' => 'Padaria Bom Dia', 'segmento_id' => segmentoId(Segmento::RESTAURANTE)])
         ->assertRedirect(route('dashboard'));
 
     $empresa = $user->fresh()->empresa();
     expect($empresa->nome)->toBe('Padaria Bom Dia')
-        ->and($empresa->modulo)->toBe(Empresa::MODULO_RESTAURANTE)
+        ->and($empresa->segmento->chave)->toBe(Segmento::RESTAURANTE)
         ->and($empresa->nomeConfirmado())->toBeTrue()
         ->and($user->empresas()->first()->pivot->cargo)->toBe(Empresa::CARGO_ADMIN_MASTER);
 
@@ -52,8 +57,8 @@ it('valida nome e ramo no onboarding', function () {
     $user = User::factory()->semEmpresa()->create();
 
     $this->actingAs($user)
-        ->post(route('onboarding.store'), ['nome' => '', 'modulo' => 'oficina'])
-        ->assertSessionHasErrors(['nome', 'modulo']);
+        ->post(route('onboarding.store'), ['nome' => '', 'segmento_id' => 999])
+        ->assertSessionHasErrors(['nome', 'segmento_id']);
 
     expect($user->fresh()->empresa())->toBeNull();
 });
@@ -62,7 +67,7 @@ it('nao repete o onboarding para quem ja tem empresa', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)->get(route('onboarding'))->assertRedirect(route('dashboard'));
-    $this->actingAs($user)->post(route('onboarding.store'), ['nome' => 'Outra', 'modulo' => 'varejo'])->assertRedirect(route('dashboard'));
+    $this->actingAs($user)->post(route('onboarding.store'), ['nome' => 'Outra', 'segmento_id' => segmentoId(Segmento::VAREJO)])->assertRedirect(route('dashboard'));
 
     expect($user->empresas()->count())->toBe(1);
 });

@@ -7,11 +7,12 @@ import { useEffect, useState } from 'react';
 
 type PageProps = {
     board: TvBoard | null;
+    indisponivel?: boolean;
 };
 
 export default function TvBoardPage() {
     const { props } = usePage<PageProps>();
-    const { board } = props;
+    const { board, indisponivel = false } = props;
     const [sincronizando, setSincronizando] = useState(false);
     const [falhou, setFalhou] = useState(false);
     const [indice, setIndice] = useState(0);
@@ -55,7 +56,12 @@ export default function TvBoardPage() {
         <>
             <Head title={board?.nome ?? 'Menu Board'} />
             <div className={`@container relative h-screen w-screen overflow-hidden ${estilo.fundo} ${estilo.texto}`}>
-                {board && pagina ? (
+                {indisponivel ? (
+                    <div className="flex size-full flex-col items-center justify-center gap-[1cqw] text-center font-sans">
+                        <h1 className="text-[2.9cqw] font-semibold">Menu Board indisponível</h1>
+                        <p className={`text-[1.35cqw] ${estilo.suave}`}>O Menu Board não está liberado para esta empresa. Fale com o suporte.</p>
+                    </div>
+                ) : board && pagina ? (
                     <TvPagina key={atual} pagina={pagina} nomeBoard={board.nome} estilo={estilo} />
                 ) : (
                     <div className="flex size-full flex-col items-center justify-center gap-[1cqw] text-center font-sans">

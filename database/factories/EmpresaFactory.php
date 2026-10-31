@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Empresa;
+use App\Models\Segmento;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,7 +20,7 @@ class EmpresaFactory extends Factory
     {
         return [
             'nome' => fake()->company(),
-            'modulo' => Empresa::MODULO_VAREJO,
+            'segmento_id' => fn () => Segmento::varejoId(),
             'nome_confirmado_em' => now(),
         ];
     }
@@ -27,5 +28,10 @@ class EmpresaFactory extends Factory
     public function nomeNaoConfirmado(): static
     {
         return $this->state(fn () => ['nome_confirmado_em' => null]);
+    }
+
+    public function restaurante(): static
+    {
+        return $this->state(fn () => ['segmento_id' => Segmento::query()->where('chave', Segmento::RESTAURANTE)->value('id')]);
     }
 }

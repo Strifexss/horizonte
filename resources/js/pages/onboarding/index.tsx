@@ -8,16 +8,15 @@ import { Head, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
-type Modulo = 'varejo' | 'restaurante';
+type SegmentoOpcao = {
+    id: number;
+    nome: string;
+    descricao: string | null;
+};
 
-const MODULOS: { valor: Modulo; nome: string; descricao: string }[] = [
-    { valor: 'varejo', nome: 'Varejo', descricao: 'Loja, mercado, comércio em geral' },
-    { valor: 'restaurante', nome: 'Restaurante', descricao: 'Restaurante, lanchonete, padaria. Inclui Menu Board.' },
-];
-
-export default function Onboarding() {
+export default function Onboarding({ segmentos }: { segmentos: SegmentoOpcao[] }) {
     const [passo, setPasso] = useState<1 | 2>(1);
-    const { data, setData, post, processing, errors } = useForm<{ nome: string; modulo: Modulo | '' }>({ nome: '', modulo: '' });
+    const { data, setData, post, processing, errors } = useForm<{ nome: string; segmento_id: number | '' }>({ nome: '', segmento_id: '' });
 
     const continuar: FormEventHandler = (e) => {
         e.preventDefault();
@@ -79,36 +78,36 @@ export default function Onboarding() {
                 <form onSubmit={concluir} className="flex flex-col gap-6">
                     <fieldset className="flex flex-col gap-3">
                         <legend className="sr-only">Ramo</legend>
-                        {MODULOS.map((modulo) => (
+                        {segmentos.map((segmento) => (
                             <label
-                                key={modulo.valor}
+                                key={segmento.id}
                                 className={cn(
                                     'flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3',
-                                    data.modulo === modulo.valor ? 'border-blue-600 bg-blue-50 dark:bg-blue-950' : 'border-input',
+                                    data.segmento_id === segmento.id ? 'border-blue-600 bg-blue-50 dark:bg-blue-950' : 'border-input',
                                 )}
                             >
                                 <input
                                     type="radio"
-                                    name="modulo"
-                                    value={modulo.valor}
-                                    checked={data.modulo === modulo.valor}
-                                    onChange={() => setData('modulo', modulo.valor)}
+                                    name="segmento_id"
+                                    value={segmento.id}
+                                    checked={data.segmento_id === segmento.id}
+                                    onChange={() => setData('segmento_id', segmento.id)}
                                     className="accent-blue-600"
                                 />
                                 <span className="flex flex-col">
-                                    <span className="text-sm font-semibold">{modulo.nome}</span>
-                                    <span className="text-muted-foreground text-xs">{modulo.descricao}</span>
+                                    <span className="text-sm font-semibold">{segmento.nome}</span>
+                                    <span className="text-muted-foreground text-xs">{segmento.descricao}</span>
                                 </span>
                             </label>
                         ))}
-                        <InputError message={errors.modulo} />
+                        <InputError message={errors.segmento_id} />
                     </fieldset>
 
                     <div className="flex flex-col-reverse gap-3 sm:flex-row">
                         <Button type="button" variant="outline" onClick={() => setPasso(1)} disabled={processing}>
                             Voltar
                         </Button>
-                        <Button type="submit" className="flex-1" disabled={processing || data.modulo === ''}>
+                        <Button type="submit" className="flex-1" disabled={processing || data.segmento_id === ''}>
                             {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                             Começar a usar
                         </Button>

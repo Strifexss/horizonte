@@ -62,7 +62,7 @@ it('mostra a tela de pareamento para tv sem cookie', function (): void {
 });
 
 it('mostra a tela de pareamento para tv desconectada', function (): void {
-    tvPareada(User::factory()->create())->update(['revogado_em' => now()]);
+    tvPareada(User::factory()->restaurante()->create())->update(['revogado_em' => now()]);
 
     $this->withCookie(TvController::COOKIE_DISPOSITIVO, 'token-da-tv')
         ->get(route('tv'))
@@ -70,7 +70,7 @@ it('mostra a tela de pareamento para tv desconectada', function (): void {
 });
 
 it('volta para a tela de pareamento depois que o usuario desconecta a tv', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $dispositivo = tvPareada($user);
 
     $this->actingAs($user)->delete(route('tv.dispositivos.destroy', $dispositivo->id));
@@ -81,7 +81,7 @@ it('volta para a tela de pareamento depois que o usuario desconecta a tv', funct
 });
 
 it('exibe as paginas do board ativo com destaques separados e sem dados financeiros', function (): void {
-    $user = User::factory()->create(['name' => 'Bistrô Sabor da Casa']);
+    $user = User::factory()->restaurante()->create(['name' => 'Bistrô Sabor da Casa']);
     $board = boardAtivoNaTv($user);
     MenuBoard::query()->create(['nome' => 'Inativo', 'tema' => 'clean', 'ativo' => false, 'usuario_id' => $user->id]);
     $parmegiana = Produto::query()->create(['nome' => 'Parmegiana', 'descricao' => 'Arroz e fritas', 'preco_compra' => 15, 'preco_venda' => 39.9, 'usuario_id' => $user->id]);
@@ -115,7 +115,7 @@ it('exibe as paginas do board ativo com destaques separados e sem dados financei
 });
 
 it('lista os produtos ativos do grupo na ordem escolhida e pode esconder os destaques da grade', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $board = boardAtivoNaTv($user);
     $bebidas = Grupo::query()->create(['nome' => 'Bebidas', 'usuario_id' => $user->id]);
     $agua = Produto::query()->create(['nome' => 'Água', 'preco_compra' => 1, 'preco_venda' => 4.5, 'grupo_id' => $bebidas->id, 'usuario_id' => $user->id]);
@@ -139,7 +139,7 @@ it('lista os produtos ativos do grupo na ordem escolhida e pode esconder os dest
 });
 
 it('tira da tv as paginas que ficaram sem conteudo', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $board = boardAtivoNaTv($user);
     $desativado = Produto::query()->create(['nome' => 'Saiu do cardápio', 'preco_compra' => 1, 'preco_venda' => 9, 'ativo' => false, 'usuario_id' => $user->id]);
     $vazio = Grupo::query()->create(['nome' => 'Vazio', 'usuario_id' => $user->id]);
@@ -158,7 +158,7 @@ it('tira da tv as paginas que ficaram sem conteudo', function (): void {
 });
 
 it('mostra o produto em destaque com selo, chamada e descricao opcional', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $board = boardAtivoNaTv($user);
     $burger = Produto::query()->create(['nome' => 'X-Burger', 'descricao' => 'Blend 180 g', 'preco_compra' => 10, 'preco_venda' => 32.9, 'usuario_id' => $user->id]);
     paginaDaTv($board, MenuBoardPagina::LAYOUT_PRODUTO_DESTAQUE, ['selo' => 'Mais pedido', 'chamada' => 'Feito na hora', 'mostrar_descricao' => false, 'foto_posicao' => 'esquerda'], [[$burger, false]]);
@@ -176,7 +176,7 @@ it('mostra o produto em destaque com selo, chamada e descricao opcional', functi
 });
 
 it('exibe estado vazio quando o usuario nao tem board ativo', function (): void {
-    tvPareada(User::factory()->create());
+    tvPareada(User::factory()->restaurante()->create());
 
     $this->withCookie(TvController::COOKIE_DISPOSITIVO, 'token-da-tv')
         ->get(route('tv'))
@@ -187,7 +187,7 @@ it('exibe estado vazio quando o usuario nao tem board ativo', function (): void 
 });
 
 it('registra o ultimo acesso da tv', function (): void {
-    $dispositivo = tvPareada(User::factory()->create());
+    $dispositivo = tvPareada(User::factory()->restaurante()->create());
 
     $this->withCookie(TvController::COOKIE_DISPOSITIVO, 'token-da-tv')->get(route('tv'));
 

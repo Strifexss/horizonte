@@ -6,6 +6,7 @@ use App\DTO\UsuarioDTO;
 use App\Models\Empresa;
 use App\Models\User;
 use App\Repositories\Interfaces\UsuarioRepositoryInterface;
+use App\Services\Interfaces\EmpresasServiceInterface;
 use App\Services\Interfaces\FornecedoresServiceInterface;
 use App\Services\Interfaces\UsuariosServiceInterface;
 use DomainException;
@@ -15,7 +16,8 @@ class UsuariosService extends ServiceAbstract implements UsuariosServiceInterfac
 {
     public function __construct(
         private UsuarioRepositoryInterface $usuarioRepository,
-        private FornecedoresServiceInterface $fornecedoresService
+        private FornecedoresServiceInterface $fornecedoresService,
+        private EmpresasServiceInterface $empresasService
     ) {
         parent::__construct($usuarioRepository);
     }
@@ -39,11 +41,7 @@ class UsuariosService extends ServiceAbstract implements UsuariosServiceInterfac
         return DB::transaction(function () use ($data) {
             $usuario = parent::store($data);
 
-            $empresa = Empresa::query()->create([
-                'nome' => mb_substr('Empresa de '.$usuario->name, 0, 120),
-                'modulo' => Empresa::MODULO_VAREJO,
-            ]);
-            $usuario->empresas()->attach($empresa->id, ['cargo' => Empresa::CARGO_ADMIN_MASTER]);
+            $this->empresasService->criarParaUsuario($usuario);
 
             return $usuario;
         });

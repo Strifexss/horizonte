@@ -5,7 +5,9 @@ namespace App\Models;
 use Database\Factories\EmpresaFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -13,12 +15,6 @@ class Empresa extends Model
 {
     /** @use HasFactory<EmpresaFactory> */
     use HasFactory;
-
-    public const MODULO_VAREJO = 'varejo';
-
-    public const MODULO_RESTAURANTE = 'restaurante';
-
-    public const MODULOS = [self::MODULO_VAREJO, self::MODULO_RESTAURANTE];
 
     public const CARGO_ADMIN_MASTER = 'admin_master';
 
@@ -35,7 +31,7 @@ class Empresa extends Model
      */
     protected $fillable = [
         'nome',
-        'modulo',
+        'segmento_id',
         'nome_confirmado_em',
     ];
 
@@ -46,6 +42,7 @@ class Empresa extends Model
     {
         return [
             'id' => 'integer',
+            'segmento_id' => 'integer',
             'nome_confirmado_em' => 'datetime',
         ];
     }
@@ -55,6 +52,45 @@ class Empresa extends Model
         return $this->belongsToMany(User::class, 'empresa_user')
             ->withPivot('cargo')
             ->withTimestamps();
+    }
+
+    public function segmento(): BelongsTo
+    {
+        return $this->belongsTo(Segmento::class, 'segmento_id');
+    }
+
+    public function ajustesDeModulo(): HasMany
+    {
+        return $this->hasMany(EmpresaModulo::class, 'empresa_id');
+    }
+
+    /**
+     * Módulo obrigatório (fora do catálogo de opcionais) está sempre disponível; nos opcionais vale o
+     * ajuste da Empresa e, sem ajuste, o que o Segmento inclui.
+     */
+    public function podeUsar(string $modulo): bool
+    {
+        if (! array_key_exists($modulo, Segmento::MODULOS_OPCIONAIS)) {
+            return true;
+        }
+
+        $ajuste = $this->ajustesDeModulo->firstWhere('modulo', $modulo);
+
+        if ($ajuste !== null) {
+            return $ajuste->ligado;
+        }
+
+        return (bool) $this->segmento?->inclui($modulo);
+    }
+
+    /**
+     * Chaves dos módulos opcionais disponíveis para a Empresa.
+     *
+     * @return list<string>
+     */
+    public function modulosDisponiveis(): array
+    {
+        return array_values(array_filter(array_keys(Segmento::MODULOS_OPCIONAIS), fn (string $modulo) => $this->podeUsar($modulo)));
     }
 
     /**

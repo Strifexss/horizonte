@@ -1,6 +1,6 @@
 # 06 — Onboarding com Segmentos
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 02
 
 ## O quê

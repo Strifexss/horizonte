@@ -6,28 +6,25 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { UserMenuContent } from '@/components/user-menu-content';
 import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
-import { type NavItem, type SharedData } from '@/types';
+import { type AdminNavegacao, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { ArrowLeft, Megaphone, Menu, Users } from 'lucide-react';
+import { ArrowLeft, Building2, Layers, Megaphone, Menu, Users } from 'lucide-react';
 import AppLogo from './app-logo';
-
-type AdminHeaderProps = {
-    usuariosUrl: string;
-    novidadesUrl: string;
-};
 
 function pathOf(url: string): string {
     return new URL(url, window.location.origin).pathname;
 }
 
-export function AdminHeader({ usuariosUrl, novidadesUrl }: AdminHeaderProps) {
-    const page = usePage<SharedData>();
-    const { auth } = page.props;
+export function AdminHeader() {
+    const page = usePage<SharedData & { admin_navegacao: AdminNavegacao }>();
+    const { auth, admin_navegacao: navegacao } = page.props;
     const getInitials = useInitials();
 
     const navItems: NavItem[] = [
-        { title: 'Usuários', url: usuariosUrl, icon: Users },
-        { title: 'Novidades', url: novidadesUrl, icon: Megaphone },
+        { title: 'Usuários', url: navegacao.usuarios, icon: Users },
+        { title: 'Empresas', url: navegacao.empresas, icon: Building2 },
+        { title: 'Segmentos', url: navegacao.segmentos, icon: Layers },
+        { title: 'Novidades', url: navegacao.novidades, icon: Megaphone },
         { title: 'Voltar ao sistema', url: route('extrato.index'), icon: ArrowLeft },
     ];
 
@@ -67,7 +64,7 @@ export function AdminHeader({ usuariosUrl, novidadesUrl }: AdminHeaderProps) {
                     </Sheet>
                 </div>
 
-                <Link href={usuariosUrl} className="flex items-center">
+                <Link href={navegacao.usuarios} className="flex items-center">
                     <AppLogo fundo="claro" />
                 </Link>
 

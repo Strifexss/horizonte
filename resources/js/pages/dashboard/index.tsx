@@ -16,8 +16,8 @@ import { PageTitle } from '@/components/padrões';
 import { Button } from '@/components/ui/button';
 import { useSidebar } from '@/components/ui/sidebar';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, router, usePage } from '@inertiajs/react';
 import { Sparkles } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -84,6 +84,7 @@ export default function Dashboard({
     ranking,
     insights,
 }: DashboardPageProps) {
+    const temCopiloto = usePage<SharedData>().props.empresa?.modulos.includes('copiloto') ?? false;
     const [anoSelecionado, setAnoSelecionado] = useState<number>(ano);
     const [mesSelecionado, setMesSelecionado] = useState<number>(mes);
     const [semanaSelecionada, setSemanaSelecionada] = useState<string>(semana);
@@ -231,10 +232,12 @@ export default function Dashboard({
                 <PageTitle
                     title="Dashboard"
                     actions={
-                        <Button type="button" variant="primary" className="inline-flex items-center gap-2" onClick={abrirAnalise}>
-                            <Sparkles className="h-4 w-4" />
-                            Analisar com IA
-                        </Button>
+                        temCopiloto ? (
+                            <Button type="button" variant="primary" className="inline-flex items-center gap-2" onClick={abrirAnalise}>
+                                <Sparkles className="h-4 w-4" />
+                                Analisar com IA
+                            </Button>
+                        ) : undefined
                     }
                 />
 
@@ -341,7 +344,7 @@ export default function Dashboard({
                 </div>
             </div>
 
-            {analiseAberta ? (
+            {temCopiloto && analiseAberta ? (
                 <InsightsPainel
                     periodo={rotuloDoPeriodo(anoSelecionado, mesSelecionado)}
                     analise={analiseDoPeriodo?.status === 'concluida' ? analiseDoPeriodo : null}

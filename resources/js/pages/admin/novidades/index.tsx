@@ -85,7 +85,7 @@ export default function NovidadesIndex({ urls, novidades, imagens, dispensas }: 
     };
 
     return (
-        <AdminLayout usuariosUrl={urls.usuarios} novidadesUrl={urls.index}>
+        <AdminLayout>
             <Head title="Novidades" />
 
             <div className="flex h-full w-full max-w-full min-w-0 flex-1 flex-col gap-2 overflow-x-hidden p-4 pb-28 md:gap-4 md:pb-4">

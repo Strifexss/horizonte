@@ -1,6 +1,6 @@
 # 01 — Segmentos e catálogo de módulos
 
-Status: ready-for-agent
+Status: resolved
 
 ## O quê
 - Catálogo fixo de módulos no código (chave, nome, descrição, obrigatório ou opcional).

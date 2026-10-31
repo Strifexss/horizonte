@@ -18,7 +18,7 @@ function pinValido(User $user, string $pin = '7492'): TvPareamentoPin
 }
 
 it('gera pin de 4 digitos e invalida o anterior', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $anterior = pinValido($user, '1111');
 
     $this->actingAs($user)
@@ -34,7 +34,7 @@ it('gera pin de 4 digitos e invalida o anterior', function (): void {
 
 it('gera pin valido por exatamente 10 minutos', function (): void {
     $this->freezeSecond();
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
 
     $this->actingAs($user)->post(route('tv.pin.store'));
 
@@ -44,14 +44,14 @@ it('gera pin valido por exatamente 10 minutos', function (): void {
 });
 
 it('libera os codigos de pins usados ou expirados ao gerar um novo', function (): void {
-    $outro = User::factory()->create();
+    $outro = User::factory()->restaurante()->create();
     $usado = pinValido($outro, '1111');
     $usado->update(['usado_em' => now()]);
     $expirado = pinValido($outro, '2222');
     $expirado->update(['expira_em' => now()->subMinute()]);
     $valido = pinValido($outro, '3333');
 
-    $this->actingAs(User::factory()->create())->post(route('tv.pin.store'));
+    $this->actingAs(User::factory()->restaurante()->create())->post(route('tv.pin.store'));
 
     expect($usado->fresh())->toBeNull()
         ->and($expirado->fresh())->toBeNull()
@@ -59,14 +59,14 @@ it('libera os codigos de pins usados ou expirados ao gerar um novo', function ()
 });
 
 it('nao permite dois pins com o mesmo codigo', function (): void {
-    pinValido(User::factory()->create(), '7492');
+    pinValido(User::factory()->restaurante()->create(), '7492');
 
-    expect(fn () => pinValido(User::factory()->create(), '7492'))
+    expect(fn () => pinValido(User::factory()->restaurante()->create(), '7492'))
         ->toThrow(UniqueConstraintViolationException::class);
 });
 
 it('recusa pin consumido por outro pareamento entre a leitura e o uso', function (): void {
-    pinValido(User::factory()->create());
+    pinValido(User::factory()->restaurante()->create());
 
     app()->bind(TvPareamentoPinRepositoryInterface::class, fn () => new class(new TvPareamentoPin) extends TvPareamentoPinRepository
     {
@@ -87,7 +87,7 @@ it('recusa pin consumido por outro pareamento entre a leitura e o uso', function
 });
 
 it('pareia a tv com pin valido e guarda somente o hash do token', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $pin = pinValido($user);
 
     $response = $this->post(route('tv.parear'), ['pin' => '7492'])
@@ -104,7 +104,7 @@ it('pareia a tv com pin valido e guarda somente o hash do token', function (): v
 });
 
 it('recusa pin usado expirado ou inexistente', function (string $situacao): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $pin = pinValido($user);
 
     if ($situacao === 'usado') {
@@ -138,7 +138,7 @@ it('limita tentativas de pareamento por minuto', function (): void {
 });
 
 it('desconecta tv do proprio usuario', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $dispositivo = TvDispositivo::query()->create(['usuario_id' => $user->id, 'token_hash' => hash('sha256', 'token')]);
 
     $this->actingAs($user)
@@ -150,11 +150,11 @@ it('desconecta tv do proprio usuario', function (): void {
 
 it('nao desconecta tv de outro usuario', function (): void {
     $dispositivo = TvDispositivo::query()->create([
-        'usuario_id' => User::factory()->create()->id,
+        'usuario_id' => User::factory()->restaurante()->create()->id,
         'token_hash' => hash('sha256', 'token'),
     ]);
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->restaurante()->create())
         ->delete(route('tv.dispositivos.destroy', $dispositivo->id))
         ->assertNotFound();
 

@@ -5,6 +5,7 @@ use App\Http\Controllers\ContasController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardInsightsController;
 use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\EmpresasController;
 use App\Http\Controllers\ExtratoController;
 use App\Http\Controllers\ExtratoPdfController;
 use App\Http\Controllers\FormasPagamentoController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\NovidadesUsuarioController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ParcelaController;
 use App\Http\Controllers\ProdutosController;
+use App\Http\Controllers\SegmentosController;
 use App\Http\Controllers\TvController;
 use App\Http\Controllers\TvPareamentoController;
 use App\Http\Controllers\UsuariosController;
@@ -39,9 +41,11 @@ Route::middleware(['auth', 'empresa'])->group(function () {
     Route::put('/empresa/nome', [EmpresaController::class, 'confirmarNome'])->name('empresa.nome.update');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::post('/dashboard/insights', [DashboardInsightsController::class, 'store'])->name('dashboard.insights.store');
-    Route::post('/dashboard/insights/{id}/acoes', [DashboardInsightsController::class, 'acaoStore'])->name('dashboard.insights.acoes.store');
-    Route::delete('/dashboard/insights/{id}/acoes/{chave}', [DashboardInsightsController::class, 'acaoDestroy'])->name('dashboard.insights.acoes.destroy');
+    Route::middleware('modulo:copiloto')->group(function () {
+        Route::post('/dashboard/insights', [DashboardInsightsController::class, 'store'])->name('dashboard.insights.store');
+        Route::post('/dashboard/insights/{id}/acoes', [DashboardInsightsController::class, 'acaoStore'])->name('dashboard.insights.acoes.store');
+        Route::delete('/dashboard/insights/{id}/acoes/{chave}', [DashboardInsightsController::class, 'acaoDestroy'])->name('dashboard.insights.acoes.destroy');
+    });
 
     Route::group(['prefix' => 'extrato'], function () {
         Route::get('/', [ExtratoController::class, 'index'])->name('extrato.index');
@@ -82,7 +86,7 @@ Route::middleware(['auth', 'empresa'])->group(function () {
         Route::delete('/{id}/foto', [ProdutosController::class, 'fotoDestroy'])->name('produtos.foto.destroy');
     });
 
-    Route::group(['prefix' => 'menu-boards'], function () {
+    Route::group(['prefix' => 'menu-boards', 'middleware' => 'modulo:menu_board'], function () {
         Route::get('/', [MenuBoardsController::class, 'index'])->name('menu-boards');
         Route::get('/novo', [MenuBoardsController::class, 'create'])->name('menu-boards.create');
         Route::post('/', [MenuBoardsController::class, 'store'])->name('menu-boards.store');
@@ -92,7 +96,7 @@ Route::middleware(['auth', 'empresa'])->group(function () {
         Route::post('/{id}/ativar', [MenuBoardsController::class, 'ativar'])->name('menu-boards.ativar');
     });
 
-    Route::group(['prefix' => 'tv'], function () {
+    Route::group(['prefix' => 'tv', 'middleware' => 'modulo:menu_board'], function () {
         Route::post('/pin', [TvPareamentoController::class, 'store'])->name('tv.pin.store');
         Route::delete('/dispositivos/{id}', [TvPareamentoController::class, 'destroy'])->name('tv.dispositivos.destroy');
     });
@@ -155,6 +159,14 @@ if (filled(config('admin.path'))) {
             Route::post('/usuarios/transfer', [UsuariosController::class, 'transfer'])->name('usuarios.transfer');
             Route::get('/usuarios/{id}/transfer-counts', [UsuariosController::class, 'transferCounts'])->name('usuarios.transfer.counts');
             Route::post('/usuarios/{id}/entrar-como', [UsuariosController::class, 'entrarComo'])->name('usuarios.entrar-como');
+
+            Route::get('/empresas', [EmpresasController::class, 'index'])->name('empresas');
+            Route::put('/empresas/{id}', [EmpresasController::class, 'update'])->name('empresas.update');
+
+            Route::get('/segmentos', [SegmentosController::class, 'index'])->name('segmentos');
+            Route::post('/segmentos', [SegmentosController::class, 'store'])->name('segmentos.store');
+            Route::put('/segmentos/{id}', [SegmentosController::class, 'update'])->name('segmentos.update');
+            Route::delete('/segmentos/{id}', [SegmentosController::class, 'destroy'])->name('segmentos.destroy');
 
             Route::get('/novidades', [NovidadesController::class, 'index'])->name('novidades');
             Route::post('/novidades', [NovidadesController::class, 'store'])->name('novidades.store');

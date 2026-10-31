@@ -72,7 +72,7 @@ function paginaEnviada(string $layout, array $dados = []): array
 }
 
 it('cria menu board com as paginas e os itens na ordem enviada', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $frango = produtoDoUsuario($user, 'Frango');
     $suco = produtoDoUsuario($user, 'Suco');
 
@@ -114,7 +114,7 @@ it('cria menu board com as paginas e os itens na ordem enviada', function (): vo
 });
 
 it('guarda so a configuracao e os itens que o layout usa', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $produto = produtoDoUsuario($user);
     $outro = produtoDoUsuario($user, 'Outro');
 
@@ -138,8 +138,8 @@ it('guarda so a configuracao e os itens que o layout usa', function (): void {
 });
 
 it('recusa produto de outro usuario no menu board', function (): void {
-    $user = User::factory()->create();
-    $alheio = produtoDoUsuario(User::factory()->create(), 'Produto alheio');
+    $user = User::factory()->restaurante()->create();
+    $alheio = produtoDoUsuario(User::factory()->restaurante()->create(), 'Produto alheio');
 
     $this->actingAs($user)
         ->post(route('menu-boards.store'), [
@@ -153,7 +153,7 @@ it('recusa produto de outro usuario no menu board', function (): void {
 });
 
 it('recusa tema desconhecido', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
 
     $this->actingAs($user)
         ->post(route('menu-boards.store'), ['nome' => 'Menu', 'tema' => 'neon', 'paginas' => []])
@@ -161,7 +161,7 @@ it('recusa tema desconhecido', function (): void {
 });
 
 it('valida o conteudo obrigatorio de cada layout', function (array $pagina, string $campo): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
 
     $this->actingAs($user)
         ->post(route('menu-boards.store'), ['nome' => 'Menu', 'tema' => 'dark', 'paginas' => [$pagina]])
@@ -179,7 +179,7 @@ it('valida o conteudo obrigatorio de cada layout', function (array $pagina, stri
 ]);
 
 it('recusa mais de tres destaques na mesma pagina', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $itens = collect(range(1, 4))->map(fn (int $n) => ['produto_id' => produtoDoUsuario($user, "Produto {$n}")->id, 'destaque' => true])->all();
 
     $this->actingAs($user)
@@ -192,9 +192,9 @@ it('recusa mais de tres destaques na mesma pagina', function (): void {
 });
 
 it('aceita grupo do usuario e recusa grupo de outro usuario', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $doUsuario = Grupo::query()->create(['nome' => 'Bebidas', 'usuario_id' => $user->id]);
-    $alheio = Grupo::query()->create(['nome' => 'Alheio', 'usuario_id' => User::factory()->create()->id]);
+    $alheio = Grupo::query()->create(['nome' => 'Alheio', 'usuario_id' => User::factory()->restaurante()->create()->id]);
     $enviar = fn (Grupo $grupo) => $this->actingAs($user)->post(route('menu-boards.store'), [
         'nome' => 'Menu',
         'tema' => 'dark',
@@ -208,7 +208,7 @@ it('aceita grupo do usuario e recusa grupo de outro usuario', function (): void 
 });
 
 it('atualiza menu board substituindo as paginas', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $board = boardDoUsuario($user);
     paginaNoBoard($board, itens: [[produtoDoUsuario($user, 'Antigo'), true]]);
     $novo = produtoDoUsuario($user, 'Novo');
@@ -233,7 +233,7 @@ it('atualiza menu board substituindo as paginas', function (): void {
 
 it('salva a imagem da pagina, mantem a atual e apaga a que saiu do board', function (): void {
     Storage::fake('public');
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
 
     $this->actingAs($user)->post(route('menu-boards.store'), [
         'nome' => 'Menu',
@@ -268,9 +268,9 @@ it('salva a imagem da pagina, mantem a atual e apaga a que saiu do board', funct
 
 it('nao deixa uma pagina apontar para a imagem de outro board', function (): void {
     Storage::fake('public');
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $board = boardDoUsuario($user);
-    $alheio = paginaNoBoard(boardDoUsuario(User::factory()->create()), MenuBoardPagina::LAYOUT_BANNER, atributos: ['imagem_path' => 'menu-boards/99/alheia.jpg']);
+    $alheio = paginaNoBoard(boardDoUsuario(User::factory()->restaurante()->create()), MenuBoardPagina::LAYOUT_BANNER, atributos: ['imagem_path' => 'menu-boards/99/alheia.jpg']);
 
     $this->actingAs($user)->put(route('menu-boards.update', $board->id), [
         'nome' => 'Menu',
@@ -282,8 +282,8 @@ it('nao deixa uma pagina apontar para a imagem de outro board', function (): voi
 });
 
 it('nao altera nem exclui menu board de outro usuario', function (): void {
-    $user = User::factory()->create();
-    $board = boardDoUsuario(User::factory()->create());
+    $user = User::factory()->restaurante()->create();
+    $board = boardDoUsuario(User::factory()->restaurante()->create());
 
     $this->actingAs($user)
         ->put(route('menu-boards.update', $board->id), ['nome' => 'Invadido', 'tema' => 'dark', 'paginas' => []])
@@ -303,7 +303,7 @@ it('nao altera nem exclui menu board de outro usuario', function (): void {
 it('exclui menu board do usuario junto com as imagens das paginas', function (): void {
     Storage::fake('public');
     Storage::disk('public')->put('menu-boards/1/banner.jpg', 'imagem');
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $board = boardDoUsuario($user);
     paginaNoBoard($board, MenuBoardPagina::LAYOUT_BANNER, atributos: ['imagem_path' => 'menu-boards/1/banner.jpg']);
 
@@ -317,10 +317,10 @@ it('exclui menu board do usuario junto com as imagens das paginas', function ():
 });
 
 it('ativa um board e desativa o anterior do mesmo usuario', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $anterior = boardDoUsuario($user, 'Menu Almoço', ativo: true);
     $novo = boardDoUsuario($user, 'Promocional de Sexta');
-    $deOutro = boardDoUsuario(User::factory()->create(), 'Board alheio', ativo: true);
+    $deOutro = boardDoUsuario(User::factory()->restaurante()->create(), 'Board alheio', ativo: true);
 
     $this->actingAs($user)
         ->post(route('menu-boards.ativar', $novo->id))
@@ -332,11 +332,11 @@ it('ativa um board e desativa o anterior do mesmo usuario', function (): void {
 });
 
 it('lista apenas os boards do usuario com as paginas e o tempo do ciclo', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $board = boardDoUsuario($user);
     paginaNoBoard($board, atributos: ['nome' => 'Destaques', 'duracao_segundos' => 20]);
     paginaNoBoard($board, MenuBoardPagina::LAYOUT_AVISO, atributos: ['nome' => 'Avalie', 'duracao_segundos' => 15]);
-    boardDoUsuario(User::factory()->create(), 'Board alheio');
+    boardDoUsuario(User::factory()->restaurante()->create(), 'Board alheio');
 
     $this->actingAs($user)
         ->get(route('menu-boards'))
@@ -355,12 +355,12 @@ it('lista apenas os boards do usuario com as paginas e o tempo do ciclo', functi
 });
 
 it('abre o editor so com produtos ativos e sem itens de produtos desativados', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->restaurante()->create();
     $board = boardDoUsuario($user);
     $ativo = produtoDoUsuario($user, 'Ativo');
     $inativo = produtoDoUsuario($user, 'Inativo', ['ativo' => false]);
     paginaNoBoard($board, itens: [[$ativo, false], [$inativo, false]]);
-    produtoDoUsuario(User::factory()->create(), 'Alheio');
+    produtoDoUsuario(User::factory()->restaurante()->create(), 'Alheio');
 
     $this->actingAs($user)
         ->get(route('menu-boards.edit', $board->id))

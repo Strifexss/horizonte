@@ -16,7 +16,6 @@ return new class extends Migration
         DB::table('users')->orderBy('id')->each(function (object $usuario) use ($agora): void {
             $empresaId = DB::table('empresas')->insertGetId([
                 'nome' => mb_substr('Empresa de '.$usuario->name, 0, 120),
-                'modulo' => 'varejo',
                 'nome_confirmado_em' => null,
                 'created_at' => $agora,
                 'updated_at' => $agora,

@@ -5,10 +5,18 @@ export interface Auth {
     conta_google: boolean;
 }
 
+export interface AdminNavegacao {
+    usuarios: string;
+    empresas: string;
+    segmentos: string;
+    novidades: string;
+}
+
 export interface EmpresaAtiva {
     id: number;
     nome: string;
-    modulo: 'varejo' | 'restaurante';
+    segmento: string | null;
+    modulos: string[];
     nome_confirmado: boolean;
 }
 

@@ -1,6 +1,6 @@
 # 02 — Empresas no Segmento
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 01
 
 ## O quê

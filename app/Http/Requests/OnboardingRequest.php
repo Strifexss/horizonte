@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Empresa;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -20,7 +19,7 @@ class OnboardingRequest extends FormRequest
     {
         return [
             'nome' => ['required', 'string', 'max:120'],
-            'modulo' => ['required', 'string', Rule::in(Empresa::MODULOS)],
+            'segmento_id' => ['required', 'integer', Rule::exists('segmentos', 'id')->where('ativo', true)],
         ];
     }
 
@@ -32,8 +31,8 @@ class OnboardingRequest extends FormRequest
         return [
             'nome.required' => 'Informe o nome do seu negócio.',
             'nome.max' => 'O nome pode ter até 120 caracteres.',
-            'modulo.required' => 'Escolha o ramo do seu negócio.',
-            'modulo.in' => 'Escolha Varejo ou Restaurante.',
+            'segmento_id.required' => 'Escolha o ramo do seu negócio.',
+            'segmento_id.exists' => 'Escolha um dos ramos da lista.',
         ];
     }
 }
