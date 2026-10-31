@@ -2,6 +2,7 @@
 
 use App\Models\Segmento;
 use App\Models\User;
+use App\Modulos;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
@@ -23,7 +24,7 @@ it('lista os segmentos com o catalogo de modulos para o administrador', function
         ->assertInertia(fn (Assert $page) => $page
             ->component('admin/segmentos/index')
             ->has('modulos_opcionais', 2)
-            ->where('modulos_obrigatorios', Segmento::MODULOS_OBRIGATORIOS)
+            ->where('modulos_obrigatorios', Modulos::OBRIGATORIOS)
             ->loadDeferredProps(fn (Assert $reload) => $reload
                 ->has('segmentos', 2)
                 ->where('segmentos.0.nome', 'Restaurante')

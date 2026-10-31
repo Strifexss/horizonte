@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\DTO\SegmentoDTO;
 use App\Http\Requests\SegmentoRequest;
 use App\Http\Resources\SegmentoResource;
-use App\Models\Segmento;
+use App\Modulos;
 use App\Services\Interfaces\SegmentosServiceInterface;
 use DomainException;
 use Inertia\Inertia;
@@ -22,10 +22,10 @@ class SegmentosController extends Controller
             'urls' => [
                 'store' => route('admin.segmentos.store'),
             ],
-            'modulos_opcionais' => collect(Segmento::MODULOS_OPCIONAIS)
+            'modulos_opcionais' => collect(Modulos::OPCIONAIS)
                 ->map(fn (array $modulo, string $chave) => ['chave' => $chave, ...$modulo])
                 ->values(),
-            'modulos_obrigatorios' => Segmento::MODULOS_OBRIGATORIOS,
+            'modulos_obrigatorios' => Modulos::OBRIGATORIOS,
             'segmentos' => Inertia::defer(
                 fn () => SegmentoResource::collection($this->segmentosService->index())->resolve()
             ),

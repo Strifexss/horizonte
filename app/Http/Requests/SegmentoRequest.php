@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Segmento;
+use App\Modulos;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -30,7 +30,7 @@ class SegmentoRequest extends FormRequest
             'nome' => ['required', 'string', 'max:80', Rule::unique('segmentos', 'nome')->ignore($this->route('id'))],
             'descricao' => ['nullable', 'string', 'max:255'],
             'modulos' => ['array'],
-            'modulos.*' => ['string', 'distinct', Rule::in(array_keys(Segmento::MODULOS_OPCIONAIS))],
+            'modulos.*' => ['string', 'distinct', Rule::in(array_keys(Modulos::OPCIONAIS))],
             'ativo' => ['boolean'],
         ];
     }

@@ -8,7 +8,7 @@ use App\Http\Requests\EmpresaModulosRequest;
 use App\Http\Requests\EmpresasSearchRequest;
 use App\Http\Resources\EmpresaResource;
 use App\Http\Resources\SegmentoResource;
-use App\Models\Segmento;
+use App\Modulos;
 use App\Services\Interfaces\EmpresasServiceInterface;
 use App\Services\Interfaces\SegmentosServiceInterface;
 use Inertia\Inertia;
@@ -30,7 +30,7 @@ class EmpresasController extends Controller
                 'index' => route('admin.empresas'),
             ],
             'segmentos' => SegmentoResource::collection($this->segmentosService->index())->resolve(),
-            'modulos_opcionais' => collect(Segmento::MODULOS_OPCIONAIS)
+            'modulos_opcionais' => collect(Modulos::OPCIONAIS)
                 ->map(fn (array $modulo, string $chave) => ['chave' => $chave, ...$modulo])
                 ->values(),
             'empresas' => Inertia::defer(

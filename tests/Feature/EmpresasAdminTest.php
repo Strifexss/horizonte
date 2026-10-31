@@ -3,6 +3,7 @@
 use App\Models\EmpresaModulo;
 use App\Models\Segmento;
 use App\Models\User;
+use App\Modulos;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
@@ -35,7 +36,7 @@ it('lista as empresas com admin master, segmento e modulos', function () {
                 ->has('empresas', 2)
                 ->where('empresas.1.nome', 'Bistrô')
                 ->where('empresas.1.segmento', 'Restaurante')
-                ->where('empresas.1.modulos', [Segmento::MODULO_MENU_BOARD, Segmento::MODULO_COPILOTO])
+                ->where('empresas.1.modulos', [Modulos::MENU_BOARD, Modulos::COPILOTO])
                 ->where('empresas.1.admin_master.email', 'bistro@gmail.com')
                 ->where('empresas.1.admin_master.conta_google', true)
                 ->where('empresas.1.ajustes', ['menu_board' => 'herdar', 'copiloto' => 'herdar'])));
@@ -70,8 +71,8 @@ it('troca o segmento e grava os ajustes de modulo da empresa', function () {
 
     $empresa = $empresa->fresh();
     expect($empresa->segmento_id)->toBe($restauranteId)
-        ->and($empresa->podeUsar(Segmento::MODULO_MENU_BOARD))->toBeTrue()
-        ->and($empresa->podeUsar(Segmento::MODULO_COPILOTO))->toBeFalse()
+        ->and($empresa->podeUsar(Modulos::MENU_BOARD))->toBeTrue()
+        ->and($empresa->podeUsar(Modulos::COPILOTO))->toBeFalse()
         ->and(EmpresaModulo::query()->where('empresa_id', $empresa->id)->count())->toBe(1);
 });
 
@@ -86,7 +87,7 @@ it('volta a herdar do segmento quando o ajuste e removido', function () {
     ]);
 
     expect(EmpresaModulo::query()->where('empresa_id', $empresa->id)->exists())->toBeFalse()
-        ->and($empresa->fresh()->podeUsar(Segmento::MODULO_COPILOTO))->toBeTrue();
+        ->and($empresa->fresh()->podeUsar(Modulos::COPILOTO))->toBeTrue();
 });
 
 it('recusa modulo desconhecido e estado invalido no ajuste', function () {

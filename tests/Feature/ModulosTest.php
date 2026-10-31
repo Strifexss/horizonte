@@ -8,7 +8,9 @@ use App\Models\MenuBoard;
 use App\Models\Segmento;
 use App\Models\TvDispositivo;
 use App\Models\User;
+use App\Modulos;
 use App\Services\Interfaces\DashboardInsightsServiceInterface;
+use App\Services\Interfaces\EmpresasServiceInterface;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function (): void {
@@ -22,29 +24,43 @@ function ajustarModulo(User $user, string $modulo, bool $ligado): void
 }
 
 it('cria os segmentos iniciais com os modulos opcionais de cada um', function () {
-    expect(Segmento::query()->where('chave', Segmento::VAREJO)->first()->modulos)->toBe([Segmento::MODULO_COPILOTO])
-        ->and(Segmento::query()->where('chave', Segmento::RESTAURANTE)->first()->modulos)->toBe([Segmento::MODULO_MENU_BOARD, Segmento::MODULO_COPILOTO]);
+    expect(Segmento::query()->where('chave', Segmento::VAREJO)->first()->modulos)->toBe([Modulos::COPILOTO])
+        ->and(Segmento::query()->where('chave', Segmento::RESTAURANTE)->first()->modulos)->toBe([Modulos::MENU_BOARD, Modulos::COPILOTO]);
+});
+
+it('consulta o modulo pela empresas service, na sessao ou na empresa informada', function (): void {
+    $user = User::factory()->create();
+    $service = app(EmpresasServiceInterface::class);
+
+    expect($service->podeUsar(Modulos::COPILOTO, $user->empresa()))->toBeTrue()
+        ->and($service->podeUsar(Modulos::MENU_BOARD, $user->empresa()))->toBeFalse()
+        ->and($service->podeUsar(Modulos::COPILOTO))->toBeFalse();
+
+    $this->actingAs($user);
+
+    expect($service->podeUsar(Modulos::COPILOTO))->toBeTrue()
+        ->and($service->podeUsar(Modulos::MENU_BOARD))->toBeFalse();
 });
 
 it('libera os modulos do segmento e sempre os obrigatorios', function () {
     $varejo = User::factory()->create()->empresa();
     $restaurante = User::factory()->restaurante()->create()->empresa();
 
-    expect($varejo->podeUsar(Segmento::MODULO_COPILOTO))->toBeTrue()
-        ->and($varejo->podeUsar(Segmento::MODULO_MENU_BOARD))->toBeFalse()
+    expect($varejo->podeUsar(Modulos::COPILOTO))->toBeTrue()
+        ->and($varejo->podeUsar(Modulos::MENU_BOARD))->toBeFalse()
         ->and($varejo->podeUsar('vendas'))->toBeTrue()
-        ->and($restaurante->podeUsar(Segmento::MODULO_MENU_BOARD))->toBeTrue();
+        ->and($restaurante->podeUsar(Modulos::MENU_BOARD))->toBeTrue();
 });
 
 it('faz o ajuste da empresa valer por cima do segmento', function () {
     $varejo = User::factory()->create();
     $restaurante = User::factory()->restaurante()->create();
 
-    ajustarModulo($varejo, Segmento::MODULO_MENU_BOARD, true);
-    ajustarModulo($restaurante, Segmento::MODULO_MENU_BOARD, false);
+    ajustarModulo($varejo, Modulos::MENU_BOARD, true);
+    ajustarModulo($restaurante, Modulos::MENU_BOARD, false);
 
-    expect($varejo->empresa()->podeUsar(Segmento::MODULO_MENU_BOARD))->toBeTrue()
-        ->and($restaurante->empresa()->podeUsar(Segmento::MODULO_MENU_BOARD))->toBeFalse();
+    expect($varejo->empresa()->podeUsar(Modulos::MENU_BOARD))->toBeTrue()
+        ->and($restaurante->empresa()->podeUsar(Modulos::MENU_BOARD))->toBeFalse();
 });
 
 it('compartilha o segmento e os modulos disponiveis da empresa', function () {
@@ -54,7 +70,7 @@ it('compartilha o segmento e os modulos disponiveis da empresa', function () {
         ->get(route('extrato.index'))
         ->assertInertia(fn (Assert $page) => $page
             ->where('empresa.segmento', 'Restaurante')
-            ->where('empresa.modulos', [Segmento::MODULO_MENU_BOARD, Segmento::MODULO_COPILOTO]));
+            ->where('empresa.modulos', [Modulos::MENU_BOARD, Modulos::COPILOTO]));
 });
 
 it('esconde o menu board de empresa sem o modulo', function () {
@@ -69,7 +85,7 @@ it('mostra menu board indisponivel na tv da empresa que perdeu o modulo e devolv
     $user = User::factory()->restaurante()->create();
     $board = MenuBoard::query()->create(['nome' => 'Almoço', 'tema' => 'dark', 'ativo' => true, 'usuario_id' => $user->id]);
     TvDispositivo::query()->create(['usuario_id' => $user->id, 'token_hash' => hash('sha256', 'token-da-tv')]);
-    ajustarModulo($user, Segmento::MODULO_MENU_BOARD, false);
+    ajustarModulo($user, Modulos::MENU_BOARD, false);
 
     $this->withCookie(TvController::COOKIE_DISPOSITIVO, 'token-da-tv')
         ->get(route('tv'))
@@ -84,7 +100,7 @@ it('mostra menu board indisponivel na tv da empresa que perdeu o modulo e devolv
 
 it('bloqueia o copiloto para empresa sem o modulo', function () {
     $user = User::factory()->create();
-    ajustarModulo($user, Segmento::MODULO_COPILOTO, false);
+    ajustarModulo($user, Modulos::COPILOTO, false);
 
     $this->actingAs($user)
         ->post(route('dashboard.insights.store'), ['ano' => now()->year, 'mes' => now()->month])
@@ -106,7 +122,7 @@ it('encerra sem chamar a ia a analise na fila de empresa que perdeu o copiloto',
         'hash_dados' => 'x',
         'pacote' => [],
     ]);
-    ajustarModulo($user, Segmento::MODULO_COPILOTO, false);
+    ajustarModulo($user, Modulos::COPILOTO, false);
 
     app(DashboardInsightsServiceInterface::class)->processar($analise->id);
 

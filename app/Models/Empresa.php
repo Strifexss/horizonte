@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Modulos;
 use Database\Factories\EmpresaFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -70,7 +71,7 @@ class Empresa extends Model
      */
     public function podeUsar(string $modulo): bool
     {
-        if (! array_key_exists($modulo, Segmento::MODULOS_OPCIONAIS)) {
+        if (! array_key_exists($modulo, Modulos::OPCIONAIS)) {
             return true;
         }
 
@@ -90,7 +91,7 @@ class Empresa extends Model
      */
     public function modulosDisponiveis(): array
     {
-        return array_values(array_filter(array_keys(Segmento::MODULOS_OPCIONAIS), fn (string $modulo) => $this->podeUsar($modulo)));
+        return array_values(array_filter(array_keys(Modulos::OPCIONAIS), fn (string $modulo) => $this->podeUsar($modulo)));
     }
 
     /**

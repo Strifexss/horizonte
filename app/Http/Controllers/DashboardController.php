@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\DTO\DashboardSearchDTO;
 use App\Http\Requests\DashboardSearchRequest;
 use App\Http\Resources\DashboardAnaliseResource;
-use App\Models\Segmento;
 use App\Services\Interfaces\DashboardInsightsServiceInterface;
 use App\Services\Interfaces\DashboardServiceInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
@@ -46,10 +45,6 @@ class DashboardController extends Controller
             'ranking' => Inertia::defer(fn (): array => $this->dashboardService
                 ->rankingNoPeriodo($filtros), 'ranking'),
             'insights' => Inertia::optional(function () use ($request, $filtros): ?array {
-                if (! $request->user()->empresa()?->podeUsar(Segmento::MODULO_COPILOTO)) {
-                    return null;
-                }
-
                 $analise = $this->dashboardInsightsService->analiseDoPeriodo((int) $request->user()->id, (int) $filtros->ano, (int) $filtros->mes);
 
                 return $analise ? DashboardAnaliseResource::make($analise)->resolve() : null;

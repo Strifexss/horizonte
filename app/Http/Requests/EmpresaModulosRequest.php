@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Segmento;
+use App\Modulos;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -29,7 +29,7 @@ class EmpresaModulosRequest extends FormRequest
     {
         return [
             function ($validator): void {
-                $desconhecidos = array_diff(array_keys($this->input('ajustes', [])), array_keys(Segmento::MODULOS_OPCIONAIS));
+                $desconhecidos = array_diff(array_keys($this->input('ajustes', [])), array_keys(Modulos::OPCIONAIS));
 
                 if ($desconhecidos !== []) {
                     $validator->errors()->add('ajustes', 'Módulo desconhecido.');

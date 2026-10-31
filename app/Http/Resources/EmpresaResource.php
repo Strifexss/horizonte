@@ -3,7 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Empresa;
-use App\Models\Segmento;
+use App\Modulos;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -25,7 +25,7 @@ class EmpresaResource extends JsonResource
             'segmento_id' => $this->segmento_id,
             'segmento' => $this->segmento?->nome,
             'modulos' => $this->modulosDisponiveis(),
-            'ajustes' => collect(array_keys(Segmento::MODULOS_OPCIONAIS))
+            'ajustes' => collect(array_keys(Modulos::OPCIONAIS))
                 ->mapWithKeys(function (string $modulo) {
                     $ajuste = $this->ajustesDeModulo->firstWhere('modulo', $modulo);
 

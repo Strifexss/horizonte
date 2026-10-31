@@ -16,38 +16,6 @@ class Segmento extends Model
 
     public const RESTAURANTE = 'restaurante';
 
-    public const MODULO_MENU_BOARD = 'menu_board';
-
-    public const MODULO_COPILOTO = 'copiloto';
-
-    /**
-     * Módulos opcionais: o Segmento escolhe quais inclui e o Administrador ajusta por Empresa.
-     *
-     * @var array<string, array{nome: string, descricao: string}>
-     */
-    public const MODULOS_OPCIONAIS = [
-        self::MODULO_MENU_BOARD => ['nome' => 'Menu Board', 'descricao' => 'Cardápio na TV do balcão, pareamento e exibição.'],
-        self::MODULO_COPILOTO => ['nome' => 'Copiloto', 'descricao' => 'Insights de IA no Dashboard.'],
-    ];
-
-    /**
-     * Módulos obrigatórios: presentes em toda Empresa, só informativos no painel.
-     *
-     * @var list<string>
-     */
-    public const MODULOS_OBRIGATORIOS = [
-        'Financeiro e Extrato',
-        'Contas',
-        'Categorias',
-        'Formas de pagamento',
-        'Produtos',
-        'Grupos',
-        'Fornecedores',
-        'Funcionários',
-        'Vendas',
-        'Dashboard',
-    ];
-
     protected $table = 'segmentos';
 
     /**

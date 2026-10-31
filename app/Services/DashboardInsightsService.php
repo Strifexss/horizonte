@@ -8,10 +8,11 @@ use App\Jobs\GerarAnaliseDashboard;
 use App\Models\DashboardAnalise;
 use App\Models\Empresa;
 use App\Models\InsightAcao;
-use App\Models\Segmento;
+use App\Modulos;
 use App\Repositories\Interfaces\DashboardAnaliseRepositoryInterface;
 use App\Repositories\Interfaces\InsightAcaoRepositoryInterface;
 use App\Services\Interfaces\DashboardInsightsServiceInterface;
+use App\Services\Interfaces\EmpresasServiceInterface;
 use App\Services\Interfaces\IndicadoresInsightsServiceInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Client\RequestException;
@@ -37,11 +38,21 @@ class DashboardInsightsService extends ServiceAbstract implements DashboardInsig
         private DashboardAnaliseRepositoryInterface $dashboardAnaliseRepository,
         private InsightAcaoRepositoryInterface $insightAcaoRepository,
         private IndicadoresInsightsServiceInterface $indicadoresInsightsService,
+        private EmpresasServiceInterface $empresasService,
     ) {
         parent::__construct($dashboardAnaliseRepository);
     }
 
     public function analiseDoPeriodo(int $usuarioId, int $ano, int $mes): ?DashboardAnalise
+    {
+        if (! $this->empresasService->podeUsar(Modulos::COPILOTO)) {
+            return null;
+        }
+
+        return $this->ultimaDoPeriodo($usuarioId, $ano, $mes);
+    }
+
+    private function ultimaDoPeriodo(int $usuarioId, int $ano, int $mes): ?DashboardAnalise
     {
         $analise = $this->dashboardAnaliseRepository->ultimaDoPeriodo((int) Empresa::idDoUsuario($usuarioId), $ano, $mes);
 
@@ -57,7 +68,7 @@ class DashboardInsightsService extends ServiceAbstract implements DashboardInsig
 
     public function gerar(int $usuarioId, int $ano, int $mes, bool $forcar = false): DashboardAnalise
     {
-        $ultima = $this->analiseDoPeriodo($usuarioId, $ano, $mes);
+        $ultima = $this->ultimaDoPeriodo($usuarioId, $ano, $mes);
 
         if ($ultima && $ultima->status === DashboardAnalise::STATUS_PROCESSANDO) {
             return $ultima;
@@ -97,11 +108,11 @@ class DashboardInsightsService extends ServiceAbstract implements DashboardInsig
     {
         $analise = $this->dashboardAnaliseRepository->find($analiseId);
 
-        if ($analise->status !== DashboardAnalise::STATUS_PROCESSANDO) {
+        if (! $this->aguardandoProcessamento($analise)) {
             return;
         }
 
-        if (! $analise->empresa?->podeUsar(Segmento::MODULO_COPILOTO)) {
+        if (! $this->empresaPodeUsarCopiloto($analise->empresa)) {
             $this->registrarFalha($analise->id, 'O Copiloto não está disponível para esta empresa.');
 
             return;
@@ -110,12 +121,7 @@ class DashboardInsightsService extends ServiceAbstract implements DashboardInsig
         try {
             $resposta = $this->perguntarAIa($analise->pacote ?? []);
         } catch (RateLimitedException|InsufficientCreditsException $erro) {
-            Log::error('Análise do dashboard interrompida: cota ou créditos do provedor de IA esgotados. '.$erro::class.': '.$erro->getMessage(), [
-                'analise_id' => $analise->id,
-                'detalhe' => $erro->getPrevious() instanceof RequestException
-                    ? $erro->getPrevious()->response->body()
-                    : $erro->getPrevious()?->getMessage(),
-            ]);
+            $this->registrarEsgotamentoDoProvedor($analise->id, $erro);
             $this->registrarFalha($analise->id, 'Não foi possível gerar a análise agora. Tente novamente mais tarde.');
 
             return;
@@ -130,14 +136,7 @@ class DashboardInsightsService extends ServiceAbstract implements DashboardInsig
 
         [$insights, $descartados] = $this->validarInsights($resposta['insights'] ?? [], $analise->pacote ?? []);
 
-        $this->dashboardAnaliseRepository->update($analise->id, [
-            'status' => DashboardAnalise::STATUS_CONCLUIDA,
-            'resumo' => (string) ($resposta['resumo'] ?? ''),
-            'insights' => $insights,
-            'resultados_acoes' => array_values($resposta['resultados_acoes'] ?? []),
-            'insights_descartados' => $descartados,
-            'modelo' => config('ai.default').':'.config('ai.providers.'.config('ai.default').'.models.text.default'),
-        ]);
+        $this->concluirAnalise($analise, $resposta, $insights, $descartados);
     }
 
     public function registrarAcao(int $analiseId, int $usuarioId, string $chave, string $acao, ?string $motivo = null): InsightAcao
@@ -181,6 +180,42 @@ class DashboardInsightsService extends ServiceAbstract implements DashboardInsig
         $this->dashboardAnaliseRepository->update($analiseId, [
             'status' => DashboardAnalise::STATUS_FALHOU,
             'erro' => $mensagem,
+        ]);
+    }
+
+    private function aguardandoProcessamento(DashboardAnalise $analise): bool
+    {
+        return $analise->status === DashboardAnalise::STATUS_PROCESSANDO;
+    }
+
+    private function empresaPodeUsarCopiloto(?Empresa $empresa): bool
+    {
+        return $this->empresasService->podeUsar(Modulos::COPILOTO, $empresa);
+    }
+
+    private function registrarEsgotamentoDoProvedor(int $analiseId, RateLimitedException|InsufficientCreditsException $erro): void
+    {
+        Log::error('Análise do dashboard interrompida: cota ou créditos do provedor de IA esgotados. '.$erro::class.': '.$erro->getMessage(), [
+            'analise_id' => $analiseId,
+            'detalhe' => $erro->getPrevious() instanceof RequestException
+                ? $erro->getPrevious()->response->body()
+                : $erro->getPrevious()?->getMessage(),
+        ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $resposta
+     * @param  list<array<string, mixed>>  $insights
+     */
+    private function concluirAnalise(DashboardAnalise $analise, array $resposta, array $insights, int $descartados): void
+    {
+        $this->dashboardAnaliseRepository->update($analise->id, [
+            'status' => DashboardAnalise::STATUS_CONCLUIDA,
+            'resumo' => (string) ($resposta['resumo'] ?? ''),
+            'insights' => $insights,
+            'resultados_acoes' => array_values($resposta['resultados_acoes'] ?? []),
+            'insights_descartados' => $descartados,
+            'modelo' => config('ai.default').':'.config('ai.providers.'.config('ai.default').'.models.text.default'),
         ]);
     }
 

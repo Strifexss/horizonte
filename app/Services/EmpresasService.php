@@ -70,6 +70,13 @@ class EmpresasService extends ServiceAbstract implements EmpresasServiceInterfac
         });
     }
 
+    public function podeUsar(string $modulo, ?Empresa $empresa = null): bool
+    {
+        $empresa ??= $this->empresaRepository->daSessao();
+
+        return $empresa?->podeUsar($modulo) ?? false;
+    }
+
     private function vincularAdminMaster(User $usuario, Empresa $empresa): void
     {
         $usuario->empresas()->attach($empresa->id, ['cargo' => Empresa::CARGO_ADMIN_MASTER]);

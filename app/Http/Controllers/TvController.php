@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Exceptions\PinPareamentoInvalidoException;
 use App\Http\Requests\ParearTvRequest;
 use App\Http\Resources\TvBoardResource;
-use App\Models\Segmento;
+use App\Modulos;
+use App\Services\Interfaces\EmpresasServiceInterface;
 use App\Services\Interfaces\MenuBoardsServiceInterface;
 use App\Services\Interfaces\TvPareamentoServiceInterface;
 use Illuminate\Http\RedirectResponse;
@@ -25,6 +26,7 @@ class TvController extends Controller
     public function __construct(
         private TvPareamentoServiceInterface $tvPareamentoService,
         private MenuBoardsServiceInterface $menuBoardsService,
+        private EmpresasServiceInterface $empresasService,
     ) {}
 
     public function show(Request $request): Response
@@ -35,7 +37,7 @@ class TvController extends Controller
             return Inertia::render('tv/pareamento');
         }
 
-        if (! $dispositivo->empresa?->podeUsar(Segmento::MODULO_MENU_BOARD)) {
+        if (! $this->empresasService->podeUsar(Modulos::MENU_BOARD, $dispositivo->empresa)) {
             return Inertia::render('tv/board', ['board' => null, 'indisponivel' => true]);
         }
 

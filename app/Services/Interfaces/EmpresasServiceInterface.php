@@ -29,4 +29,9 @@ interface EmpresasServiceInterface extends AbstractServiceInterface
      * Troca o Segmento da Empresa e os ajustes de módulo feitos pelo Administrador.
      */
     public function atualizarModulos(int $id, EmpresaModulosDTO $dados): Empresa;
+
+    /**
+     * Sem $empresa, usa a Empresa da sessão. Sem Empresa, o módulo opcional não está disponível.
+     */
+    public function podeUsar(string $modulo, ?Empresa $empresa = null): bool;
 }

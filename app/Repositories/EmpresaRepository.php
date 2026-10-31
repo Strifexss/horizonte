@@ -7,6 +7,7 @@ use App\Models\Empresa;
 use App\Models\EmpresaModulo;
 use App\Repositories\Interfaces\EmpresaRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class EmpresaRepository extends AbstractRepository implements EmpresaRepositoryInterface
 {
@@ -44,6 +45,13 @@ class EmpresaRepository extends AbstractRepository implements EmpresaRepositoryI
     public function findComModulos(int $id): Empresa
     {
         return $this->model->newQuery()->with(['segmento', 'ajustesDeModulo', 'usuarios'])->findOrFail($id);
+    }
+
+    public function daSessao(): ?Empresa
+    {
+        $id = Auth::user()?->empresa()?->id;
+
+        return $id === null ? null : $this->findComModulos($id);
     }
 
     public function sincronizarAjustes(int $empresaId, array $ajustes): void
