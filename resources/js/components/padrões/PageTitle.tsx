@@ -4,10 +4,11 @@ type Props = {
   title: string;
   mobileTitle?: string;
   subtitle?: string;
+  showSubtitleOnMobile?: boolean;
   actions?: React.ReactNode;
 };
 
-export default function PageTitle({ title, mobileTitle, subtitle, actions }: Props) {
+export default function PageTitle({ title, mobileTitle, subtitle, showSubtitleOnMobile = false, actions }: Props) {
   return (
     <div className="mb-2 flex min-w-0 flex-col items-start justify-between md:flex-row">
       <div className="min-w-0">
@@ -21,7 +22,9 @@ export default function PageTitle({ title, mobileTitle, subtitle, actions }: Pro
             title
           )}
         </h1>
-        {subtitle ? <p className="hidden text-sm text-muted-foreground md:block">{subtitle}</p> : null}
+        {subtitle ? (
+          <p className={`text-sm text-muted-foreground ${showSubtitleOnMobile ? 'block' : 'hidden md:block'}`}>{subtitle}</p>
+        ) : null}
       </div>
       {actions ? (
         <div className="flex flex-wrap items-center justify-end gap-2 sm:ml-4 max-md:has-[>:not(.hidden)]:mt-4 md:gap-3">{actions}</div>

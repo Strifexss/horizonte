@@ -55,7 +55,7 @@ export default function Inicio({ primeirosPassos, resumo, ultimosLancamentos }: 
             <ExpandirSidebarNoInicio />
             <Head title="Início" />
             <div className="flex h-full w-full max-w-full min-w-0 flex-1 flex-col gap-6 overflow-x-hidden rounded-xl p-4 md:gap-8">
-                <PageTitle title={`${saudacao(agora.getHours())}, ${primeiroNome}`} subtitle={subtitulo} />
+                <PageTitle title={`${saudacao(agora.getHours())}, ${primeiroNome}`} subtitle={subtitulo} showSubtitleOnMobile />
 
                 <InicioAcoes />
 
