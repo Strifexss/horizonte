@@ -137,6 +137,13 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
             ->get();
     }
 
+    public function existeNaEmpresa(int $empresaId): bool
+    {
+        return $this->model->newQuery()
+            ->where('empresa_id', $empresaId)
+            ->exists();
+    }
+
     public function ativosComPrecoDeVendaSuspeito(int $empresaId): Collection
     {
         return $this->model->newQuery()

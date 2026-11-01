@@ -140,6 +140,16 @@ _Avoid_: Senha da TV, código de acesso
 Ação manual na TV de buscar de novo o Menu Board ativo; a TV não se atualiza sozinha.
 _Avoid_: Atualização automática, refresh
 
+### Início
+
+**Início**:
+Tela de entrada depois do login: atalhos do que fazer (Nova venda em destaque), resumo de hoje ou do mês e os últimos lançamentos. O Dashboard é onde se analisa; o Início é onde se faz.
+_Avoid_: Home, página inicial, dashboard
+
+**Primeiros passos**:
+Lista no Início do que a Empresa ainda não fez: cadastrar produto, lançar despesa, fazer a primeira venda e, quando pode usar o Menu Board, conectar a TV. Cada passo conta como feito pelos dados que a Empresa já tem, nada é gravado; a lista some quando todos estão feitos.
+_Avoid_: Onboarding, checklist, tutorial
+
 ### Dashboard
 
 **Período de referência**:

@@ -24,7 +24,7 @@ type Props = {
     onDelete: (item: ExtratoParcela) => void;
 };
 
-function ExtratoCardContent({ item }: { item: ExtratoParcela }) {
+export function ExtratoCardContent({ item }: { item: ExtratoParcela }) {
     const isReceita = parcelaEhReceita(item);
     const statusMeta = STATUS_META[statusDaParcela(item)];
     const isCategoriaProduto = String(item.categoria?.nome ?? '').toUpperCase() === 'PRODUTO';

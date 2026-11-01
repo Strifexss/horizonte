@@ -7,6 +7,7 @@ import VendaModal from '@/components/vendas/VendaModal';
 import VendasFilters from '@/components/vendas/VendasFilters';
 import { visitVendas } from '@/components/vendas/vendasQuery';
 import VendasTable from '@/components/vendas/VendasTable';
+import { useAbrirNovoPelaUrl } from '@/hooks/use-abrir-novo-pela-url';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Deferred, Head, router, usePage } from '@inertiajs/react';
@@ -79,6 +80,8 @@ export default function VendasIndex() {
         setVendaSelecionada(null);
         setModalOpen(true);
     }
+
+    useAbrirNovoPelaUrl(abrirNova);
 
     function abrirVenda(venda: Venda): void {
         setVendaSelecionada(venda);

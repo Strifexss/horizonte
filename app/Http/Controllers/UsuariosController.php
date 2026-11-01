@@ -98,7 +98,7 @@ class UsuariosController extends Controller
         $request->session()->regenerate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('dashboard');
+        return redirect()->route('inicio');
     }
 
     public function transfer(TransferirDadosRequest $request)

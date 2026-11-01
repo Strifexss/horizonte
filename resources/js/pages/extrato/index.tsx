@@ -13,6 +13,7 @@ import FornecedoresModal from '@/components/fornecedores/FornecedoresModal';
 import FuncionariosModal from '@/components/funcionarios/FuncionariosModal';
 import { PageTitle } from '@/components/padrões';
 import ProdutosModal from '@/components/produtos/ProdutosModal';
+import { useAbrirNovoPelaUrl } from '@/hooks/use-abrir-novo-pela-url';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
@@ -50,6 +51,8 @@ export default function Extrato() {
         setParcelaEdit(null);
         setExtratoOpen(true);
     }
+
+    useAbrirNovoPelaUrl(openCreate);
 
     function openEdit(parcela: ExtratoParcela): void {
         setExtratoMode('edit');

@@ -19,7 +19,7 @@ it('recusa cadastro com e-mail de outra conta com senha, mas aceita se so existi
     $this->post(route('register'), [...$dados, 'email' => 'senha@email.com'])->assertSessionHasErrors('email');
     $this->assertGuest();
 
-    $this->post(route('register'), [...$dados, 'email' => 'google@email.com'])->assertRedirect(route('dashboard'));
+    $this->post(route('register'), [...$dados, 'email' => 'google@email.com'])->assertRedirect(route('inicio'));
     $this->assertAuthenticated();
 });
 

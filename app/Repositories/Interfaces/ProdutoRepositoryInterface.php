@@ -58,6 +58,11 @@ interface ProdutoRepositoryInterface extends AbstractRepositoryInterface
      */
     public function ativosDaEmpresa(int $empresaId): Collection;
 
+    /**
+     * Se a Empresa já cadastrou algum produto.
+     */
+    public function existeNaEmpresa(int $empresaId): bool;
+
     public function atualizarFoto(int $id, ?string $fotoPath): Produto;
 
     /**

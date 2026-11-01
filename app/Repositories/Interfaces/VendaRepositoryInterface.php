@@ -51,4 +51,9 @@ interface VendaRepositoryInterface extends AbstractRepositoryInterface
      * @return array{vendas: int, total: float, itens: int}
      */
     public function resumoNoPeriodo(int $empresaId, string $dataInicio, string $dataFim): array;
+
+    /**
+     * Se a Empresa já registrou alguma venda, em qualquer status.
+     */
+    public function existeNaEmpresa(int $empresaId): bool;
 }

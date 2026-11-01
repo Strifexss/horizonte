@@ -24,7 +24,7 @@ it('redireciona para o consentimento do google', function () {
 it('cria a conta google no primeiro acesso e manda para o onboarding', function () {
     googleRetorna(usuarioDoGoogle());
 
-    $this->get(route('google.callback'))->assertRedirect(route('dashboard'));
+    $this->get(route('google.callback'))->assertRedirect(route('inicio'));
 
     $user = User::query()->where('google_id', '1234567890')->firstOrFail();
     expect($user->email)->toBe('maria@gmail.com')

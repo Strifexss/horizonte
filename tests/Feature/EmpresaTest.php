@@ -42,7 +42,7 @@ it('cria a empresa no onboarding e libera o sistema', function () {
 
     $this->actingAs($user)
         ->post(route('onboarding.store'), ['nome' => 'Padaria Bom Dia', 'segmento_id' => segmentoId(Segmento::RESTAURANTE)])
-        ->assertRedirect(route('dashboard'));
+        ->assertRedirect(route('inicio'));
 
     $empresa = $user->fresh()->empresa();
     expect($empresa->nome)->toBe('Padaria Bom Dia')
@@ -66,8 +66,8 @@ it('valida nome e ramo no onboarding', function () {
 it('nao repete o onboarding para quem ja tem empresa', function () {
     $user = User::factory()->create();
 
-    $this->actingAs($user)->get(route('onboarding'))->assertRedirect(route('dashboard'));
-    $this->actingAs($user)->post(route('onboarding.store'), ['nome' => 'Outra', 'segmento_id' => segmentoId(Segmento::VAREJO)])->assertRedirect(route('dashboard'));
+    $this->actingAs($user)->get(route('onboarding'))->assertRedirect(route('inicio'));
+    $this->actingAs($user)->post(route('onboarding.store'), ['nome' => 'Outra', 'segmento_id' => segmentoId(Segmento::VAREJO)])->assertRedirect(route('inicio'));
 
     expect($user->empresas()->count())->toBe(1);
 });

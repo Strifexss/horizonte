@@ -198,7 +198,7 @@ it('troca a sessao do administrador pela do usuario alvo ao entrar como ele', fu
 
     $this->actingAs($admin)
         ->post(route('admin.usuarios.entrar-como', $alvo->id))
-        ->assertRedirect(route('dashboard'));
+        ->assertRedirect(route('inicio'));
 
     $this->assertAuthenticatedAs($alvo);
 });

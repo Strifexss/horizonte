@@ -155,6 +155,13 @@ class VendaRepository extends AbstractRepository implements VendaRepositoryInter
             ->get();
     }
 
+    public function existeNaEmpresa(int $empresaId): bool
+    {
+        return $this->model->newQuery()
+            ->where('empresa_id', $empresaId)
+            ->exists();
+    }
+
     public function resumoNoPeriodo(int $empresaId, string $dataInicio, string $dataFim): array
     {
         $periodo = [$dataInicio.' 00:00:00', $dataFim.' 23:59:59'];

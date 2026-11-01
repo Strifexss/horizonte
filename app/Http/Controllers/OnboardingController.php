@@ -21,7 +21,7 @@ class OnboardingController extends Controller
     public function create(Request $request): Response|RedirectResponse
     {
         if ($request->user()->empresa() !== null) {
-            return to_route('dashboard');
+            return to_route('inicio');
         }
 
         return Inertia::render('onboarding/index', [
@@ -32,11 +32,11 @@ class OnboardingController extends Controller
     public function store(OnboardingRequest $request): RedirectResponse
     {
         if ($request->user()->empresa() !== null) {
-            return to_route('dashboard');
+            return to_route('inicio');
         }
 
         $this->empresasService->criarNoOnboarding($request->user(), $request->validated('nome'), (int) $request->validated('segmento_id'));
 
-        return to_route('dashboard');
+        return to_route('inicio');
     }
 }

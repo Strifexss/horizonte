@@ -335,13 +335,32 @@ class FinanceiroRepository extends AbstractRepository implements FinanceiroRepos
             ->get();
     }
 
+    public function existeDespesaNaEmpresa(int $empresaId): bool
+    {
+        return $this->model->newQuery()
+            ->where('empresa_id', $empresaId)
+            ->whereRaw('UPPER(tipo) = ?', ['DESPESA'])
+            ->exists();
+    }
+
+    public function ultimasParcelas(int $empresaId, int $limite): Collection
+    {
+        return FinanceiroParcela::query()
+            ->where('empresa_id', $empresaId)
+            ->with(['categoria', 'conta', 'produto.fornecedor', 'produto.grupo', 'fornecedor', 'funcionario', 'financeiro.formaPagamento'])
+            ->orderByDesc('id')
+            ->limit($limite)
+            ->get();
+    }
+
     public function totaisNoPeriodo(int $empresaId, string $dataInicio, string $dataFim): array
     {
         $linha = FinanceiroParcela::query()
             ->toBase()
             ->join('financeiro', 'financeiro.id', '=', 'financeiro_parcela.financeiro_id')
             ->where('financeiro_parcela.empresa_id', $empresaId)
-            ->whereBetween('financeiro_parcela.data_competencia', [$dataInicio, $dataFim])
+            ->whereDate('financeiro_parcela.data_competencia', '>=', $dataInicio)
+            ->whereDate('financeiro_parcela.data_competencia', '<=', $dataFim)
             ->selectRaw("SUM(CASE WHEN UPPER(financeiro.tipo) = 'RECEITA' THEN financeiro_parcela.valor ELSE 0 END) as receitas")
             ->selectRaw("SUM(CASE WHEN UPPER(financeiro.tipo) = 'DESPESA' THEN financeiro_parcela.valor ELSE 0 END) as despesas")
             ->selectRaw('COUNT(*) as lancamentos')

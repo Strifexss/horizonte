@@ -53,6 +53,7 @@ use App\Services\FornecedoresService;
 use App\Services\FuncionariosService;
 use App\Services\GruposService;
 use App\Services\IndicadoresInsightsService;
+use App\Services\InicioService;
 use App\Services\Interfaces\CategoriaServiceInterface;
 use App\Services\Interfaces\ContasServiceInterface;
 use App\Services\Interfaces\DashboardInsightsServiceInterface;
@@ -65,6 +66,7 @@ use App\Services\Interfaces\FornecedoresServiceInterface;
 use App\Services\Interfaces\FuncionariosServiceInterface;
 use App\Services\Interfaces\GruposServiceInterface;
 use App\Services\Interfaces\IndicadoresInsightsServiceInterface;
+use App\Services\Interfaces\InicioServiceInterface;
 use App\Services\Interfaces\MenuBoardsServiceInterface;
 use App\Services\Interfaces\NovidadesServiceInterface;
 use App\Services\Interfaces\ProdutosServiceInterface;
@@ -93,6 +95,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(DashboardServiceInterface::class, DashboardService::class);
+        $this->app->bind(InicioServiceInterface::class, InicioService::class);
         $this->app->bind(EmpresasServiceInterface::class, EmpresasService::class);
         $this->app->bind(EmpresaRepositoryInterface::class, EmpresaRepository::class);
         $this->app->bind(SegmentosServiceInterface::class, SegmentosService::class);

@@ -12,6 +12,7 @@ use App\Http\Controllers\FormasPagamentoController;
 use App\Http\Controllers\FornecedoresController;
 use App\Http\Controllers\FuncionariosController;
 use App\Http\Controllers\GruposController;
+use App\Http\Controllers\InicioController;
 use App\Http\Controllers\MenuBoardsController;
 use App\Http\Controllers\NovidadesController;
 use App\Http\Controllers\NovidadesUsuarioController;
@@ -40,6 +41,7 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', 'empresa'])->group(function () {
     Route::put('/empresa/nome', [EmpresaController::class, 'confirmarNome'])->name('empresa.nome.update');
 
+    Route::get('/inicio', [InicioController::class, 'index'])->name('inicio');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::middleware('modulo:copiloto')->group(function () {
         Route::post('/dashboard/insights', [DashboardInsightsController::class, 'store'])->name('dashboard.insights.store');

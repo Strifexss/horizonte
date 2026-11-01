@@ -5,6 +5,7 @@ import ProdutosTable from '@/components/produtos/ProdutosTable';
 import { visitProdutos } from '@/components/produtos/produtosQuery';
 import { produtosDaPagina, type ProdutoFilters, type ProdutoItem } from '@/components/produtos/types';
 import { Button } from '@/components/ui/button';
+import { useAbrirNovoPelaUrl } from '@/hooks/use-abrir-novo-pela-url';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Deferred, Head, router, usePage } from '@inertiajs/react';
@@ -58,6 +59,8 @@ export default function ProdutosIndex() {
         setProdutoEdit(null);
         setFormOpen(true);
     }
+
+    useAbrirNovoPelaUrl(openCreate);
 
     function openEdit(item: ProdutoItem): void {
         setFormMode('edit');

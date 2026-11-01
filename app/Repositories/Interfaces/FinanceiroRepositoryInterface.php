@@ -95,6 +95,18 @@ interface FinanceiroRepositoryInterface extends AbstractRepositoryInterface
     public function totaisNoPeriodo(int $empresaId, string $dataInicio, string $dataFim): array;
 
     /**
+     * Se a Empresa já lançou alguma despesa.
+     */
+    public function existeDespesaNaEmpresa(int $empresaId): bool;
+
+    /**
+     * Parcelas lançadas mais recentemente na Empresa, com as relações que o Extrato exibe.
+     *
+     * @return Collection<int, FinanceiroParcela>
+     */
+    public function ultimasParcelas(int $empresaId, int $limite): Collection;
+
+    /**
      * Saldo ainda não pago (valor − valor pago) por tipo, com vencimento no intervalo.
      *
      * @return array{a_receber: float, a_pagar: float}
