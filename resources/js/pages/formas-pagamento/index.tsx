@@ -4,6 +4,7 @@ import FormasPagamentoTable from '@/components/formas-pagamento/FormasPagamentoT
 import { formasPagamentoDaColecao, type FormaPagamentoItem } from '@/components/formas-pagamento/types';
 import { MobileFab, PageTitle } from '@/components/padrões';
 import { Button } from '@/components/ui/button';
+import { useAbrirNovoPelaUrl } from '@/hooks/use-abrir-novo-pela-url';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Deferred, Head, router, usePage } from '@inertiajs/react';
@@ -33,6 +34,8 @@ export default function FormasPagamentoIndex() {
         setFormaEdit(null);
         setFormOpen(true);
     }
+
+    useAbrirNovoPelaUrl(openCreate);
 
     function openEdit(item: FormaPagamentoItem): void {
         setFormaEdit(item);

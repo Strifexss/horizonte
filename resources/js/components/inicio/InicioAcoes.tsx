@@ -2,7 +2,7 @@ import { PARAMETRO_NOVO } from '@/hooks/use-abrir-novo-pela-url';
 import { cn } from '@/lib/utils';
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { ArrowDownUp, Package, ShoppingCart, Tv, type LucideIcon } from 'lucide-react';
+import { ArrowDownUp, CreditCard, Package, ShoppingCart, Tv, type LucideIcon } from 'lucide-react';
 
 type Acao = {
     chave: string;
@@ -55,6 +55,15 @@ export default function InicioAcoes() {
             descricao: 'Mostre o cardápio na TV do balcão com seus produtos e Destaques.',
             href: route('menu-boards'),
             icone: Tv,
+        });
+    } else {
+        outras.push({
+            chave: 'forma-pagamento',
+            titulo: 'Cadastrar forma de pagamento',
+            tituloCurto: 'Forma de pagamento',
+            descricao: 'Pix, dinheiro, cartão. Aparece na hora de vender.',
+            href: route('formas-pagamento', { [PARAMETRO_NOVO]: 1 }),
+            icone: CreditCard,
         });
     }
 

@@ -4,12 +4,30 @@ import InicioResumo from '@/components/inicio/InicioResumo';
 import InicioUltimosLancamentos from '@/components/inicio/InicioUltimosLancamentos';
 import type { InicioPageProps } from '@/components/inicio/types';
 import { PageTitle } from '@/components/padrões';
+import { useSidebar } from '@/components/ui/sidebar';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Deferred, Head, usePage } from '@inertiajs/react';
+import { useEffect, useRef } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Início', href: '/inicio' }];
+
+function ExpandirSidebarNoInicio(): null {
+    const { setOpen } = useSidebar();
+    const jaExpandiu = useRef(false);
+
+    useEffect(() => {
+        if (jaExpandiu.current) {
+            return;
+        }
+
+        jaExpandiu.current = true;
+        setOpen(true);
+    }, [setOpen]);
+
+    return null;
+}
 
 function saudacao(hora: number): string {
     if (hora < 12) {
@@ -34,6 +52,7 @@ export default function Inicio({ primeirosPassos, resumo, ultimosLancamentos }: 
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
+            <ExpandirSidebarNoInicio />
             <Head title="Início" />
             <div className="flex h-full w-full max-w-full min-w-0 flex-1 flex-col gap-6 overflow-x-hidden rounded-xl p-4 md:gap-8">
                 <PageTitle title={`${saudacao(agora.getHours())}, ${primeiroNome}`} subtitle={subtitulo} />

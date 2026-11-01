@@ -19,7 +19,7 @@ export default function InicioUltimosLancamentos({ lancamentos }: { lancamentos?
     const data = lancamentos ?? [];
 
     return (
-        <section aria-label="Últimos lançamentos">
+        <section aria-label="Últimos 5 lançamentos">
             <TableWithFilters
                 columns={columns}
                 data={data}
