@@ -6,6 +6,8 @@ class VendaDTO extends Dto
 {
     public int $usuario_id;
 
+    public ?int $cliente_id = null;
+
     public ?string $observacao = null;
 
     /**
@@ -33,6 +35,8 @@ class VendaDTO extends Dto
             'forma_pagamento_id' => (int) $pagamento['forma_pagamento_id'],
             'valor' => (float) $pagamento['valor'],
         ], $data['pagamentos'] ?? []));
+
+        $data['cliente_id'] = isset($data['cliente_id']) && $data['cliente_id'] !== '' ? (int) $data['cliente_id'] : null;
 
         $observacao = $data['observacao'] ?? null;
         $data['observacao'] = is_string($observacao) && trim($observacao) !== '' ? trim($observacao) : null;

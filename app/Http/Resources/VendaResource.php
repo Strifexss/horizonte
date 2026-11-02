@@ -24,6 +24,10 @@ class VendaResource extends JsonResource
             'total_pago' => number_format($totalPago, 2, '.', ''),
             'data_venda' => $this->data_venda?->toIso8601String(),
             'observacao' => $this->observacao,
+            'cliente_id' => $this->cliente_id,
+            'cliente' => $this->cliente
+                ? ['id' => $this->cliente->id, 'nome' => $this->cliente->nome]
+                : null,
             'itens' => $this->itens->map(fn (VendaItem $item): array => [
                 'id' => $item->id,
                 'produto_id' => $item->produto_id,

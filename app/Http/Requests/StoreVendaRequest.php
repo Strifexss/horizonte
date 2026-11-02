@@ -31,6 +31,14 @@ class StoreVendaRequest extends FormRequest
 
         return [
             'usuario_id' => ['required', 'integer', 'exists:users,id'],
+            'cliente_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('cliente', 'id')
+                    ->where(fn (Builder $query) => $query->where(function (Builder $visiveis) use ($empresaId) {
+                        $visiveis->whereNull('empresa_id')->orWhere('empresa_id', $empresaId);
+                    })),
+            ],
             'observacao' => ['nullable', 'string', 'max:1000'],
             'itens' => ['required', 'array', 'min:1'],
             'itens.*.produto_id' => [
@@ -60,6 +68,7 @@ class StoreVendaRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'cliente_id.exists' => 'Cliente não encontrado.',
             'itens.required' => 'Adicione ao menos um produto.',
             'itens.min' => 'Adicione ao menos um produto.',
             'itens.*.produto_id.exists' => 'Produto não encontrado.',

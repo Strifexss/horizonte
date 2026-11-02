@@ -16,8 +16,10 @@ import {
     type ProdutoParaVenda,
     type Venda,
     type VendaItemRascunho,
+    type VendaNamed,
     type VendaPagamentoRascunho,
 } from '@/components/vendas/types';
+import VendaClienteCampo from '@/components/vendas/VendaClienteCampo';
 import VendaItensEditor from '@/components/vendas/VendaItensEditor';
 import VendaPagamentosEditor, { pagamentosComForma } from '@/components/vendas/VendaPagamentosEditor';
 import VendaResumo, { type VendaResumoLinha } from '@/components/vendas/VendaResumo';
@@ -26,6 +28,7 @@ import { Ban } from 'lucide-react';
 import { useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
 
 type VendaFormData = {
+    cliente: VendaNamed;
     itens: VendaItemRascunho[];
     pagamentos: VendaPagamentoRascunho[];
     observacao: string;
@@ -39,14 +42,16 @@ type Props = {
     possuiConta: boolean;
     onCancelar: (venda: Venda) => void;
     favoritos?: ProdutoParaVenda[];
+    clientePadrao: VendaNamed;
 };
 
-function rascunhoDaVenda(venda: Venda | null): VendaFormData {
+function rascunhoDaVenda(venda: Venda | null, clientePadrao: VendaNamed): VendaFormData {
     if (!venda) {
-        return { itens: [], pagamentos: [], observacao: '' };
+        return { cliente: clientePadrao, itens: [], pagamentos: [], observacao: '' };
     }
 
     return {
+        cliente: venda.cliente ?? clientePadrao,
         itens: venda.itens.map((item) => ({
             chave: novaChave(),
             produto: { id: item.produto_id, nome: item.produto?.nome ?? `Produto #${item.produto_id}` },
@@ -77,6 +82,10 @@ function VendaSomenteLeitura({ venda }: { venda: Venda }) {
 
     return (
         <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between rounded-lg border px-4 py-3 text-sm">
+                <span className="text-xs font-bold tracking-wide text-slate-700 uppercase dark:text-slate-200">Cliente</span>
+                <span className="font-medium">{venda.cliente?.nome ?? '—'}</span>
+            </div>
             <VendaResumo linhas={linhas} total={Number(venda.total)} />
             <div className="flex flex-col gap-2">
                 <span className="text-xs font-bold tracking-wide text-slate-700 uppercase dark:text-slate-200">Pagamentos</span>
@@ -101,10 +110,10 @@ function VendaSomenteLeitura({ venda }: { venda: Venda }) {
     );
 }
 
-export default function VendaModal({ open, onOpenChange, venda, formasPagamento, possuiConta, onCancelar, favoritos = [] }: Props) {
+export default function VendaModal({ open, onOpenChange, venda, formasPagamento, possuiConta, onCancelar, favoritos = [], clientePadrao }: Props) {
     const [contaFormOpen, setContaFormOpen] = useState(false);
     const [formaFormOpen, setFormaFormOpen] = useState(false);
-    const { data, setData, post, put, processing, errors, clearErrors, transform } = useForm<VendaFormData>(rascunhoDaVenda(venda));
+    const { data, setData, post, put, processing, errors, clearErrors, transform } = useForm<VendaFormData>(rascunhoDaVenda(venda, clientePadrao));
     const erros = errors as Partial<Record<string, string>>;
     const somenteLeitura = venda !== null && venda.status !== 'aberta';
 
@@ -113,7 +122,7 @@ export default function VendaModal({ open, onOpenChange, venda, formasPagamento,
             return;
         }
 
-        setData(rascunhoDaVenda(venda));
+        setData(rascunhoDaVenda(venda, clientePadrao));
         clearErrors();
     }, [open, venda?.id]);
 
@@ -154,6 +163,7 @@ export default function VendaModal({ open, onOpenChange, venda, formasPagamento,
         }
 
         transform((atual) => ({
+            cliente_id: atual.cliente.id,
             observacao: atual.observacao.trim() || null,
             itens: atual.itens.map((item) => ({
                 produto_id: item.produto.id,
@@ -230,6 +240,14 @@ export default function VendaModal({ open, onOpenChange, venda, formasPagamento,
                                 <span className="text-muted-foreground text-xs">
                                     {data.itens.length} {data.itens.length === 1 ? 'item' : 'itens'} • {formatQuantidade(unidades)} unid.
                                 </span>
+
+                                <VendaClienteCampo
+                                    cliente={data.cliente}
+                                    onChange={(cliente) => setData('cliente', cliente)}
+                                    clientePadrao={clientePadrao}
+                                    error={erros.cliente_id}
+                                    disabled={processing}
+                                />
 
                                 <VendaItensEditor
                                     itens={data.itens}

@@ -8,7 +8,7 @@ Gestão financeira corporativa: contas, parcelas, categorias, produtos, forneced
 
 **Usuário**:
 Pessoa com login no sistema, dona dos próprios dados financeiros.
-_Avoid_: Cliente, conta (conta é outra coisa no domínio)
+_Avoid_: conta (conta é outra coisa no domínio); Cliente é quem compra da Empresa
 
 **Administrador**:
 Conta com senha cujo e-mail está na lista de e-mails autorizados do ambiente; não é um papel gravado no banco. A conta Google de mesmo e-mail não é Administrador.
@@ -87,6 +87,10 @@ _Avoid_: Pagamento automático
 **Venda**:
 Conjunto de itens vendidos pela Empresa com os pagamentos recebidos por eles. Nasce **aberta**, fica **fechada** quando a soma dos pagamentos iguala o total e pode ser **cancelada** a qualquer momento.
 _Avoid_: Pedido, caixa
+
+**Cliente**:
+Pessoa ou negócio que compra da Empresa; nunca tem login. Toda Venda tem um Cliente: sem escolha, fica o **CONSUMIDOR**, cliente padrão do sistema que não pode ser alterado nem excluído. Cliente com vendas não pode ser excluído, só inativado.
+_Avoid_: Comprador, usuário
 
 **Item da venda**:
 Produto, quantidade e valor unitário gravados na Venda; não mudam se o produto mudar depois.

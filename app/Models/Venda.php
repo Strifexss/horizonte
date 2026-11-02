@@ -31,6 +31,7 @@ class Venda extends Model
         'data_venda',
         'observacao',
         'usuario_id',
+        'cliente_id',
     ];
 
     /**
@@ -44,7 +45,20 @@ class Venda extends Model
             'total' => 'decimal:2',
             'data_venda' => 'datetime',
             'usuario_id' => 'integer',
+            'cliente_id' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Venda $venda): void {
+            $venda->cliente_id ??= Cliente::consumidorId();
+        });
+    }
+
+    public function cliente(): BelongsTo
+    {
+        return $this->belongsTo(Cliente::class, 'cliente_id');
     }
 
     public function user(): BelongsTo

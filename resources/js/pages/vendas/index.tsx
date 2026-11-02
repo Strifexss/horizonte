@@ -8,6 +8,7 @@ import {
     type ProdutoParaVenda,
     type Venda,
     type VendaFilters,
+    type VendaNamed,
     type VendaResumo,
     type VendaStatusTab,
 } from '@/components/vendas/types';
@@ -34,6 +35,7 @@ type PageProps = {
     formas_pagamento?: unknown;
     possui_conta: boolean;
     produtos_favoritos?: ProdutoParaVenda[];
+    cliente_padrao: VendaNamed;
     resumo?: VendaResumo;
     vendas?: unknown;
 };
@@ -199,6 +201,7 @@ export default function VendasIndex() {
                     possuiConta={props.possui_conta}
                     onCancelar={setVendaParaCancelar}
                     favoritos={props.produtos_favoritos ?? []}
+                    clientePadrao={props.cliente_padrao}
                 />
 
                 <ConfirmDeleteModal

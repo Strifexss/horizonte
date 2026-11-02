@@ -33,7 +33,7 @@ class ProdutoSearchDTO extends Dto
         $data['page'] = $page >= 1 ? $page : 1;
 
         $sort = is_string($data['sort'] ?? null) ? $data['sort'] : 'nome';
-        $data['sort'] = in_array($sort, ['nome', 'preco_compra', 'preco_venda', 'ativo'], true) ? $sort : 'nome';
+        $data['sort'] = in_array($sort, ['nome', 'codigo', 'preco_compra', 'preco_venda', 'ativo', 'favorito'], true) ? $sort : 'nome';
 
         $dir = is_string($data['sort_dir'] ?? null) ? strtolower($data['sort_dir']) : 'asc';
         $data['sort_dir'] = in_array($dir, ['asc', 'desc'], true) ? $dir : 'asc';

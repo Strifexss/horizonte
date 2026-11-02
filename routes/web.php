@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\ClientesController;
 use App\Http\Controllers\ContasController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardInsightsController;
@@ -76,6 +77,14 @@ Route::middleware(['auth', 'empresa'])->group(function () {
         Route::post('/', [CategoriaController::class, 'store'])->name('categorias.store');
         Route::put('/{id}', [CategoriaController::class, 'update'])->name('categorias.update');
         Route::delete('/{id}', [CategoriaController::class, 'destroy'])->name('categorias.destroy');
+    });
+
+    Route::group(['prefix' => 'clientes'], function () {
+        Route::get('/', [ClientesController::class, 'index'])->name('clientes');
+        Route::get('/autocomplete', [ClientesController::class, 'autocomplete'])->name('clientes.autocomplete');
+        Route::post('/', [ClientesController::class, 'store'])->name('clientes.store');
+        Route::put('/{id}', [ClientesController::class, 'update'])->name('clientes.update');
+        Route::delete('/{id}', [ClientesController::class, 'destroy'])->name('clientes.destroy');
     });
 
     Route::group(['prefix' => 'produtos'], function () {

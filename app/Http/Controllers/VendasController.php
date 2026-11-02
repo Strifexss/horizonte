@@ -9,6 +9,7 @@ use App\Http\Requests\StoreVendaRequest;
 use App\Http\Requests\VendaSearchRequest;
 use App\Http\Resources\FormaPagamentoResource;
 use App\Http\Resources\VendaResource;
+use App\Models\Cliente;
 use App\Models\Venda;
 use App\Services\Interfaces\ContasServiceInterface;
 use App\Services\Interfaces\FormasPagamentoServiceInterface;
@@ -33,6 +34,7 @@ class VendasController extends Controller
         return Inertia::render('vendas/index', [
             'filters' => $filters->all(),
             'formas_pagamento' => FormaPagamentoResource::collection($this->formasPagamentoService->index()),
+            'cliente_padrao' => ['id' => Cliente::consumidorId(), 'nome' => Cliente::NOME_CONSUMIDOR],
             'produtos_favoritos' => $this->vendasService->favoritosParaVenda(),
             'possui_conta' => $this->contasService->index()->isNotEmpty(),
             'resumo' => Inertia::defer(fn () => ['counts' => $this->vendasService->contagemPorStatus($filters)]),

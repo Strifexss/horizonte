@@ -128,7 +128,10 @@ function VendaCardContent({ venda }: { venda: Venda }) {
                 </span>
                 <span className="shrink-0 text-sm font-bold text-green-600">{formatCurrency(Number(venda.total))}</span>
             </div>
-            <p className="mt-1 truncate text-xs text-slate-500">{resumoItens(venda)}</p>
+            <p className="mt-1 truncate text-xs text-slate-500">
+                {venda.cliente?.nome ? `${venda.cliente.nome} • ` : ''}
+                {resumoItens(venda)}
+            </p>
             <div className="mt-1.5 flex min-w-0 items-center justify-between gap-2">
                 <span className="truncate text-xs text-slate-500">{resumoPagamentos(venda) || 'Sem pagamento'}</span>
                 <StatusBadge venda={venda} />
@@ -180,6 +183,11 @@ export default function VendasTable({
     const columns: Column<Venda>[] = [
         { key: 'id', label: '#', thClassName: 'w-16', render: (venda) => <span className="font-medium">#{venda.id}</span> },
         { key: 'data_venda', label: 'DATA', thClassName: 'w-24', render: (venda) => formatDataVenda(venda.data_venda) },
+        {
+            key: 'cliente',
+            label: 'CLIENTE',
+            render: (venda) => <span className="line-clamp-1 max-w-[12rem]">{venda.cliente?.nome ?? '—'}</span>,
+        },
         {
             key: 'itens',
             label: 'ITENS',

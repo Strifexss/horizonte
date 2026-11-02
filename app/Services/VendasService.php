@@ -7,6 +7,7 @@ use App\DTO\VendaDTO;
 use App\DTO\VendaSearchDTO;
 use App\Exceptions\VendaInvalidaException;
 use App\Models\Categoria;
+use App\Models\Cliente;
 use App\Models\Conta;
 use App\Models\Empresa;
 use App\Models\FormaPagamento;
@@ -117,6 +118,7 @@ class VendasService extends ServiceAbstract implements VendasServiceInterface
                 'status' => $fecha ? Venda::STATUS_FECHADA : Venda::STATUS_ABERTA,
                 'total' => $totalCentavos / 100,
                 'observacao' => $dto->observacao,
+                'cliente_id' => $dto->cliente_id ?? Cliente::consumidorId(),
             ];
 
             if ($venda === null || $fecha) {

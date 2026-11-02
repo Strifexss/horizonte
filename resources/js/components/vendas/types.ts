@@ -34,6 +34,8 @@ export type Venda = {
     total_pago: string;
     data_venda: string | null;
     observacao: string | null;
+    cliente_id: number;
+    cliente: VendaNamed | null;
     itens: VendaItem[];
     pagamentos: VendaPagamento[];
 };

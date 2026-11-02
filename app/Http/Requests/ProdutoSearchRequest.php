@@ -31,7 +31,7 @@ class ProdutoSearchRequest extends FormRequest
             'busca' => ['nullable', 'string', 'max:255'],
             'per_page' => ['required', 'integer', 'in:10,20,25,50'],
             'page' => ['nullable', 'integer', 'min:1'],
-            'sort' => ['nullable', 'string', 'in:nome,preco_compra,preco_venda,ativo'],
+            'sort' => ['nullable', 'string', 'in:nome,codigo,preco_compra,preco_venda,ativo,favorito'],
             'sort_dir' => ['nullable', 'string', 'in:asc,desc'],
         ];
     }

@@ -23,7 +23,7 @@ class VendaRepository extends AbstractRepository implements VendaRepositoryInter
     public function indexFiltrado(VendaSearchDTO $filters): LengthAwarePaginator
     {
         return $this->vendasFiltradasQuery($filters)
-            ->with(['itens.produto:id,nome', 'pagamentos.formaPagamento:id,nome'])
+            ->with(['cliente:id,nome,empresa_id', 'itens.produto:id,nome', 'pagamentos.formaPagamento:id,nome'])
             ->orderByDesc('data_venda')
             ->orderByDesc('id')
             ->paginate($filters->per_page, ['*'], 'page', $filters->page)
@@ -53,7 +53,7 @@ class VendaRepository extends AbstractRepository implements VendaRepositoryInter
     {
         return $this->model->newQuery()
             ->where('empresa_id', Empresa::atualId())
-            ->with(['itens.produto:id,nome', 'pagamentos.formaPagamento:id,nome'])
+            ->with(['cliente:id,nome,empresa_id', 'itens.produto:id,nome', 'pagamentos.formaPagamento:id,nome'])
             ->findOrFail($id);
     }
 
@@ -131,6 +131,10 @@ class VendaRepository extends AbstractRepository implements VendaRepositoryInter
             if ($produtoIds->isNotEmpty()) {
                 $q->orWhereHas('itens', fn (Builder $itens) => $itens->whereIn('produto_id', $produtoIds));
             }
+
+            $q->orWhereHas('cliente', function (Builder $cliente) use ($busca) {
+                $this->applyAccentInsensitiveLike($cliente, 'nome', $busca);
+            });
 
             $q->orWhere(function (Builder $observacao) use ($busca) {
                 $this->applyAccentInsensitiveLike($observacao, 'observacao', $busca);
