@@ -345,7 +345,7 @@ export default function VendaModal({
                 ) : null}
             </section>
 
-            <aside aria-label="Fechar a venda" className="flex w-[340px] shrink-0 flex-col border-l bg-slate-50 dark:bg-slate-900/60">
+            <aside aria-label="Fechar a venda" className="flex w-[420px] shrink-0 flex-col border-l bg-slate-50 dark:bg-slate-900/60">
                 <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-5">
                     {campoCliente}
                     <div className="bg-background flex flex-col gap-1 rounded-lg border px-4 py-3">
@@ -416,16 +416,15 @@ export default function VendaModal({
                             </Button>
                         </div>
                         {itensAbertos ? (
-                            <ul className="border-t px-3 py-1">
-                                {linhas.map((linha) => (
-                                    <li key={linha.chave} className="flex justify-between gap-2 py-1.5 text-sm">
-                                        <span className="truncate text-slate-600 dark:text-slate-300">
-                                            {linha.nome} × {formatQuantidade(linha.quantidade)}
-                                        </span>
-                                        <span className="shrink-0 font-semibold text-green-600">{formatCurrency(linha.valorTotal)}</span>
-                                    </li>
-                                ))}
-                            </ul>
+                            <div className="border-t p-2">
+                                <VendaItensEditor
+                                    itens={data.itens}
+                                    onChange={(itens) => setData('itens', itens)}
+                                    errors={erros}
+                                    disabled={processing}
+                                    somenteLinhas
+                                />
+                            </div>
                         ) : null}
                     </div>
                     <VendaResumo linhas={[]} total={total} />
@@ -448,7 +447,7 @@ export default function VendaModal({
             <Dialog open={open} onOpenChange={onOpenChange}>
                 <DialogContent
                     className={`h-[100vh] w-[100vw] overflow-hidden md:max-w-full ${
-                        somenteLeitura ? 'md:h-auto md:max-h-[90vh] md:w-[640px]' : 'md:h-[88vh] md:w-[1040px]'
+                        somenteLeitura ? 'md:h-auto md:max-h-[90vh] md:w-[800px]' : 'md:h-[88vh] md:w-[1280px]'
                     }`}
                 >
                     <DialogHeader>

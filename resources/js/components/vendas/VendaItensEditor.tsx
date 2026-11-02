@@ -14,6 +14,8 @@ type Props = {
     errors: Partial<Record<string, string>>;
     disabled?: boolean;
     favoritos?: ProdutoParaVenda[];
+    /** Só as linhas (produto, quantidade, preço). Sem favoritos nem busca de adicionar. */
+    somenteLinhas?: boolean;
 };
 
 async function loadProdutos(q: string): Promise<ProdutoParaVenda[]> {
@@ -33,7 +35,7 @@ function erroDaLinha(errors: Props['errors'], index: number): string | undefined
     return errors[`itens.${index}.produto_id`] ?? errors[`itens.${index}.quantidade`] ?? errors[`itens.${index}.valor_unitario`];
 }
 
-export default function VendaItensEditor({ itens, onChange, errors, disabled = false, favoritos = [] }: Props) {
+export default function VendaItensEditor({ itens, onChange, errors, disabled = false, favoritos = [], somenteLinhas = false }: Props) {
     const quantidadePorProduto = new Map(itens.map((item) => [item.produto.id, parseQuantidade(item.quantidade)]));
 
     function adicionarProduto(produto: ProdutoParaVenda): void {
@@ -73,7 +75,7 @@ export default function VendaItensEditor({ itens, onChange, errors, disabled = f
 
     return (
         <div className="flex flex-col gap-2">
-            {favoritos.length > 0 ? (
+            {!somenteLinhas && favoritos.length > 0 ? (
                 <div className="flex flex-col gap-2">
                     <span className="flex items-center gap-1.5 text-xs font-bold tracking-wide text-slate-700 uppercase dark:text-slate-200">
                         <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-500" aria-hidden="true" />
@@ -113,24 +115,26 @@ export default function VendaItensEditor({ itens, onChange, errors, disabled = f
                 </div>
             ) : null}
 
-            <div className="border-sidebar-border/70 rounded-lg border p-2">
-                <AsyncSelect
-                    value={null}
-                    onChange={(produto) => {
-                        if (produto) {
-                            adicionarProduto(produto as ProdutoParaVenda);
-                        }
-                    }}
-                    loadOptions={loadProdutos}
-                    formatOptionText={rotuloComCodigo}
-                    placeholder="Adicionar produto (nome ou código)"
-                    isClearable={false}
-                    isDisabled={disabled}
-                    selectFirstOnEnter
-                    keepFocusOnSelect
-                />
-                <InputError message={errors.itens} className="mt-1" />
-            </div>
+            {somenteLinhas ? null : (
+                <div className="border-sidebar-border/70 rounded-lg border p-2">
+                    <AsyncSelect
+                        value={null}
+                        onChange={(produto) => {
+                            if (produto) {
+                                adicionarProduto(produto as ProdutoParaVenda);
+                            }
+                        }}
+                        loadOptions={loadProdutos}
+                        formatOptionText={rotuloComCodigo}
+                        placeholder="Adicionar produto (nome ou código)"
+                        isClearable={false}
+                        isDisabled={disabled}
+                        selectFirstOnEnter
+                        keepFocusOnSelect
+                    />
+                    <InputError message={errors.itens} className="mt-1" />
+                </div>
+            )}
 
             {itens.map((item, index) => {
                 const quantidade = parseQuantidade(item.quantidade);
