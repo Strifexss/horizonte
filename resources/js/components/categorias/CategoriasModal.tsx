@@ -1,19 +1,11 @@
+import { router, useForm, usePage } from '@inertiajs/react';
 import React, { useEffect, useState } from 'react';
-import { useForm, usePage, router } from '@inertiajs/react';
 
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-    DialogFooter,
-    DialogClose,
-} from '@/components/ui/dialog';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import InputError from '@/components/input-error';
 import CategoriaRow from './CategoriaRow';
 
 type Categoria = {
@@ -23,16 +15,30 @@ type Categoria = {
     padrao?: number | null;
 };
 
+type CategoriasPageProps = {
+    categorias?: Categoria[];
+};
+
 export default function CategoriasModal({ open, onOpenChange }: { open: boolean; onOpenChange: (b: boolean) => void }) {
     const [loading, setLoading] = useState(false);
     const [categorias, setCategorias] = useState<Categoria[]>([]);
-    const page = usePage<any>();
+    const page = usePage<CategoriasPageProps>();
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [categoriaToDelete, setCategoriaToDelete] = useState<number | string | null>(null);
     const [activeTab, setActiveTab] = useState<'receita' | 'despesa'>('despesa');
     const [editingId, setEditingId] = useState<number | string | null>(null);
 
-    const { data, setData, post, patch, delete: destroy, processing, errors, reset, clearErrors } = useForm({
+    const {
+        data,
+        setData,
+        post,
+        patch,
+        delete: destroy,
+        processing,
+        errors,
+        reset,
+        clearErrors,
+    } = useForm({
         nome: '',
         padrao: 0,
         tipo: activeTab,
@@ -78,7 +84,7 @@ export default function CategoriasModal({ open, onOpenChange }: { open: boolean;
             });
         } else {
             post(route('categorias.store'), {
-            onSuccess: () => {
+                onSuccess: () => {
                     router.reload({ only: ['categorias'] });
                     reset();
                 },
@@ -101,7 +107,7 @@ export default function CategoriasModal({ open, onOpenChange }: { open: boolean;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="w-[100vw] h-[100dvh] md:w-[700px] md:max-w-full md:h-auto overflow-hidden">
+            <DialogContent className="h-[100dvh] w-[100vw] overflow-hidden md:h-auto md:w-[700px] md:max-w-full">
                 <DialogHeader>
                     <DialogTitle>Categorias</DialogTitle>
                     <DialogDescription>Gerencie categorias de receita e despesa.</DialogDescription>
@@ -124,7 +130,7 @@ export default function CategoriasModal({ open, onOpenChange }: { open: boolean;
                         </button>
                     </div>
 
-                    <div className="mt-4 rounded-lg border border-sidebar-border/70 bg-white dark:bg-slate-900 p-4 shadow-sm">
+                    <div className="border-sidebar-border/70 mt-4 rounded-lg border bg-white p-4 shadow-sm dark:bg-slate-900">
                         <form onSubmit={submit} className="grid gap-2">
                             <div className="grid gap-2">
                                 <Label htmlFor="nome">Nome</Label>
@@ -138,9 +144,17 @@ export default function CategoriasModal({ open, onOpenChange }: { open: boolean;
                                 <InputError message={errors.nome} />
                             </div>
 
-                            <DialogFooter className='flex flex-row gap-2'>
+                            <DialogFooter className="flex flex-row gap-2">
                                 <DialogClose asChild>
-                                    <Button className='w-full' variant="secondary" type="button" onClick={() => { reset(); setEditingId(null); }}>
+                                    <Button
+                                        className="w-full"
+                                        variant="secondary"
+                                        type="button"
+                                        onClick={() => {
+                                            reset();
+                                            setEditingId(null);
+                                        }}
+                                    >
                                         Cancelar
                                     </Button>
                                 </DialogClose>
@@ -150,20 +164,19 @@ export default function CategoriasModal({ open, onOpenChange }: { open: boolean;
                             </DialogFooter>
                         </form>
 
-                        <div className="mt-2 overflow-y-auto min-h-[200px] max-h-[340px]">
+                        <div className="mt-2 max-h-[340px] min-h-[200px] overflow-y-auto">
                             {loading ? (
                                 <div>Carregando...</div>
                             ) : (
                                 <div className="grid gap-2">
-                                    {categorias.filter((c) => c.tipo === activeTab).map((c) => (
-                                        <CategoriaRow
-                                            key={c.id}
-                                            categoria={c}
-                                            onEdit={() => startEdit(c)}
-                                            onDelete={() => doDelete(c.id)}
-                                        />
-                                    ))}
-                                    {categorias.filter((c) => c.tipo === activeTab).length === 0 && <div className="text-sm text-muted-foreground">Nenhuma categoria encontrada.</div>}
+                                    {categorias
+                                        .filter((c) => c.tipo === activeTab)
+                                        .map((c) => (
+                                            <CategoriaRow key={c.id} categoria={c} onEdit={() => startEdit(c)} onDelete={() => doDelete(c.id)} />
+                                        ))}
+                                    {categorias.filter((c) => c.tipo === activeTab).length === 0 && (
+                                        <div className="text-muted-foreground text-sm">Nenhuma categoria encontrada.</div>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -205,4 +218,3 @@ export default function CategoriasModal({ open, onOpenChange }: { open: boolean;
         </Dialog>
     );
 }
-

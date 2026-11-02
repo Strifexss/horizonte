@@ -26,10 +26,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-function toModalParcela(parcela: ExtratoParcela): ExtratoModalParcela {
-    return parcela;
-}
-
 export default function Extrato() {
     const { filters, resumo, items, meta, loaded, busca, setBusca, statusTab, counts, perPage, categoriasPadrao, formasPagamento, visit } =
         useExtratoList();
@@ -56,7 +52,7 @@ export default function Extrato() {
 
     function openEdit(parcela: ExtratoParcela): void {
         setExtratoMode('edit');
-        setParcelaEdit(toModalParcela(parcela));
+        setParcelaEdit(parcela);
         setExtratoOpen(true);
     }
 

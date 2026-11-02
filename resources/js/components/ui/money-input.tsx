@@ -19,8 +19,6 @@ function toDigitsFromValue(v: number | string | null | undefined): string {
 
 function formatFromDigits(digits: string, showSymbol = false) {
     const d = digits.replace(/\D/g, '');
-    const padded = d.padStart(3, '0');
-    const len = d.length;
     const cents = d.slice(-2);
     const whole = d.slice(0, -2) || '0';
     const wholeFormatted = whole.replace(/\B(?=(\d{3})+(?!\d))/g, '.');

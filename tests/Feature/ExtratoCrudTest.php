@@ -129,12 +129,14 @@ it('creates a lancamento when extrato store payload is valid', function () {
         'usuario_id' => $user->id,
     ]);
 
-    $this->assertDatabaseHas('financeiro_parcela', [
-        'descricao' => 'Conta de luz',
-        'usuario_id' => $user->id,
-        'data_competencia' => '2026-08-30',
-        'data_vencimento' => '2026-08-30',
-    ]);
+    $parcela = FinanceiroParcela::query()
+        ->where('descricao', 'Conta de luz')
+        ->where('usuario_id', $user->id)
+        ->orderBy('parcela')
+        ->firstOrFail();
+
+    expect($parcela->data_competencia->toDateString())->toBe('2026-08-30')
+        ->and($parcela->data_vencimento->toDateString())->toBe('2026-08-30');
 });
 
 it('renders the extrato index for the signed-in user', function (): void {
@@ -153,6 +155,7 @@ it('renders the extrato index for the signed-in user', function (): void {
 });
 
 it('persists quantidade on create, shows it on extrato, and keeps it after edit', function (): void {
+    $this->travelTo('2026-10-14 10:00:00');
     $this->withoutVite();
 
     config([

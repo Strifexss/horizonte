@@ -1,3 +1,45 @@
+# Horizonte — instruções do projeto
+
+ERP financeiro multi-empresa (Laravel 12 + Inertia 2 + React 19 + TypeScript + Tailwind 4, MySQL 8). Esta seção é do projeto; o bloco `<laravel-boost-guidelines>` abaixo é gerado pelo Laravel Boost (`boost:update`) e não deve ser editado à mão.
+
+## Mapa
+
+- Produto e escopo: `PRODUCT.md`. Glossário do domínio: `CONTEXT.md` (use os termos dele). Decisões: `docs/adr/`.
+- Estrutura e camadas: `docs/architecture.md` e a skill `estrutura-padrao`. Interface: `docs/design.md`.
+- Ambiente local: `docs/onboarding.md`. Checks e revisão: `docs/quality.md`. Ferramentas, versões e evidências: `docs/setup.md`.
+- Regras com glob: `.ai/rules/index.md` (ler antes de editar). Specs e issues: `.scratch/<feature>/`.
+
+## Comandos
+
+Comandos PHP rodam dentro do container `laravel_app`, porque a máquina local não tem PHP. Exemplo completo: `podman exec -w /var/www/html/projetos/horizonte laravel_app composer test`.
+
+- Testes: `composer test` (ou `php artisan test --compact --filter=Nome`). Pint: `vendor/bin/pint --dirty --format agent`.
+- Check PHP: `composer check` (Pint `--test` + testes).
+- Check front, na máquina local, fora do container: `npm run check` = `lint:check` + `lint:typed` + `types` + `quality:verify` + `build`.
+- `npm run lint` e `npm run format` reescrevem arquivos; use as variantes `:check` para verificar.
+
+## Acordos de trabalho
+
+- Leia instruções e código relevante antes de editar; separe fato observado, suposição e decisão.
+- Defina critério de aceite e o comando que prova antes de implementar. Correção de bug começa reproduzindo e termina com teste de regressão quando viável.
+- Menor mudança completa; reuse padrões, componentes e dependências existentes. Não enfraqueça validação, autorização, testes ou regras de lint para passar um check.
+- Atualize o documento responsável junto com a mudança (comando, schema, fronteira, configuração). Lição recorrente vira regra em `.ai/rules` via `record-rule`, não nota pessoal.
+- Pergunta de status não interrompe trabalho autorizado. Um bloqueio para só o que depende dele. Handoff é contexto, não prova: confira checkout, arquivos e processos antes de retomar. Trabalho multi-sessão inacabado ganha um handoff curto em `.scratch/<feature>/` (objetivo, estado verificado, checks, pendências, próximo passo).
+- Publicar, push, migrations em banco real, custos e ações destrutivas exigem autorização explícita. Ferramenta instalada não concede permissão.
+
+## Ferramentas e skills
+
+- MCPs iguais nos dois clientes: `.cursor/mcp.json` (Cursor) e `.mcp.json` (Claude Code), com `laravel-boost` e `context7`. Context7 para APIs de bibliotecas: resolva o id e consulte um conceito por vez; nunca envie segredo ou código privado. Sem ele, use a documentação oficial (`search-docs` do Boost para o ecossistema Laravel).
+- Ponytail (`full`) e Caveman: regras em `.cursor/rules/` no Cursor; no Claude Code, plugins declarados em `.claude/settings.json`, junto com o Superpowers. RTK e Graphify dependem da máquina; estado em `docs/setup.md`.
+- Skills ficam em `.agents/skills/` e `.cursor/skills/`; `.claude/skills/` só tem links para elas. Destaques: `vercel-react-best-practices` e `vercel-composition-patterns` ao escrever React; `web-design-guidelines` e `shadcn` ao mexer em UI (`components.json`, base Radix); `writing-guidelines` ao revisar docs; `vercel-react-view-transitions` só quando pedirem transições; `differential-review` em diffs sensíveis (auth, Empresa, admin, dinheiro); `find-skills` quando faltar capacidade concreta.
+- Navegador: use a ferramenta de browser do cliente (no Cursor, o browser embutido) contra o ambiente local (`http://localhost:8080`), nunca produção.
+
+## Delegação e revisão
+
+- Delegue só quando isolar contexto, especializar ou paralelizar tarefas independentes compensar. Modelo mais leve para busca/inventário; capacidade maior para segurança, dados e revisão crítica.
+- Cada tarefa delegada recebe objetivo, arquivos permitidos, critérios e checks. Um escritor por arquivo; lockfiles, configs compartilhadas e git ficam com o coordenador. Revisores são somente leitura.
+- Mudança não trivial recebe revisão independente do diff exato e de chamadores/testes ligados; termina quando achados relevantes estão resolvidos ou justificados e os checks passam.
+
 <laravel-boost-guidelines>
 === foundation rules ===
 

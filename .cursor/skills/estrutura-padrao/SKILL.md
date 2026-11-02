@@ -15,7 +15,7 @@ Toda feature do app é uma **rotina**. O corte das **camadas** é o teste de cad
 
 ## Contexto do Projeto: Horizonte
 
-O Horizonte é uma aplicação de **gestão financeira corporativa** (contas a pagar/receber, parcelas, categorias, produtos, fornecedores, grupos, funcions) construída em Laravel 12 + Inertia.js v2 (React 19). O banco é SQLite em desenvolvimento, com suporte a MySQL.
+O Horizonte é uma aplicação de **gestão financeira corporativa** (contas a pagar/receber, parcelas, categorias, produtos, fornecedores, grupos, funcions) construída em Laravel 12 + Inertia.js v2 (React 19). O banco é MySQL 8 em desenvolvimento (container) e SQLite em memória nos testes.
 
 A rotina pode ser simples (CRUD isolado, ex: Contas) ou **composta** (Extrato, que agrega 7 services e exibe resumo + lista de parcelas). A skill cobre ambos os casos — leia "Controller composto" abaixo quando a feature precisar de múltiplos services ou de entidades pai-filho.
 

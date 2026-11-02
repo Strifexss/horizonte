@@ -7,7 +7,12 @@
         "dev": "vite",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
-        "lint": "eslint . --fix"
+        "lint": "eslint . --fix",
+        "lint:check": "eslint .",
+        "lint:typed": "eslint -c eslint.typed.config.js resources/js",
+        "types": "tsc --noEmit",
+        "quality:verify": "node eslint-rules/verify.mjs eslint-rules/index.cjs",
+        "check": "npm run lint:check && npm run lint:typed && npm run types && npm run quality:verify && npm run build"
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",

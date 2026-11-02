@@ -159,7 +159,7 @@ it('cadastra forma de pagamento pela venda recarregando so as formas', function 
         ->from(route('vendas'))
         ->withHeaders([
             'X-Inertia' => 'true',
-            'X-Inertia-Version' => (string) (new HandleInertiaRequests)->version(Request::create('/')),
+            'X-Inertia-Version' => (string) app(HandleInertiaRequests::class)->version(Request::create('/')),
             'X-Inertia-Partial-Component' => 'vendas/index',
             'X-Inertia-Partial-Data' => 'formas_pagamento,flash',
         ])

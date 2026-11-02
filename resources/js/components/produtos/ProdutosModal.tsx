@@ -1,35 +1,48 @@
+import { router, useForm, usePage } from '@inertiajs/react';
 import React, { useEffect, useState } from 'react';
-import { useForm, usePage, router } from '@inertiajs/react';
 
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-    DialogFooter,
-    DialogClose,
-} from '@/components/ui/dialog';
+import InputError from '@/components/input-error';
 import AsyncSelect from '@/components/ui/AsyncSelect';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import MoneyInput, { parseMoneyValue } from '@/components/ui/money-input';
 import { Label } from '@/components/ui/label';
-import InputError from '@/components/input-error';
-import ProdutoRow from './ProdutoRow';
+import MoneyInput, { parseMoneyValue } from '@/components/ui/money-input';
 import { Plus } from 'lucide-react';
 import GruposModal from '../grupos/GruposModal';
+import ProdutoRow from './ProdutoRow';
 
 type Produto = {
     id: number | string;
     nome: string;
     preco_compra: number | string;
+    fornecedor_id?: number | string | null;
+    grupo_id?: number | string | null;
+    fornecedor?: NamedOption | null;
+    grupo?: NamedOption | null;
 };
 
 type ProdutoCriado = {
     id: number;
     nome: string;
     preco_compra: number | string;
+};
+
+type NamedOption = {
+    id: number | string;
+    nome: string;
+};
+
+type ProdutosPageProps = {
+    produtos?: Produto[];
+    fornecedores?: NamedOption[];
+};
+
+type ProdutoForm = {
+    nome: string;
+    preco_compra: string;
+    fornecedor_id: number | null;
+    grupo_id: number | null;
 };
 
 export default function ProdutosModal({
@@ -43,15 +56,25 @@ export default function ProdutosModal({
 }) {
     const [loading, setLoading] = useState(false);
     const [produtos, setProdutos] = useState<Produto[]>([]);
-    const [selectedFornecedor, setSelectedFornecedor] = useState<{ id: number | string; nome: string } | null>(null);
-    const page = usePage<any>();
+    const [selectedFornecedor, setSelectedFornecedor] = useState<NamedOption | null>(null);
+    const page = usePage<ProdutosPageProps>();
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [produtoToDelete, setProdutoToDelete] = useState<Produto | null>(null);
     const [gruposModalOpen, setGruposModalOpen] = useState(false);
-    const [selectedGrupo, setSelectedGrupo] = useState<{ id: number | string; nome: string } | null>(null);
+    const [selectedGrupo, setSelectedGrupo] = useState<NamedOption | null>(null);
     const [editingId, setEditingId] = useState<number | string | null>(null);
 
-    const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
+    const {
+        data,
+        setData,
+        post,
+        put,
+        delete: destroy,
+        processing,
+        errors,
+        reset,
+        clearErrors,
+    } = useForm<ProdutoForm>({
         nome: '',
         preco_compra: '',
         fornecedor_id: null,
@@ -107,7 +130,8 @@ export default function ProdutosModal({
                     reset();
                     setSelectedFornecedor(null);
                     setSelectedGrupo(null);
-                    const criado = (pageResult.props as any)?.flash?.produto_criado as ProdutoCriado | undefined;
+                    const flash = pageResult.props.flash as { produto_criado?: ProdutoCriado } | undefined;
+                    const criado = flash?.produto_criado;
                     if (criado && onCreated) {
                         onCreated(criado);
                         onOpenChange(false);
@@ -120,22 +144,27 @@ export default function ProdutosModal({
     const startEdit = (produto: Produto) => {
         setEditingId(produto.id);
         setData('nome', produto.nome);
-        setData('preco_compra', (() => {
-            const parsed = parseMoneyValue((produto as any).preco_compra);
-            return parsed === null ? '' : parsed.toFixed(2);
-        })());
-        setData('fornecedor_id', (produto as any)?.fornecedor_id ?? null);
-        const f = (produto as any)?.fornecedor;
+        setData(
+            'preco_compra',
+            (() => {
+                const parsed = parseMoneyValue(produto.preco_compra);
+                return parsed === null ? '' : parsed.toFixed(2);
+            })(),
+        );
+        setData('fornecedor_id', produto.fornecedor_id == null ? null : Number(produto.fornecedor_id));
+        const f = produto.fornecedor;
         setSelectedFornecedor(f ? { id: f.id, nome: f.nome } : null);
-        const g = (produto as any)?.grupo;
-        setData('grupo_id', (produto as any)?.grupo_id ?? g?.id ?? null);
+        const g = produto.grupo;
+        const grupoId = produto.grupo_id ?? g?.id;
+        setData('grupo_id', grupoId == null ? null : Number(grupoId));
         setSelectedGrupo(g ? { id: g.id, nome: g.nome } : null);
     };
 
-    const loadFornecedores = async (q: string = '') => {
+    const loadFornecedores = async (q: string = ''): Promise<NamedOption[]> => {
         const res = await fetch(`/fornecedores/autocomplete?q=${encodeURIComponent(q)}`);
         if (!res.ok) return [];
-        return res.json();
+        const payload = (await res.json()) as unknown;
+        return Array.isArray(payload) ? (payload as NamedOption[]) : [];
     };
 
     const doDelete = (produto: Produto) => {
@@ -146,15 +175,15 @@ export default function ProdutosModal({
     return (
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent className="w-[100vw] h-[100dvh] md:w-[700px] md:max-w-full md:h-auto overflow-hidden">
+                <DialogContent className="h-[100dvh] w-[100vw] overflow-hidden md:h-auto md:w-[700px] md:max-w-full">
                     <DialogHeader>
                         <DialogTitle>Produtos</DialogTitle>
                         <DialogDescription>Gerencie os produtos vinculados às despesas.</DialogDescription>
                     </DialogHeader>
                     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-                        <div className="mt-4 rounded-lg border border-sidebar-border/70 bg-white dark:bg-slate-900 p-4 shadow-sm">
+                        <div className="border-sidebar-border/70 mt-4 rounded-lg border bg-white p-4 shadow-sm dark:bg-slate-900">
                             <form onSubmit={submit} noValidate className="grid gap-2">
-                                <div className="grid md:grid-cols-2 gap-2">
+                                <div className="grid gap-2 md:grid-cols-2">
                                     <div className="grid gap-2">
                                         <Label htmlFor="produto_nome">Nome do Produto</Label>
                                         <Input
@@ -177,7 +206,7 @@ export default function ProdutosModal({
                                         />
                                         <InputError message={errors.preco_compra} />
                                     </div>
-                                    <div className="grid md:grid-cols-2 gap-2 md:col-span-2">
+                                    <div className="grid gap-2 md:col-span-2 md:grid-cols-2">
                                         <div className="grid gap-2">
                                             <Label>Fornecedor</Label>
                                             <AsyncSelect
@@ -198,20 +227,31 @@ export default function ProdutosModal({
                                                 <div className="min-w-0 flex-1">
                                                     <AsyncSelect
                                                         value={selectedGrupo}
-                                                        onChange={(val: any) => {
+                                                        onChange={(val) => {
                                                             setSelectedGrupo(val ? { id: val.id, nome: val.nome } : null);
                                                             setData('grupo_id', val ? Number(val.id) : null);
                                                         }}
                                                         loadOptions={async (q: string = '') => {
                                                             const res = await fetch(`/grupos?q=${encodeURIComponent(q)}`);
                                                             if (!res.ok) return [];
-                                                            return (await res.json()).grupos ?? [];
+                                                            const payload = (await res.json()) as unknown;
+                                                            if (typeof payload !== 'object' || payload === null) return [];
+                                                            const grupos = (payload as { grupos?: unknown }).grupos;
+                                                            return Array.isArray(grupos) ? (grupos as NamedOption[]) : [];
                                                         }}
                                                         placeholder="Buscar grupo..."
                                                         isClearable
                                                     />
                                                 </div>
-                                                <Button type="button" variant="secondary" size="icon" className="shrink-0" onClick={() => setGruposModalOpen(true)} aria-label="Cadastrar grupo" title="Cadastrar grupo">
+                                                <Button
+                                                    type="button"
+                                                    variant="secondary"
+                                                    size="icon"
+                                                    className="shrink-0"
+                                                    onClick={() => setGruposModalOpen(true)}
+                                                    aria-label="Cadastrar grupo"
+                                                    title="Cadastrar grupo"
+                                                >
                                                     <Plus className="h-4 w-4" />
                                                 </Button>
                                             </div>
@@ -241,22 +281,15 @@ export default function ProdutosModal({
                             </form>
                         </div>
 
-                        <div className="mt-2 overflow-y-auto min-h-[200px] max-h-[340px]">
+                        <div className="mt-2 max-h-[340px] min-h-[200px] overflow-y-auto">
                             {loading ? (
                                 <div>Carregando...</div>
                             ) : (
                                 <div className="grid gap-2">
                                     {produtos.map((p) => (
-                                        <ProdutoRow
-                                            key={p.id}
-                                            produto={p}
-                                            onEdit={() => startEdit(p)}
-                                            onDelete={() => doDelete(p)}
-                                        />
+                                        <ProdutoRow key={p.id} produto={p} onEdit={() => startEdit(p)} onDelete={() => doDelete(p)} />
                                     ))}
-                                    {produtos.length === 0 && (
-                                        <div className="text-sm text-muted-foreground">Nenhum produto encontrado.</div>
-                                    )}
+                                    {produtos.length === 0 && <div className="text-muted-foreground text-sm">Nenhum produto encontrado.</div>}
                                 </div>
                             )}
                         </div>
@@ -269,9 +302,8 @@ export default function ProdutosModal({
                     <DialogHeader>
                         <DialogTitle>Confirmar exclusão</DialogTitle>
                         <DialogDescription>
-                            O produto &quot;{produtoToDelete?.nome ?? ''}&quot; será excluído somente se nunca
-                            tiver sido usado em lançamentos. Caso já tenha sido usado, a exclusão será
-                            bloqueada e você poderá inativá-lo. Esta ação não pode ser desfeita.
+                            O produto &quot;{produtoToDelete?.nome ?? ''}&quot; será excluído somente se nunca tiver sido usado em lançamentos. Caso
+                            já tenha sido usado, a exclusão será bloqueada e você poderá inativá-lo. Esta ação não pode ser desfeita.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>

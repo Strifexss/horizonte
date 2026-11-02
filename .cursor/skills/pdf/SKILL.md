@@ -1,3 +1,8 @@
+---
+name: pdf
+description: Padroniza a geração de PDFs no Horizonte (DomPDF, views, rota, controller, service, repository e testes). Use ao criar ou alterar um PDF, como o do Extrato.
+---
+
 # Geração de PDFs (skill)
 
 Propósito

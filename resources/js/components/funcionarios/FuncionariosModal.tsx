@@ -1,20 +1,12 @@
+import { router, useForm, usePage } from '@inertiajs/react';
 import React, { useEffect, useState } from 'react';
-import { useForm, usePage, router } from '@inertiajs/react';
 
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-    DialogFooter,
-    DialogClose,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import MoneyInput, { parseMoneyValue } from '@/components/ui/money-input';
-import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import MoneyInput, { parseMoneyValue } from '@/components/ui/money-input';
 import FuncionarioRow from './FuncionarioRow';
 
 type Funcionario = {
@@ -29,6 +21,10 @@ type FuncionarioCriado = {
     salario: number | string;
 };
 
+type FuncionariosPageProps = {
+    funcionarios?: Funcionario[];
+};
+
 export default function FuncionariosModal({
     open,
     onOpenChange,
@@ -40,12 +36,22 @@ export default function FuncionariosModal({
 }) {
     const [loading, setLoading] = useState(false);
     const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
-    const page = usePage<any>();
+    const page = usePage<FuncionariosPageProps>();
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [funcionarioToDelete, setFuncionarioToDelete] = useState<Funcionario | null>(null);
     const [editingId, setEditingId] = useState<number | string | null>(null);
 
-    const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
+    const {
+        data,
+        setData,
+        post,
+        put,
+        delete: destroy,
+        processing,
+        errors,
+        reset,
+        clearErrors,
+    } = useForm({
         nome: '',
         salario: '',
     });
@@ -86,7 +92,8 @@ export default function FuncionariosModal({
                 onSuccess: (pageResult) => {
                     router.reload({ only: ['funcionarios'] });
                     reset();
-                    const criado = (pageResult.props as any)?.flash?.funcionario_criado as FuncionarioCriado | undefined;
+                    const flash = pageResult.props.flash as { funcionario_criado?: FuncionarioCriado } | undefined;
+                    const criado = flash?.funcionario_criado;
                     if (criado && onCreated) {
                         onCreated(criado);
                         onOpenChange(false);
@@ -99,10 +106,13 @@ export default function FuncionariosModal({
     const startEdit = (funcionario: Funcionario) => {
         setEditingId(funcionario.id);
         setData('nome', funcionario.nome);
-        setData('salario', (() => {
-            const parsed = parseMoneyValue((funcionario as any).salario);
-            return parsed === null ? '' : parsed.toFixed(2);
-        })());
+        setData(
+            'salario',
+            (() => {
+                const parsed = parseMoneyValue(funcionario.salario);
+                return parsed === null ? '' : parsed.toFixed(2);
+            })(),
+        );
     };
 
     const doDelete = (funcionario: Funcionario) => {
@@ -112,15 +122,15 @@ export default function FuncionariosModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="w-[100vw] h-[100dvh] md:w-[700px] md:max-w-full md:h-auto overflow-hidden">
+            <DialogContent className="h-[100dvh] w-[100vw] overflow-hidden md:h-auto md:w-[700px] md:max-w-full">
                 <DialogHeader>
                     <DialogTitle>Funcionários</DialogTitle>
                     <DialogDescription>Gerencie os funcionários vinculados aos lançamentos de salário.</DialogDescription>
                 </DialogHeader>
                 <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-                    <div className="mt-4 rounded-lg border border-sidebar-border/70 bg-white dark:bg-slate-900 p-4 shadow-sm">
+                    <div className="border-sidebar-border/70 mt-4 rounded-lg border bg-white p-4 shadow-sm dark:bg-slate-900">
                         <form onSubmit={submit} noValidate className="grid gap-2">
-                            <div className="grid md:grid-cols-2 gap-2">
+                            <div className="grid gap-2 md:grid-cols-2">
                                 <div className="grid gap-2">
                                     <Label htmlFor="funcionario_nome">Nome do Funcionário</Label>
                                     <Input
@@ -165,22 +175,15 @@ export default function FuncionariosModal({
                             </DialogFooter>
                         </form>
 
-                        <div className="mt-2 overflow-y-auto min-h-[200px] max-h-[340px]">
+                        <div className="mt-2 max-h-[340px] min-h-[200px] overflow-y-auto">
                             {loading ? (
                                 <div>Carregando...</div>
                             ) : (
                                 <div className="grid gap-2">
                                     {funcionarios.map((f) => (
-                                        <FuncionarioRow
-                                            key={f.id}
-                                            funcionario={f}
-                                            onEdit={() => startEdit(f)}
-                                            onDelete={() => doDelete(f)}
-                                        />
+                                        <FuncionarioRow key={f.id} funcionario={f} onEdit={() => startEdit(f)} onDelete={() => doDelete(f)} />
                                     ))}
-                                    {funcionarios.length === 0 && (
-                                        <div className="text-sm text-muted-foreground">Nenhum funcionário encontrado.</div>
-                                    )}
+                                    {funcionarios.length === 0 && <div className="text-muted-foreground text-sm">Nenhum funcionário encontrado.</div>}
                                 </div>
                             )}
                         </div>
@@ -191,9 +194,8 @@ export default function FuncionariosModal({
                             <DialogHeader>
                                 <DialogTitle>Confirmar exclusão</DialogTitle>
                                 <DialogDescription>
-                                    O funcionário &quot;{funcionarioToDelete?.nome ?? ''}&quot; será removido. Os
-                                    lançamentos vinculados permanecerão, mas sem o funcionário associado (o vínculo
-                                    será limpo). Esta ação não pode ser desfeita.
+                                    O funcionário &quot;{funcionarioToDelete?.nome ?? ''}&quot; será removido. Os lançamentos vinculados permanecerão,
+                                    mas sem o funcionário associado (o vínculo será limpo). Esta ação não pode ser desfeita.
                                 </DialogDescription>
                             </DialogHeader>
                             <DialogFooter>

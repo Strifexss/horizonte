@@ -1,0 +1,25 @@
+# Nunca indexar segredos, dependências, skills de terceiros, caches ou saídas geradas.
+.git/
+graphify-out/
+vendor/
+node_modules/
+public/build/
+public/storage/
+bootstrap/cache/
+bootstrap/ssr/
+storage/
+.agents/
+.claude/
+.cursor/
+.scratch/
+.env
+.env.*
+*.pem
+*.key
+auth.json
+*.log
+*.tsbuildinfo
+composer.lock
+package-lock.json
+skills-lock.json
+database/*.sqlite

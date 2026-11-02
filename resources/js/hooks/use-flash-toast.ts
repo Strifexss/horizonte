@@ -1,9 +1,17 @@
+import { usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { usePage } from '@inertiajs/react';
+
+type FlashPageProps = {
+    flash?: {
+        success?: string | null;
+        error?: string | null;
+        warning?: string | null;
+    };
+};
 
 export function useFlashToast() {
-    const { flash } = usePage().props as any;
+    const { flash } = usePage<FlashPageProps>().props;
 
     useEffect(() => {
         if (flash?.success) {
@@ -15,6 +23,5 @@ export function useFlashToast() {
         if (flash?.warning) {
             toast.warning(flash.warning);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flash?.success, flash?.error, flash?.warning]);
 }

@@ -1,35 +1,21 @@
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, useForm, Deferred } from '@inertiajs/react';
-import React from 'react';
-import { Plus } from 'lucide-react';
+import AccountsEmpty from '@/components/contas/AccountsEmpty';
+import AccountsSkeleton from '@/components/contas/AccountsSkeleton';
+import ContasForm from '@/components/contas/ContasForm';
+import InputError from '@/components/input-error';
 import { PageTitle } from '@/components/padrões';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-    DialogFooter,
-    DialogClose,
-} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import InputError from '@/components/input-error';
-import {
-    DropdownMenu,
-    DropdownMenuTrigger,
-    DropdownMenuContent,
-    DropdownMenuItem,
-} from '@/components/ui/dropdown-menu';
-import { MoreHorizontal } from 'lucide-react';
-import AccountsSkeleton from '@/components/contas/AccountsSkeleton';
-import AccountsEmpty from '@/components/contas/AccountsEmpty';
-import ContasForm from '@/components/contas/ContasForm';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { Deferred, Head, useForm } from '@inertiajs/react';
+import { MoreHorizontal, Plus } from 'lucide-react';
+import React from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -39,25 +25,40 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 type Account = {
-    id: string;
-    name: string;
-    type: string;
-    balance: number;
-    initial?: string;
+    id: number | string;
+    nome?: string | null;
+    name?: string | null;
+    descricao?: string | null;
+    type?: string | null;
+    balance?: number;
+    padrao?: number | string | null;
+};
+
+type EditAccountForm = {
+    nome: string;
+    descricao: string;
+    padrao: boolean;
 };
 
 function formatCurrency(value: number) {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }
 
-export default function Contas({ contas = [] }: { contas?: Array<any> }) {
+export default function Contas({ contas = [] }: { contas?: Account[] }) {
     const [open, setOpen] = React.useState(false);
     const [editOpen, setEditOpen] = React.useState(false);
-    const [editingAccount, setEditingAccount] = React.useState<any | null>(null);
+    const [editingAccount, setEditingAccount] = React.useState<Account | null>(null);
     const [confirmOpen, setConfirmOpen] = React.useState(false);
-    const [accountToDelete, setAccountToDelete] = React.useState<any | null>(null);
+    const [accountToDelete, setAccountToDelete] = React.useState<Account | null>(null);
 
-    const { data: editData, setData: setEditData, put, processing: editProcessing, errors: editErrors, reset: resetEdit } = useForm({
+    const {
+        data: editData,
+        setData: setEditData,
+        put,
+        processing: editProcessing,
+        errors: editErrors,
+        reset: resetEdit,
+    } = useForm<EditAccountForm>({
         nome: '',
         descricao: '',
         padrao: false,
@@ -65,7 +66,7 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
 
     const { delete: destroy } = useForm({});
 
-    const openEdit = (acc: any) => {
+    const openEdit = (acc: Account) => {
         setEditingAccount(acc);
         setEditData('nome', acc.nome ?? acc.name ?? '');
         setEditData('descricao', acc.descricao ?? '');
@@ -86,7 +87,7 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
         });
     };
 
-    const confirmDelete = (acc: any) => {
+    const confirmDelete = (acc: Account) => {
         setAccountToDelete(acc);
         setConfirmOpen(true);
     };
@@ -122,13 +123,13 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
 
                 {/* Edit dialog */}
                 <Dialog open={editOpen} onOpenChange={setEditOpen}>
-                    <DialogContent className="h-[100dvh] md:h-auto md:w-[500px] max-w-full overflow-hidden flex flex-col">
+                    <DialogContent className="flex h-[100dvh] max-w-full flex-col overflow-hidden md:h-auto md:w-[500px]">
                         <DialogHeader>
                             <DialogTitle>Editar conta</DialogTitle>
                             <DialogDescription>Atualize os dados da conta.</DialogDescription>
                         </DialogHeader>
 
-                        <form onSubmit={submitEdit} className="grid gap-4 mt-2">
+                        <form onSubmit={submitEdit} className="mt-2 grid gap-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="edit-nome">Nome</Label>
                                 <Input
@@ -180,7 +181,7 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
 
                 {/* Delete confirmation */}
                 <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-                    <DialogContent className="md:h-auto md:w-[500px] max-w-full overflow-hidden flex flex-col">
+                    <DialogContent className="flex max-w-full flex-col overflow-hidden md:h-auto md:w-[500px]">
                         <DialogHeader>
                             <DialogTitle>Confirmar exclusão</DialogTitle>
                             <DialogDescription>Tem certeza que deseja excluir esta conta? Esta ação não pode ser desfeita.</DialogDescription>
@@ -200,60 +201,59 @@ export default function Contas({ contas = [] }: { contas?: Array<any> }) {
 
                 <Deferred data="contas" fallback={<AccountsSkeleton />}>
                     {contas && contas.length > 0 ? (
-                            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                                {contas.map((acc: any) => (
-                                    <Card
-                                        key={acc.id}
-                                        className="bg-white dark:bg-slate-900 border border-sidebar-border/70 flex flex-col justify-between"
-                                    >
-                                        <CardHeader className="relative flex flex-row items-center justify-between gap-4 p-6 flex-nowrap">
-                                            <div className="flex items-center gap-4 flex-1 min-w-0">
-                                                <Avatar>
-                                                    <AvatarFallback className="bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-100">
-                                                        {(acc.nome ?? acc.name ?? '')?.charAt(0) ?? '?'}
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                                <div className="min-w-0">
-                                                    <div className="flex items-center gap-2 min-w-0">
-                                                        <CardTitle className="text-base truncate">{acc.nome ?? acc.name}</CardTitle>
-                                                        {Number(acc.padrao ?? 0) === 1 && (
-                                                            <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase text-muted-foreground">
-                                                                Padrão
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <CardDescription className="text-xs truncate">{acc.descricao ?? acc.type}</CardDescription>
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            {contas.map((acc) => (
+                                <Card
+                                    key={acc.id}
+                                    className="border-sidebar-border/70 flex flex-col justify-between border bg-white dark:bg-slate-900"
+                                >
+                                    <CardHeader className="relative flex flex-row flex-nowrap items-center justify-between gap-4 p-6">
+                                        <div className="flex min-w-0 flex-1 items-center gap-4">
+                                            <Avatar>
+                                                <AvatarFallback className="bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-100">
+                                                    {(acc.nome ?? acc.name ?? '')?.charAt(0) ?? '?'}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div className="min-w-0">
+                                                <div className="flex min-w-0 items-center gap-2">
+                                                    <CardTitle className="truncate text-base">{acc.nome ?? acc.name}</CardTitle>
+                                                    {Number(acc.padrao ?? 0) === 1 && (
+                                                        <span className="bg-muted text-muted-foreground shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium uppercase">
+                                                            Padrão
+                                                        </span>
+                                                    )}
                                                 </div>
+                                                <CardDescription className="truncate text-xs">{acc.descricao ?? acc.type}</CardDescription>
                                             </div>
-                                            <div className="absolute right-4 top-4 flex-shrink-0">
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md">
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                            <span className="sr-only">Ações</span>
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuItem onSelect={() => openEdit(acc)}>Editar</DropdownMenuItem>
-                                                        <DropdownMenuItem onSelect={() => confirmDelete(acc)}>Excluir</DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </div>
-                                        </CardHeader>
+                                        </div>
+                                        <div className="absolute top-4 right-4 flex-shrink-0">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md">
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                        <span className="sr-only">Ações</span>
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem onSelect={() => openEdit(acc)}>Editar</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => confirmDelete(acc)}>Excluir</DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
+                                    </CardHeader>
 
-                                        <CardContent className="p-6 pt-0">
-                                            <div className="mt-2">
-                                                <div className="text-2xl font-semibold">{formatCurrency(acc.balance ?? 0)}</div>
-                                                <div className="mt-2 text-sm text-muted-foreground">Saldo atualizado hoje</div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
-                            </div>
-                        ) : (
-                            <AccountsEmpty onAdd={() => setOpen(true)} />
-                        )
-                    }
+                                    <CardContent className="p-6 pt-0">
+                                        <div className="mt-2">
+                                            <div className="text-2xl font-semibold">{formatCurrency(acc.balance ?? 0)}</div>
+                                            <div className="text-muted-foreground mt-2 text-sm">Saldo atualizado hoje</div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <AccountsEmpty onAdd={() => setOpen(true)} />
+                    )}
                 </Deferred>
             </div>
         </AppLayout>

@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import Select, { components, MenuListProps, StylesConfig } from 'react-select';
+import Select, { components, MenuListProps, SelectInstance, StylesConfig } from 'react-select';
 
 const SEARCH_DEBOUNCE_MS = 800;
 
-type Option = { id: number | string; nome: string; [key: string]: any };
+type Option = { id: number | string; nome: string; [key: string]: unknown };
 
 interface AsyncSelectProps {
   loadOptions: (input: string) => Promise<Option[]>;
@@ -338,7 +338,7 @@ export default function AsyncSelect({
 
   return (
     <Select<SelectOption, false>
-      ref={selectRef as React.Ref<any>}
+      ref={selectRef as React.Ref<SelectInstance<SelectOption, false>>}
       classNamePrefix="app-select"
       options={options}
       isLoading={isLoading}

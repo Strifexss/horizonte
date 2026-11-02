@@ -26,4 +26,3 @@ it('does not generate SQL with ESCAPE clause during autocomplete', function () {
         expect(stripos($q['query'], 'ESCAPE') === false)->toBeTrue();
     }
 });
-

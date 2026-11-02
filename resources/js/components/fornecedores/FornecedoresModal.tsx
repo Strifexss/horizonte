@@ -1,19 +1,11 @@
+import { router, useForm, usePage } from '@inertiajs/react';
 import React, { useEffect, useState } from 'react';
-import { useForm, usePage, router } from '@inertiajs/react';
 
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-    DialogFooter,
-    DialogClose,
-} from '@/components/ui/dialog';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import InputError from '@/components/input-error';
 
 type Fornecedor = {
     id: number | string;
@@ -23,6 +15,10 @@ type Fornecedor = {
 type FornecedorCriado = {
     id: number;
     nome: string;
+};
+
+type FornecedoresPageProps = {
+    fornecedores?: Fornecedor[];
 };
 
 export default function FornecedoresModal({
@@ -36,9 +32,9 @@ export default function FornecedoresModal({
 }) {
     const [loading, setLoading] = useState(false);
     const [fornecedores, setFornecedores] = useState<Fornecedor[]>([]);
-    const page = usePage<any>();
+    const page = usePage<FornecedoresPageProps>();
 
-    const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
+    const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
         nome: '',
     });
 
@@ -68,7 +64,8 @@ export default function FornecedoresModal({
             onSuccess: (pageResult) => {
                 router.reload({ only: ['fornecedores'] });
                 reset();
-                const criado = (pageResult.props as any)?.flash?.fornecedor_criado as FornecedorCriado | undefined;
+                const flash = pageResult.props.flash as { fornecedor_criado?: FornecedorCriado } | undefined;
+                const criado = flash?.fornecedor_criado;
                 if (criado && onCreated) {
                     onCreated(criado);
                     onOpenChange(false);
@@ -79,13 +76,13 @@ export default function FornecedoresModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="w-[100vw] h-[100dvh] md:w-[700px] md:max-w-full md:h-auto overflow-hidden">
+            <DialogContent className="h-[100dvh] w-[100vw] overflow-hidden md:h-auto md:w-[700px] md:max-w-full">
                 <DialogHeader>
                     <DialogTitle>Fornecedores</DialogTitle>
                     <DialogDescription>Gerencie os fornecedores.</DialogDescription>
                 </DialogHeader>
                 <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-                    <div className="mt-4 rounded-lg border border-sidebar-border/70 bg-white dark:bg-slate-900 p-4 shadow-sm">
+                    <div className="border-sidebar-border/70 mt-4 rounded-lg border bg-white p-4 shadow-sm dark:bg-slate-900">
                         <form onSubmit={submit} className="grid gap-2">
                             <div className="grid gap-2">
                                 <Label htmlFor="fornecedor_nome">Nome do Fornecedor</Label>
@@ -118,19 +115,17 @@ export default function FornecedoresModal({
                             </DialogFooter>
                         </form>
 
-                        <div className="mt-2 overflow-y-auto min-h-[200px] max-h-[340px]">
+                        <div className="mt-2 max-h-[340px] min-h-[200px] overflow-y-auto">
                             {loading ? (
                                 <div>Carregando...</div>
                             ) : (
                                 <div className="grid gap-2">
                                     {fornecedores.map((f) => (
-                                        <div key={f.id} className="flex items-center justify-between gap-2 p-2 border rounded">
+                                        <div key={f.id} className="flex items-center justify-between gap-2 rounded border p-2">
                                             <div>{f.nome}</div>
                                         </div>
                                     ))}
-                                    {fornecedores.length === 0 && (
-                                        <div className="text-sm text-muted-foreground">Nenhum fornecedor encontrado.</div>
-                                    )}
+                                    {fornecedores.length === 0 && <div className="text-muted-foreground text-sm">Nenhum fornecedor encontrado.</div>}
                                 </div>
                             )}
                         </div>
@@ -140,4 +135,3 @@ export default function FornecedoresModal({
         </Dialog>
     );
 }
-
