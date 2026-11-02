@@ -9,6 +9,7 @@ use App\Models\Produto;
 use App\Models\VendaItem;
 use App\Repositories\Interfaces\ProdutoRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\Storage;
 
 class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryInterface
 {
+    private const CATALOGO_POR_PAGINA = 20;
+
     public function __construct(Produto $produto)
     {
         parent::__construct($produto);
@@ -129,6 +132,29 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
             ->orderBy('nome')
             ->limit(20)
             ->get(['id', 'nome', 'codigo', 'preco_venda']);
+    }
+
+    public function catalogoParaVenda(?string $q, ?int $grupoId, bool $soFavoritos, int $page): Paginator
+    {
+        $query = $this->model->newQuery()
+            ->where('empresa_id', Empresa::atualId())
+            ->where('ativo', true)
+            ->with('grupo:id,nome');
+
+        $q = trim((string) $q);
+        if ($q !== '') {
+            $this->aplicarBuscaPorNomeOuCodigo($query, $q);
+            $query->orderByRaw('case when codigo = ? then 0 else 1 end', [$q]);
+        } elseif ($soFavoritos) {
+            $query->where('favorito', true);
+        } elseif ($grupoId !== null) {
+            $query->where('grupo_id', $grupoId);
+        }
+
+        return $query
+            ->orderBy('nome')
+            ->orderBy('id')
+            ->simplePaginate(self::CATALOGO_POR_PAGINA, ['id', 'nome', 'codigo', 'preco_venda', 'grupo_id', 'foto_path'], 'page', $page);
     }
 
     public function favoritosParaVenda(): Collection

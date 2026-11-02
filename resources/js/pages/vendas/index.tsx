@@ -36,6 +36,7 @@ type PageProps = {
     possui_conta: boolean;
     produtos_favoritos?: ProdutoParaVenda[];
     cliente_padrao: VendaNamed;
+    grupos?: VendaNamed[];
     resumo?: VendaResumo;
     vendas?: unknown;
 };
@@ -202,6 +203,7 @@ export default function VendasIndex() {
                     onCancelar={setVendaParaCancelar}
                     favoritos={props.produtos_favoritos ?? []}
                     clientePadrao={props.cliente_padrao}
+                    grupos={props.grupos ?? []}
                 />
 
                 <ConfirmDeleteModal

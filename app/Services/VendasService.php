@@ -20,6 +20,7 @@ use App\Repositories\Interfaces\VendaRepositoryInterface;
 use App\Services\Interfaces\ExtratoServiceInterface;
 use App\Services\Interfaces\VendasServiceInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -49,6 +50,11 @@ class VendasService extends ServiceAbstract implements VendasServiceInterface
     public function produtosParaVenda(?string $q = null): Collection
     {
         return $this->produtoRepository->autocompleteParaVenda($q);
+    }
+
+    public function catalogoParaVenda(?string $q, ?int $grupoId, bool $soFavoritos, int $page): Paginator
+    {
+        return $this->produtoRepository->catalogoParaVenda($q, $grupoId, $soFavoritos, $page);
     }
 
     public function favoritosParaVenda(): Collection

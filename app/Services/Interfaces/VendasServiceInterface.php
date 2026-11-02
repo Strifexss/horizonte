@@ -6,6 +6,7 @@ use App\DTO\VendaSearchDTO;
 use App\Models\Produto;
 use App\Models\Venda;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Collection;
 
 interface VendasServiceInterface extends AbstractServiceInterface
@@ -21,6 +22,8 @@ interface VendasServiceInterface extends AbstractServiceInterface
      * @return Collection<int, Produto>
      */
     public function produtosParaVenda(?string $q = null): Collection;
+
+    public function catalogoParaVenda(?string $q, ?int $grupoId, bool $soFavoritos, int $page): Paginator;
 
     /**
      * Produtos ativos favoritos da Empresa, atalhos no topo da Nova Venda.

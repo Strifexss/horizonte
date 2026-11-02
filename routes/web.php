@@ -140,6 +140,7 @@ Route::middleware(['auth', 'empresa'])->group(function () {
     Route::group(['prefix' => 'vendas'], function () {
         Route::get('/', [VendasController::class, 'index'])->name('vendas');
         Route::get('/produtos', [VendasController::class, 'produtosAutocomplete'])->name('vendas.produtos');
+        Route::get('/catalogo', [VendasController::class, 'catalogo'])->name('vendas.catalogo');
         Route::post('/', [VendasController::class, 'store'])->name('vendas.store');
         Route::put('/{id}', [VendasController::class, 'update'])->name('vendas.update');
         Route::post('/{id}/cancelar', [VendasController::class, 'cancelar'])->name('vendas.cancelar');

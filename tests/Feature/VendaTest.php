@@ -6,6 +6,7 @@ use App\Models\Conta;
 use App\Models\Financeiro;
 use App\Models\FinanceiroParcela;
 use App\Models\FormaPagamento;
+use App\Models\Grupo;
 use App\Models\Produto;
 use App\Models\User;
 use App\Models\Venda;
@@ -525,5 +526,65 @@ it('envia para a nova venda so os favoritos ativos da empresa', function (): voi
         ->assertInertia(fn (Assert $page) => $page
             ->has('produtos_favoritos', 1)
             ->where('produtos_favoritos.0.nome', 'Café Premium')
+        );
+});
+
+it('pagina o catalogo da venda com os ativos da empresa', function (): void {
+    $user = User::factory()->create();
+    foreach (range(1, 21) as $numero) {
+        produtoParaVenda($user, ['nome' => sprintf('Produto %02d', $numero)]);
+    }
+    produtoParaVenda($user, ['nome' => 'Produto inativo', 'ativo' => false]);
+    produtoParaVenda(User::factory()->create(), ['nome' => 'Produto alheio']);
+
+    $this->actingAs($user)
+        ->getJson(route('vendas.catalogo'))
+        ->assertOk()
+        ->assertJsonCount(20, 'data')
+        ->assertJsonPath('data.0.nome', 'Produto 01')
+        ->assertJsonPath('proxima_pagina', 2);
+
+    $this->actingAs($user)
+        ->getJson(route('vendas.catalogo', ['page' => 2]))
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.nome', 'Produto 21')
+        ->assertJsonPath('proxima_pagina', null);
+});
+
+it('filtra o catalogo por favoritos ou grupo e a busca ignora a aba', function (): void {
+    $user = User::factory()->create();
+    $bebidas = Grupo::query()->create(['nome' => 'Bebidas', 'usuario_id' => $user->id]);
+    produtoParaVenda($user, ['nome' => 'Café', 'favorito' => true]);
+    produtoParaVenda($user, ['nome' => 'Suco', 'grupo_id' => $bebidas->id, 'codigo' => 'SUC']);
+
+    $this->actingAs($user)
+        ->getJson(route('vendas.catalogo', ['favoritos' => 1]))
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.nome', 'Café');
+
+    $this->actingAs($user)
+        ->getJson(route('vendas.catalogo', ['grupo_id' => $bebidas->id]))
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.nome', 'Suco')
+        ->assertJsonPath('data.0.grupo', 'Bebidas');
+
+    $this->actingAs($user)
+        ->getJson(route('vendas.catalogo', ['favoritos' => 1, 'q' => 'suc']))
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.codigo', 'SUC');
+});
+
+it('envia os grupos da empresa e o cliente padrao para a tela de vendas', function (): void {
+    $user = User::factory()->create();
+    Grupo::query()->create(['nome' => 'Bebidas', 'usuario_id' => $user->id]);
+    Grupo::query()->create(['nome' => 'Alheio', 'usuario_id' => User::factory()->create()->id]);
+
+    $this->actingAs($user)
+        ->get(route('vendas'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('grupos', 1)
+            ->where('grupos.0.nome', 'Bebidas')
+            ->where('cliente_padrao.nome', 'CONSUMIDOR')
         );
 });

@@ -82,6 +82,17 @@ export type ProdutoParaVenda = VendaNamed & {
     preco_venda: string | number;
 };
 
+/** Produto do catálogo da venda no celular (rolagem infinita). */
+export type ProdutoDoCatalogo = ProdutoParaVenda & {
+    grupo: string | null;
+    foto_url: string | null;
+};
+
+export type PaginaDoCatalogo = {
+    data: ProdutoDoCatalogo[];
+    proxima_pagina: number | null;
+};
+
 export const VENDA_STATUS_META: Record<VendaStatus, { label: string; className: string }> = {
     aberta: {
         label: 'Aberta',

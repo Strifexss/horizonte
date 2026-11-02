@@ -19,12 +19,14 @@ import {
     type VendaNamed,
     type VendaPagamentoRascunho,
 } from '@/components/vendas/types';
+import VendaCatalogoMobile from '@/components/vendas/VendaCatalogoMobile';
 import VendaClienteCampo from '@/components/vendas/VendaClienteCampo';
 import VendaItensEditor from '@/components/vendas/VendaItensEditor';
 import VendaPagamentosEditor, { pagamentosComForma } from '@/components/vendas/VendaPagamentosEditor';
 import VendaResumo, { type VendaResumoLinha } from '@/components/vendas/VendaResumo';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useForm } from '@inertiajs/react';
-import { Ban } from 'lucide-react';
+import { Ban, ChevronRight } from 'lucide-react';
 import { useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
 
 type VendaFormData = {
@@ -43,6 +45,7 @@ type Props = {
     onCancelar: (venda: Venda) => void;
     favoritos?: ProdutoParaVenda[];
     clientePadrao: VendaNamed;
+    grupos?: VendaNamed[];
 };
 
 function rascunhoDaVenda(venda: Venda | null, clientePadrao: VendaNamed): VendaFormData {
@@ -110,9 +113,22 @@ function VendaSomenteLeitura({ venda }: { venda: Venda }) {
     );
 }
 
-export default function VendaModal({ open, onOpenChange, venda, formasPagamento, possuiConta, onCancelar, favoritos = [], clientePadrao }: Props) {
+export default function VendaModal({
+    open,
+    onOpenChange,
+    venda,
+    formasPagamento,
+    possuiConta,
+    onCancelar,
+    favoritos = [],
+    clientePadrao,
+    grupos = [],
+}: Props) {
     const [contaFormOpen, setContaFormOpen] = useState(false);
     const [formaFormOpen, setFormaFormOpen] = useState(false);
+    const [etapa, setEtapa] = useState<1 | 2>(1);
+    const [itensAbertos, setItensAbertos] = useState(false);
+    const isMobile = useIsMobile();
     const { data, setData, post, put, processing, errors, clearErrors, transform } = useForm<VendaFormData>(rascunhoDaVenda(venda, clientePadrao));
     const erros = errors as Partial<Record<string, string>>;
     const somenteLeitura = venda !== null && venda.status !== 'aberta';
@@ -124,6 +140,8 @@ export default function VendaModal({ open, onOpenChange, venda, formasPagamento,
 
         setData(rascunhoDaVenda(venda, clientePadrao));
         clearErrors();
+        setEtapa(1);
+        setItensAbertos(false);
     }, [open, venda?.id]);
 
     const linhas: VendaResumoLinha[] = data.itens.map((item) => {
@@ -194,7 +212,7 @@ export default function VendaModal({ open, onOpenChange, venda, formasPagamento,
     /** Enter fora de campos de texto (ex.: após clicar numa forma de pagamento) salva a venda. */
     function salvarComEnter(e: KeyboardEvent<HTMLFormElement>): void {
         const alvo = e.target as HTMLElement;
-        if (e.key !== 'Enter' || alvo.closest('input, textarea, select, [role="combobox"]') || !podeSalvar) {
+        if (e.key !== 'Enter' || (isMobile && etapa === 1) || alvo.closest('input, textarea, select, button, [role="combobox"]') || !podeSalvar) {
             return;
         }
 
@@ -203,14 +221,198 @@ export default function VendaModal({ open, onOpenChange, venda, formasPagamento,
     }
 
     const titulo = venda ? `Venda #${venda.id}` : 'Nova Venda';
-    const descricao = venda
+    const descricaoBase = venda
         ? `${VENDA_STATUS_META[venda.status].label} • ${formatDataVenda(venda.data_venda)}`
         : 'Busque, adicione e finalize rápido';
+    const descricao = isMobile && !somenteLeitura ? (etapa === 1 ? 'Etapa 1 de 2 · Produtos' : 'Etapa 2 de 2 · Pagamento') : descricaoBase;
+    const resumoQuantidade = `${data.itens.length} ${data.itens.length === 1 ? 'item' : 'itens'} • ${formatQuantidade(unidades)} unid.`;
+    const botaoSalvarDesabilitado = data.itens.length === 0 || totalPagoCentavos > totalCentavos;
+
+    const campoCliente = (
+        <VendaClienteCampo
+            cliente={data.cliente}
+            onChange={(cliente) => setData('cliente', cliente)}
+            clientePadrao={clientePadrao}
+            error={erros.cliente_id}
+            disabled={processing}
+        />
+    );
+
+    const campoPagamentos = (
+        <VendaPagamentosEditor
+            pagamentos={data.pagamentos}
+            onChange={(pagamentos) => setData('pagamentos', pagamentos)}
+            total={total}
+            formasPagamento={formasPagamento}
+            errors={erros}
+            compacto
+            onCadastrarForma={() => setFormaFormOpen(true)}
+        />
+    );
+
+    const avisoConta = precisaConta ? (
+        <div className="flex flex-col gap-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+            <span>{erros.conta ?? 'Cadastre uma conta para fechar a venda: as receitas vão para a conta padrão.'}</span>
+            <Button type="button" variant="secondary" size="sm" className="self-start" onClick={() => setContaFormOpen(true)}>
+                Cadastrar conta
+            </Button>
+        </div>
+    ) : null;
+
+    const campoObservacao = (
+        <div className="grid gap-2">
+            <Input
+                aria-label="Observação"
+                value={data.observacao}
+                onChange={(e) => setData('observacao', e.target.value)}
+                placeholder="Observação (opcional)"
+                maxLength={1000}
+                disabled={processing}
+            />
+            <InputError message={erros.observacao ?? erros.venda} />
+        </div>
+    );
+
+    const linkCancelar = venda ? (
+        <button
+            type="button"
+            className="inline-flex items-center gap-1 self-start text-sm font-medium text-red-600 hover:text-red-700"
+            onClick={() => onCancelar(venda)}
+        >
+            <Ban className="h-4 w-4" />
+            Cancelar venda
+        </button>
+    ) : null;
+
+    const botaoSalvar = (
+        <Button type="submit" variant="primary" className="w-full justify-center uppercase" loading={processing} disabled={botaoSalvarDesabilitado}>
+            Salvar venda
+        </Button>
+    );
+
+    const conteudoDesktop = (
+        <div className="-mx-6 -mb-6 flex min-h-0 flex-1 border-t">
+            <section aria-label="Montar a venda" className="flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto px-6 py-4">
+                <VendaItensEditor
+                    itens={data.itens}
+                    onChange={(itens) => setData('itens', itens)}
+                    errors={erros}
+                    disabled={processing}
+                    favoritos={favoritos}
+                />
+                {data.itens.length === 0 ? (
+                    <p className="border-sidebar-border/70 text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
+                        Bipe um código, busque ou clique num favorito.
+                    </p>
+                ) : null}
+            </section>
+
+            <aside aria-label="Fechar a venda" className="flex w-[340px] shrink-0 flex-col border-l bg-slate-50 dark:bg-slate-900/60">
+                <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-5">
+                    {campoCliente}
+                    <div className="bg-background flex flex-col gap-1 rounded-lg border px-4 py-3">
+                        <span className="text-xs font-bold tracking-wide text-slate-600 uppercase dark:text-slate-300">Total da venda</span>
+                        <span className="text-3xl font-bold">{formatCurrency(total)}</span>
+                        <span className="text-muted-foreground text-xs">{resumoQuantidade}</span>
+                    </div>
+                    {campoPagamentos}
+                    {avisoConta}
+                    {campoObservacao}
+                    {linkCancelar}
+                </div>
+                <div className="flex flex-col gap-2 border-t p-5">
+                    {botaoSalvar}
+                    <DialogClose asChild>
+                        <Button type="button" variant="ghost" className="w-full">
+                            Voltar <span className="text-muted-foreground text-xs">(Esc)</span>
+                        </Button>
+                    </DialogClose>
+                </div>
+            </aside>
+        </div>
+    );
+
+    const conteudoMobile =
+        etapa === 1 ? (
+            <>
+                <VendaCatalogoMobile itens={data.itens} onChange={(itens) => setData('itens', itens)} grupos={grupos} disabled={processing} />
+                <InputError message={erros.itens} />
+                <DialogFooter className="flex flex-row gap-2 border-t pt-3">
+                    <DialogClose asChild>
+                        <Button type="button" variant="secondary" className="h-12 w-28 shrink-0">
+                            Cancelar
+                        </Button>
+                    </DialogClose>
+                    <Button
+                        type="button"
+                        variant="primary"
+                        className="h-12 flex-1 justify-between"
+                        disabled={data.itens.length === 0}
+                        onClick={() => setEtapa(2)}
+                    >
+                        <span>Avançar</span>
+                        <span className="text-sm font-medium">
+                            {data.itens.length > 0 ? `${formatQuantidade(unidades)} ${unidades === 1 ? 'item' : 'itens'} · ` : ''}
+                            {formatCurrency(total)}
+                        </span>
+                    </Button>
+                </DialogFooter>
+            </>
+        ) : (
+            <>
+                <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-2">
+                    {campoCliente}
+                    <div className="rounded-lg border">
+                        <div className="flex items-center gap-2 py-1.5 pr-1.5 pl-3">
+                            <button
+                                type="button"
+                                aria-expanded={itensAbertos}
+                                onClick={() => setItensAbertos((aberto) => !aberto)}
+                                className="flex h-10 flex-1 items-center gap-1.5 text-left text-sm font-semibold"
+                            >
+                                <ChevronRight className={`text-muted-foreground h-4 w-4 transition-transform ${itensAbertos ? 'rotate-90' : ''}`} />
+                                Itens da venda ({data.itens.length})
+                            </button>
+                            <Button type="button" variant="outline" size="sm" className="border-blue-600 text-blue-700" onClick={() => setEtapa(1)}>
+                                + Adicionar itens
+                            </Button>
+                        </div>
+                        {itensAbertos ? (
+                            <ul className="border-t px-3 py-1">
+                                {linhas.map((linha) => (
+                                    <li key={linha.chave} className="flex justify-between gap-2 py-1.5 text-sm">
+                                        <span className="truncate text-slate-600 dark:text-slate-300">
+                                            {linha.nome} × {formatQuantidade(linha.quantidade)}
+                                        </span>
+                                        <span className="shrink-0 font-semibold text-green-600">{formatCurrency(linha.valorTotal)}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : null}
+                    </div>
+                    <VendaResumo linhas={[]} total={total} />
+                    {campoPagamentos}
+                    {avisoConta}
+                    {campoObservacao}
+                    {linkCancelar}
+                </div>
+                <DialogFooter className="flex flex-row gap-2 border-t pt-3">
+                    <Button type="button" variant="secondary" className="h-12 w-28 shrink-0" onClick={() => setEtapa(1)}>
+                        Voltar
+                    </Button>
+                    <div className="flex-1 [&>button]:h-12">{botaoSalvar}</div>
+                </DialogFooter>
+            </>
+        );
 
     return (
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent className="h-[100vh] w-[100vw] overflow-hidden md:h-auto md:max-h-[90vh] md:w-[640px] md:max-w-full">
+                <DialogContent
+                    className={`h-[100vh] w-[100vw] overflow-hidden md:max-w-full ${
+                        somenteLeitura ? 'md:h-auto md:max-h-[90vh] md:w-[640px]' : 'md:h-[88vh] md:w-[1040px]'
+                    }`}
+                >
                     <DialogHeader>
                         <DialogTitle>{titulo}</DialogTitle>
                         <DialogDescription>{descricao}</DialogDescription>
@@ -235,88 +437,8 @@ export default function VendaModal({ open, onOpenChange, venda, formasPagamento,
                             </DialogFooter>
                         </>
                     ) : (
-                        <form onSubmit={submit} onKeyDown={salvarComEnter} noValidate className="flex min-h-0 flex-1 flex-col gap-4">
-                            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto pr-1">
-                                <span className="text-muted-foreground text-xs">
-                                    {data.itens.length} {data.itens.length === 1 ? 'item' : 'itens'} • {formatQuantidade(unidades)} unid.
-                                </span>
-
-                                <VendaClienteCampo
-                                    cliente={data.cliente}
-                                    onChange={(cliente) => setData('cliente', cliente)}
-                                    clientePadrao={clientePadrao}
-                                    error={erros.cliente_id}
-                                    disabled={processing}
-                                />
-
-                                <VendaItensEditor
-                                    itens={data.itens}
-                                    onChange={(itens) => setData('itens', itens)}
-                                    errors={erros}
-                                    disabled={processing}
-                                    favoritos={favoritos}
-                                />
-
-                                <VendaResumo linhas={linhas} total={total} />
-
-                                <VendaPagamentosEditor
-                                    pagamentos={data.pagamentos}
-                                    onChange={(pagamentos) => setData('pagamentos', pagamentos)}
-                                    total={total}
-                                    formasPagamento={formasPagamento}
-                                    errors={erros}
-                                    onCadastrarForma={() => setFormaFormOpen(true)}
-                                />
-
-                                {precisaConta ? (
-                                    <div className="flex flex-col gap-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800 sm:flex-row sm:items-center sm:justify-between dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
-                                        <span>{erros.conta ?? 'Cadastre uma conta para fechar a venda: as receitas vão para a conta padrão.'}</span>
-                                        <Button type="button" variant="secondary" size="sm" onClick={() => setContaFormOpen(true)}>
-                                            Cadastrar conta
-                                        </Button>
-                                    </div>
-                                ) : null}
-
-                                <div className="grid gap-2">
-                                    <Input
-                                        aria-label="Observação"
-                                        value={data.observacao}
-                                        onChange={(e) => setData('observacao', e.target.value)}
-                                        placeholder="Observação (opcional)"
-                                        maxLength={1000}
-                                        disabled={processing}
-                                    />
-                                    <InputError message={erros.observacao ?? erros.venda} />
-                                </div>
-
-                                {venda ? (
-                                    <button
-                                        type="button"
-                                        className="inline-flex items-center gap-1 self-start text-sm font-medium text-red-600 hover:text-red-700"
-                                        onClick={() => onCancelar(venda)}
-                                    >
-                                        <Ban className="h-4 w-4" />
-                                        Cancelar venda
-                                    </button>
-                                ) : null}
-                            </div>
-
-                            <DialogFooter className="flex flex-row gap-2 border-t pt-4">
-                                <DialogClose asChild>
-                                    <Button type="button" variant="secondary" className="w-full uppercase">
-                                        Voltar
-                                    </Button>
-                                </DialogClose>
-                                <Button
-                                    type="submit"
-                                    variant="primary"
-                                    className="w-full uppercase"
-                                    loading={processing}
-                                    disabled={data.itens.length === 0 || totalPagoCentavos > totalCentavos}
-                                >
-                                    Salvar venda
-                                </Button>
-                            </DialogFooter>
+                        <form onSubmit={submit} onKeyDown={salvarComEnter} noValidate className="flex min-h-0 flex-1 flex-col gap-3">
+                            {isMobile ? conteudoMobile : conteudoDesktop}
                         </form>
                     )}
                 </DialogContent>

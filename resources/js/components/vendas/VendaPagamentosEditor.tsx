@@ -19,6 +19,7 @@ type Props = {
     total: number;
     formasPagamento: FormaPagamentoItem[];
     errors: Partial<Record<string, string>>;
+    compacto?: boolean;
     onCadastrarForma: () => void;
 };
 
@@ -60,7 +61,7 @@ export function pagamentosComForma(pagamentos: VendaPagamentoRascunho[], formaId
     return pagamentos;
 }
 
-export default function VendaPagamentosEditor({ pagamentos, onChange, total, formasPagamento, errors, onCadastrarForma }: Props) {
+export default function VendaPagamentosEditor({ pagamentos, onChange, total, formasPagamento, errors, onCadastrarForma, compacto = false }: Props) {
     const usadas = new Set(pagamentos.map((pagamento) => pagamento.forma_pagamento_id));
     const formasAtivas = formasPagamento.filter((forma) => forma.ativo || usadas.has(forma.id));
     const padroes = formasAtivas.filter((forma) => forma.padrao);
@@ -117,7 +118,7 @@ export default function VendaPagamentosEditor({ pagamentos, onChange, total, for
                 </DropdownMenu>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+            <div className={`grid grid-cols-2 gap-2 ${compacto ? '' : 'md:grid-cols-4'}`}>
                 {padroes.map((forma) => {
                     const Icone = ICONES_PADRAO[forma.nome] ?? Wallet;
                     const selecionada = usadas.has(forma.id);

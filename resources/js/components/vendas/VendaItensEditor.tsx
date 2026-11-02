@@ -2,7 +2,8 @@ import InputError from '@/components/input-error';
 import AsyncSelect from '@/components/ui/AsyncSelect';
 import { Input } from '@/components/ui/input';
 import MoneyInput from '@/components/ui/money-input';
-import { novaChave, parseQuantidade, type ProdutoParaVenda, type VendaItemRascunho } from '@/components/vendas/types';
+import { quantidadeTexto, somarProduto } from '@/components/vendas/itensDaVenda';
+import { formatCurrency, parseQuantidade, type ProdutoParaVenda, type VendaItemRascunho } from '@/components/vendas/types';
 import { Minus, Plus, Star, X } from 'lucide-react';
 
 const QUANTIDADE_DIGITADA = /^\d*([.,]\d{0,3})?$/;
@@ -28,10 +29,6 @@ function rotuloComCodigo(produto: { nome: string; codigo?: string | null }): str
     return produto.codigo ? `${produto.codigo} · ${produto.nome}` : produto.nome;
 }
 
-function quantidadeTexto(value: number): string {
-    return String(Number(value.toFixed(3)));
-}
-
 function erroDaLinha(errors: Props['errors'], index: number): string | undefined {
     return errors[`itens.${index}.produto_id`] ?? errors[`itens.${index}.quantidade`] ?? errors[`itens.${index}.valor_unitario`];
 }
@@ -40,26 +37,7 @@ export default function VendaItensEditor({ itens, onChange, errors, disabled = f
     const quantidadePorProduto = new Map(itens.map((item) => [item.produto.id, parseQuantidade(item.quantidade)]));
 
     function adicionarProduto(produto: ProdutoParaVenda): void {
-        const existente = itens.find((item) => item.produto.id === produto.id);
-
-        if (existente) {
-            onChange(
-                itens.map((item) =>
-                    item.chave === existente.chave ? { ...item, quantidade: quantidadeTexto(parseQuantidade(item.quantidade) + 1) } : item,
-                ),
-            );
-            return;
-        }
-
-        onChange([
-            ...itens,
-            {
-                chave: novaChave(),
-                produto: { id: produto.id, nome: produto.nome },
-                quantidade: '1',
-                valor_unitario: Number(produto.preco_venda),
-            },
-        ]);
+        onChange(somarProduto(itens, produto, 1));
     }
 
     function trocarProduto(linha: VendaItemRascunho, produto: ProdutoParaVenda): void {
@@ -96,12 +74,12 @@ export default function VendaItensEditor({ itens, onChange, errors, disabled = f
     return (
         <div className="flex flex-col gap-2">
             {favoritos.length > 0 ? (
-                <div className="border-sidebar-border/70 flex flex-col gap-2 rounded-lg border p-2">
+                <div className="flex flex-col gap-2">
                     <span className="flex items-center gap-1.5 text-xs font-bold tracking-wide text-slate-700 uppercase dark:text-slate-200">
                         <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-500" aria-hidden="true" />
                         Favoritos
                     </span>
-                    <div className="flex gap-2 overflow-x-auto pb-1">
+                    <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
                         {favoritos.map((produto) => {
                             const quantidade = quantidadePorProduto.get(produto.id) ?? 0;
                             const naVenda = quantidade > 0;
@@ -113,15 +91,18 @@ export default function VendaItensEditor({ itens, onChange, errors, disabled = f
                                     disabled={disabled}
                                     aria-label={`Adicionar ${produto.nome}`}
                                     onClick={() => adicionarProduto(produto)}
-                                    className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full border px-3.5 text-sm font-medium whitespace-nowrap transition-colors disabled:opacity-50 ${
+                                    className={`flex min-h-12 min-w-0 items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left transition-colors disabled:opacity-50 ${
                                         naVenda
                                             ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40'
                                             : 'border-sidebar-border/70 bg-background hover:bg-muted'
                                     }`}
                                 >
-                                    {produto.nome}
+                                    <span className="flex min-w-0 flex-1 flex-col">
+                                        <span className="truncate text-sm font-medium">{produto.nome}</span>
+                                        <span className="text-muted-foreground text-xs">{formatCurrency(Number(produto.preco_venda))}</span>
+                                    </span>
                                     {naVenda ? (
-                                        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1.5 text-[11px] font-semibold text-white">
+                                        <span className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-blue-600 px-1.5 text-[11px] font-semibold text-white">
                                             {quantidadeTexto(quantidade)}
                                         </span>
                                     ) : null}

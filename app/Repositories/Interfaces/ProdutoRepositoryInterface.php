@@ -5,6 +5,7 @@ namespace App\Repositories\Interfaces;
 use App\DTO\ProdutoSearchDTO;
 use App\Models\Produto;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
@@ -48,6 +49,12 @@ interface ProdutoRepositoryInterface extends AbstractRepositoryInterface
      * @return EloquentCollection<int, Produto>
      */
     public function autocompleteParaVenda(?string $q = null): EloquentCollection;
+
+    /**
+     * Página do catálogo da venda no celular: busca por nome ou código tem prioridade
+     * sobre a aba (favoritos ou grupo); sem busca nem aba, todos os ativos.
+     */
+    public function catalogoParaVenda(?string $q, ?int $grupoId, bool $soFavoritos, int $page): Paginator;
 
     /**
      * Produtos ativos marcados como favoritos, atalhos da Nova Venda.
