@@ -29,7 +29,7 @@ Estados possíveis:
 | Laravel Boost (guidelines e skills) | reutilizado | `boost:update` preserva o conteúdo fora das tags | — |
 | Laravel Boost MCP no Cursor | pendente | `.cursor/mcp.json` chama `php`, que não existe no host | ver Pendências |
 | Superpowers | pendente | plugin do Cursor; precisa de ação no chat | rodar `/add-plugin superpowers` |
-| Ponytail (`full`) | configurado | `.cursor/rules/ponytail.mdc`, idêntico ao upstream `DietrichGebert/ponytail@96608e07` (MIT) | conferir numa sessão nova |
+| Ponytail (`full`) | configurado | `.cursor/rules/ponytail.mdc` a partir de `DietrichGebert/ponytail@96608e07` (MIT), com precedência da skill `estrutura-padrao` em rotina nova | conferir numa sessão nova |
 | Caveman | configurado | `.cursor/rules/caveman.mdc`, gerado por `caveman-init --only cursor` de `JuliusBrussee/caveman@2e068f73` (Apache-2.0/MIT) | conferir numa sessão nova |
 | RTK | pendente | exige instalação global | ver Pendências |
 | Context7 | configurado | servidor remoto em `.cursor/mcp.json`, sem chave; consulta real ao endpoint (`resolve-library-id` → `/inertiajs/docs`) | recarregar MCPs no Cursor e aprovar |
