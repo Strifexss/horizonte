@@ -1,19 +1,11 @@
-import InputError from '@/components/input-error';
 import FornecedoresModal from '@/components/fornecedores/FornecedoresModal';
 import GruposModal from '@/components/grupos/GruposModal';
+import InputError from '@/components/input-error';
 import type { ProdutoItem, ProdutoNamed } from '@/components/produtos/types';
 import AsyncSelect from '@/components/ui/AsyncSelect';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MoneyInput from '@/components/ui/money-input';
@@ -194,7 +186,9 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                                 <InputError message={errors.codigo} />
                             </div>
                         </div>
-                        <span className="-mt-2 text-xs text-muted-foreground">Código: deixe em branco para gerar o próximo número, ou use EAN / leitor de barras.</span>
+                        <span className="text-muted-foreground -mt-2 text-xs">
+                            Código: deixe em branco para gerar o próximo número, ou use EAN / leitor de barras.
+                        </span>
 
                         <div className="grid gap-2">
                             <Label htmlFor="produto_descricao">Descrição</Label>
@@ -206,7 +200,7 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                                 maxLength={160}
                                 disabled={processing}
                             />
-                            <span className="text-xs text-muted-foreground">Aparece no Menu Board da TV.</span>
+                            <span className="text-muted-foreground text-xs">Aparece no Menu Board da TV.</span>
                             <InputError message={errors.descricao} />
                         </div>
 
@@ -319,10 +313,13 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                                 />
                                 <Label htmlFor="produto_favorito" className="flex items-center gap-1">
                                     Favorito na venda
-                                    <Star className={`h-3.5 w-3.5 ${data.favorito ? 'fill-amber-400 text-amber-500' : 'text-muted-foreground'}`} aria-hidden="true" />
+                                    <Star
+                                        className={`h-3.5 w-3.5 ${data.favorito ? 'fill-amber-400 text-amber-500' : 'text-muted-foreground'}`}
+                                        aria-hidden="true"
+                                    />
                                 </Label>
                             </div>
-                            <span className="pl-6 text-xs text-muted-foreground">Aparece como atalho no topo da Nova Venda.</span>
+                            <span className="text-muted-foreground pl-6 text-xs">Aparece como atalho no topo da Nova Venda.</span>
                         </div>
 
                         <DialogFooter className="flex flex-row gap-2">

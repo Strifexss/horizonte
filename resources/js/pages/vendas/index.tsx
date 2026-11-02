@@ -2,7 +2,15 @@ import ConfirmDeleteModal from '@/components/extrato/ConfirmDeleteModal';
 import { formasPagamentoDaColecao } from '@/components/formas-pagamento/types';
 import { MobileFab, PageTitle } from '@/components/padrões';
 import { Button } from '@/components/ui/button';
-import { formatCurrency, vendasDaPagina, type ProdutoParaVenda, type Venda, type VendaFilters, type VendaResumo, type VendaStatusTab } from '@/components/vendas/types';
+import {
+    formatCurrency,
+    vendasDaPagina,
+    type ProdutoParaVenda,
+    type Venda,
+    type VendaFilters,
+    type VendaResumo,
+    type VendaStatusTab,
+} from '@/components/vendas/types';
 import VendaModal from '@/components/vendas/VendaModal';
 import VendasFilters from '@/components/vendas/VendasFilters';
 import { visitVendas } from '@/components/vendas/vendasQuery';

@@ -9,6 +9,7 @@ import {
 } from '@/components/padrões';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
     VENDA_STATUS_META,
     formatCurrency,
@@ -19,14 +20,17 @@ import {
     type VendaPaginationMeta,
     type VendaStatusTab,
 } from '@/components/vendas/types';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Ban, Eye, MessageSquareText, MoreHorizontal, Pencil, Plus, ShoppingCart } from 'lucide-react';
 
 function ObservacaoIndicador({ observacao }: { observacao: string }) {
     return (
         <Tooltip>
             <TooltipTrigger asChild>
-                <button type="button" aria-label={`Observação: ${observacao}`} className="text-muted-foreground hover:text-foreground inline-flex shrink-0">
+                <button
+                    type="button"
+                    aria-label={`Observação: ${observacao}`}
+                    className="text-muted-foreground hover:text-foreground inline-flex shrink-0"
+                >
                     <MessageSquareText className="h-4 w-4" />
                 </button>
             </TooltipTrigger>
