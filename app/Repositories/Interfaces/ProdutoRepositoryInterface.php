@@ -63,6 +63,8 @@ interface ProdutoRepositoryInterface extends AbstractRepositoryInterface
      */
     public function favoritosParaVenda(): EloquentCollection;
 
+    public function atualizarPrecoDeVenda(int $id, float $precoVenda): void;
+
     public function marcarFavorito(int $id, bool $favorito): Produto;
 
     public function indexFiltrado(ProdutoSearchDTO $filters): LengthAwarePaginator;

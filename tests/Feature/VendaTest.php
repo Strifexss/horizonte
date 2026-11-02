@@ -588,3 +588,37 @@ it('envia os grupos da empresa e o cliente padrao para a tela de vendas', functi
             ->where('cliente_padrao.nome', 'CONSUMIDOR')
         );
 });
+
+it('recusa item sem preco e grava o preco corrigido no cadastro so quando pedido', function (): void {
+    $user = User::factory()->create();
+    $semPreco = produtoParaVenda($user, ['nome' => 'Suco', 'preco_venda' => 0]);
+    $outro = produtoParaVenda($user, ['nome' => 'Bolo', 'preco_venda' => 0]);
+
+    $this->actingAs($user)->post(route('vendas.store'), [
+        'itens' => [['produto_id' => $semPreco->id, 'quantidade' => 1, 'valor_unitario' => 0]],
+    ])->assertSessionHasErrors(['itens.0.valor_unitario' => 'O valor unitário precisa ser maior que zero.']);
+
+    $this->actingAs($user)->post(route('vendas.store'), [
+        'atualizar_preco_produto_ids' => [$semPreco->id],
+        'itens' => [
+            ['produto_id' => $semPreco->id, 'quantidade' => 2, 'valor_unitario' => 9.9],
+            ['produto_id' => $outro->id, 'quantidade' => 1, 'valor_unitario' => 7.5],
+        ],
+    ])->assertSessionHasNoErrors();
+
+    expect((float) $semPreco->fresh()->preco_venda)->toBe(9.9)
+        ->and((float) $outro->fresh()->preco_venda)->toBe(0.0);
+});
+
+it('nao atualiza preco de produto de outra empresa pela venda', function (): void {
+    $user = User::factory()->create();
+    $meu = produtoParaVenda($user, ['preco_venda' => 0]);
+    $alheio = produtoParaVenda(User::factory()->create(), ['preco_venda' => 3]);
+
+    $this->actingAs($user)->post(route('vendas.store'), [
+        'atualizar_preco_produto_ids' => [$alheio->id],
+        'itens' => [['produto_id' => $meu->id, 'quantidade' => 1, 'valor_unitario' => 5]],
+    ])->assertSessionHasNoErrors();
+
+    expect((float) $alheio->fresh()->preco_venda)->toBe(3.0);
+});

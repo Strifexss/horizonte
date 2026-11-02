@@ -21,13 +21,14 @@ import {
 } from '@/components/vendas/types';
 import VendaCatalogoMobile from '@/components/vendas/VendaCatalogoMobile';
 import VendaClienteCampo from '@/components/vendas/VendaClienteCampo';
+import VendaCorrecaoModal, { pendenciasDaVenda, temPendencias, type CorrecaoDaVenda } from '@/components/vendas/VendaCorrecaoModal';
 import VendaItensEditor from '@/components/vendas/VendaItensEditor';
 import VendaPagamentosEditor, { pagamentosComForma } from '@/components/vendas/VendaPagamentosEditor';
 import VendaResumo, { type VendaResumoLinha } from '@/components/vendas/VendaResumo';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useForm } from '@inertiajs/react';
 import { Ban, ChevronRight } from 'lucide-react';
-import { useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 
 type VendaFormData = {
     cliente: VendaNamed;
@@ -127,6 +128,9 @@ export default function VendaModal({
     const [contaFormOpen, setContaFormOpen] = useState(false);
     const [formaFormOpen, setFormaFormOpen] = useState(false);
     const [etapa, setEtapa] = useState<1 | 2>(1);
+    const [correcaoOpen, setCorrecaoOpen] = useState(false);
+    const [enviarAposCorrecao, setEnviarAposCorrecao] = useState(false);
+    const precosParaCadastro = useRef<number[]>([]);
     const [itensAbertos, setItensAbertos] = useState(false);
     const isMobile = useIsMobile();
     const { data, setData, post, put, processing, errors, clearErrors, transform } = useForm<VendaFormData>(rascunhoDaVenda(venda, clientePadrao));
@@ -172,17 +176,11 @@ export default function VendaModal({
         });
     }, [total]);
 
-    function submit(e: FormEvent): void {
-        e.preventDefault();
-
-        if (!possuiConta && fechaVenda) {
-            setContaFormOpen(true);
-            return;
-        }
-
+    function enviar(): void {
         transform((atual) => ({
             cliente_id: atual.cliente.id,
             observacao: atual.observacao.trim() || null,
+            atualizar_preco_produto_ids: precosParaCadastro.current,
             itens: atual.itens.map((item) => ({
                 produto_id: item.produto.id,
                 quantidade: parseQuantidade(item.quantidade),
@@ -197,6 +195,14 @@ export default function VendaModal({
         const options = {
             preserveScroll: true,
             onSuccess: () => onOpenChange(false),
+            onError: (errosDoServidor: Partial<Record<string, string>>) => {
+                if (temPendencias(pendenciasDaVenda(data.itens, data.pagamentos, errosDoServidor))) {
+                    setCorrecaoOpen(true);
+                }
+            },
+            onFinish: () => {
+                precosParaCadastro.current = [];
+            },
         };
 
         if (venda) {
@@ -206,6 +212,38 @@ export default function VendaModal({
 
         post(route('vendas.store'), options);
     }
+
+    function submit(e: FormEvent): void {
+        e.preventDefault();
+
+        if (!possuiConta && fechaVenda) {
+            setContaFormOpen(true);
+            return;
+        }
+
+        if (temPendencias(pendenciasDaVenda(data.itens, data.pagamentos, {}))) {
+            setCorrecaoOpen(true);
+            return;
+        }
+
+        enviar();
+    }
+
+    function aplicarCorrecao(correcao: CorrecaoDaVenda): void {
+        precosParaCadastro.current = correcao.atualizarPrecoProdutoIds;
+        setData((atual) => ({ ...atual, itens: correcao.itens, pagamentos: correcao.pagamentos }));
+        setCorrecaoOpen(false);
+        setEnviarAposCorrecao(true);
+    }
+
+    useEffect(() => {
+        if (enviarAposCorrecao) {
+            setEnviarAposCorrecao(false);
+            enviar();
+        }
+        // Envia depois que o `setData` da correção já refletiu no formulário.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [enviarAposCorrecao, data]);
 
     const podeSalvar = !processing && data.itens.length > 0 && totalPagoCentavos <= totalCentavos;
 
@@ -443,6 +481,17 @@ export default function VendaModal({
                     )}
                 </DialogContent>
             </Dialog>
+
+            <VendaCorrecaoModal
+                open={correcaoOpen}
+                onOpenChange={setCorrecaoOpen}
+                itens={data.itens}
+                pagamentos={data.pagamentos}
+                formasPagamento={formasPagamento}
+                errors={erros}
+                resumo={`${data.cliente.nome} · ${resumoQuantidade} · ${formatCurrency(total)}`}
+                onConfirmar={aplicarCorrecao}
+            />
 
             <FormasPagamentoForm
                 open={formaFormOpen}

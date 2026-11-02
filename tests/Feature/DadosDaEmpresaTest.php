@@ -96,9 +96,12 @@ it('preenche a empresa dos dados antigos a partir do dono na migracao', function
     $user = User::factory()->create();
     $produto = Produto::query()->create(['nome' => 'Antigo', 'preco_compra' => 5, 'usuario_id' => $user->id]);
     $migracao = require database_path('migrations/2026_10_30_200003_add_empresa_id_to_tabelas_de_dados.php');
+    $codigoDoProduto = require database_path('migrations/2026_11_02_100000_add_codigo_e_favorito_to_produto_table.php');
 
+    $codigoDoProduto->down();
     $migracao->down();
     $migracao->up();
+    $codigoDoProduto->up();
 
     expect(DB::table('produto')->where('id', $produto->id)->value('empresa_id'))->toBe($user->empresa()->id);
 });

@@ -40,6 +40,8 @@ class StoreVendaRequest extends FormRequest
                     })),
             ],
             'observacao' => ['nullable', 'string', 'max:1000'],
+            'atualizar_preco_produto_ids' => ['nullable', 'array'],
+            'atualizar_preco_produto_ids.*' => ['integer'],
             'itens' => ['required', 'array', 'min:1'],
             'itens.*.produto_id' => [
                 'required',

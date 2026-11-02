@@ -167,6 +167,11 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
             ->get(['id', 'nome', 'codigo', 'preco_venda']);
     }
 
+    public function atualizarPrecoDeVenda(int $id, float $precoVenda): void
+    {
+        $this->findDaEmpresa($id)->update(['preco_venda' => $precoVenda]);
+    }
+
     public function marcarFavorito(int $id, bool $favorito): Produto
     {
         $produto = $this->findDaEmpresa($id);

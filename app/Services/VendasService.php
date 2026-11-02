@@ -136,6 +136,7 @@ class VendasService extends ServiceAbstract implements VendasServiceInterface
                 : $this->vendaRepository->update($venda->id, $dados);
 
             $this->vendaRepository->substituirItens($venda, $itens);
+            $this->atualizarPrecosCorrigidos($itens, $dto->atualizar_preco_produto_ids);
             $this->vendaRepository->substituirPagamentos($venda, array_map(fn (array $pagamento): array => [
                 'forma_pagamento_id' => $pagamento['forma']->id,
                 'valor' => $pagamento['valor'],
@@ -245,6 +246,21 @@ class VendasService extends ServiceAbstract implements VendasServiceInterface
                 'forma_pagamento_id' => $pagamento['forma']->id,
                 'venda_id' => $venda->id,
             ]));
+        }
+    }
+
+    /**
+     * Grava como preço de venda do produto o valor unitário corrigido na venda.
+     *
+     * @param  list<array{produto_id: int, valor_unitario: float}>  $itens
+     * @param  list<int>  $produtoIds
+     */
+    private function atualizarPrecosCorrigidos(array $itens, array $produtoIds): void
+    {
+        foreach ($itens as $item) {
+            if (in_array($item['produto_id'], $produtoIds, true)) {
+                $this->produtoRepository->atualizarPrecoDeVenda($item['produto_id'], $item['valor_unitario']);
+            }
         }
     }
 

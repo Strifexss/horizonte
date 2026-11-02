@@ -8,6 +8,13 @@ class VendaDTO extends Dto
 
     public ?int $cliente_id = null;
 
+    /**
+     * Produtos cujo preço corrigido na venda também vira o preço de venda do cadastro.
+     *
+     * @var list<int>
+     */
+    public array $atualizar_preco_produto_ids = [];
+
     public ?string $observacao = null;
 
     /**
@@ -35,6 +42,8 @@ class VendaDTO extends Dto
             'forma_pagamento_id' => (int) $pagamento['forma_pagamento_id'],
             'valor' => (float) $pagamento['valor'],
         ], $data['pagamentos'] ?? []));
+
+        $data['atualizar_preco_produto_ids'] = array_values(array_unique(array_map('intval', $data['atualizar_preco_produto_ids'] ?? [])));
 
         $data['cliente_id'] = isset($data['cliente_id']) && $data['cliente_id'] !== '' ? (int) $data['cliente_id'] : null;
 
