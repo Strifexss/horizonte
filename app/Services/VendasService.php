@@ -50,6 +50,11 @@ class VendasService extends ServiceAbstract implements VendasServiceInterface
         return $this->produtoRepository->autocompleteParaVenda($q);
     }
 
+    public function favoritosParaVenda(): Collection
+    {
+        return $this->produtoRepository->favoritosParaVenda();
+    }
+
     /**
      * @param  VendaDTO  $data
      */

@@ -24,9 +24,11 @@ class Produto extends Model
      */
     protected $fillable = [
         'nome',
+        'codigo',
         'preco_compra',
         'preco_venda',
         'ativo',
+        'favorito',
         'usuario_id',
         'fornecedor_id',
         'grupo_id',
@@ -40,6 +42,7 @@ class Produto extends Model
     protected $attributes = [
         'preco_venda' => '0.00',
         'ativo' => true,
+        'favorito' => false,
     ];
 
     /**
@@ -50,15 +53,54 @@ class Produto extends Model
         return [
             'id' => 'integer',
             'nome' => 'string',
+            'codigo' => 'string',
             'preco_compra' => 'decimal:2',
             'preco_venda' => 'decimal:2',
             'ativo' => 'boolean',
+            'favorito' => 'boolean',
             'usuario_id' => 'integer',
             'fornecedor_id' => 'integer',
             'grupo_id' => 'integer',
             'descricao' => 'string',
             'foto_path' => 'string',
         ];
+    }
+
+    /**
+     * Maior código só com dígitos considerado na sequência; acima disso é EAN ou código do lojista.
+     */
+    public const TAMANHO_MAXIMO_CODIGO_SEQUENCIAL = 6;
+
+    protected static function booted(): void
+    {
+        static::creating(function (Produto $produto): void {
+            if ($produto->codigo === null || trim($produto->codigo) === '') {
+                $produto->codigo = self::proximoCodigo($produto->empresa_id);
+            }
+        });
+    }
+
+    /**
+     * Próximo código sequencial livre da Empresa: maior código numérico curto + 1.
+     */
+    public static function proximoCodigo(?int $empresaId): string
+    {
+        $daEmpresa = fn () => static::query()->where('empresa_id', $empresaId);
+
+        $maior = $daEmpresa()
+            ->whereNotNull('codigo')
+            ->whereRaw('length(codigo) <= ?', [self::TAMANHO_MAXIMO_CODIGO_SEQUENCIAL])
+            ->pluck('codigo')
+            ->filter(fn (string $codigo): bool => ctype_digit($codigo))
+            ->map(fn (string $codigo): int => (int) $codigo)
+            ->max() ?? 0;
+
+        $proximo = $maior + 1;
+        while ($daEmpresa()->where('codigo', (string) $proximo)->exists()) {
+            $proximo++;
+        }
+
+        return (string) $proximo;
     }
 
     /**

@@ -9,6 +9,7 @@ use App\Models\Produto;
 use App\Models\VendaItem;
 use App\Repositories\Interfaces\ProdutoRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
@@ -63,11 +64,11 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
         }
 
         if ($filters->busca) {
-            $this->applyAccentInsensitiveLike($query, 'nome', $filters->busca);
+            $this->aplicarBuscaPorNomeOuCodigo($query, $filters->busca);
         }
 
         $sort = $filters->sort ?? 'nome';
-        $allowed = ['nome', 'preco_compra', 'preco_venda', 'ativo'];
+        $allowed = ['nome', 'codigo', 'preco_compra', 'preco_venda', 'ativo', 'favorito'];
         if (! in_array($sort, $allowed, true)) {
             $sort = 'nome';
         }
@@ -117,14 +118,48 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
             ->where('empresa_id', Empresa::atualId())
             ->where('ativo', true);
 
-        if ($q !== null && $q !== '') {
-            $this->applyAccentInsensitiveLike($query, 'nome', $q);
+        $q = trim((string) $q);
+
+        if ($q !== '') {
+            $this->aplicarBuscaPorNomeOuCodigo($query, $q);
+            $query->orderByRaw('case when codigo = ? then 0 else 1 end', [$q]);
         }
 
         return $query
             ->orderBy('nome')
             ->limit(20)
-            ->get(['id', 'nome', 'preco_venda']);
+            ->get(['id', 'nome', 'codigo', 'preco_venda']);
+    }
+
+    public function favoritosParaVenda(): Collection
+    {
+        return $this->model->newQuery()
+            ->where('empresa_id', Empresa::atualId())
+            ->where('ativo', true)
+            ->where('favorito', true)
+            ->orderBy('nome')
+            ->get(['id', 'nome', 'codigo', 'preco_venda']);
+    }
+
+    public function marcarFavorito(int $id, bool $favorito): Produto
+    {
+        $produto = $this->findDaEmpresa($id);
+        $produto->update(['favorito' => $favorito]);
+
+        return $produto;
+    }
+
+    /**
+     * Nome sem acento ou parte do código comercial.
+     *
+     * @param  Builder<Produto>  $query
+     */
+    private function aplicarBuscaPorNomeOuCodigo(Builder $query, string $termo): void
+    {
+        $query->where(function (Builder $busca) use ($termo): void {
+            $this->applyAccentInsensitiveLike($busca, 'nome', $termo);
+            $busca->orWhere('codigo', 'like', '%'.str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $termo).'%');
+        });
     }
 
     public function ativosDaEmpresa(int $empresaId): Collection

@@ -113,6 +113,16 @@ class ProdutosController extends Controller
         }
     }
 
+    public function favorito(Request $request, int $id): RedirectResponse
+    {
+        $dados = $request->validate(['favorito' => ['required', 'boolean']]);
+        $produto = $this->produtosService->marcarFavorito($id, (bool) $dados['favorito']);
+
+        return redirect()->back()->with('success', $produto->favorito
+            ? "{$produto->nome} adicionado aos favoritos."
+            : "{$produto->nome} removido dos favoritos.");
+    }
+
     public function autocomplete(Request $request)
     {
         $q = (string) $request->query('q', '');

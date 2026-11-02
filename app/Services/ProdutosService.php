@@ -52,6 +52,11 @@ class ProdutosService extends ServiceAbstract implements ProdutosServiceInterfac
         return $this->produtoRepository->ativosDaEmpresa($empresaId);
     }
 
+    public function marcarFavorito(int $id, bool $favorito): Produto
+    {
+        return $this->produtoRepository->marcarFavorito($id, $favorito);
+    }
+
     public function salvarFoto(int $id, UploadedFile $foto): Produto
     {
         $produto = $this->produtoRepository->findDaEmpresa($id);

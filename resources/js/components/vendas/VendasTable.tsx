@@ -19,7 +19,21 @@ import {
     type VendaPaginationMeta,
     type VendaStatusTab,
 } from '@/components/vendas/types';
-import { Ban, Eye, MoreHorizontal, Pencil, Plus, ShoppingCart } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Ban, Eye, MessageSquareText, MoreHorizontal, Pencil, Plus, ShoppingCart } from 'lucide-react';
+
+function ObservacaoIndicador({ observacao }: { observacao: string }) {
+    return (
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <button type="button" aria-label={`Observação: ${observacao}`} className="text-muted-foreground hover:text-foreground inline-flex shrink-0">
+                    <MessageSquareText className="h-4 w-4" />
+                </button>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs whitespace-pre-line">{observacao}</TooltipContent>
+        </Tooltip>
+    );
+}
 
 type Props = {
     loaded: boolean;
@@ -165,7 +179,12 @@ export default function VendasTable({
         {
             key: 'itens',
             label: 'ITENS',
-            render: (venda) => <span className="line-clamp-2 max-w-[22rem]">{resumoItens(venda)}</span>,
+            render: (venda) => (
+                <span className="flex items-start gap-1.5">
+                    <span className="line-clamp-2 max-w-[22rem]">{resumoItens(venda)}</span>
+                    {venda.observacao ? <ObservacaoIndicador observacao={venda.observacao} /> : null}
+                </span>
+            ),
         },
         {
             key: 'pagamentos',

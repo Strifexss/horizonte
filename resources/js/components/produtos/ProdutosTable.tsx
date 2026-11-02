@@ -4,10 +4,32 @@ import ProdutosEmpty from '@/components/produtos/ProdutosEmpty';
 import type { ProdutoItem, ProdutoPaginationMeta } from '@/components/produtos/types';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Pencil, Search, Trash2 } from 'lucide-react';
+import { router } from '@inertiajs/react';
+import { MoreHorizontal, Pencil, Search, Star, Trash2 } from 'lucide-react';
 
 function formatCurrency(value: string | number): string {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value ?? 0));
+}
+
+function alternarFavorito(item: ProdutoItem): void {
+    router.patch(route('produtos.favorito', item.id), { favorito: !item.favorito }, { preserveScroll: true });
+}
+
+export function FavoritoToggle({ item }: { item: ProdutoItem }) {
+    const rotulo = item.favorito ? `Remover ${item.nome} dos favoritos` : `Marcar ${item.nome} como favorito`;
+
+    return (
+        <button
+            type="button"
+            aria-label={rotulo}
+            aria-pressed={item.favorito}
+            title={rotulo}
+            className="hover:bg-muted inline-flex h-9 w-9 items-center justify-center rounded-md"
+            onClick={() => alternarFavorito(item)}
+        >
+            <Star className={`h-4 w-4 ${item.favorito ? 'fill-amber-400 text-amber-500' : 'text-muted-foreground'}`} />
+        </button>
+    );
 }
 
 type Props = {
@@ -46,10 +68,22 @@ export default function ProdutosTable({
     const rows = items ?? [];
     const columns: Column<ProdutoItem>[] = [
         {
+            key: 'favorito',
+            label: '',
+            thClassName: 'w-12',
+            render: (item) => <FavoritoToggle item={item} />,
+        },
+        {
             key: 'nome',
             label: 'Nome',
             sortable: true,
             render: (item) => <span className="font-medium">{item.nome}</span>,
+        },
+        {
+            key: 'codigo',
+            label: 'Código',
+            sortable: true,
+            render: (item) => <span className="text-muted-foreground">{item.codigo ?? '—'}</span>,
         },
         {
             key: 'preco_compra',
@@ -107,7 +141,7 @@ export default function ProdutosTable({
                         name="search"
                         value={busca}
                         onChange={(e) => onBuscaChange(e.target.value)}
-                        placeholder="Buscar produto..."
+                        placeholder="Buscar por nome ou código..."
                         className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring h-10 w-full rounded-md border py-2 pr-3 pl-9 text-sm focus-visible:ring-2 focus-visible:outline-hidden"
                     />
                 </div>

@@ -16,9 +16,11 @@ class ProdutoResource extends JsonResource
         return [
             'id' => $this->id,
             'nome' => $this->nome,
+            'codigo' => $this->codigo,
             'preco_compra' => $this->preco_compra !== null ? number_format((float) $this->preco_compra, 2, '.', '') : null,
             'preco_venda' => $this->preco_venda !== null ? number_format((float) $this->preco_venda, 2, '.', '') : '0.00',
             'ativo' => (bool) $this->ativo,
+            'favorito' => (bool) $this->favorito,
             'fornecedor_id' => $this->fornecedor_id,
             'grupo_id' => $this->grupo_id,
             'descricao' => $this->descricao,

@@ -13,6 +13,7 @@ import {
     formatQuantidade,
     novaChave,
     parseQuantidade,
+    type ProdutoParaVenda,
     type Venda,
     type VendaItemRascunho,
     type VendaPagamentoRascunho,
@@ -22,7 +23,7 @@ import VendaPagamentosEditor, { pagamentosComForma } from '@/components/vendas/V
 import VendaResumo, { type VendaResumoLinha } from '@/components/vendas/VendaResumo';
 import { useForm } from '@inertiajs/react';
 import { Ban } from 'lucide-react';
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
 
 type VendaFormData = {
     itens: VendaItemRascunho[];
@@ -37,6 +38,7 @@ type Props = {
     formasPagamento: FormaPagamentoItem[];
     possuiConta: boolean;
     onCancelar: (venda: Venda) => void;
+    favoritos?: ProdutoParaVenda[];
 };
 
 function rascunhoDaVenda(venda: Venda | null): VendaFormData {
@@ -99,7 +101,7 @@ function VendaSomenteLeitura({ venda }: { venda: Venda }) {
     );
 }
 
-export default function VendaModal({ open, onOpenChange, venda, formasPagamento, possuiConta, onCancelar }: Props) {
+export default function VendaModal({ open, onOpenChange, venda, formasPagamento, possuiConta, onCancelar, favoritos = [] }: Props) {
     const [contaFormOpen, setContaFormOpen] = useState(false);
     const [formaFormOpen, setFormaFormOpen] = useState(false);
     const { data, setData, post, put, processing, errors, clearErrors, transform } = useForm<VendaFormData>(rascunhoDaVenda(venda));
@@ -177,6 +179,19 @@ export default function VendaModal({ open, onOpenChange, venda, formasPagamento,
         post(route('vendas.store'), options);
     }
 
+    const podeSalvar = !processing && data.itens.length > 0 && totalPagoCentavos <= totalCentavos;
+
+    /** Enter fora de campos de texto (ex.: após clicar numa forma de pagamento) salva a venda. */
+    function salvarComEnter(e: KeyboardEvent<HTMLFormElement>): void {
+        const alvo = e.target as HTMLElement;
+        if (e.key !== 'Enter' || alvo.closest('input, textarea, select, [role="combobox"]') || !podeSalvar) {
+            return;
+        }
+
+        e.preventDefault();
+        e.currentTarget.requestSubmit();
+    }
+
     const titulo = venda ? `Venda #${venda.id}` : 'Nova Venda';
     const descricao = venda
         ? `${VENDA_STATUS_META[venda.status].label} • ${formatDataVenda(venda.data_venda)}`
@@ -210,7 +225,7 @@ export default function VendaModal({ open, onOpenChange, venda, formasPagamento,
                             </DialogFooter>
                         </>
                     ) : (
-                        <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col gap-4">
+                        <form onSubmit={submit} onKeyDown={salvarComEnter} noValidate className="flex min-h-0 flex-1 flex-col gap-4">
                             <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto pr-1">
                                 <span className="text-muted-foreground text-xs">
                                     {data.itens.length} {data.itens.length === 1 ? 'item' : 'itens'} • {formatQuantidade(unidades)} unid.
@@ -221,6 +236,7 @@ export default function VendaModal({ open, onOpenChange, venda, formasPagamento,
                                     onChange={(itens) => setData('itens', itens)}
                                     errors={erros}
                                     disabled={processing}
+                                    favoritos={favoritos}
                                 />
 
                                 <VendaResumo linhas={linhas} total={total} />

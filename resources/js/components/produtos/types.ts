@@ -6,9 +6,11 @@ export type ProdutoNamed = {
 export type ProdutoItem = {
     id: number;
     nome: string;
+    codigo: string | null;
     preco_compra: string;
     preco_venda: string;
     ativo: boolean;
+    favorito: boolean;
     fornecedor_id: number | null;
     grupo_id: number | null;
     fornecedor: ProdutoNamed | null;

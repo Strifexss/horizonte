@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MoneyInput from '@/components/ui/money-input';
 import { useForm } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { Plus, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 type Mode = 'create' | 'edit';
@@ -32,9 +32,11 @@ type Props = {
 
 type ProdutoFormValues = {
     nome: string;
+    codigo: string;
     preco_compra: string;
     preco_venda: string;
     ativo: boolean;
+    favorito: boolean;
     fornecedor_id: number | null;
     grupo_id: number | null;
     descricao: string;
@@ -61,9 +63,11 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
 
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm<ProdutoFormValues>({
         nome: '',
+        codigo: '',
         preco_compra: '',
         preco_venda: '',
         ativo: true,
+        favorito: false,
         fornecedor_id: null,
         grupo_id: null,
         descricao: '',
@@ -79,9 +83,11 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
         if (mode === 'edit' && produto) {
             setData({
                 nome: produto.nome,
+                codigo: produto.codigo ?? '',
                 preco_compra: produto.preco_compra,
                 preco_venda: produto.preco_venda,
                 ativo: produto.ativo,
+                favorito: produto.favorito,
                 fornecedor_id: produto.fornecedor_id,
                 grupo_id: produto.grupo_id,
                 descricao: produto.descricao ?? '',
@@ -94,9 +100,11 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
         reset();
         setData({
             nome: '',
+            codigo: '',
             preco_compra: '',
             preco_venda: '',
             ativo: true,
+            favorito: false,
             fornecedor_id: null,
             grupo_id: null,
             descricao: '',
@@ -155,17 +163,38 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                     </DialogHeader>
 
                     <form onSubmit={submit} className="flex h-full flex-col gap-4 overflow-y-auto" noValidate>
-                        <div className="grid gap-2">
-                            <Label htmlFor="produto_nome">Nome</Label>
-                            <Input
-                                id="produto_nome"
-                                value={data.nome}
-                                onChange={(e) => setData('nome', e.target.value)}
-                                placeholder="Nome do produto"
-                                disabled={processing}
-                            />
-                            <InputError message={errors.nome} />
+                        <div className="grid gap-2 md:grid-cols-3">
+                            <div className="grid gap-2 md:col-span-2">
+                                <Label htmlFor="produto_nome">Nome</Label>
+                                <Input
+                                    id="produto_nome"
+                                    value={data.nome}
+                                    onChange={(e) => setData('nome', e.target.value)}
+                                    placeholder="Nome do produto"
+                                    disabled={processing}
+                                />
+                                <InputError message={errors.nome} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="produto_codigo">Código</Label>
+                                <Input
+                                    id="produto_codigo"
+                                    value={data.codigo}
+                                    onChange={(e) => setData('codigo', e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                        }
+                                    }}
+                                    placeholder="Automático"
+                                    maxLength={50}
+                                    disabled={processing}
+                                />
+                                <InputError message={errors.codigo} />
+                            </div>
                         </div>
+                        <span className="-mt-2 text-xs text-muted-foreground">Código: deixe em branco para gerar o próximo número, ou use EAN / leitor de barras.</span>
 
                         <div className="grid gap-2">
                             <Label htmlFor="produto_descricao">Descrição</Label>
@@ -279,6 +308,22 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                             <Label htmlFor="produto_ativo">Produto ativo</Label>
                         </div>
                         <InputError message={errors.ativo} />
+
+                        <div className="grid gap-1">
+                            <div className="flex items-center gap-2">
+                                <Checkbox
+                                    id="produto_favorito"
+                                    checked={data.favorito}
+                                    onCheckedChange={(checked) => setData('favorito', checked === true)}
+                                    disabled={processing}
+                                />
+                                <Label htmlFor="produto_favorito" className="flex items-center gap-1">
+                                    Favorito na venda
+                                    <Star className={`h-3.5 w-3.5 ${data.favorito ? 'fill-amber-400 text-amber-500' : 'text-muted-foreground'}`} aria-hidden="true" />
+                                </Label>
+                            </div>
+                            <span className="pl-6 text-xs text-muted-foreground">Aparece como atalho no topo da Nova Venda.</span>
+                        </div>
 
                         <DialogFooter className="flex flex-row gap-2">
                             <DialogClose asChild>

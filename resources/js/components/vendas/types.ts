@@ -76,6 +76,7 @@ export type VendaPagamentoRascunho = {
 };
 
 export type ProdutoParaVenda = VendaNamed & {
+    codigo?: string | null;
     preco_venda: string | number;
 };
 

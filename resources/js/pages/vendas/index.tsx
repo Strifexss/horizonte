@@ -2,7 +2,7 @@ import ConfirmDeleteModal from '@/components/extrato/ConfirmDeleteModal';
 import { formasPagamentoDaColecao } from '@/components/formas-pagamento/types';
 import { MobileFab, PageTitle } from '@/components/padrões';
 import { Button } from '@/components/ui/button';
-import { formatCurrency, vendasDaPagina, type Venda, type VendaFilters, type VendaResumo, type VendaStatusTab } from '@/components/vendas/types';
+import { formatCurrency, vendasDaPagina, type ProdutoParaVenda, type Venda, type VendaFilters, type VendaResumo, type VendaStatusTab } from '@/components/vendas/types';
 import VendaModal from '@/components/vendas/VendaModal';
 import VendasFilters from '@/components/vendas/VendasFilters';
 import { visitVendas } from '@/components/vendas/vendasQuery';
@@ -25,6 +25,7 @@ type PageProps = {
     filters: VendaFilters;
     formas_pagamento?: unknown;
     possui_conta: boolean;
+    produtos_favoritos?: ProdutoParaVenda[];
     resumo?: VendaResumo;
     vendas?: unknown;
 };
@@ -189,6 +190,7 @@ export default function VendasIndex() {
                     formasPagamento={formasPagamento}
                     possuiConta={props.possui_conta}
                     onCancelar={setVendaParaCancelar}
+                    favoritos={props.produtos_favoritos ?? []}
                 />
 
                 <ConfirmDeleteModal

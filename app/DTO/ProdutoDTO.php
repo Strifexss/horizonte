@@ -6,11 +6,15 @@ class ProdutoDTO extends Dto
 {
     public string $nome;
 
+    public ?string $codigo = null;
+
     public float $preco_compra;
 
     public float $preco_venda = 0;
 
     public bool $ativo = true;
+
+    public bool $favorito = false;
 
     public ?int $usuario_id = null;
 
@@ -36,6 +40,10 @@ class ProdutoDTO extends Dto
         }
 
         $data['ativo'] = filter_var($data['ativo'] ?? true, FILTER_VALIDATE_BOOLEAN);
+        $data['favorito'] = filter_var($data['favorito'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+        $codigo = trim((string) ($data['codigo'] ?? ''));
+        $data['codigo'] = $codigo === '' ? null : $codigo;
 
         if (array_key_exists('usuario_id', $data) && $data['usuario_id'] !== null && $data['usuario_id'] !== '') {
             $data['usuario_id'] = (int) $data['usuario_id'];

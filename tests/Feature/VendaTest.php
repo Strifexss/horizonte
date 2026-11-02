@@ -499,3 +499,31 @@ it('bloqueia exclusao de produto usado em venda', function (): void {
 
     expect(Produto::query()->whereKey($cafe->id)->exists())->toBeTrue();
 });
+
+it('busca produto pelo codigo trazendo o codigo exato primeiro', function (): void {
+    $user = User::factory()->create();
+    produtoParaVenda($user, ['nome' => 'Água com gás', 'codigo' => '178']);
+    produtoParaVenda($user, ['nome' => 'Água', 'codigo' => '78']);
+
+    $this->actingAs($user)
+        ->getJson(route('vendas.produtos', ['q' => '78']))
+        ->assertOk()
+        ->assertJsonCount(2)
+        ->assertJsonPath('0.codigo', '78')
+        ->assertJsonPath('1.codigo', '178');
+});
+
+it('envia para a nova venda so os favoritos ativos da empresa', function (): void {
+    $user = User::factory()->create();
+    produtoParaVenda($user, ['favorito' => true]);
+    produtoParaVenda($user, ['nome' => 'Pão', 'favorito' => false]);
+    produtoParaVenda($user, ['nome' => 'Suco inativo', 'favorito' => true, 'ativo' => false]);
+    produtoParaVenda(User::factory()->create(), ['nome' => 'Alheio', 'favorito' => true]);
+
+    $this->actingAs($user)
+        ->get(route('vendas'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('produtos_favoritos', 1)
+            ->where('produtos_favoritos.0.nome', 'Café Premium')
+        );
+});

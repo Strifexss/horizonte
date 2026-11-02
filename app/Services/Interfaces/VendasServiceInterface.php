@@ -23,6 +23,13 @@ interface VendasServiceInterface extends AbstractServiceInterface
     public function produtosParaVenda(?string $q = null): Collection;
 
     /**
+     * Produtos ativos favoritos da Empresa, atalhos no topo da Nova Venda.
+     *
+     * @return Collection<int, Produto>
+     */
+    public function favoritosParaVenda(): Collection;
+
+    /**
      * Marca a venda como cancelada e exclui as receitas que ela gerou.
      */
     public function cancelar(int $id): Venda;

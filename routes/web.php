@@ -84,6 +84,7 @@ Route::middleware(['auth', 'empresa'])->group(function () {
         Route::post('/', [ProdutosController::class, 'store'])->name('produtos.store');
         Route::put('/{id}', [ProdutosController::class, 'update'])->name('produtos.update');
         Route::delete('/{id}', [ProdutosController::class, 'destroy'])->name('produtos.destroy');
+        Route::patch('/{id}/favorito', [ProdutosController::class, 'favorito'])->name('produtos.favorito');
         Route::post('/{id}/foto', [ProdutosController::class, 'fotoStore'])->name('produtos.foto.store');
         Route::delete('/{id}/foto', [ProdutosController::class, 'fotoDestroy'])->name('produtos.foto.destroy');
     });

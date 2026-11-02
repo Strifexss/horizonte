@@ -17,6 +17,12 @@ interface AsyncSelectProps {
   creatable?: boolean;
   formatCreateLabel?: (input: string) => string;
   isDisabled?: boolean;
+  /** Enter com a busca ainda carregando (ex.: leitor de código de barras) escolhe o primeiro resultado. */
+  selectFirstOnEnter?: boolean;
+  /** Texto exibido na lista de opções; o valor selecionado continua usando `nome`. */
+  formatOptionText?: (option: Option) => string;
+  /** Limpa e mantém o foco após escolher, para adicionar vários itens em sequência. */
+  keepFocusOnSelect?: boolean;
 }
 
 type SelectOption = { value: number | string; label: string; __raw: Option; __isCreate?: boolean };
@@ -208,6 +214,9 @@ export default function AsyncSelect({
   creatable = false,
   formatCreateLabel = (input: string) => `+ Cadastrar "${input}"`,
   isDisabled = false,
+  selectFirstOnEnter = false,
+  formatOptionText,
+  keepFocusOnSelect = false,
 }: AsyncSelectProps) {
   const [options, setOptions] = useState<SelectOption[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -223,7 +232,9 @@ export default function AsyncSelect({
     };
   }, []);
 
-  const fetchOptions = (inputValue: string) => {
+  const inputValueRef = useRef('');
+
+  const fetchOptions = (inputValue: string, onLoaded?: (loaded: SelectOption[]) => void) => {
     const id = ++requestId.current;
     setIsLoading(true);
 
@@ -234,7 +245,7 @@ export default function AsyncSelect({
           return;
         }
 
-        const mapped = opts.map((o) => ({ value: o.id, label: o.nome, __raw: o }));
+        const mapped = opts.map((o) => ({ value: o.id, label: formatOptionText ? formatOptionText(o) : o.nome, __raw: o }));
         const trimmed = inputValue.trim();
 
         if (
@@ -258,6 +269,7 @@ export default function AsyncSelect({
         }
 
         setOptions(mapped);
+        onLoaded?.(mapped);
       } catch {
         if (id !== requestId.current) {
           return;
@@ -293,6 +305,35 @@ export default function AsyncSelect({
     onChange(selected.__raw ?? { id: selected.value, nome: selected.label });
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+    if (!selectFirstOnEnter || event.key !== 'Enter') {
+      return;
+    }
+
+    const termo = inputValueRef.current.trim();
+    if (termo === '') {
+      return;
+    }
+
+    const buscaPendente = debounceTimer.current !== null || isLoading;
+    if (!buscaPendente) {
+      return;
+    }
+
+    event.preventDefault();
+    if (debounceTimer.current !== null) {
+      window.clearTimeout(debounceTimer.current);
+      debounceTimer.current = null;
+    }
+
+    fetchOptions(termo, (loaded) => {
+      const [primeiro] = loaded.filter((option) => !option.__isCreate);
+      if (primeiro) {
+        handleChange(primeiro);
+      }
+    });
+  };
+
   const selected = value ? { value: value.id, label: value.nome, __raw: value } : null;
 
   return (
@@ -310,7 +351,10 @@ export default function AsyncSelect({
         }
         fetchOptions('');
       }}
+      onKeyDown={handleKeyDown}
       onInputChange={(input, meta) => {
+        inputValueRef.current = meta.action === 'input-change' ? input : '';
+
         if (meta.action === 'input-change') {
           scheduleFetch(input);
         }
@@ -325,7 +369,7 @@ export default function AsyncSelect({
       autoFocus={autoFocus}
       menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
       menuPosition="fixed"
-      blurInputOnSelect
+      blurInputOnSelect={!keepFocusOnSelect}
       closeMenuOnSelect
     />
   );

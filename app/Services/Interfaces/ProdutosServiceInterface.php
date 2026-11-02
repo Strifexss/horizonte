@@ -28,4 +28,9 @@ interface ProdutosServiceInterface extends AbstractServiceInterface
      * Remove a foto do produto do usuário autenticado.
      */
     public function removerFoto(int $id): Produto;
+
+    /**
+     * Marca ou desmarca o produto da Empresa como atalho da Nova Venda.
+     */
+    public function marcarFavorito(int $id, bool $favorito): Produto;
 }

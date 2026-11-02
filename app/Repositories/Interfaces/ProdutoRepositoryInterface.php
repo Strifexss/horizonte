@@ -49,6 +49,15 @@ interface ProdutoRepositoryInterface extends AbstractRepositoryInterface
      */
     public function autocompleteParaVenda(?string $q = null): EloquentCollection;
 
+    /**
+     * Produtos ativos marcados como favoritos, atalhos da Nova Venda.
+     *
+     * @return EloquentCollection<int, Produto>
+     */
+    public function favoritosParaVenda(): EloquentCollection;
+
+    public function marcarFavorito(int $id, bool $favorito): Produto;
+
     public function indexFiltrado(ProdutoSearchDTO $filters): LengthAwarePaginator;
 
     /**
