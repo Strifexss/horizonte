@@ -34,7 +34,7 @@ export default function VendaCatalogoMobile({ itens, onChange, grupos, disabled 
         { chave: 'todos', nome: 'Todos' },
         ...grupos.map((grupo) => ({ chave: `grupo-${grupo.id}`, nome: grupo.nome, grupoId: grupo.id })),
     ];
-    const [abaChave, setAbaChave] = useState('favoritos');
+    const [abaChave, setAbaChave] = useState('todos');
     const [busca, setBusca] = useState('');
     const [termo, setTermo] = useState('');
     const [produtos, setProdutos] = useState<ProdutoDoCatalogo[]>([]);
