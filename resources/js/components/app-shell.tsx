@@ -1,13 +1,33 @@
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { useState } from 'react';
+import { usePage } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 
 interface AppShellProps {
     children: React.ReactNode;
     variant?: 'header' | 'sidebar';
 }
 
+function preferenciaDaSidebar(): boolean {
+    return typeof window === 'undefined' ? true : localStorage.getItem('sidebar') !== 'false';
+}
+
+function estaNoDashboard(url: string): boolean {
+    return url.split('?')[0] === '/dashboard';
+}
+
 export function AppShell({ children, variant = 'header' }: AppShellProps) {
-    const [isOpen, setIsOpen] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('sidebar') !== 'false' : true));
+    const noDashboard = estaNoDashboard(usePage().url);
+    const [isOpen, setIsOpen] = useState(() => (noDashboard ? false : preferenciaDaSidebar()));
+
+    useEffect(() => {
+        if (noDashboard) {
+            setIsOpen(false);
+
+            return;
+        }
+
+        setIsOpen(preferenciaDaSidebar());
+    }, [noDashboard]);
 
     const handleSidebarChange = (open: boolean) => {
         setIsOpen(open);

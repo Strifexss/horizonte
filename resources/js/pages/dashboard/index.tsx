@@ -14,12 +14,11 @@ import InsightsPainel from '@/components/insights/InsightsPainel';
 import { rotuloDoPeriodo, type AcaoInsight, type AnaliseDashboard, type Insight, type MotivoDispensa } from '@/components/insights/types';
 import { PageTitle } from '@/components/padrões';
 import { Button } from '@/components/ui/button';
-import { useSidebar } from '@/components/ui/sidebar';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { Sparkles } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/dashboard' }];
 
@@ -39,22 +38,6 @@ function pontosDeSaldo(saldos: SeriesMensais['saldos'] | undefined): PontoMensal
         rotulo: ponto.rotulo,
         valor: ponto.saldo,
     }));
-}
-
-function RecolherSidebarNoDashboard(): null {
-    const { setOpen } = useSidebar();
-    const jaRecolheu = useRef(false);
-
-    useEffect(() => {
-        if (jaRecolheu.current) {
-            return;
-        }
-
-        jaRecolheu.current = true;
-        setOpen(false);
-    }, [setOpen]);
-
-    return null;
 }
 
 function fatiasDeCategoria(despesas: DashboardPageProps['despesasPorCategoria']): FatiaPizza[] {
@@ -226,7 +209,6 @@ export default function Dashboard({
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <RecolherSidebarNoDashboard />
             <Head title="Dashboard" />
             <div className="flex h-full min-w-0 flex-1 flex-col gap-6 rounded-xl p-4 md:p-6">
                 <PageTitle
