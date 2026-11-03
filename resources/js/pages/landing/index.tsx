@@ -7,6 +7,7 @@ import LandingHero from '@/components/landing/LandingHero';
 import LandingRodape from '@/components/landing/LandingRodape';
 import LandingSegmentos from '@/components/landing/LandingSegmentos';
 import { Head } from '@inertiajs/react';
+import { useEffect } from 'react';
 
 type LandingProps = {
     links: {
@@ -19,6 +20,13 @@ const descricao =
     'Vendas, financeiro, dashboard, cardápio na TV e um Copiloto de IA que diz o que fazer para lucrar mais. Gestão simples para restaurantes e varejo, no computador e no celular.';
 
 export default function Landing({ links }: LandingProps) {
+    /** Rolagem suave nos links internos (Ver o sistema, menu), só na landing e respeitando quem pede menos movimento. */
+    useEffect(() => {
+        document.documentElement.classList.add('motion-safe:scroll-smooth');
+
+        return () => document.documentElement.classList.remove('motion-safe:scroll-smooth');
+    }, []);
+
     return (
         <>
             <Head title="Gestão financeira com clareza">
