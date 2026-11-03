@@ -17,10 +17,11 @@ export default function LandingHeader({ entrarHref, criarContaHref }: LandingHea
     return (
         <header className="sticky top-0 z-40 border-b border-slate-200 bg-slate-50/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
             <nav aria-label="Principal" className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-                <a href="#topo" className="flex min-w-0 flex-none items-center" aria-label="Horizonte, voltar ao topo">
-                    <img src={branding.icone} alt="" className="h-8 w-auto sm:hidden" />
-                    <img src={branding.completaFundoClaro} alt="" className="hidden h-8 w-auto sm:block dark:sm:hidden" />
-                    <img src={branding.completaFundoEscuro} alt="" className="hidden h-8 w-auto dark:sm:block" />
+                <a href="#topo" className="flex flex-none items-center gap-2.5" aria-label="Horizonte, voltar ao topo">
+                    <img src={branding.icone} alt="" width={36} height={36} className="size-9 rounded-lg" />
+                    <span className="hidden text-xs font-semibold tracking-[0.2em] min-[360px]:inline sm:text-base sm:tracking-[0.25em]">
+                        HORIZONTE
+                    </span>
                 </a>
                 <div className="hidden items-center gap-7 text-[15px] lg:flex">
                     {secoes.map((secao) => (
