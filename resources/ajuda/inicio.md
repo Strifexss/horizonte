@@ -36,3 +36,9 @@ Mostra as receitas, as despesas e o saldo (receitas menos despesas). Use os bot�
 ## Últimos lançamentos
 
 Lista os 5 lançamentos mais recentes. Para ver todos, toque em **Ver Extrato completo** ou em um lançamento: você vai para o Extrato.
+
+## No celular
+
+- O botão azul **Nova venda** fica em destaque no topo, ocupando a largura da tela.
+- Os outros atalhos ficam logo abaixo, em uma lista.
+- A lista **Primeiros passos** aparece acima do resumo, e não ao lado.

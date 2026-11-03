@@ -53,3 +53,9 @@ As TVs conectadas aparecem em **TVs conectadas**. Para tirar uma, toque em **Des
 Na lista, toque em **Ativar na TV** no board desejado. Ele passa a mostrar **Na TV agora**.
 
 A TV não atualiza sozinha. Depois de salvar ou ativar um board, toque em **Sync** no canto da TV.
+
+## No celular
+
+- O botão **+** no canto inferior direito abre **+ Novo Menu Board**.
+- Na foto do produto, **Tirar Foto ou Escolher Imagem** permite usar a câmera do celular.
+- Para conectar a TV, basta o celular mostrar o PIN: o endereço e o PIN são digitados na própria TV.

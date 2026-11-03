@@ -60,3 +60,11 @@ No lançamento, toque em **Excluir** e confirme. A exclusão não pode ser desfe
 ## Cadastros auxiliares
 
 No menu ao lado do título do Extrato (só no computador) você gerencia **Categorias**, **Produtos**, **Funcionários** e **Fornecedores**.
+
+## No celular
+
+- Os lançamentos aparecem em cartões. **Toque** num cartão para abrir e editar. **Segure por 1 segundo** para ver as ações **Editar** e **Excluir**.
+- O botão **+** no canto inferior direito abre as ações rápidas: **+ Novo Lançamento**, **+ Cadastrar Funcionário**, **+ Cadastrar Produto** e **Gerar PDF**.
+- A barra fixa no rodapé mostra o mês. Use as setas para ir ao mês anterior ou ao próximo, e toque no mês para escolher outro período. O botão **Filtros** abre os mesmos filtros do computador.
+- A barra some ao rolar para baixo e volta ao rolar para cima.
+- O menu de **Categorias** e **Fornecedores** ao lado do título não aparece no celular. Cadastre esses itens dentro do lançamento, pelo botão ao lado do campo.

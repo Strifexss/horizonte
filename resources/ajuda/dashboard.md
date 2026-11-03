@@ -32,3 +32,7 @@ Se a sua Empresa tiver o Copiloto, aparece o botão **Analisar com IA** no topo 
 - Toque em **Dispensar** se o insight não servir, e diga o motivo: **Já sei disso** ou **Não se aplica ao meu negócio**. As próximas análises levam isso em conta.
 - Mudou de ideia? Toque em **Desfazer**.
 - O botão de recarregar gera a análise de novo. Há um limite de análises novas por pessoa em um intervalo de minutos. Se aparecer "Não foi possível gerar a análise", espere um pouco e tente de novo.
+
+## No celular
+
+Os quadros ficam um embaixo do outro. Role a tela para ver todos. O **Período de referência** continua no topo.

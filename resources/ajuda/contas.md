@@ -28,3 +28,7 @@ Cada conta mostra o saldo atualizado até hoje, calculado pelos lançamentos do 
 ## Editar ou excluir
 
 Use **Editar** para mudar o nome, a descrição ou a conta padrão. Use **Excluir** para apagar a conta. A exclusão pede confirmação e não pode ser desfeita.
+
+## No celular
+
+As contas aparecem uma embaixo da outra. O botão **Adicionar conta** fica no topo da tela, e o formulário abre em tela cheia.

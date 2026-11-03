@@ -45,3 +45,12 @@ Use a busca por código, produto ou observação, e os filtros de período e de 
 ## Formas de pagamento
 
 O botão **Formas de pagamento** leva à tela onde você cadastra formas próprias, como boleto ou vale-refeição.
+
+## No celular
+
+- O botão **+** no canto inferior direito abre **+ Nova Venda** e **Formas de pagamento**.
+- A venda tem duas etapas:
+  1. **Produtos**: busque pelo nome ou código, ou navegue pelas abas **Favoritos**, **Todos** e pelos grupos de produtos. Toque em **Avançar** quando terminar.
+  2. **Pagamento**: escolha as formas e os valores e toque em **Salvar venda**.
+- As vendas da lista aparecem em cartões. **Toque** para abrir. **Segure por 1 segundo** para ver as ações: **Editar** (venda aberta) ou **Ver** (fechada ou cancelada), e **Cancelar venda**.
+- A barra fixa no rodapé troca o mês pelas setas e abre os **Filtros** de status.

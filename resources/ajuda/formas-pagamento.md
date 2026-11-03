@@ -29,3 +29,8 @@ As formas que você aceita para receber e usa para pagar: Pix, dinheiro, cartão
 ## Editar, desativar ou excluir
 
 Nas formas próprias, use **Editar** ou **Excluir**. Para parar de usar sem apagar, desmarque **Ativa**. Ela aparece como **Inativa**.
+
+## No celular
+
+- O botão **+** no canto inferior direito abre **+ Nova Forma** e um atalho para **Vendas**.
+- As formas aparecem em cartões. **Toque** numa forma própria para editar. **Segure por 1 segundo** para ver as ações **Editar** e **Excluir**.

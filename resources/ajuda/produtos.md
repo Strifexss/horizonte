@@ -24,7 +24,7 @@ A foto do produto é adicionada no Menu Board, ao escolher o produto numa págin
 
 ## Favoritos
 
-Marque o produto como **Favorito** para que ele apareça como atalho no topo da Nova Venda.
+No cadastro do produto, marque **Favorito na venda** para que ele apareça como atalho no topo da Nova Venda. No computador, também dá para marcar ou desmarcar pela estrela na lista.
 
 ## Grupos
 
@@ -37,3 +37,9 @@ Na lista, use **Editar** ou **Excluir**. Para tirar um produto da venda sem apag
 ## Buscar
 
 Busque por nome ou código.
+
+## No celular
+
+- O botão **+** no canto inferior direito abre **+ Novo Produto**.
+- Os produtos aparecem em cartões. **Toque** num cartão para editar. **Segure por 1 segundo** para ver as ações **Editar** e **Excluir**.
+- Os favoritos aparecem com uma estrela no cartão. Para marcar ou desmarcar, abra o produto e use **Favorito na venda**.

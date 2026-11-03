@@ -30,3 +30,8 @@ O cliente marcado como **Padrão** é usado nas vendas sem cliente identificado.
 ## Buscar
 
 Busque por nome, telefone ou CPF/CNPJ.
+
+## No celular
+
+- O botão **+** no canto inferior direito abre **+ Novo Cliente**.
+- Os clientes aparecem em cartões. **Toque** num cartão para editar. **Segure por 1 segundo** para ver as ações **Editar** e **Excluir**.
