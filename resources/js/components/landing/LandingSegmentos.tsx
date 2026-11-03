@@ -63,7 +63,7 @@ type LandingSegmentosProps = {
 export default function LandingSegmentos({ criarContaHref }: LandingSegmentosProps) {
     return (
         <>
-            <section id="segmentos" className="border-t border-slate-200 dark:border-slate-800">
+            <section id="segmentos" className="scroll-mt-16 border-t border-slate-200 dark:border-slate-800">
                 <div className="mx-auto flex max-w-6xl flex-col items-center gap-3.5 px-4 pt-24 text-center sm:px-6 md:pt-28">
                     <span className="text-primary text-sm font-semibold dark:text-blue-400">Segmentos</span>
                     <h2 className="text-3xl font-bold tracking-tight sm:text-5xl">Feito sob medida para o seu negócio.</h2>

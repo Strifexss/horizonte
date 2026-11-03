@@ -17,7 +17,7 @@ const passos = [
 
 export default function LandingCopiloto({ criarContaHref }: LandingCopilotoProps) {
     return (
-        <section id="copiloto" className="relative overflow-hidden border-t border-slate-200 dark:border-slate-800">
+        <section id="copiloto" className="relative scroll-mt-16 overflow-hidden border-t border-slate-200 dark:border-slate-800">
             <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-4 py-24 sm:px-6 md:py-28">
                 <div className="flex flex-wrap items-end justify-between gap-10">
                     <div className="flex max-w-2xl flex-col gap-4">

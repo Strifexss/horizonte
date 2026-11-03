@@ -81,7 +81,7 @@ const funcionalidades: Funcionalidade[] = [
 
 export default function LandingFuncionalidades() {
     return (
-        <section id="funcionalidades" className="border-t border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-[#030a1c]">
+        <section id="funcionalidades" className="scroll-mt-16 border-t border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-[#030a1c]">
             <div className="mx-auto flex max-w-6xl flex-col gap-24 px-4 py-24 sm:px-6 md:py-28">
                 <div className="flex flex-col items-center gap-3.5 text-center">
                     <span className="text-primary text-sm font-semibold dark:text-blue-400">Funcionalidades</span>
