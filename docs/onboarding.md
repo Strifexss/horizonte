@@ -30,6 +30,8 @@ Preencha no `.env` apenas o necessário para o fluxo que vai testar. Os valores 
 
 Front: `npm ci` no host. O container `laravel_vite` já roda `npm run dev`. Acesse `http://localhost:8080`.
 
+Landing page (`/`, pública; logado vai para o Início) é a única rota com SSR, ligado pelo middleware `RenderizarNoServidor` (`INERTIA_SSR_ENABLED` fica `false`). Para ver o SSR: `npm run build:ssr` e `node bootstrap/ssr/ssr.js` (porta 13714). O `php artisan inertia:start-ssr` recusa subir com o SSR desligado no config, por isso o Node direto. Em produção, mantenha esse processo no supervisor; sem ele, a landing cai para a renderização no navegador.
+
 ## Verificar
 
 | Comando | Onde | Prova | Precisa de serviço? |

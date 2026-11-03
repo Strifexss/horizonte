@@ -14,6 +14,7 @@ use App\Http\Controllers\FornecedoresController;
 use App\Http\Controllers\FuncionariosController;
 use App\Http\Controllers\GruposController;
 use App\Http\Controllers\InicioController;
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\MenuBoardsController;
 use App\Http\Controllers\NovidadesController;
 use App\Http\Controllers\NovidadesUsuarioController;
@@ -25,11 +26,10 @@ use App\Http\Controllers\TvController;
 use App\Http\Controllers\TvPareamentoController;
 use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\VendasController;
+use App\Http\Middleware\RenderizarNoServidor;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect()->route('login');
-})->name('home');
+Route::get('/', LandingController::class)->middleware(RenderizarNoServidor::class)->name('home');
 
 Route::get('/tv', [TvController::class, 'show'])->name('tv');
 Route::post('/tv/parear', [TvController::class, 'parear'])->middleware('throttle:5,1')->name('tv.parear');

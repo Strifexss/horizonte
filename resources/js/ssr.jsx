@@ -8,13 +8,10 @@ import ReactDOMServer from 'react-dom/server';
 createServer((page) =>
     createInertiaApp({
         page,
+        title: (title) => `${title} - ${import.meta.env.VITE_APP_NAME || 'HORIZONTE'}`,
         render: ReactDOMServer.renderToString,
-        resolve: (name) => {
-            const pages = import.meta.glob('./pages/**/*.tsx', {
-                eager: true,
-            });
-            return pages[`./pages/${name}.tsx`];
-        },
+        // Sob demanda: só a page renderizada é carregada, porque várias pages do sistema usam `window` ao serem importadas.
+        resolve: (name) => import.meta.glob('./pages/**/*.tsx')[`./pages/${name}.tsx`](),
         // prettier-ignore
         setup: ({ App, props }) => <App {...props} />,
     }),
