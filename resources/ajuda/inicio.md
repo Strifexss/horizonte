@@ -37,6 +37,11 @@ Mostra as receitas, as despesas e o saldo (receitas menos despesas). Use os bot�
 
 Lista os 5 lançamentos mais recentes. Para ver todos, toque em **Ver Extrato completo** ou em um lançamento: você vai para o Extrato.
 
+## Regras
+
+- O resumo **Hoje** conta só os lançamentos de hoje; **Este mês**, os do mês atual.
+- Cada passo de **Primeiros passos** é marcado sozinho quando você faz a tarefa pela primeira vez.
+
 ## No celular
 
 - O botão azul **Nova venda** fica em destaque no topo, ocupando a largura da tela.

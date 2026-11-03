@@ -21,13 +21,17 @@ As receitas das vendas fechadas vão para a conta padrão. Só uma conta pode se
 
 Sem nenhuma conta cadastrada, não dá para fechar uma venda.
 
-## Saldo
-
-Cada conta mostra o saldo atualizado até hoje, calculado pelos lançamentos do Extrato.
+<!-- conferir: o cartão mostra "Saldo atualizado hoje", mas o sistema ainda não calcula o saldo (aparece R$ 0,00). Descrever quando for corrigido. -->
 
 ## Editar ou excluir
 
 Use **Editar** para mudar o nome, a descrição ou a conta padrão. Use **Excluir** para apagar a conta. A exclusão pede confirmação e não pode ser desfeita.
+
+## Regras e validações
+
+- O **Nome** é obrigatório (até 255 caracteres).
+- Só uma conta pode ser a padrão.
+- Atenção: excluir uma conta apaga também todos os lançamentos dela no Extrato. Confira antes de confirmar.
 
 ## No celular
 

@@ -38,6 +38,16 @@ Na lista, use **Editar** ou **Excluir**. Para tirar um produto da venda sem apag
 
 Busque por nome ou código.
 
+## Regras e validações
+
+- Obrigatórios: **Nome** (até 255 caracteres) e **Preço de compra**, que precisa ser maior que zero.
+- O **Preço de venda** é opcional e não pode ser negativo. Produto sem preço de venda precisa ter o preço informado na hora da venda.
+- O **Código** não pode se repetir: aparece "Já existe um produto com este código.".
+- A **Descrição** aceita até 160 caracteres.
+- Produto já usado em lançamentos ou vendas não pode ser excluído. Desmarque **Produto ativo** para inativá-lo.
+- Produto inativo não aparece para venda.
+- Excluir um grupo não apaga os produtos: eles só ficam sem grupo.
+
 ## No celular
 
 - O botão **+** no canto inferior direito abre **+ Novo Produto**.

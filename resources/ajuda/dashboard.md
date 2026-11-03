@@ -31,7 +31,11 @@ Se a sua Empresa tiver o Copiloto, aparece o botão **Analisar com IA** no topo 
 - Em cada insight, toque em **Vou fazer** para guardá-lo em **Minha lista**. O resultado é conferido na próxima análise.
 - Toque em **Dispensar** se o insight não servir, e diga o motivo: **Já sei disso** ou **Não se aplica ao meu negócio**. As próximas análises levam isso em conta.
 - Mudou de ideia? Toque em **Desfazer**.
-- O botão de recarregar gera a análise de novo. Há um limite de análises novas por pessoa em um intervalo de minutos. Se aparecer "Não foi possível gerar a análise", espere um pouco e tente de novo.
+- O botão de recarregar gera a análise de novo. Por padrão, cada pessoa pode gerar 5 análises novas a cada 10 minutos; abrir de novo uma análise já pronta não conta. Acima do limite aparece "Você já gerou 5 análises nos últimos 10 minutos": aguarde e tente de novo. Se aparecer "Não foi possível gerar a análise", espere um pouco e tente de novo.
+
+## Regras e validações
+
+- Os números contam os lançamentos pela data de competência.
 
 ## No celular
 

@@ -46,6 +46,18 @@ Use a busca por código, produto ou observação, e os filtros de período e de 
 
 O botão **Formas de pagamento** leva à tela onde você cadastra formas próprias, como boleto ou vale-refeição.
 
+## Regras e validações
+
+- A venda precisa de pelo menos um produto.
+- Quantidade e valor unitário de cada item precisam ser maiores que zero.
+- Produto inativo não pode ser vendido.
+- Cada pagamento precisa ter valor maior que zero, e a soma dos pagamentos não pode passar do total da venda.
+- Só formas de pagamento ativas podem ser usadas.
+- Para fechar a venda é preciso ter uma conta padrão cadastrada.
+- A **Observação** aceita até 1000 caracteres.
+- Só uma venda **Aberta** pode ser alterada. Venda fechada ou cancelada só pode ser vista.
+- Uma venda já cancelada não pode ser cancelada de novo.
+
 ## No celular
 
 - O botão **+** no canto inferior direito abre **+ Nova Venda** e **Formas de pagamento**.

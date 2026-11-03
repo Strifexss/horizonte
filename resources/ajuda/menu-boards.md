@@ -54,6 +54,18 @@ Na lista, toque em **Ativar na TV** no board desejado. Ele passa a mostrar **Na 
 
 A TV não atualiza sozinha. Depois de salvar ou ativar um board, toque em **Sync** no canto da TV.
 
+## Regras e validações
+
+- O **Nome do Board** é obrigatório (até 80 caracteres), e o tema também.
+- Um board tem no máximo 20 páginas. Cada página precisa de nome (até 80 caracteres) e layout.
+- O **Tempo na tela** vai de 5 a 300 segundos.
+- Limites de texto: título do aviso até 60 caracteres, texto até 120, selo até 20, frase curta até 70 e legenda do QR Code até 40.
+- O link do QR Code precisa começar com https://.
+- Foto do produto: JPG, PNG ou WEBP, até 2 MB. Imagem de página: até 4 MB.
+- Só um board fica ativo na TV por vez. Ativar outro tira o anterior.
+- O PIN de pareamento vale por 10 minutos. Se a TV disser "PIN não encontrado ou expirado", gere um PIN novo.
+- Na página com **Categoria automática**, só entram produtos ativos do grupo escolhido.
+
 ## No celular
 
 - O botão **+** no canto inferior direito abre **+ Novo Menu Board**.

@@ -30,6 +30,13 @@ As formas que você aceita para receber e usa para pagar: Pix, dinheiro, cartão
 
 Nas formas próprias, use **Editar** ou **Excluir**. Para parar de usar sem apagar, desmarque **Ativa**. Ela aparece como **Inativa**.
 
+## Regras e validações
+
+- O **Nome** é obrigatório, tem até 100 caracteres e não pode repetir o de outra forma: aparece "Já existe uma forma de pagamento com este nome.".
+- As formas **Padrão** não podem ser alteradas nem excluídas.
+- Forma já usada em vendas ou lançamentos não pode ser excluída. Desmarque **Ativa** para desativá-la.
+- Forma inativa não aparece na venda nem no lançamento.
+
 ## No celular
 
 - O botão **+** no canto inferior direito abre **+ Nova Forma** e um atalho para **Vendas**.

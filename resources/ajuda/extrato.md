@@ -61,6 +61,18 @@ No lançamento, toque em **Excluir** e confirme. A exclusão não pode ser desfe
 
 No menu ao lado do título do Extrato (só no computador) você gerencia **Categorias**, **Produtos**, **Funcionários** e **Fornecedores**.
 
+## Regras e validações
+
+- Obrigatórios: **Descrição** (até 255 caracteres), **Conta**, **Categoria**, **Valor**, **Forma de pagamento** e **Data**.
+- O **Valor** precisa ser maior que zero. O **Valor pago** não pode ser negativo.
+- Na categoria **Produto**, a **Quantidade** é obrigatória e precisa ser um número inteiro de pelo menos 1.
+- Só aparecem formas de pagamento ativas. Se a forma escolhida for desativada, aparece "Forma de pagamento inválida ou inativa".
+- Lançamento gerado por uma venda não pode ser excluído nem ter valor ou forma de pagamento alterados: só dá para dar baixa. Para o resto, cancele a venda.
+- A exclusão de um lançamento não pode ser desfeita.
+- **Categorias**: as que vêm com o sistema (como **Produto**, **Salário** e **Venda**) não podem ser alteradas nem excluídas. Atenção: excluir uma categoria sua apaga também os lançamentos dela.
+- **Funcionários**: nome e salário são obrigatórios, e o salário precisa ser maior que zero. Excluir um funcionário mantém os lançamentos, só tira o vínculo com ele.
+- **Fornecedores**: só o nome é obrigatório. Excluir um fornecedor mantém os produtos, só tira o vínculo com ele.
+
 ## No celular
 
 - Os lançamentos aparecem em cartões. **Toque** num cartão para abrir e editar. **Segure por 1 segundo** para ver as ações **Editar** e **Excluir**.
