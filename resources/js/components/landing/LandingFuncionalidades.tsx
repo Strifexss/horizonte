@@ -9,6 +9,7 @@ type Funcionalidade = {
     itens: string[];
     print: string;
     printAlt: string;
+    recorteMobile: string;
 };
 
 const funcionalidades: Funcionalidade[] = [
@@ -23,6 +24,7 @@ const funcionalidades: Funcionalidade[] = [
             'Cancelou? As receitas geradas saem junto',
         ],
         print: '/images/landing/venda.webp',
+        recorteMobile: 'aspect-[4/5] object-[6%_0%]',
         printAlt: 'Janela Nova Venda com itens no carrinho, cliente, total e formas de pagamento',
     },
     {
@@ -36,6 +38,7 @@ const funcionalidades: Funcionalidade[] = [
             'Conecte a TV com um PIN de 4 dígitos',
         ],
         print: '/images/landing/menu-board-tv.webp',
+        recorteMobile: 'aspect-[4/3] object-[25%_0%]',
         printAlt: 'Menu Board exibido na TV com dois destaques e grade de produtos com preços',
     },
     {
@@ -49,6 +52,7 @@ const funcionalidades: Funcionalidade[] = [
             'Exportação em PDF',
         ],
         print: '/images/landing/extrato.webp',
+        recorteMobile: 'aspect-[4/5] object-[22%_0%]',
         printAlt: 'Extrato financeiro com filtros, totais e lista de lançamentos',
     },
     {
@@ -62,6 +66,7 @@ const funcionalidades: Funcionalidade[] = [
             'Receitas por dia da semana',
         ],
         print: '/images/landing/dashboard.webp',
+        recorteMobile: 'aspect-[4/5] object-[30%_0%]',
         printAlt: 'Dashboard com entradas, saídas, saldo, ranking de produtos e gráficos',
     },
     {
@@ -75,6 +80,7 @@ const funcionalidades: Funcionalidade[] = [
             'Clientes cadastrados para vender e acompanhar',
         ],
         print: '/images/landing/produtos.webp',
+        recorteMobile: 'aspect-[4/5] object-[25%_0%]',
         printAlt: 'Lista de produtos com preço de compra, preço de venda e status',
     },
 ];
@@ -82,7 +88,7 @@ const funcionalidades: Funcionalidade[] = [
 export default function LandingFuncionalidades() {
     return (
         <section id="funcionalidades" className="scroll-mt-16 border-t border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-[#030a1c]">
-            <div className="mx-auto flex max-w-6xl flex-col gap-24 px-4 py-24 sm:px-6 md:py-28">
+            <div className="mx-auto flex max-w-6xl flex-col gap-14 px-4 py-16 sm:gap-24 sm:px-6 sm:py-24 md:py-28">
                 <div className="flex flex-col items-center gap-3.5 text-center">
                     <span className="text-primary text-sm font-semibold dark:text-blue-400">Funcionalidades</span>
                     <h2 className="text-3xl font-bold tracking-tight sm:text-5xl">Do balcão ao resultado, tudo conectado.</h2>
@@ -93,9 +99,14 @@ export default function LandingFuncionalidades() {
                 {funcionalidades.map((funcionalidade, indice) => (
                     <div
                         key={funcionalidade.selo}
-                        className={cn('flex flex-col items-center gap-12 lg:flex-row', indice % 2 === 1 && 'lg:flex-row-reverse')}
+                        className={cn('flex flex-col items-center gap-6 sm:gap-12 lg:flex-row', indice % 2 === 1 && 'lg:flex-row-reverse')}
                     >
-                        <LandingPrint src={funcionalidade.print} alt={funcionalidade.printAlt} className="w-full lg:flex-[1.4]" />
+                        <LandingPrint
+                            src={funcionalidade.print}
+                            alt={funcionalidade.printAlt}
+                            recorteMobile={funcionalidade.recorteMobile}
+                            className="w-full lg:flex-[1.4]"
+                        />
                         <div className="flex w-full flex-col gap-4 lg:flex-1">
                             <span className="text-primary text-[13px] font-semibold tracking-widest uppercase dark:text-blue-400">
                                 {funcionalidade.selo}

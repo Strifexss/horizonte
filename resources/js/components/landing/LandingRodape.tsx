@@ -11,8 +11,8 @@ export default function LandingRodape({ entrarHref, criarContaHref }: LandingRod
                     aria-hidden="true"
                     className="pointer-events-none absolute top-[60%] left-1/2 h-[600px] w-[1000px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(37,99,235,0.2),transparent)] dark:bg-[radial-gradient(closest-side,rgba(37,99,235,0.35),transparent)]"
                 />
-                <div className="relative mx-auto flex max-w-3xl flex-col items-center gap-6 px-4 py-28 text-center sm:px-6 md:py-32">
-                    <h2 className="text-4xl leading-[1.05] font-bold tracking-tight text-balance sm:text-6xl">
+                <div className="relative mx-auto flex max-w-3xl flex-col items-center gap-6 px-4 py-20 text-center sm:px-6 sm:py-28 md:py-32">
+                    <h2 className="text-3xl leading-[1.1] font-bold tracking-tight text-balance sm:text-6xl">
                         O amanhã começa com <span className="text-primary dark:text-blue-400">uma decisão</span> hoje.
                     </h2>
                     <p className="max-w-xl text-lg text-slate-600 dark:text-slate-300">
@@ -20,7 +20,7 @@ export default function LandingRodape({ entrarHref, criarContaHref }: LandingRod
                     </p>
                     <a
                         href={criarContaHref}
-                        className="bg-primary text-primary-foreground inline-flex min-h-14 items-center rounded-xl px-8 text-lg font-semibold hover:bg-blue-700"
+                        className="bg-primary text-primary-foreground inline-flex min-h-14 w-full max-w-sm items-center justify-center rounded-xl px-8 text-lg font-semibold hover:bg-blue-700 sm:w-auto"
                     >
                         Criar minha conta gratuita
                     </a>

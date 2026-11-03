@@ -18,14 +18,14 @@ const passos = [
 export default function LandingCopiloto({ criarContaHref }: LandingCopilotoProps) {
     return (
         <section id="copiloto" className="relative scroll-mt-16 overflow-hidden border-t border-slate-200 dark:border-slate-800">
-            <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-4 py-24 sm:px-6 md:py-28">
-                <div className="flex flex-wrap items-end justify-between gap-10">
+            <div className="relative mx-auto flex max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 sm:py-24 md:py-28">
+                <div className="flex flex-wrap items-end justify-between gap-6 sm:gap-10">
                     <div className="flex max-w-2xl flex-col gap-4">
                         <span className="text-primary inline-flex items-center gap-2 self-start rounded-full border border-blue-600/30 bg-blue-600/10 px-3.5 py-1.5 text-sm font-semibold dark:text-blue-400">
                             <Sparkles aria-hidden="true" className="size-4" />
                             Copiloto · Inteligência artificial
                         </span>
-                        <h2 className="text-4xl leading-[1.05] font-bold tracking-tight text-balance sm:text-5xl">
+                        <h2 className="text-3xl leading-[1.1] font-bold tracking-tight text-balance sm:text-5xl">
                             Um analista financeiro <span className="text-primary dark:text-blue-400">trabalhando para você.</span>
                         </h2>
                         <p className="text-lg leading-relaxed text-slate-600 dark:text-slate-400">
@@ -35,7 +35,7 @@ export default function LandingCopiloto({ criarContaHref }: LandingCopilotoProps
                     </div>
                     <a
                         href={criarContaHref}
-                        className="bg-primary text-primary-foreground inline-flex min-h-13 items-center rounded-xl px-7 text-[17px] font-semibold hover:bg-blue-700"
+                        className="bg-primary text-primary-foreground inline-flex min-h-13 w-full items-center justify-center rounded-xl px-7 text-[17px] font-semibold hover:bg-blue-700 sm:w-auto"
                     >
                         Quero o Copiloto no meu negócio
                     </a>
@@ -44,9 +44,10 @@ export default function LandingCopiloto({ criarContaHref }: LandingCopilotoProps
                 <LandingPrint
                     src="/images/landing/copiloto.webp"
                     alt="Análise do Copiloto: resumo do mês, resultado de ação anterior e insights de custos, crescimento, sinal positivo e alerta"
+                    recorteMobile="aspect-[4/5] object-[22%_0%]"
                     className="shadow-blue-600/20"
                 />
-                <p className="-mt-8 text-xs text-slate-500 dark:text-slate-400">Valores ilustrativos de uma empresa de demonstração.</p>
+                <p className="-mt-7 text-xs text-slate-500 dark:text-slate-400">Valores ilustrativos de uma empresa de demonstração.</p>
 
                 <ol className="grid gap-6 sm:grid-cols-2">
                     {passos.map((passo, indice) => (

@@ -12,7 +12,7 @@ export default function LandingHero({ criarContaHref }: LandingHeroProps) {
                 aria-hidden="true"
                 className="pointer-events-none absolute -bottom-[520px] left-1/2 h-[700px] w-[1100px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(37,99,235,0.22),rgba(56,189,248,0.06)_55%,transparent)] dark:bg-[radial-gradient(closest-side,rgba(37,99,235,0.35),rgba(56,189,248,0.08)_55%,transparent)]"
             />
-            <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-7 px-4 pt-20 text-center sm:px-6 md:pt-24">
+            <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-6 px-4 pt-12 text-center sm:px-6 sm:pt-20 md:pt-24">
                 <span className="rounded-full border border-blue-600/30 bg-sky-600/10 px-3.5 py-1.5 text-sm text-sky-700 dark:border-blue-400/35 dark:text-sky-300">
                     Seu dinheiro, sem ruído
                 </span>
@@ -23,16 +23,16 @@ export default function LandingHero({ criarContaHref }: LandingHeroProps) {
                     Chega de planilhas que cansam e gráficos que confundem. O Horizonte organiza o seu dinheiro em uma visão simples, para você
                     decidir com calma e caminhar com liberdade rumo ao que importa.
                 </p>
-                <div className="flex flex-wrap justify-center gap-3.5">
+                <div className="flex w-full max-w-sm flex-col gap-3 sm:w-auto sm:max-w-none sm:flex-row sm:justify-center sm:gap-3.5">
                     <a
                         href={criarContaHref}
-                        className="bg-primary text-primary-foreground inline-flex min-h-13 items-center rounded-xl px-7 text-[17px] font-semibold hover:bg-blue-700"
+                        className="bg-primary text-primary-foreground inline-flex min-h-13 items-center justify-center rounded-xl px-7 text-[17px] font-semibold hover:bg-blue-700"
                     >
                         Criar conta gratuita
                     </a>
                     <a
                         href="#copiloto"
-                        className="inline-flex min-h-13 items-center gap-2.5 rounded-xl border border-slate-300 bg-white px-7 text-[17px] font-medium text-slate-900 hover:border-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                        className="inline-flex min-h-13 items-center justify-center gap-2.5 rounded-xl border border-slate-300 bg-white px-7 text-[17px] font-medium text-slate-900 hover:border-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                     >
                         <PlayCircle aria-hidden="true" className="size-5 text-sky-600 dark:text-sky-400" />
                         Ver o sistema
@@ -42,7 +42,8 @@ export default function LandingHero({ criarContaHref }: LandingHeroProps) {
                     priority
                     src="/images/landing/inicio.webp"
                     alt="Tela Início do Horizonte com atalhos para nova venda, resumo do dia e primeiros passos"
-                    className="mt-8 w-full max-w-5xl rounded-b-none border-b-0"
+                    recorteMobile="aspect-[4/5] object-[22%_0%]"
+                    className="mt-4 w-full max-w-5xl sm:mt-8 sm:rounded-b-none sm:border-b-0"
                 />
             </div>
         </section>

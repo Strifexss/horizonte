@@ -64,7 +64,7 @@ export default function LandingSegmentos({ criarContaHref }: LandingSegmentosPro
     return (
         <>
             <section id="segmentos" className="scroll-mt-16 border-t border-slate-200 dark:border-slate-800">
-                <div className="mx-auto flex max-w-6xl flex-col items-center gap-3.5 px-4 pt-24 text-center sm:px-6 md:pt-28">
+                <div className="mx-auto flex max-w-6xl flex-col items-center gap-3.5 px-4 pt-16 text-center sm:px-6 sm:pt-24 md:pt-28">
                     <span className="text-primary text-sm font-semibold dark:text-blue-400">Segmentos</span>
                     <h2 className="text-3xl font-bold tracking-tight sm:text-5xl">Feito sob medida para o seu negócio.</h2>
                     <p className="max-w-2xl text-lg text-slate-600 dark:text-slate-400">
@@ -76,7 +76,7 @@ export default function LandingSegmentos({ criarContaHref }: LandingSegmentosPro
                 <section key={segmento.id} id={segmento.id} aria-labelledby={`${segmento.id}-titulo`}>
                     <div
                         className={cn(
-                            'mx-auto flex max-w-6xl flex-col items-center gap-14 px-4 py-20 sm:px-6 lg:flex-row',
+                            'mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-12 sm:gap-14 sm:px-6 sm:py-20 lg:flex-row',
                             indice % 2 === 1 && 'lg:flex-row-reverse',
                         )}
                     >
@@ -88,13 +88,13 @@ export default function LandingSegmentos({ criarContaHref }: LandingSegmentosPro
                                 height={559}
                                 loading="lazy"
                                 decoding="async"
-                                className="aspect-[4/5] w-full rounded-3xl border border-slate-200 object-cover object-[60%_center] shadow-2xl shadow-blue-600/10 sm:aspect-[4/3] lg:aspect-[4/5] dark:border-slate-800"
+                                className="aspect-[4/3] w-full rounded-2xl border border-slate-200 object-cover object-[60%_center] shadow-2xl shadow-blue-600/10 sm:rounded-3xl lg:aspect-[4/5] dark:border-slate-800"
                             />
-                            <div className="absolute inset-x-5 bottom-5 flex flex-wrap gap-2.5">
+                            <div className="absolute inset-x-3 bottom-3 flex flex-wrap gap-2 sm:inset-x-5 sm:bottom-5 sm:gap-2.5">
                                 {segmento.etiquetas.map((etiqueta) => (
                                     <span
                                         key={etiqueta}
-                                        className="rounded-xl border border-blue-400/40 bg-slate-950/85 px-3.5 py-2.5 text-sm font-semibold text-slate-100"
+                                        className="rounded-xl border border-blue-400/40 bg-slate-950/85 px-3 py-2 text-xs font-semibold text-slate-100 sm:px-3.5 sm:py-2.5 sm:text-sm"
                                     >
                                         {etiqueta}
                                     </span>
@@ -106,7 +106,7 @@ export default function LandingSegmentos({ criarContaHref }: LandingSegmentosPro
                                 <span className="text-primary text-[13px] font-semibold tracking-widest uppercase dark:text-blue-400">
                                     {segmento.selo}
                                 </span>
-                                <h3 id={`${segmento.id}-titulo`} className="text-3xl leading-tight font-bold tracking-tight sm:text-4xl">
+                                <h3 id={`${segmento.id}-titulo`} className="text-2xl leading-tight font-bold tracking-tight sm:text-4xl">
                                     {segmento.titulo}
                                 </h3>
                                 <p className="text-lg leading-relaxed text-slate-600 dark:text-slate-400">{segmento.texto}</p>
@@ -126,7 +126,7 @@ export default function LandingSegmentos({ criarContaHref }: LandingSegmentosPro
                             </ul>
                             <a
                                 href={criarContaHref}
-                                className="bg-primary text-primary-foreground inline-flex min-h-13 items-center self-start rounded-xl px-7 text-[17px] font-semibold hover:bg-blue-700"
+                                className="bg-primary text-primary-foreground inline-flex min-h-13 w-full items-center justify-center rounded-xl px-7 text-[17px] font-semibold hover:bg-blue-700 sm:w-auto sm:self-start"
                             >
                                 {segmento.cta}
                             </a>
