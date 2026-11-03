@@ -5,7 +5,7 @@ ERP financeiro multi-empresa (Laravel 12 + Inertia 2 + React 19 + TypeScript + T
 ## Mapa
 
 - Produto e escopo: `PRODUCT.md`. Glossário do domínio: `CONTEXT.md` (use os termos dele). Decisões: `docs/adr/`.
-- Estrutura e camadas: `docs/architecture.md` e a skill `estrutura-padrao`. Interface: `docs/design.md`.
+- Estrutura e camadas: `docs/architecture.md` e a skill `estrutura-padrao`. Interface: `docs/design.md`. Ajuda de uso das telas (base do Copiloto): `resources/ajuda/`.
 - Ambiente local: `docs/onboarding.md`. Checks e revisão: `docs/quality.md`. Ferramentas, versões e evidências: `docs/setup.md`.
 - Regras com glob: `.ai/rules/index.md` (ler antes de editar). Specs e issues: `.scratch/<feature>/`.
 
@@ -23,7 +23,7 @@ Comandos PHP rodam dentro do container `laravel_app`, porque a máquina local n�
 - Leia instruções e código relevante antes de editar; separe fato observado, suposição e decisão.
 - Defina critério de aceite e o comando que prova antes de implementar. Correção de bug começa reproduzindo e termina com teste de regressão quando viável.
 - Menor mudança completa; reuse padrões, componentes e dependências existentes. Não enfraqueça validação, autorização, testes ou regras de lint para passar um check.
-- Atualize o documento responsável junto com a mudança (comando, schema, fronteira, configuração). Lição recorrente vira regra em `.ai/rules` via `record-rule`, não nota pessoal.
+- Atualize o documento responsável junto com a mudança (comando, schema, fronteira, configuração). Mudança visível numa tela do menu atualiza a ajuda dela em `resources/ajuda/` no mesmo commit (regra `ajuda-de-uso`). Lição recorrente vira regra em `.ai/rules` via `record-rule`, não nota pessoal.
 - Pergunta de status não interrompe trabalho autorizado. Um bloqueio para só o que depende dele. Handoff é contexto, não prova: confira checkout, arquivos e processos antes de retomar. Trabalho multi-sessão inacabado ganha um handoff curto em `.scratch/<feature>/` (objetivo, estado verificado, checks, pendências, próximo passo).
 - Publicar, push, migrations em banco real, custos e ações destrutivas exigem autorização explícita. Ferramenta instalada não concede permissão.
 

@@ -51,6 +51,7 @@ Os avisos `react-hooks/exhaustive-deps` (14) são legado conhecido. Corrija só 
 ## Revisão
 
 - Mudança não trivial: revisão independente e somente leitura do diff exato, de chamadores, rotas, testes e configuração ligados. Achados são resolvidos ou justificados por escrito antes de concluir.
+- Diff que muda o que o usuário vê ou faz numa tela: confira se o `.md` da tela em `resources/ajuda/` foi atualizado no mesmo diff (critérios em `.ai/rules/ajuda-de-uso.md`). Ajuda desatualizada é achado de revisão.
 - Diffs em autenticação, Empresa/tenant, Painel Administrativo, dinheiro e uploads: use a skill `differential-review`.
 - Revisão de segurança dedicada: use o prompt versionado [`docs/prompts/13-security-review.md`](https://github.com/soumatheusgomes/vibe-coding-toolkit/blob/21b71b6/docs/prompts/13-security-review.md) do toolkit. O relatório fica privado, fora do repositório, e não deve conter segredos nem dados pessoais.
 

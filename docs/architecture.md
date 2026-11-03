@@ -28,6 +28,7 @@ resources/js/
 ├── components/<dominio>/  formulários, tabelas, modais por domínio (nomes em PT)
 ├── components/padrões/    blocos reutilizáveis; components/ui/ shadcn + AsyncSelect/MoneyInput
 ├── hooks/, layouts/, lib/, types/
+resources/ajuda/           ajuda de uso, um .md por tela do menu (lida pelo Copiloto)
 routes/web.php             grupos auth → empresa → módulo/administrador
 tests/Feature/             testes Pest de rotas e regras
 ```
