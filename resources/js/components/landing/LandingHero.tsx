@@ -14,7 +14,7 @@ export default function LandingHero({ criarContaHref }: LandingHeroProps) {
             />
             <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-6 px-4 pt-12 text-center sm:px-6 sm:pt-20 md:pt-24">
                 <span className="rounded-full border border-blue-600/30 bg-sky-600/10 px-3.5 py-1.5 text-sm text-sky-700 dark:border-blue-400/35 dark:text-sky-300">
-                    Seu dinheiro, sem ruído
+                    No computador e no celular
                 </span>
                 <h1 className="max-w-4xl text-4xl leading-[1.05] font-bold tracking-tight text-balance sm:text-6xl lg:text-7xl">
                     Enxergue o seu futuro <span className="text-primary dark:text-blue-400">com clareza.</span>
@@ -42,8 +42,8 @@ export default function LandingHero({ criarContaHref }: LandingHeroProps) {
                     priority
                     src="/images/landing/inicio.webp"
                     alt="Tela Início do Horizonte com atalhos para nova venda, resumo do dia e primeiros passos"
-                    recorteMobile="aspect-[4/5] object-[22%_0%]"
-                    className="mt-4 w-full max-w-5xl sm:mt-8 sm:rounded-b-none sm:border-b-0"
+                    celular={{ src: '/images/landing/celular/inicio.webp', alt: 'Tela Início do Horizonte no celular' }}
+                    className="mt-6 w-full max-w-5xl pb-10 text-left sm:mt-10"
                 />
             </div>
         </section>

@@ -7,6 +7,7 @@ type LandingHeaderProps = {
 };
 
 const secoes = [
+    { href: '#celular', rotulo: 'No celular' },
     { href: '#copiloto', rotulo: 'Copiloto IA' },
     { href: '#funcionalidades', rotulo: 'Funcionalidades' },
     { href: '#segmentos', rotulo: 'Segmentos' },

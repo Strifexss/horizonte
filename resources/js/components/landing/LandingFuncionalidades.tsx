@@ -1,4 +1,5 @@
 import LandingPrint from '@/components/landing/LandingPrint';
+import LandingSeloDispositivos from '@/components/landing/LandingSeloDispositivos';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
 
@@ -9,7 +10,7 @@ type Funcionalidade = {
     itens: string[];
     print: string;
     printAlt: string;
-    recorteMobile: string;
+    celular: string;
 };
 
 const funcionalidades: Funcionalidade[] = [
@@ -24,7 +25,7 @@ const funcionalidades: Funcionalidade[] = [
             'Cancelou? As receitas geradas saem junto',
         ],
         print: '/images/landing/venda.webp',
-        recorteMobile: 'aspect-[4/5] object-[6%_0%]',
+        celular: '/images/landing/celular/venda.webp',
         printAlt: 'Janela Nova Venda com itens no carrinho, cliente, total e formas de pagamento',
     },
     {
@@ -32,13 +33,14 @@ const funcionalidades: Funcionalidade[] = [
         titulo: 'Seu cardápio na TV do balcão.',
         texto: 'Monte o cardápio no Horizonte e mostre na TV da loja. Escolha o tema, os produtos e os destaques. Os preços vêm do seu cadastro.',
         itens: [
+            'Monte e edite pelo celular ou pelo computador',
             '8 temas prontos',
             'Páginas que alternam sozinhas na tela',
             'Destaques em card grande para vender mais',
             'Conecte a TV com um PIN de 4 dígitos',
         ],
         print: '/images/landing/menu-board-tv.webp',
-        recorteMobile: 'aspect-[4/3] object-[25%_0%]',
+        celular: '/images/landing/celular/menu-board.webp',
         printAlt: 'Menu Board exibido na TV com dois destaques e grade de produtos com preços',
     },
     {
@@ -52,7 +54,7 @@ const funcionalidades: Funcionalidade[] = [
             'Exportação em PDF',
         ],
         print: '/images/landing/extrato.webp',
-        recorteMobile: 'aspect-[4/5] object-[22%_0%]',
+        celular: '/images/landing/celular/extrato.webp',
         printAlt: 'Extrato financeiro com filtros, totais e lista de lançamentos',
     },
     {
@@ -66,7 +68,7 @@ const funcionalidades: Funcionalidade[] = [
             'Receitas por dia da semana',
         ],
         print: '/images/landing/dashboard.webp',
-        recorteMobile: 'aspect-[4/5] object-[30%_0%]',
+        celular: '/images/landing/celular/dashboard.webp',
         printAlt: 'Dashboard com entradas, saídas, saldo, ranking de produtos e gráficos',
     },
     {
@@ -80,7 +82,7 @@ const funcionalidades: Funcionalidade[] = [
             'Clientes cadastrados para vender e acompanhar',
         ],
         print: '/images/landing/produtos.webp',
-        recorteMobile: 'aspect-[4/5] object-[25%_0%]',
+        celular: '/images/landing/celular/produtos.webp',
         printAlt: 'Lista de produtos com preço de compra, preço de venda e status',
     },
 ];
@@ -93,7 +95,8 @@ export default function LandingFuncionalidades() {
                     <span className="text-primary text-sm font-semibold dark:text-blue-400">Funcionalidades</span>
                     <h2 className="text-3xl font-bold tracking-tight sm:text-5xl">Do balcão ao resultado, tudo conectado.</h2>
                     <p className="max-w-2xl text-lg text-slate-600 dark:text-slate-400">
-                        Cada venda alimenta o financeiro, que alimenta o dashboard, que alimenta o Copiloto. Você só cuida do negócio.
+                        Cada venda alimenta o financeiro, que alimenta o dashboard, que alimenta o Copiloto. E tudo funciona no computador e no
+                        celular.
                     </p>
                 </div>
                 {funcionalidades.map((funcionalidade, indice) => (
@@ -104,13 +107,16 @@ export default function LandingFuncionalidades() {
                         <LandingPrint
                             src={funcionalidade.print}
                             alt={funcionalidade.printAlt}
-                            recorteMobile={funcionalidade.recorteMobile}
+                            celular={{ src: funcionalidade.celular, alt: `${funcionalidade.selo} no celular` }}
                             className="w-full lg:flex-[1.4]"
                         />
                         <div className="flex w-full flex-col gap-4 lg:flex-1">
-                            <span className="text-primary text-[13px] font-semibold tracking-widest uppercase dark:text-blue-400">
-                                {funcionalidade.selo}
-                            </span>
+                            <div className="flex flex-wrap items-center gap-3">
+                                <span className="text-primary text-[13px] font-semibold tracking-widest uppercase dark:text-blue-400">
+                                    {funcionalidade.selo}
+                                </span>
+                                <LandingSeloDispositivos />
+                            </div>
                             <h3 className="text-2xl leading-tight font-bold tracking-tight sm:text-3xl">{funcionalidade.titulo}</h3>
                             <p className="text-[17px] leading-relaxed text-slate-600 dark:text-slate-400">{funcionalidade.texto}</p>
                             <ul className="flex flex-col gap-2.5 text-slate-700 dark:text-slate-300">

@@ -44,7 +44,7 @@ export default function LandingCopiloto({ criarContaHref }: LandingCopilotoProps
                 <LandingPrint
                     src="/images/landing/copiloto.webp"
                     alt="Análise do Copiloto: resumo do mês, resultado de ação anterior e insights de custos, crescimento, sinal positivo e alerta"
-                    recorteMobile="aspect-[4/5] object-[22%_0%]"
+                    celular={{ src: '/images/landing/celular/copiloto.webp', alt: 'Análise do Copiloto no celular' }}
                     className="shadow-blue-600/20"
                 />
                 <p className="-mt-7 text-xs text-slate-500 dark:text-slate-400">Valores ilustrativos de uma empresa de demonstração.</p>

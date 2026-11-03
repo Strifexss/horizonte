@@ -1,5 +1,6 @@
 import LandingContraste from '@/components/landing/LandingContraste';
 import LandingCopiloto from '@/components/landing/LandingCopiloto';
+import LandingDispositivos from '@/components/landing/LandingDispositivos';
 import LandingFuncionalidades from '@/components/landing/LandingFuncionalidades';
 import LandingHeader from '@/components/landing/LandingHeader';
 import LandingHero from '@/components/landing/LandingHero';
@@ -15,7 +16,7 @@ type LandingProps = {
 };
 
 const descricao =
-    'Vendas, financeiro, dashboard, cardápio na TV e um Copiloto de IA que diz o que fazer para lucrar mais. Gestão simples para restaurantes e varejo.';
+    'Vendas, financeiro, dashboard, cardápio na TV e um Copiloto de IA que diz o que fazer para lucrar mais. Gestão simples para restaurantes e varejo, no computador e no celular.';
 
 export default function Landing({ links }: LandingProps) {
     return (
@@ -31,6 +32,7 @@ export default function Landing({ links }: LandingProps) {
                 <LandingHeader entrarHref={links.entrar} criarContaHref={links.criarConta} />
                 <main>
                     <LandingHero criarContaHref={links.criarConta} />
+                    <LandingDispositivos />
                     <LandingCopiloto criarContaHref={links.criarConta} />
                     <LandingContraste />
                     <LandingSegmentos criarContaHref={links.criarConta} />
