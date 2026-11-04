@@ -22,11 +22,17 @@ Chat do Copiloto, no módulo `copiloto`, que responde só dúvidas de uso do sis
 - Formato: frontmatter com `titulo`, `rota` (nome da rota) e `modulo` (`null` ou o módulo exigido). Uma seção que depende de módulo é precedida por `<!-- modulo: x -->`, como em `dashboard.md`.
 - Nenhuma rota restringe tela por papel, então os arquivos não têm campo de papel.
 
+## Verificado no código do `laravel/ai` v0.11.3 (versão do `composer.lock`)
+
+- `RemembersConversations` existe, com `forUser`, `continue`, `continueLastConversation` e `maxConversationMessages()` (padrão 100).
+- Cache de contexto no Gemini: só o cache explícito, passando `cachedContent` em `providerOptions`. O SDK repassa o nome do cache, mas não cria o cache. O atributo `#[CacheInstructions]` só funciona com Anthropic e Bedrock.
+- O `Usage` da resposta separa os tokens lidos do cache (`cachedContentTokenCount`), o que permite medir a economia.
+- Chave de IA: o chat pode usar a mesma configuração do `AnalistaDashboard`, mas deve passar pelo mesmo limitador global (`insights.requisicoes_por_minuto`).
+
 ## Pendências
 
 - Validação do conteúdo pelo responsável.
 - Repetir a avaliação do harness (`docs/quality.md`), porque o `AGENTS.md` mudou. O toolkit não está nesta sessão.
-- Conferir a API de conversas na versão instalada (`laravel/ai` `^0.11.3`; a documentação consultada é da 1.x).
 - Spec e issues da implementação: agente, AjudaService, rota com `modulo:copiloto`, tabelas de conversa, UI e testes.
 
 ## Próximo passo
