@@ -9,6 +9,8 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MoneyInput from '@/components/ui/money-input';
+import { useHideOnScroll } from '@/hooks/use-hide-on-scroll';
+import { cn } from '@/lib/utils';
 import { useForm } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -54,6 +56,7 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
     const [selectedGrupo, setSelectedGrupo] = useState<ProdutoNamed | null>(null);
     const [fornecedoresModalOpen, setFornecedoresModalOpen] = useState(false);
     const [gruposModalOpen, setGruposModalOpen] = useState(false);
+    const cabecalho = useHideOnScroll();
 
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm<ProdutoFormValues>({
         nome: '',
@@ -73,6 +76,7 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
         }
 
         clearErrors();
+        cabecalho.reset();
 
         if (mode === 'edit' && produto) {
             setData({
@@ -155,19 +159,33 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                             event.preventDefault();
                         }
                     }}
-                    className="h-[100dvh] w-[100vw] gap-0 overflow-hidden p-0 md:h-auto md:max-h-[90dvh] md:w-[700px] md:max-w-full md:gap-4 md:p-6"
+                    className={cn(
+                        'h-[100dvh] w-[100vw] gap-0 overflow-hidden p-0 md:h-auto md:max-h-[90dvh] md:w-[700px] md:max-w-full md:gap-4 md:p-6',
+                        '[&>button:last-child]:transition-opacity',
+                        cabecalho.hidden && 'max-md:[&>button:last-child]:pointer-events-none max-md:[&>button:last-child]:opacity-0',
+                    )}
                 >
-                    <DialogHeader className="space-y-1 border-b py-3 pr-16 pl-4 text-left md:border-0 md:p-0">
-                        <DialogTitle className="text-left text-lg md:text-2xl">
-                            {mode === 'edit' ? 'Editar produto' : 'Cadastrar produto'}
-                        </DialogTitle>
-                        <DialogDescription className="text-sm md:text-base">
-                            {mode === 'edit' ? 'Atualize os dados do produto.' : 'Preencha os dados para cadastrar um novo produto.'}
-                        </DialogDescription>
-                    </DialogHeader>
+                    {/* No celular o cabeçalho recolhe ao rolar para baixo e volta ao rolar para cima. */}
+                    <div
+                        className={cn(
+                            'grid shrink-0 transition-[grid-template-rows] duration-200 md:grid-rows-[1fr]',
+                            cabecalho.hidden ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]',
+                        )}
+                    >
+                        <div className={cn('min-h-0 overflow-hidden transition-opacity duration-200', cabecalho.hidden && 'max-md:opacity-0')}>
+                            <DialogHeader className="space-y-1 border-b py-3 pr-16 pl-4 text-left md:border-0 md:p-0">
+                                <DialogTitle className="text-left text-lg md:text-2xl">
+                                    {mode === 'edit' ? 'Editar produto' : 'Cadastrar produto'}
+                                </DialogTitle>
+                                <DialogDescription className="text-sm md:text-base">
+                                    {mode === 'edit' ? 'Atualize os dados do produto.' : 'Preencha os dados para cadastrar um novo produto.'}
+                                </DialogDescription>
+                            </DialogHeader>
+                        </div>
+                    </div>
 
                     <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col" noValidate>
-                        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-4 md:gap-5 md:p-0">
+                        <div onScroll={cabecalho.onScroll} className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-4 md:gap-5 md:p-0">
                             <section className="grid gap-4" aria-labelledby="produto_secao_identificacao">
                                 <h3 id="produto_secao_identificacao" className={SECTION_TITLE}>
                                     Identificação
