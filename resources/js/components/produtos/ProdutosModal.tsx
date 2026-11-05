@@ -5,6 +5,7 @@ import InputError from '@/components/input-error';
 import AsyncSelect from '@/components/ui/AsyncSelect';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { FORM_DIALOG_LIST, FORM_DIALOG_PANEL, FormDialogBody, FormDialogContent, FormDialogHeader } from '@/components/ui/form-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MoneyInput, { parseMoneyValue } from '@/components/ui/money-input';
@@ -175,13 +176,10 @@ export default function ProdutosModal({
     return (
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent className="h-[100dvh] w-[100vw] overflow-hidden md:h-auto md:w-[700px] md:max-w-full">
-                    <DialogHeader>
-                        <DialogTitle>Produtos</DialogTitle>
-                        <DialogDescription>Gerencie os produtos vinculados às despesas.</DialogDescription>
-                    </DialogHeader>
-                    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-                        <div className="border-sidebar-border/70 mt-4 rounded-lg border bg-white p-4 shadow-sm dark:bg-slate-900">
+                <FormDialogContent>
+                    <FormDialogHeader title="Produtos" description="Gerencie os produtos vinculados às despesas." />
+                    <FormDialogBody>
+                        <div className={FORM_DIALOG_PANEL}>
                             <form onSubmit={submit} noValidate className="grid gap-2">
                                 <div className="grid gap-2 md:grid-cols-2">
                                     <div className="grid gap-2">
@@ -263,7 +261,7 @@ export default function ProdutosModal({
                                 <DialogFooter className="flex flex-row gap-2">
                                     <DialogClose asChild>
                                         <Button
-                                            className="w-full"
+                                            className="hidden w-full md:inline-flex"
                                             variant="secondary"
                                             type="button"
                                             onClick={() => {
@@ -281,7 +279,7 @@ export default function ProdutosModal({
                             </form>
                         </div>
 
-                        <div className="mt-2 max-h-[340px] min-h-[200px] overflow-y-auto">
+                        <div className={FORM_DIALOG_LIST}>
                             {loading ? (
                                 <div>Carregando...</div>
                             ) : (
@@ -293,8 +291,8 @@ export default function ProdutosModal({
                                 </div>
                             )}
                         </div>
-                    </div>
-                </DialogContent>
+                    </FormDialogBody>
+                </FormDialogContent>
             </Dialog>
 
             <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>

@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { FormDialogBody, FormDialogCancel, FormDialogContent, FormDialogFooter, FormDialogForm, FormDialogHeader } from '@/components/ui/form-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
@@ -123,60 +124,55 @@ export default function Contas({ contas = [] }: { contas?: Account[] }) {
 
                 {/* Edit dialog */}
                 <Dialog open={editOpen} onOpenChange={setEditOpen}>
-                    <DialogContent className="flex h-[100dvh] max-w-full flex-col overflow-hidden md:h-auto md:w-[500px]">
-                        <DialogHeader>
-                            <DialogTitle>Editar conta</DialogTitle>
-                            <DialogDescription>Atualize os dados da conta.</DialogDescription>
-                        </DialogHeader>
+                    <FormDialogContent className="md:w-[500px]">
+                        <FormDialogHeader title="Editar conta" description="Atualize os dados da conta." />
 
-                        <form onSubmit={submitEdit} className="mt-2 grid gap-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="edit-nome">Nome</Label>
-                                <Input
-                                    id="edit-nome"
-                                    value={editData.nome}
-                                    onChange={(e) => setEditData('nome', e.target.value)}
-                                    placeholder="Ex: Conta corrente"
-                                    disabled={editProcessing}
-                                />
-                                <InputError message={editErrors.nome} />
-                            </div>
+                        <FormDialogForm onSubmit={submitEdit}>
+                            <FormDialogBody>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="edit-nome">Nome</Label>
+                                    <Input
+                                        id="edit-nome"
+                                        value={editData.nome}
+                                        onChange={(e) => setEditData('nome', e.target.value)}
+                                        placeholder="Ex: Conta corrente"
+                                        disabled={editProcessing}
+                                    />
+                                    <InputError message={editErrors.nome} />
+                                </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="edit-descricao">Descrição</Label>
-                                <Input
-                                    id="edit-descricao"
-                                    value={editData.descricao}
-                                    onChange={(e) => setEditData('descricao', e.target.value)}
-                                    placeholder="Opcional"
-                                    disabled={editProcessing}
-                                />
-                                <InputError message={editErrors.descricao} />
-                            </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="edit-descricao">Descrição</Label>
+                                    <Input
+                                        id="edit-descricao"
+                                        value={editData.descricao}
+                                        onChange={(e) => setEditData('descricao', e.target.value)}
+                                        placeholder="Opcional"
+                                        disabled={editProcessing}
+                                    />
+                                    <InputError message={editErrors.descricao} />
+                                </div>
 
-                            <div className="flex items-center gap-2">
-                                <Checkbox
-                                    id="edit-padrao"
-                                    checked={!!editData.padrao}
-                                    onCheckedChange={(checked) => setEditData('padrao', checked === true)}
-                                    disabled={editProcessing}
-                                />
-                                <Label htmlFor="edit-padrao">Definir como conta padrão</Label>
-                            </div>
-                            <InputError message={editErrors.padrao} />
+                                <div className="flex items-center gap-2">
+                                    <Checkbox
+                                        id="edit-padrao"
+                                        checked={!!editData.padrao}
+                                        onCheckedChange={(checked) => setEditData('padrao', checked === true)}
+                                        disabled={editProcessing}
+                                    />
+                                    <Label htmlFor="edit-padrao">Definir como conta padrão</Label>
+                                </div>
+                                <InputError message={editErrors.padrao} />
+                            </FormDialogBody>
 
-                            <DialogFooter>
-                                <DialogClose asChild>
-                                    <Button variant="secondary" type="button" disabled={editProcessing}>
-                                        Cancelar
-                                    </Button>
-                                </DialogClose>
-                                <Button type="submit" className="ml-2" disabled={editProcessing}>
+                            <FormDialogFooter className="md:justify-end">
+                                <FormDialogCancel disabled={editProcessing} />
+                                <Button type="submit" disabled={editProcessing}>
                                     Salvar
                                 </Button>
-                            </DialogFooter>
-                        </form>
-                    </DialogContent>
+                            </FormDialogFooter>
+                        </FormDialogForm>
+                    </FormDialogContent>
                 </Dialog>
 
                 {/* Delete confirmation */}

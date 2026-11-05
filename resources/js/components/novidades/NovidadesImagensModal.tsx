@@ -1,6 +1,7 @@
 import ConfirmDeleteModal from '@/components/extrato/ConfirmDeleteModal';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/dialog';
+import { FormDialogBody, FormDialogContent, FormDialogHeader } from '@/components/ui/form-dialog';
 import { formatarData } from '@/components/usuarios/formatarData';
 import { router } from '@inertiajs/react';
 import { ArrowLeft, ExternalLink, Trash2 } from 'lucide-react';
@@ -85,17 +86,14 @@ export default function NovidadesImagensModal({ open, onOpenChange, imagens }: P
     return (
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent className="h-[100vh] w-[100vw] overflow-hidden md:h-auto md:w-[900px] md:max-w-full">
-                    <div className="flex h-full min-h-0 flex-col gap-4">
-                        <DialogHeader>
-                            <DialogTitle>Imagens das novidades</DialogTitle>
-                            <DialogDescription>
-                                Arquivos guardados na pasta de imagens. Excluir aqui tira a imagem da novidade que a usa.
-                            </DialogDescription>
-                        </DialogHeader>
-
+                <FormDialogContent className="md:w-[900px]">
+                    <FormDialogHeader
+                        title="Imagens das novidades"
+                        description="Arquivos guardados na pasta de imagens. Excluir aqui tira a imagem da novidade que a usa."
+                    />
+                    <FormDialogBody>
                         {visualizando ? (
-                            <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+                            <div className="flex flex-col gap-3">
                                 <Button
                                     variant="ghost"
                                     size="sm"
@@ -158,7 +156,7 @@ export default function NovidadesImagensModal({ open, onOpenChange, imagens }: P
                                     ))}
                                 </div>
 
-                                <div className="min-h-[200px] flex-1 overflow-y-auto md:max-h-[60vh]">
+                                <div className="min-h-[200px] md:max-h-[60vh] md:flex-1 md:overflow-y-auto">
                                     {carregando || imagens === undefined ? (
                                         <GradeSkeleton />
                                     ) : visiveis.length === 0 ? (
@@ -206,8 +204,8 @@ export default function NovidadesImagensModal({ open, onOpenChange, imagens }: P
                                 ) : null}
                             </>
                         )}
-                    </div>
-                </DialogContent>
+                    </FormDialogBody>
+                </FormDialogContent>
             </Dialog>
 
             <ConfirmDeleteModal

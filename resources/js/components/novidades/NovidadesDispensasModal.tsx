@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/dialog';
+import { FormDialogBody, FormDialogContent, FormDialogHeader } from '@/components/ui/form-dialog';
 import { Input } from '@/components/ui/input';
 import { formatarData } from '@/components/usuarios/formatarData';
 import { router } from '@inertiajs/react';
@@ -96,15 +97,12 @@ export default function NovidadesDispensasModal({ novidade, onOpenChange, dispen
 
     return (
         <Dialog open={novidade !== null} onOpenChange={onOpenChange}>
-            <DialogContent className="h-[100vh] w-[100vw] overflow-hidden md:h-auto md:w-[640px] md:max-w-full">
-                <div className="flex h-full min-h-0 flex-col gap-4">
-                    <DialogHeader>
-                        <DialogTitle>Quem dispensou</DialogTitle>
-                        <DialogDescription>
-                            {novidade?.titulo}. Marcado: o pop-up não abre mais para o usuário. Desmarque para ele ver de novo.
-                        </DialogDescription>
-                    </DialogHeader>
-
+            <FormDialogContent className="md:w-[640px]">
+                <FormDialogHeader
+                    title="Quem dispensou"
+                    description={`${novidade?.titulo ?? ''}. Marcado: o pop-up não abre mais para o usuário. Desmarque para ele ver de novo.`}
+                />
+                <FormDialogBody>
                     <div className="flex flex-col gap-2 md:flex-row md:items-center">
                         <div className="relative flex-1">
                             <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
@@ -130,7 +128,7 @@ export default function NovidadesDispensasModal({ novidade, onOpenChange, dispen
                         </div>
                     </div>
 
-                    <div className="min-h-[200px] flex-1 overflow-y-auto md:max-h-[50vh]">
+                    <div className="min-h-[200px] md:max-h-[50vh] md:flex-1 md:overflow-y-auto">
                         {carregando || dispensas === undefined ? (
                             <ListaSkeleton />
                         ) : visiveis.length === 0 ? (
@@ -176,8 +174,8 @@ export default function NovidadesDispensasModal({ novidade, onOpenChange, dispen
                             </Button>
                         ) : null}
                     </div>
-                </div>
-            </DialogContent>
+                </FormDialogBody>
+            </FormDialogContent>
         </Dialog>
     );
 }

@@ -1,7 +1,8 @@
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/dialog';
+import { FormDialogBody, FormDialogCancel, FormDialogContent, FormDialogFooter, FormDialogForm, FormDialogHeader } from '@/components/ui/form-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -112,18 +113,16 @@ export default function NovidadesForm({ open, onOpenChange, novidade, storeUrl }
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="h-[100vh] w-[100vw] overflow-hidden md:h-auto md:w-[700px] md:max-w-full">
-                <div className="flex h-full min-h-0 flex-col gap-4">
-                    <DialogHeader>
-                        <DialogTitle>{novidade ? 'Editar novidade' : 'Nova novidade'}</DialogTitle>
-                        <DialogDescription>
-                            {novidade
-                                ? 'As mudanças valem para quem abrir a novidade depois.'
-                                : 'A novidade nasce como rascunho; publique pela lista.'}
-                        </DialogDescription>
-                    </DialogHeader>
+            <FormDialogContent>
+                <FormDialogHeader
+                    title={novidade ? 'Editar novidade' : 'Nova novidade'}
+                    description={
+                        novidade ? 'As mudanças valem para quem abrir a novidade depois.' : 'A novidade nasce como rascunho; publique pela lista.'
+                    }
+                />
 
-                    <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto md:max-h-[70vh]" noValidate>
+                <FormDialogForm onSubmit={submit} noValidate>
+                    <FormDialogBody className="md:max-h-[70vh]">
                         <div className="grid gap-2">
                             <Label htmlFor="novidade_titulo">Título</Label>
                             <Input
@@ -289,20 +288,16 @@ export default function NovidadesForm({ open, onOpenChange, novidade, storeUrl }
                                 Depois de publicada, abre sozinha para cada usuário até ele marcar &quot;Não mostrar novamente&quot;.
                             </p>
                         </div>
+                    </FormDialogBody>
 
-                        <DialogFooter className="mt-auto flex flex-row gap-2">
-                            <DialogClose asChild>
-                                <Button variant="secondary" type="button" className="w-full md:w-auto" disabled={processing}>
-                                    Cancelar
-                                </Button>
-                            </DialogClose>
-                            <Button type="submit" variant="confirm" className="w-full md:w-auto" disabled={processing}>
-                                Salvar
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </div>
-            </DialogContent>
+                    <FormDialogFooter className="md:justify-end">
+                        <FormDialogCancel className="w-full md:w-auto" disabled={processing} />
+                        <Button type="submit" variant="confirm" className="w-full md:w-auto" disabled={processing}>
+                            Salvar
+                        </Button>
+                    </FormDialogFooter>
+                </FormDialogForm>
+            </FormDialogContent>
         </Dialog>
     );
 }

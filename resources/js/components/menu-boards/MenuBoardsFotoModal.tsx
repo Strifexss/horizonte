@@ -1,7 +1,8 @@
 import InputError from '@/components/input-error';
 import { formatarPreco, type ProdutoDoBoard } from '@/components/menu-boards/types';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/dialog';
+import { FormDialogBody, FormDialogContent, FormDialogFooter, FormDialogHeader } from '@/components/ui/form-dialog';
 import { router, useForm } from '@inertiajs/react';
 import { Camera, Trash2, Upload } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -79,13 +80,10 @@ export default function MenuBoardsFotoModal({ produto, onOpenChange }: Props) {
 
     return (
         <Dialog open={produto !== null} onOpenChange={onOpenChange}>
-            <DialogContent className="h-[100vh] w-[100vw] overflow-hidden md:h-auto md:w-[760px] md:max-w-full">
-                <DialogHeader>
-                    <DialogTitle>Foto do produto</DialogTitle>
-                    <DialogDescription>{produto?.nome}</DialogDescription>
-                </DialogHeader>
+            <FormDialogContent className="md:w-[760px]">
+                <FormDialogHeader title="Foto do produto" description={produto?.nome} />
 
-                <div className="flex h-full flex-col gap-6 overflow-y-auto md:flex-row">
+                <FormDialogBody className="gap-6 md:flex-row">
                     <div className="flex min-w-0 flex-1 flex-col gap-3">
                         {imagem ? (
                             <img
@@ -145,10 +143,10 @@ export default function MenuBoardsFotoModal({ produto, onOpenChange }: Props) {
                             Em destaque a foto ocupa o topo do card; nos itens padrão vira miniatura.
                         </span>
                     </div>
-                </div>
+                </FormDialogBody>
 
-                <DialogFooter className="flex flex-row gap-2">
-                    <Button type="button" variant="secondary" className="w-full md:w-auto" onClick={() => onOpenChange(false)}>
+                <FormDialogFooter className="md:justify-end">
+                    <Button type="button" variant="secondary" className="hidden w-full md:inline-flex md:w-auto" onClick={() => onOpenChange(false)}>
                         Cancelar
                     </Button>
                     <Button
@@ -161,8 +159,8 @@ export default function MenuBoardsFotoModal({ produto, onOpenChange }: Props) {
                     >
                         Salvar Foto
                     </Button>
-                </DialogFooter>
-            </DialogContent>
+                </FormDialogFooter>
+            </FormDialogContent>
         </Dialog>
     );
 }

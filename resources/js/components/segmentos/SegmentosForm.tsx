@@ -1,7 +1,8 @@
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/dialog';
+import { FormDialogBody, FormDialogCancel, FormDialogContent, FormDialogFooter, FormDialogForm, FormDialogHeader } from '@/components/ui/form-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm } from '@inertiajs/react';
@@ -70,14 +71,14 @@ export default function SegmentosForm({ open, onOpenChange, segmento, storeUrl, 
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="h-[100dvh] w-[100vw] overflow-y-auto md:h-auto md:max-h-[90vh] md:w-[700px] md:max-w-full">
-                <div className="flex h-full flex-col gap-4">
-                    <DialogHeader>
-                        <DialogTitle>{segmento ? 'Editar segmento' : 'Adicionar segmento'}</DialogTitle>
-                        <DialogDescription>O segmento define quais módulos opcionais as empresas dele recebem.</DialogDescription>
-                    </DialogHeader>
+            <FormDialogContent>
+                <FormDialogHeader
+                    title={segmento ? 'Editar segmento' : 'Adicionar segmento'}
+                    description="O segmento define quais módulos opcionais as empresas dele recebem."
+                />
 
-                    <form onSubmit={submit} className="grid gap-5">
+                <FormDialogForm onSubmit={submit}>
+                    <FormDialogBody className="gap-5">
                         <div className="grid gap-2">
                             <Label htmlFor="segmento-nome">Nome</Label>
                             <Input
@@ -138,20 +139,16 @@ export default function SegmentosForm({ open, onOpenChange, segmento, storeUrl, 
                             <Checkbox checked={data.ativo} onCheckedChange={(marcado) => setData('ativo', marcado === true)} disabled={processing} />
                             Ativo (aparece no onboarding)
                         </label>
+                    </FormDialogBody>
 
-                        <DialogFooter className="flex flex-row gap-2">
-                            <DialogClose asChild>
-                                <Button variant="secondary" type="button" className="w-full md:w-auto" disabled={processing}>
-                                    Cancelar
-                                </Button>
-                            </DialogClose>
-                            <Button type="submit" variant="confirm" className="w-full md:w-auto" disabled={processing}>
-                                Salvar
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </div>
-            </DialogContent>
+                    <FormDialogFooter className="md:justify-end">
+                        <FormDialogCancel className="w-full md:w-auto" disabled={processing} />
+                        <Button type="submit" variant="confirm" className="w-full md:w-auto" disabled={processing}>
+                            Salvar
+                        </Button>
+                    </FormDialogFooter>
+                </FormDialogForm>
+            </FormDialogContent>
         </Dialog>
     );
 }

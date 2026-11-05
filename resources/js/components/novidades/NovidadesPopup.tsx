@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/dialog';
+import { FormDialogBody, FormDialogContent, FormDialogFooter, FormDialogHeader } from '@/components/ui/form-dialog';
 import { router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import NovidadeConteudo, { NovidadeMeta } from './NovidadeConteudo';
@@ -57,34 +58,34 @@ export default function NovidadesPopup() {
     return (
         <Dialog open={atual !== null} onOpenChange={(open) => !open && verDepois()}>
             {atual ? (
-                <DialogContent className="h-[100vh] w-[100vw] overflow-hidden md:h-auto md:w-[560px] md:max-w-full">
-                    <div className="flex h-full min-h-0 flex-col gap-4">
-                        <DialogHeader className="gap-2">
-                            <NovidadeMeta novidade={atual} />
-                            <DialogTitle>{atual.titulo}</DialogTitle>
-                            <DialogDescription className="sr-only">Novidade do sistema</DialogDescription>
-                        </DialogHeader>
+                <FormDialogContent className="md:w-[560px]">
+                    <FormDialogHeader
+                        className="gap-2"
+                        eyebrow={<NovidadeMeta novidade={atual} />}
+                        title={atual.titulo}
+                        description="Novidade do sistema"
+                        hideDescription
+                    />
 
-                        <div className="min-h-0 flex-1 overflow-y-auto md:max-h-[60vh]">
-                            <NovidadeConteudo novidade={atual} />
-                        </div>
+                    <FormDialogBody className="md:max-h-[60vh]">
+                        <NovidadeConteudo novidade={atual} />
 
                         {fila.length > 1 ? (
                             <p className="text-muted-foreground text-xs">
                                 Mais {fila.length - 1} {fila.length - 1 === 1 ? 'novidade' : 'novidades'} depois desta.
                             </p>
                         ) : null}
+                    </FormDialogBody>
 
-                        <DialogFooter className="flex flex-row gap-2">
-                            <Button variant="secondary" type="button" className="w-full md:w-auto" disabled={dispensando} onClick={verDepois}>
-                                Ver depois
-                            </Button>
-                            <Button variant="confirm" type="button" className="w-full md:w-auto" disabled={dispensando} onClick={naoMostrarNovamente}>
-                                Não mostrar novamente
-                            </Button>
-                        </DialogFooter>
-                    </div>
-                </DialogContent>
+                    <FormDialogFooter className="md:justify-end">
+                        <Button variant="secondary" type="button" className="w-full md:w-auto" disabled={dispensando} onClick={verDepois}>
+                            Ver depois
+                        </Button>
+                        <Button variant="confirm" type="button" className="w-full md:w-auto" disabled={dispensando} onClick={naoMostrarNovamente}>
+                            Não mostrar novamente
+                        </Button>
+                    </FormDialogFooter>
+                </FormDialogContent>
             ) : null}
         </Dialog>
     );

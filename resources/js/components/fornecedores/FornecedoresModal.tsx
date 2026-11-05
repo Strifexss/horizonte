@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react';
 
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogClose, DialogFooter } from '@/components/ui/dialog';
+import { FORM_DIALOG_LIST, FORM_DIALOG_PANEL, FormDialogBody, FormDialogContent, FormDialogHeader } from '@/components/ui/form-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -76,13 +77,10 @@ export default function FornecedoresModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="h-[100dvh] w-[100vw] overflow-hidden md:h-auto md:w-[700px] md:max-w-full">
-                <DialogHeader>
-                    <DialogTitle>Fornecedores</DialogTitle>
-                    <DialogDescription>Gerencie os fornecedores.</DialogDescription>
-                </DialogHeader>
-                <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-                    <div className="border-sidebar-border/70 mt-4 rounded-lg border bg-white p-4 shadow-sm dark:bg-slate-900">
+            <FormDialogContent>
+                <FormDialogHeader title="Fornecedores" description="Gerencie os fornecedores." />
+                <FormDialogBody>
+                    <div className={FORM_DIALOG_PANEL}>
                         <form onSubmit={submit} className="grid gap-2">
                             <div className="grid gap-2">
                                 <Label htmlFor="fornecedor_nome">Nome do Fornecedor</Label>
@@ -99,7 +97,7 @@ export default function FornecedoresModal({
                             <DialogFooter className="flex flex-row gap-2">
                                 <DialogClose asChild>
                                     <Button
-                                        className="w-full"
+                                        className="hidden w-full md:inline-flex"
                                         variant="secondary"
                                         type="button"
                                         onClick={() => {
@@ -115,7 +113,7 @@ export default function FornecedoresModal({
                             </DialogFooter>
                         </form>
 
-                        <div className="mt-2 max-h-[340px] min-h-[200px] overflow-y-auto">
+                        <div className={FORM_DIALOG_LIST}>
                             {loading ? (
                                 <div>Carregando...</div>
                             ) : (
@@ -130,8 +128,8 @@ export default function FornecedoresModal({
                             )}
                         </div>
                     </div>
-                </div>
-            </DialogContent>
+                </FormDialogBody>
+            </FormDialogContent>
         </Dialog>
     );
 }

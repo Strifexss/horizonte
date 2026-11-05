@@ -1,7 +1,8 @@
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/dialog';
+import { FormDialogBody, FormDialogCancel, FormDialogContent, FormDialogFooter, FormDialogForm, FormDialogHeader } from '@/components/ui/form-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm } from '@inertiajs/react';
@@ -44,14 +45,11 @@ export default function ContasForm({ open, onOpenChange, description = 'Preencha
                 onOpenChange(next);
             }}
         >
-            <DialogContent className="h-[100vh] w-[100vw] overflow-hidden md:h-auto md:w-[500px] md:max-w-full">
-                <div className="flex h-full flex-col gap-4">
-                    <DialogHeader>
-                        <DialogTitle>Adicionar conta</DialogTitle>
-                        <DialogDescription>{description}</DialogDescription>
-                    </DialogHeader>
+            <FormDialogContent className="md:w-[500px]">
+                <FormDialogHeader title="Adicionar conta" description={description} />
 
-                    <form onSubmit={submit} className="grid gap-4">
+                <FormDialogForm onSubmit={submit}>
+                    <FormDialogBody>
                         <div className="grid gap-2">
                             <Label htmlFor="conta-nome">Nome</Label>
                             <Input
@@ -86,20 +84,16 @@ export default function ContasForm({ open, onOpenChange, description = 'Preencha
                             <Label htmlFor="conta-padrao">Definir como conta padrão</Label>
                         </div>
                         <InputError message={errors.padrao} />
+                    </FormDialogBody>
 
-                        <DialogFooter className="flex flex-row gap-2">
-                            <DialogClose asChild>
-                                <Button variant="secondary" type="button" className="w-full" disabled={processing}>
-                                    Cancelar
-                                </Button>
-                            </DialogClose>
-                            <Button type="submit" variant="confirm" className="w-full" loading={processing}>
-                                Salvar
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </div>
-            </DialogContent>
+                    <FormDialogFooter>
+                        <FormDialogCancel className="w-full" disabled={processing} />
+                        <Button type="submit" variant="confirm" className="w-full" loading={processing}>
+                            Salvar
+                        </Button>
+                    </FormDialogFooter>
+                </FormDialogForm>
+            </FormDialogContent>
         </Dialog>
     );
 }

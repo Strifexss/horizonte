@@ -1,6 +1,7 @@
 import type { ExtratoCategoriasPadrao } from '@/components/extrato/types';
 import type { FormaPagamentoItem } from '@/components/formas-pagamento/types';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/dialog';
+import { FormDialogContent, FormDialogHeader } from '@/components/ui/form-dialog';
 import { useState } from 'react';
 import LancamentoAbas from './modal/LancamentoAbas';
 import LancamentoFormulario from './modal/LancamentoFormulario';
@@ -32,30 +33,37 @@ export default function ExtratoModal({ open, onOpenChange, mode = 'create', parc
 
     return (
         <>
-            <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent className="flex h-[100dvh] max-w-full flex-col overflow-hidden md:h-auto md:w-[700px]">
-                    <DialogHeader>
-                        <DialogTitle>{mode === 'edit' ? 'Editar lançamento' : 'Adicionar lançamento'}</DialogTitle>
-                        <DialogDescription>
-                            {mode === 'edit'
+            <Dialog
+                open={open}
+                onOpenChange={(aberto) => {
+                    // Fechar pelo X, Esc ou clique fora também descarta o que foi digitado.
+                    if (!aberto) {
+                        form.reset();
+                    }
+                    onOpenChange(aberto);
+                }}
+            >
+                <FormDialogContent>
+                    <FormDialogHeader
+                        title={mode === 'edit' ? 'Editar lançamento' : 'Adicionar lançamento'}
+                        description={
+                            mode === 'edit'
                                 ? 'Atualize os dados do lançamento de receita ou despesa.'
-                                : 'Crie um novo lançamento de receita ou despesa.'}
-                        </DialogDescription>
-                    </DialogHeader>
+                                : 'Crie um novo lançamento de receita ou despesa.'
+                        }
+                    />
 
-                    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto md:h-auto">
-                        <LancamentoAbas activeTab={activeTab} onChange={setActiveTab} disabled={!!parcela} />
-                        <LancamentoFormulario
-                            mode={mode}
-                            parcela={parcela}
-                            activeTab={activeTab}
-                            formasPagamento={formasPagamento}
-                            form={form}
-                            selecoes={selecoes}
-                            cadastro={cadastro}
-                        />
-                    </div>
-                </DialogContent>
+                    <LancamentoFormulario
+                        mode={mode}
+                        parcela={parcela}
+                        activeTab={activeTab}
+                        formasPagamento={formasPagamento}
+                        form={form}
+                        selecoes={selecoes}
+                        cadastro={cadastro}
+                        antes={<LancamentoAbas activeTab={activeTab} onChange={setActiveTab} disabled={!!parcela} />}
+                    />
+                </FormDialogContent>
             </Dialog>
 
             <ModaisAninhados onProdutoCriado={selecoes.alterarProduto} onFuncionarioCriado={selecoes.alterarFuncionario} />

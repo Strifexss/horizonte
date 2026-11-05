@@ -1,7 +1,8 @@
 import type { FormaPagamentoItem } from '@/components/formas-pagamento/types';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/dialog';
+import { FormDialogBody, FormDialogContent, FormDialogFooter, FormDialogHeader } from '@/components/ui/form-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MoneyInput from '@/components/ui/money-input';
@@ -143,13 +144,10 @@ export default function VendaCorrecaoModal({ open, onOpenChange, itens, pagament
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="h-[100vh] w-[100vw] overflow-hidden md:h-auto md:max-h-[90vh] md:w-[480px] md:max-w-full">
-                <DialogHeader>
-                    <DialogTitle>Corrigir venda</DialogTitle>
-                    <DialogDescription>{resumo}</DialogDescription>
-                </DialogHeader>
+            <FormDialogContent className="md:w-[480px]">
+                <FormDialogHeader title="Corrigir venda" description={resumo} />
 
-                <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
+                <FormDialogBody>
                     <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
                         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                         <span>
@@ -273,9 +271,9 @@ export default function VendaCorrecaoModal({ open, onOpenChange, itens, pagament
                             </p>
                         </div>
                     ) : null}
-                </div>
+                </FormDialogBody>
 
-                <DialogFooter className="flex flex-row gap-2 border-t pt-3">
+                <FormDialogFooter className="md:border-t md:pt-3">
                     <Button type="button" variant="secondary" className="h-12 w-28 shrink-0 md:h-10" onClick={() => onOpenChange(false)}>
                         Voltar
                     </Button>
@@ -288,8 +286,8 @@ export default function VendaCorrecaoModal({ open, onOpenChange, itens, pagament
                     >
                         Corrigir e salvar
                     </Button>
-                </DialogFooter>
-            </DialogContent>
+                </FormDialogFooter>
+            </FormDialogContent>
         </Dialog>
     );
 }

@@ -3,7 +3,8 @@ import MenuBoardsConteudo from '@/components/menu-boards/MenuBoardsConteudo';
 import { infoDoLayout, LAYOUTS } from '@/components/menu-boards/layouts';
 import type { ConfiguracaoPagina, GrupoDoBoard, MenuBoardItemForm, PaginaForm, ProdutoDoBoard } from '@/components/menu-boards/types';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/dialog';
+import { FormDialogBody, FormDialogContent, FormDialogFooter, FormDialogHeader } from '@/components/ui/form-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -89,17 +90,17 @@ export default function MenuBoardsErrosModal({
 
     return (
         <Dialog open={aberto} onOpenChange={onOpenChange}>
-            <DialogContent className="h-[100vh] w-[100vw] overflow-hidden md:h-auto md:max-h-[90dvh] md:w-[760px] md:max-w-full">
-                <DialogHeader>
-                    <DialogTitle>Falta preencher algumas páginas</DialogTitle>
-                    <DialogDescription>
-                        {quantidade === 1
+            <FormDialogContent className="md:w-[760px]">
+                <FormDialogHeader
+                    title="Falta preencher algumas páginas"
+                    description={
+                        quantidade === 1
                             ? 'Corrija o campo abaixo e salve de novo.'
-                            : `Há ${quantidade} trechos para revisar. Cada card é um tipo de página.`}
-                    </DialogDescription>
-                </DialogHeader>
+                            : `Há ${quantidade} trechos para revisar. Cada card é um tipo de página.`
+                    }
+                />
 
-                <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
+                <FormDialogBody>
                     {temErroNoBoard ? (
                         <article className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
                             <header>
@@ -176,17 +177,17 @@ export default function MenuBoardsErrosModal({
                             ))}
                         </article>
                     ))}
-                </div>
+                </FormDialogBody>
 
-                <DialogFooter className="flex flex-row gap-2">
+                <FormDialogFooter>
                     <Button type="button" variant="outline" className="w-full" onClick={() => onOpenChange(false)}>
                         Voltar ao board
                     </Button>
                     <Button type="button" variant="primary" className="w-full" loading={processing} onClick={onSalvar}>
                         Salvar Board
                     </Button>
-                </DialogFooter>
-            </DialogContent>
+                </FormDialogFooter>
+            </FormDialogContent>
         </Dialog>
     );
 }

@@ -5,12 +5,11 @@ import ProdutoStatusFields from '@/components/produtos/ProdutoStatusFields';
 import type { ProdutoItem, ProdutoNamed } from '@/components/produtos/types';
 import AsyncSelect from '@/components/ui/AsyncSelect';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/dialog';
+import { FormDialogBody, FormDialogCancel, FormDialogContent, FormDialogFooter, FormDialogForm, FormDialogHeader } from '@/components/ui/form-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MoneyInput from '@/components/ui/money-input';
-import { useHideOnScroll } from '@/hooks/use-hide-on-scroll';
-import { cn } from '@/lib/utils';
 import { useForm } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -56,7 +55,6 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
     const [selectedGrupo, setSelectedGrupo] = useState<ProdutoNamed | null>(null);
     const [fornecedoresModalOpen, setFornecedoresModalOpen] = useState(false);
     const [gruposModalOpen, setGruposModalOpen] = useState(false);
-    const cabecalho = useHideOnScroll();
 
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm<ProdutoFormValues>({
         nome: '',
@@ -76,7 +74,6 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
         }
 
         clearErrors();
-        cabecalho.reset();
 
         if (mode === 'edit' && produto) {
             setData({
@@ -152,40 +149,14 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
     return (
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent
-                    onOpenAutoFocus={(event) => {
-                        // No celular, focar o primeiro campo abre o teclado e cobre o formulário.
-                        if (window.innerWidth < 768) {
-                            event.preventDefault();
-                        }
-                    }}
-                    className={cn(
-                        'h-[100dvh] w-[100vw] gap-0 overflow-hidden p-0 md:h-auto md:max-h-[90dvh] md:w-[700px] md:max-w-full md:gap-4 md:p-6',
-                        '[&>button:last-child]:transition-opacity',
-                        cabecalho.hidden && 'max-md:[&>button:last-child]:pointer-events-none max-md:[&>button:last-child]:opacity-0',
-                    )}
-                >
-                    {/* No celular o cabeçalho recolhe ao rolar para baixo e volta ao rolar para cima. */}
-                    <div
-                        className={cn(
-                            'grid shrink-0 transition-[grid-template-rows] duration-200 md:grid-rows-[1fr]',
-                            cabecalho.hidden ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]',
-                        )}
-                    >
-                        <div className={cn('min-h-0 overflow-hidden transition-opacity duration-200', cabecalho.hidden && 'max-md:opacity-0')}>
-                            <DialogHeader className="space-y-1 border-b py-3 pr-16 pl-4 text-left md:border-0 md:p-0">
-                                <DialogTitle className="text-left text-lg md:text-2xl">
-                                    {mode === 'edit' ? 'Editar produto' : 'Cadastrar produto'}
-                                </DialogTitle>
-                                <DialogDescription className="text-sm md:text-base">
-                                    {mode === 'edit' ? 'Atualize os dados do produto.' : 'Preencha os dados para cadastrar um novo produto.'}
-                                </DialogDescription>
-                            </DialogHeader>
-                        </div>
-                    </div>
+                <FormDialogContent>
+                    <FormDialogHeader
+                        title={mode === 'edit' ? 'Editar produto' : 'Cadastrar produto'}
+                        description={mode === 'edit' ? 'Atualize os dados do produto.' : 'Preencha os dados para cadastrar um novo produto.'}
+                    />
 
-                    <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col" noValidate>
-                        <div onScroll={cabecalho.onScroll} className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-4 md:gap-5 md:p-0">
+                    <FormDialogForm onSubmit={submit} noValidate>
+                        <FormDialogBody className="gap-6 md:gap-5">
                             <section className="grid gap-4" aria-labelledby="produto_secao_identificacao">
                                 <h3 id="produto_secao_identificacao" className={SECTION_TITLE}>
                                     Identificação
@@ -352,20 +323,16 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                                 onFavoritoChange={(favorito) => setData('favorito', favorito)}
                             />
                             <InputError message={errors.ativo} />
-                        </div>
+                        </FormDialogBody>
 
-                        <DialogFooter className="flex shrink-0 flex-row gap-2 border-t px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:border-0 md:px-0 md:pt-2 md:pb-0">
-                            <DialogClose asChild>
-                                <Button className="hidden w-full md:inline-flex" variant="secondary" type="button" disabled={processing}>
-                                    Cancelar
-                                </Button>
-                            </DialogClose>
+                        <FormDialogFooter>
+                            <FormDialogCancel className="w-full" disabled={processing} />
                             <Button className="h-11 w-full md:h-10" type="submit" variant="confirm" disabled={processing}>
                                 Salvar
                             </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
+                        </FormDialogFooter>
+                    </FormDialogForm>
+                </FormDialogContent>
             </Dialog>
 
             <FornecedoresModal

@@ -1,7 +1,8 @@
 import InputError from '@/components/input-error';
 import type { ModuloOpcional, Segmento } from '@/components/segmentos/types';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/dialog';
+import { FormDialogBody, FormDialogCancel, FormDialogContent, FormDialogFooter, FormDialogForm, FormDialogHeader } from '@/components/ui/form-dialog';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { useForm } from '@inertiajs/react';
@@ -58,14 +59,14 @@ export default function EmpresaModulosForm({ open, onOpenChange, empresa, segmen
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="h-[100dvh] w-[100vw] overflow-y-auto md:h-auto md:max-h-[90vh] md:w-[700px] md:max-w-full">
-                <div className="flex h-full flex-col gap-4">
-                    <DialogHeader>
-                        <DialogTitle>{empresa?.nome}</DialogTitle>
-                        <DialogDescription>Escolha o segmento e, se precisar, ligue ou desligue módulos só para esta empresa.</DialogDescription>
-                    </DialogHeader>
+            <FormDialogContent>
+                <FormDialogHeader
+                    title={empresa?.nome}
+                    description="Escolha o segmento e, se precisar, ligue ou desligue módulos só para esta empresa."
+                />
 
-                    <form onSubmit={submit} className="grid gap-5">
+                <FormDialogForm onSubmit={submit}>
+                    <FormDialogBody className="gap-5">
                         <div className="grid gap-2">
                             <Label htmlFor="empresa-segmento">Segmento</Label>
                             <select
@@ -134,20 +135,16 @@ export default function EmpresaModulosForm({ open, onOpenChange, empresa, segmen
                             ))}
                             <InputError message={errors.ajustes} />
                         </fieldset>
+                    </FormDialogBody>
 
-                        <DialogFooter className="flex flex-row gap-2">
-                            <DialogClose asChild>
-                                <Button variant="secondary" type="button" className="w-full md:w-auto" disabled={processing}>
-                                    Cancelar
-                                </Button>
-                            </DialogClose>
-                            <Button type="submit" variant="confirm" className="w-full md:w-auto" disabled={processing}>
-                                Salvar
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </div>
-            </DialogContent>
+                    <FormDialogFooter className="md:justify-end">
+                        <FormDialogCancel className="w-full md:w-auto" disabled={processing} />
+                        <Button type="submit" variant="confirm" className="w-full md:w-auto" disabled={processing}>
+                            Salvar
+                        </Button>
+                    </FormDialogFooter>
+                </FormDialogForm>
+            </FormDialogContent>
         </Dialog>
     );
 }

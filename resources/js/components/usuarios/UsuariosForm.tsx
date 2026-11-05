@@ -1,6 +1,7 @@
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/dialog';
+import { FormDialogBody, FormDialogCancel, FormDialogContent, FormDialogFooter, FormDialogForm, FormDialogHeader } from '@/components/ui/form-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm } from '@inertiajs/react';
@@ -60,16 +61,14 @@ export default function UsuariosForm({ open, onOpenChange, mode, usuario, storeU
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="h-[100dvh] w-[100vw] overflow-hidden md:h-auto md:w-[700px] md:max-w-full">
-                <div className="flex h-full flex-col gap-4">
-                    <DialogHeader>
-                        <DialogTitle>{mode === 'edit' ? 'Editar usuário' : 'Adicionar usuário'}</DialogTitle>
-                        <DialogDescription>
-                            {mode === 'edit' ? 'Deixe a senha em branco para manter a atual.' : 'Preencha os dados do novo usuário.'}
-                        </DialogDescription>
-                    </DialogHeader>
+            <FormDialogContent>
+                <FormDialogHeader
+                    title={mode === 'edit' ? 'Editar usuário' : 'Adicionar usuário'}
+                    description={mode === 'edit' ? 'Deixe a senha em branco para manter a atual.' : 'Preencha os dados do novo usuário.'}
+                />
 
-                    <form onSubmit={submit} className="grid gap-4">
+                <FormDialogForm onSubmit={submit}>
+                    <FormDialogBody>
                         <div className="grid gap-2">
                             <Label htmlFor="usuario-name">Nome</Label>
                             <Input
@@ -108,20 +107,16 @@ export default function UsuariosForm({ open, onOpenChange, mode, usuario, storeU
                             />
                             <InputError message={errors.password} />
                         </div>
+                    </FormDialogBody>
 
-                        <DialogFooter className="flex flex-row gap-2">
-                            <DialogClose asChild>
-                                <Button variant="secondary" type="button" className="w-full md:w-auto" disabled={processing}>
-                                    Cancelar
-                                </Button>
-                            </DialogClose>
-                            <Button type="submit" variant="confirm" className="w-full md:w-auto" disabled={processing}>
-                                Salvar
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </div>
-            </DialogContent>
+                    <FormDialogFooter className="md:justify-end">
+                        <FormDialogCancel className="w-full md:w-auto" disabled={processing} />
+                        <Button type="submit" variant="confirm" className="w-full md:w-auto" disabled={processing}>
+                            Salvar
+                        </Button>
+                    </FormDialogFooter>
+                </FormDialogForm>
+            </FormDialogContent>
         </Dialog>
     );
 }
