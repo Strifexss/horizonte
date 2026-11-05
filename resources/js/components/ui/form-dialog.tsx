@@ -66,12 +66,22 @@ type FormDialogHeaderProps = {
     description?: React.ReactNode;
     /** Esconde a descrição visualmente, mantendo-a para leitores de tela. */
     hideDescription?: boolean;
+    /** Esconde a descrição só no celular, onde o título já basta. */
+    hideDescriptionOnMobile?: boolean;
     className?: string;
     children?: React.ReactNode;
 };
 
 /** Título à esquerda e o X à direita. No celular recolhe enquanto o corpo rola para baixo. */
-function FormDialogHeader({ title, eyebrow, description, hideDescription = false, className, children }: FormDialogHeaderProps) {
+function FormDialogHeader({
+    title,
+    eyebrow,
+    description,
+    hideDescription = false,
+    hideDescriptionOnMobile = false,
+    className,
+    children,
+}: FormDialogHeaderProps) {
     const { hidden } = useFormDialog();
 
     return (
@@ -86,7 +96,7 @@ function FormDialogHeader({ title, eyebrow, description, hideDescription = false
                     {eyebrow}
                     <DialogTitle className="text-left text-lg md:text-2xl">{title}</DialogTitle>
                     {description ? (
-                        <DialogDescription className={cn('text-sm md:text-base', hideDescription && 'sr-only')}>{description}</DialogDescription>
+                        <DialogDescription className={cn('text-sm md:text-base', hideDescription && 'sr-only', hideDescriptionOnMobile && 'max-md:sr-only')}>{description}</DialogDescription>
                     ) : (
                         <DialogDescription className="sr-only">{title}</DialogDescription>
                     )}

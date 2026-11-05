@@ -1,6 +1,7 @@
 import FornecedoresModal from '@/components/fornecedores/FornecedoresModal';
 import GruposModal from '@/components/grupos/GruposModal';
 import InputError from '@/components/input-error';
+import ProdutoPrecosFields from '@/components/produtos/ProdutoPrecosFields';
 import ProdutoStatusFields from '@/components/produtos/ProdutoStatusFields';
 import type { ProdutoItem, ProdutoNamed } from '@/components/produtos/types';
 import AsyncSelect from '@/components/ui/AsyncSelect';
@@ -9,14 +10,12 @@ import { Dialog } from '@/components/ui/dialog';
 import { FormDialogBody, FormDialogCancel, FormDialogContent, FormDialogFooter, FormDialogForm, FormDialogHeader } from '@/components/ui/form-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import MoneyInput from '@/components/ui/money-input';
+import { cn } from '@/lib/utils';
 import { useForm } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { ChevronRight, Info, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 type Mode = 'create' | 'edit';
-
-const SECTION_TITLE = 'text-muted-foreground text-xs font-semibold tracking-wide uppercase';
 
 type Props = {
     open: boolean;
@@ -55,6 +54,7 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
     const [selectedGrupo, setSelectedGrupo] = useState<ProdutoNamed | null>(null);
     const [fornecedoresModalOpen, setFornecedoresModalOpen] = useState(false);
     const [gruposModalOpen, setGruposModalOpen] = useState(false);
+    const [detalhesAbertos, setDetalhesAbertos] = useState(false);
 
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm<ProdutoFormValues>({
         nome: '',
@@ -74,6 +74,7 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
         }
 
         clearErrors();
+        setDetalhesAbertos(false);
 
         if (mode === 'edit' && produto) {
             setData({
@@ -109,6 +110,10 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
         // setData/reset/clearErrors vêm do useForm e são estáveis o bastante para este reset de abertura.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open, mode, produto]);
+
+    const detalhesPreenchidos = Boolean(data.codigo || data.descricao || data.fornecedor_id || data.grupo_id);
+    const detalhesComErro = Boolean(errors.codigo || errors.descricao || errors.fornecedor_id || errors.grupo_id);
+    const detalhesVisiveis = detalhesAbertos || detalhesComErro || (mode === 'edit' && detalhesPreenchidos);
 
     const loadFornecedores = async (q: string = ''): Promise<SelectOption[]> => {
         const res = await fetch(`/fornecedores/autocomplete?q=${encodeURIComponent(q)}`);
@@ -153,27 +158,47 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                     <FormDialogHeader
                         title={mode === 'edit' ? 'Editar produto' : 'Cadastrar produto'}
                         description={mode === 'edit' ? 'Atualize os dados do produto.' : 'Preencha os dados para cadastrar um novo produto.'}
+                        hideDescriptionOnMobile
                     />
 
                     <FormDialogForm onSubmit={submit} noValidate>
-                        <FormDialogBody className="gap-6 md:gap-5">
-                            <section className="grid gap-4" aria-labelledby="produto_secao_identificacao">
-                                <h3 id="produto_secao_identificacao" className={SECTION_TITLE}>
-                                    Identificação
-                                </h3>
-                                <div className="grid gap-2 md:grid-cols-3">
-                                    <div className="grid gap-2 md:col-span-2">
-                                        <Label htmlFor="produto_nome">Nome</Label>
-                                        <Input
-                                            id="produto_nome"
-                                            value={data.nome}
-                                            onChange={(e) => setData('nome', e.target.value)}
-                                            placeholder="Nome do produto"
-                                            disabled={processing}
-                                        />
-                                        <InputError message={errors.nome} />
-                                    </div>
+                        <FormDialogBody className="gap-5">
+                            <div className="grid gap-2">
+                                <Label htmlFor="produto_nome">Nome</Label>
+                                <Input
+                                    id="produto_nome"
+                                    value={data.nome}
+                                    onChange={(e) => setData('nome', e.target.value)}
+                                    placeholder="Nome do produto"
+                                    enterKeyHint="next"
+                                    disabled={processing}
+                                />
+                                <InputError message={errors.nome} />
+                            </div>
 
+                            <ProdutoPrecosFields
+                                precoVenda={data.preco_venda}
+                                precoCompra={data.preco_compra}
+                                disabled={processing}
+                                errors={errors}
+                                onPrecoVendaChange={(valor) => setData('preco_venda', valor)}
+                                onPrecoCompraChange={(valor) => setData('preco_compra', valor)}
+                            />
+
+                            {/* No celular os campos opcionais ficam recolhidos; no desktop aparecem sempre. */}
+                            <button
+                                type="button"
+                                onClick={() => setDetalhesAbertos((aberto) => !aberto)}
+                                aria-expanded={detalhesVisiveis}
+                                aria-controls="produto_detalhes"
+                                className="text-muted-foreground hover:text-foreground flex min-h-11 items-center gap-2 text-sm font-medium md:hidden"
+                            >
+                                <ChevronRight className={cn('size-4 transition-transform', detalhesVisiveis && 'rotate-90')} aria-hidden="true" />
+                                {detalhesVisiveis ? 'Menos detalhes' : 'Mais detalhes (código, descrição, grupo…)'}
+                            </button>
+
+                            <div id="produto_detalhes" className={cn('grid gap-5', !detalhesVisiveis && 'max-md:hidden')}>
+                                <div className="grid gap-5 md:grid-cols-2 md:gap-2">
                                     <div className="grid gap-2">
                                         <Label htmlFor="produto_codigo">Código</Label>
                                         <Input
@@ -185,68 +210,31 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                                                     e.preventDefault();
                                                 }
                                             }}
-                                            placeholder="Automático"
+                                            placeholder="Automático ou EAN"
+                                            title="Em branco gera o próximo número. Aceita EAN e leitor de código de barras."
                                             maxLength={50}
                                             disabled={processing}
                                         />
                                         <InputError message={errors.codigo} />
                                     </div>
-                                </div>
-                                <span className="text-muted-foreground -mt-2 text-xs">
-                                    Código: deixe em branco para gerar o próximo número, ou use EAN / leitor de barras.
-                                </span>
-
-                                <div className="grid gap-2">
-                                    <Label htmlFor="produto_descricao">Descrição</Label>
-                                    <Input
-                                        id="produto_descricao"
-                                        value={data.descricao}
-                                        onChange={(e) => setData('descricao', e.target.value)}
-                                        placeholder="Ex.: Arroz, fritas e salada"
-                                        maxLength={160}
-                                        disabled={processing}
-                                    />
-                                    <span className="text-muted-foreground text-xs">Aparece no Menu Board da TV.</span>
-                                    <InputError message={errors.descricao} />
-                                </div>
-                            </section>
-
-                            <section className="grid gap-4" aria-labelledby="produto_secao_precos">
-                                <h3 id="produto_secao_precos" className={SECTION_TITLE}>
-                                    Preços
-                                </h3>
-
-                                <div className="grid grid-cols-2 gap-3 md:gap-2">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="produto_preco_compra">Preço de compra</Label>
-                                        <MoneyInput
-                                            id="produto_preco_compra"
-                                            value={data.preco_compra ? Number(data.preco_compra) : null}
-                                            onValueChange={(value) => setData('preco_compra', value === null ? '' : value.toFixed(2))}
-                                            placeholder="0,00"
-                                            disabled={processing}
-                                        />
-                                        <InputError message={errors.preco_compra} />
-                                    </div>
 
                                     <div className="grid gap-2">
-                                        <Label htmlFor="produto_preco_venda">Preço de venda</Label>
-                                        <MoneyInput
-                                            id="produto_preco_venda"
-                                            value={data.preco_venda ? Number(data.preco_venda) : null}
-                                            onValueChange={(value) => setData('preco_venda', value === null ? '' : value.toFixed(2))}
-                                            placeholder="0,00"
+                                        <Label htmlFor="produto_descricao" className="flex items-center gap-1">
+                                            Descrição
+                                            <Info className="text-muted-foreground size-3.5" aria-hidden="true" />
+                                            <span className="sr-only">(aparece no Menu Board da TV)</span>
+                                        </Label>
+                                        <Input
+                                            id="produto_descricao"
+                                            value={data.descricao}
+                                            onChange={(e) => setData('descricao', e.target.value)}
+                                            placeholder="Aparece no Menu Board da TV"
+                                            maxLength={160}
                                             disabled={processing}
                                         />
-                                        <InputError message={errors.preco_venda} />
+                                        <InputError message={errors.descricao} />
                                     </div>
                                 </div>
-                            </section>
-
-                            <section className="grid gap-4" aria-labelledby="produto_secao_organizacao">
-                                <h3 id="produto_secao_organizacao" className={SECTION_TITLE}>
-                                    Organização
-                                </h3>
 
                                 <div className="grid gap-2 md:grid-cols-2">
                                     <div className="grid gap-2">
@@ -313,7 +301,7 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                                         <InputError message={errors.grupo_id} />
                                     </div>
                                 </div>
-                            </section>
+                            </div>
 
                             <ProdutoStatusFields
                                 ativo={data.ativo}
