@@ -9,6 +9,7 @@ import AsyncSelect from '@/components/ui/AsyncSelect';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { FormDialogBody, FormDialogCancel, FormDialogContent, FormDialogFooter, FormDialogForm, FormDialogHeader } from '@/components/ui/form-dialog';
+import { FormDialogCorrecao, FormDialogField } from '@/components/ui/form-dialog-correcao';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { irParaNoEnter as irPara } from '@/lib/ir-para-no-enter';
@@ -174,152 +175,154 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                         hideDescriptionOnMobile
                     />
 
-                    <FormDialogForm onSubmit={submit} noValidate>
-                        <FormDialogBody className="gap-5">
-                            <div className="grid gap-2">
-                                <Label htmlFor="produto_nome">Nome</Label>
-                                <Input
-                                    id="produto_nome"
-                                    value={data.nome}
-                                    onChange={(e) => setData('nome', e.target.value)}
-                                    placeholder="Nome do produto"
-                                    enterKeyHint="next"
-                                    onKeyDown={irPara('produto_preco_venda')}
-                                    disabled={processing}
-                                />
-                                <InputError message={errors.nome} />
-                            </div>
+                    <FormDialogCorrecao errors={errors} formId="produto_form" processing={processing} titulo="Corrigir produto">
+                        <FormDialogForm id="produto_form" onSubmit={submit} noValidate>
+                            <FormDialogBody className="gap-5">
+                                <FormDialogField name="nome">
+                                    <Label htmlFor="produto_nome">Nome</Label>
+                                    <Input
+                                        id="produto_nome"
+                                        value={data.nome}
+                                        onChange={(e) => setData('nome', e.target.value)}
+                                        placeholder="Nome do produto"
+                                        enterKeyHint="next"
+                                        onKeyDown={irPara('produto_preco_venda')}
+                                        disabled={processing}
+                                    />
+                                    <InputError message={errors.nome} />
+                                </FormDialogField>
 
-                            <ProdutoPrecosFields
-                                precoVenda={data.preco_venda}
-                                precoCompra={data.preco_compra}
-                                disabled={processing}
-                                errors={errors}
-                                onPrecoVendaChange={(valor) => setData('preco_venda', valor)}
-                                onPrecoCompraChange={(valor) => setData('preco_compra', valor)}
-                                onVendaEnter={irPara('produto_preco_compra')}
-                                onCompraEnter={irPara(null)}
-                            />
-
-                            {/* No celular os campos opcionais ficam recolhidos; no desktop aparecem sempre. */}
-                            <button
-                                type="button"
-                                onClick={() => setDetalhesAbertos((aberto) => !aberto)}
-                                aria-expanded={detalhesVisiveis}
-                                aria-controls="produto_detalhes"
-                                className="text-muted-foreground hover:text-foreground flex min-h-11 items-center gap-2 text-sm font-medium md:hidden"
-                            >
-                                <ChevronRight className={cn('size-4 transition-transform', detalhesVisiveis && 'rotate-90')} aria-hidden="true" />
-                                {detalhesVisiveis ? 'Menos detalhes' : 'Mais detalhes (código, descrição, grupo…)'}
-                            </button>
-
-                            <div id="produto_detalhes" className={cn('grid gap-5', !detalhesVisiveis && 'max-md:hidden')}>
-                                <ProdutoCodigoDescricaoFields
-                                    codigo={data.codigo}
-                                    descricao={data.descricao}
+                                <ProdutoPrecosFields
+                                    precoVenda={data.preco_venda}
+                                    precoCompra={data.preco_compra}
                                     disabled={processing}
                                     errors={errors}
-                                    onCodigoChange={(codigo) => setData('codigo', codigo)}
-                                    onDescricaoChange={(descricao) => setData('descricao', descricao)}
+                                    onPrecoVendaChange={(valor) => setData('preco_venda', valor)}
+                                    onPrecoCompraChange={(valor) => setData('preco_compra', valor)}
+                                    onVendaEnter={irPara('produto_preco_compra')}
+                                    onCompraEnter={irPara(null)}
                                 />
 
-                                <div className="grid gap-2 md:grid-cols-2">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="produto_fornecedor">Fornecedor</Label>
-                                        <div className="flex items-start gap-2">
-                                            <div className="min-w-0 flex-1">
-                                                <AsyncSelect
-                                                    value={selectedFornecedor}
-                                                    onChange={(val) => {
-                                                        setSelectedFornecedor(val ? { id: val.id, nome: val.nome } : null);
-                                                        setData('fornecedor_id', val ? Number(val.id) : null);
-                                                    }}
-                                                    loadOptions={loadFornecedores}
-                                                    placeholder="Buscar fornecedor..."
-                                                    label="Fornecedor"
-                                                    inputId="produto_fornecedor"
-                                                    isClearable
-                                                />
-                                            </div>
-                                            <Button
-                                                type="button"
-                                                variant="secondary"
-                                                size="icon"
-                                                className="shrink-0"
-                                                aria-label="Cadastrar fornecedor"
-                                                title="Cadastrar fornecedor"
-                                                onClick={() => setFornecedoresModalOpen(true)}
-                                            >
-                                                <Plus className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                        <InputError message={errors.fornecedor_id} />
-                                    </div>
+                                {/* No celular os campos opcionais ficam recolhidos; no desktop aparecem sempre. */}
+                                <button
+                                    type="button"
+                                    onClick={() => setDetalhesAbertos((aberto) => !aberto)}
+                                    aria-expanded={detalhesVisiveis}
+                                    aria-controls="produto_detalhes"
+                                    className="text-muted-foreground hover:text-foreground flex min-h-11 items-center gap-2 text-sm font-medium md:hidden"
+                                >
+                                    <ChevronRight className={cn('size-4 transition-transform', detalhesVisiveis && 'rotate-90')} aria-hidden="true" />
+                                    {detalhesVisiveis ? 'Menos detalhes' : 'Mais detalhes (código, descrição, grupo…)'}
+                                </button>
 
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="produto_grupo">Grupo</Label>
-                                        <div className="flex items-start gap-2">
-                                            <div className="min-w-0 flex-1">
-                                                <AsyncSelect
-                                                    value={selectedGrupo}
-                                                    onChange={(val) => {
-                                                        setSelectedGrupo(val ? { id: val.id, nome: val.nome } : null);
-                                                        setData('grupo_id', val ? Number(val.id) : null);
-                                                    }}
-                                                    loadOptions={loadGrupos}
-                                                    placeholder="Buscar grupo..."
-                                                    label="Grupo"
-                                                    inputId="produto_grupo"
-                                                    isClearable
-                                                />
+                                <div id="produto_detalhes" className={cn('grid gap-5', !detalhesVisiveis && 'max-md:hidden')}>
+                                    <ProdutoCodigoDescricaoFields
+                                        codigo={data.codigo}
+                                        descricao={data.descricao}
+                                        disabled={processing}
+                                        errors={errors}
+                                        onCodigoChange={(codigo) => setData('codigo', codigo)}
+                                        onDescricaoChange={(descricao) => setData('descricao', descricao)}
+                                    />
+
+                                    <div className="grid gap-2 md:grid-cols-2">
+                                        <FormDialogField name="fornecedor_id">
+                                            <Label htmlFor="produto_fornecedor">Fornecedor</Label>
+                                            <div className="flex items-start gap-2">
+                                                <div className="min-w-0 flex-1">
+                                                    <AsyncSelect
+                                                        value={selectedFornecedor}
+                                                        onChange={(val) => {
+                                                            setSelectedFornecedor(val ? { id: val.id, nome: val.nome } : null);
+                                                            setData('fornecedor_id', val ? Number(val.id) : null);
+                                                        }}
+                                                        loadOptions={loadFornecedores}
+                                                        placeholder="Buscar fornecedor..."
+                                                        label="Fornecedor"
+                                                        inputId="produto_fornecedor"
+                                                        isClearable
+                                                    />
+                                                </div>
+                                                <Button
+                                                    type="button"
+                                                    variant="secondary"
+                                                    size="icon"
+                                                    className="shrink-0"
+                                                    aria-label="Cadastrar fornecedor"
+                                                    title="Cadastrar fornecedor"
+                                                    onClick={() => setFornecedoresModalOpen(true)}
+                                                >
+                                                    <Plus className="h-4 w-4" />
+                                                </Button>
                                             </div>
-                                            <Button
-                                                type="button"
-                                                variant="secondary"
-                                                size="icon"
-                                                className="shrink-0"
-                                                aria-label="Cadastrar grupo"
-                                                title="Cadastrar grupo"
-                                                onClick={() => setGruposModalOpen(true)}
-                                            >
-                                                <Plus className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                        <InputError message={errors.grupo_id} />
+                                            <InputError message={errors.fornecedor_id} />
+                                        </FormDialogField>
+
+                                        <FormDialogField name="grupo_id">
+                                            <Label htmlFor="produto_grupo">Grupo</Label>
+                                            <div className="flex items-start gap-2">
+                                                <div className="min-w-0 flex-1">
+                                                    <AsyncSelect
+                                                        value={selectedGrupo}
+                                                        onChange={(val) => {
+                                                            setSelectedGrupo(val ? { id: val.id, nome: val.nome } : null);
+                                                            setData('grupo_id', val ? Number(val.id) : null);
+                                                        }}
+                                                        loadOptions={loadGrupos}
+                                                        placeholder="Buscar grupo..."
+                                                        label="Grupo"
+                                                        inputId="produto_grupo"
+                                                        isClearable
+                                                    />
+                                                </div>
+                                                <Button
+                                                    type="button"
+                                                    variant="secondary"
+                                                    size="icon"
+                                                    className="shrink-0"
+                                                    aria-label="Cadastrar grupo"
+                                                    title="Cadastrar grupo"
+                                                    onClick={() => setGruposModalOpen(true)}
+                                                >
+                                                    <Plus className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                            <InputError message={errors.grupo_id} />
+                                        </FormDialogField>
                                     </div>
                                 </div>
-                            </div>
 
-                            <ProdutoStatusFields
-                                ativo={data.ativo}
-                                favorito={data.favorito}
-                                disabled={processing}
-                                mostrarAtivo={mode === 'edit'}
-                                onAtivoChange={(ativo) => setData('ativo', ativo)}
-                                onFavoritoChange={(favorito) => setData('favorito', favorito)}
-                            />
-                            <InputError message={errors.ativo} />
-                        </FormDialogBody>
-
-                        <FormDialogFooter>
-                            <FormDialogCancel className="w-full" disabled={processing} />
-                            {mode === 'create' ? (
-                                <Button
-                                    className="h-11 w-full md:h-10"
-                                    type="submit"
-                                    name="acao"
-                                    value="novo"
-                                    variant="secondary"
+                                <ProdutoStatusFields
+                                    ativo={data.ativo}
+                                    favorito={data.favorito}
                                     disabled={processing}
-                                >
-                                    Salvar e novo
+                                    mostrarAtivo={mode === 'edit'}
+                                    onAtivoChange={(ativo) => setData('ativo', ativo)}
+                                    onFavoritoChange={(favorito) => setData('favorito', favorito)}
+                                />
+                                <InputError message={errors.ativo ?? errors.favorito} />
+                            </FormDialogBody>
+
+                            <FormDialogFooter>
+                                <FormDialogCancel className="w-full" disabled={processing} />
+                                {mode === 'create' ? (
+                                    <Button
+                                        className="h-11 w-full md:h-10"
+                                        type="submit"
+                                        name="acao"
+                                        value="novo"
+                                        variant="secondary"
+                                        disabled={processing}
+                                    >
+                                        Salvar e novo
+                                    </Button>
+                                ) : null}
+                                <Button className="h-11 w-full md:h-10" type="submit" variant="confirm" disabled={processing}>
+                                    Salvar
                                 </Button>
-                            ) : null}
-                            <Button className="h-11 w-full md:h-10" type="submit" variant="confirm" disabled={processing}>
-                                Salvar
-                            </Button>
-                        </FormDialogFooter>
-                    </FormDialogForm>
+                            </FormDialogFooter>
+                        </FormDialogForm>
+                    </FormDialogCorrecao>
                 </FormDialogContent>
             </Dialog>
 

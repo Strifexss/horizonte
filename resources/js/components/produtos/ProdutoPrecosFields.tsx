@@ -1,4 +1,5 @@
 import InputError from '@/components/input-error';
+import { FormDialogField } from '@/components/ui/form-dialog-correcao';
 import { Label } from '@/components/ui/label';
 import MoneyInput from '@/components/ui/money-input';
 
@@ -38,7 +39,7 @@ export default function ProdutoPrecosFields({
     return (
         <div className="grid gap-2">
             <div className="grid grid-cols-2 gap-3 md:gap-2">
-                <div className="grid gap-2">
+                <FormDialogField name="preco_venda">
                     <Label htmlFor="produto_preco_venda">Preço de venda</Label>
                     <MoneyInput
                         id="produto_preco_venda"
@@ -51,9 +52,9 @@ export default function ProdutoPrecosFields({
                         disabled={disabled}
                     />
                     <InputError message={errors.preco_venda} />
-                </div>
+                </FormDialogField>
 
-                <div className="grid gap-2">
+                <FormDialogField name="preco_compra">
                     <Label htmlFor="produto_preco_compra">Preço de compra</Label>
                     <MoneyInput
                         id="produto_preco_compra"
@@ -66,7 +67,7 @@ export default function ProdutoPrecosFields({
                         disabled={disabled}
                     />
                     <InputError message={errors.preco_compra} />
-                </div>
+                </FormDialogField>
             </div>
 
             {mostrarMargem ? (
