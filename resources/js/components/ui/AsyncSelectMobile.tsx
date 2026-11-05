@@ -156,14 +156,14 @@ export default function AsyncSelectMobile({
             </div>
           </DialogHeader>
 
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain" role="listbox" aria-label={title}>
+          <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain p-3" role="listbox" aria-label={title}>
             {createOption && (
               <button
                 type="button"
                 role="option"
                 aria-selected={false}
                 onClick={() => choose(createOption)}
-                className="text-primary hover:bg-accent flex min-h-14 w-full items-center gap-3 border-b px-4 text-left text-base font-medium"
+                className="text-primary border-primary/40 bg-card hover:bg-accent flex min-h-14 w-full shrink-0 items-center gap-3 rounded-lg border border-dashed px-4 text-left text-base font-medium"
               >
                 <Plus className="size-5 shrink-0" aria-hidden="true" />
                 <span className="min-w-0 truncate">{createOption.label.replace(/^\+\s*/, '')}</span>
@@ -180,7 +180,10 @@ export default function AsyncSelectMobile({
                   role="option"
                   aria-selected={isSelected}
                   onClick={() => choose(option)}
-                  className={cn('hover:bg-accent flex min-h-14 w-full items-center gap-3 border-b px-4 text-left text-base', isSelected && 'bg-accent/60')}
+                  className={cn(
+                    'bg-card hover:bg-accent flex min-h-14 w-full shrink-0 items-center gap-3 rounded-lg border px-4 text-left text-base shadow-xs transition-colors',
+                    isSelected && 'border-primary ring-primary ring-1',
+                  )}
                 >
                   <span className="min-w-0 flex-1">
                     <HighlightedText text={option.label} query={query} />
