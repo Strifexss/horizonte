@@ -27,7 +27,7 @@ function formatFromDigits(digits: string, showSymbol = false) {
 }
 
 const MoneyInput = React.forwardRef<HTMLInputElement, MoneyInputProps>(
-    ({ className, value, onValueChange, showSymbol = false, disabled, ...props }, ref) => {
+    ({ className, value, onValueChange, showSymbol = false, disabled, onKeyDown: onKeyDownExterno, ...props }, ref) => {
         const [digits, setDigits] = React.useState<string>(() => toDigitsFromValue(value));
 
         React.useEffect(() => {
@@ -63,7 +63,12 @@ const MoneyInput = React.forwardRef<HTMLInputElement, MoneyInputProps>(
                 propagate(next);
                 return;
             }
-            // allow navigation keys, tab, enter
+            if (k === 'Enter') {
+                // Quem usa o campo decide o Enter (ex.: ir para o próximo campo).
+                onKeyDownExterno?.(e);
+                return;
+            }
+            // allow navigation keys, tab
             if (
                 k === 'Tab' ||
                 k === 'ArrowLeft' ||

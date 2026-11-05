@@ -1,32 +1,30 @@
-import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { Star } from 'lucide-react';
 
 type Props = {
     ativo: boolean;
     favorito: boolean;
     disabled: boolean;
+    /** Produto novo já nasce ativo: o interruptor só aparece na edição. */
+    mostrarAtivo: boolean;
     onAtivoChange: (ativo: boolean) => void;
     onFavoritoChange: (favorito: boolean) => void;
 };
 
-/** Ativo e Favorito como linhas tocáveis inteiras, com a explicação de cada uma. */
-export default function ProdutoStatusFields({ ativo, favorito, disabled, onAtivoChange, onFavoritoChange }: Props) {
+/** Ativo e Favorito como interruptores; a linha inteira é tocável. */
+export default function ProdutoStatusFields({ ativo, favorito, disabled, mostrarAtivo, onAtivoChange, onFavoritoChange }: Props) {
     return (
         <div className="divide-y rounded-md border">
-            <label htmlFor="produto_ativo" className="flex min-h-12 cursor-pointer items-center gap-3 px-3 py-2 md:min-h-14">
-                <Checkbox id="produto_ativo" checked={ativo} onCheckedChange={(checked) => onAtivoChange(checked === true)} disabled={disabled} />
-                <span className="grid gap-0.5">
-                    <span className="text-sm font-medium">Produto ativo</span>
-                    <span className="text-muted-foreground text-xs max-md:hidden">Disponível para venda.</span>
-                </span>
-            </label>
-            <label htmlFor="produto_favorito" className="flex min-h-12 cursor-pointer items-center gap-3 px-3 py-2 md:min-h-14">
-                <Checkbox
-                    id="produto_favorito"
-                    checked={favorito}
-                    onCheckedChange={(checked) => onFavoritoChange(checked === true)}
-                    disabled={disabled}
-                />
+            {mostrarAtivo ? (
+                <label htmlFor="produto_ativo" className="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-3 py-2 md:min-h-14">
+                    <span className="grid gap-0.5">
+                        <span className="text-sm font-medium">Produto ativo</span>
+                        <span className="text-muted-foreground text-xs max-md:hidden">Disponível para venda.</span>
+                    </span>
+                    <Switch id="produto_ativo" checked={ativo} onCheckedChange={onAtivoChange} disabled={disabled} />
+                </label>
+            ) : null}
+            <label htmlFor="produto_favorito" className="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-3 py-2 md:min-h-14">
                 <span className="grid gap-0.5">
                     <span className="flex items-center gap-1 text-sm font-medium">
                         Favorito na venda
@@ -34,6 +32,7 @@ export default function ProdutoStatusFields({ ativo, favorito, disabled, onAtivo
                     </span>
                     <span className="text-muted-foreground text-xs max-md:hidden">Aparece como atalho no topo da Nova Venda.</span>
                 </span>
+                <Switch id="produto_favorito" checked={favorito} onCheckedChange={onFavoritoChange} disabled={disabled} />
             </label>
         </div>
     );

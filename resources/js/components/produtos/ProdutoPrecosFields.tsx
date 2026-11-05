@@ -9,6 +9,8 @@ type Props = {
     errors: { preco_venda?: string; preco_compra?: string };
     onPrecoVendaChange: (valor: string) => void;
     onPrecoCompraChange: (valor: string) => void;
+    onVendaEnter?: React.KeyboardEventHandler<HTMLInputElement>;
+    onCompraEnter?: React.KeyboardEventHandler<HTMLInputElement>;
 };
 
 const moeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -17,8 +19,17 @@ function paraTexto(valor: number | null): string {
     return valor === null ? '' : valor.toFixed(2);
 }
 
-/** Preço de venda em destaque, compra ao lado e a margem calculada logo abaixo. */
-export default function ProdutoPrecosFields({ precoVenda, precoCompra, disabled, errors, onPrecoVendaChange, onPrecoCompraChange }: Props) {
+/** Preços de venda e compra lado a lado, com a margem calculada logo abaixo. */
+export default function ProdutoPrecosFields({
+    precoVenda,
+    precoCompra,
+    disabled,
+    errors,
+    onPrecoVendaChange,
+    onPrecoCompraChange,
+    onVendaEnter,
+    onCompraEnter,
+}: Props) {
     const venda = Number(precoVenda) || 0;
     const compra = Number(precoCompra) || 0;
     const margem = venda - compra;
@@ -32,29 +43,27 @@ export default function ProdutoPrecosFields({ precoVenda, precoCompra, disabled,
                     <MoneyInput
                         id="produto_preco_venda"
                         showSymbol
-                        inputMode="decimal"
                         value={precoVenda ? Number(precoVenda) : null}
                         onValueChange={(valor) => onPrecoVendaChange(paraTexto(valor))}
+                        enterKeyHint="next"
+                        onKeyDown={onVendaEnter}
                         placeholder="R$ 0,00"
                         disabled={disabled}
-                        className="h-12 text-lg font-semibold md:h-10 md:text-sm md:font-normal"
                     />
                     <InputError message={errors.preco_venda} />
                 </div>
 
                 <div className="grid gap-2">
-                    <Label htmlFor="produto_preco_compra" className="text-muted-foreground">
-                        Preço de compra
-                    </Label>
+                    <Label htmlFor="produto_preco_compra">Preço de compra</Label>
                     <MoneyInput
                         id="produto_preco_compra"
                         showSymbol
-                        inputMode="decimal"
                         value={precoCompra ? Number(precoCompra) : null}
                         onValueChange={(valor) => onPrecoCompraChange(paraTexto(valor))}
+                        enterKeyHint="done"
+                        onKeyDown={onCompraEnter}
                         placeholder="R$ 0,00"
                         disabled={disabled}
-                        className="h-12 md:h-10"
                     />
                     <InputError message={errors.preco_compra} />
                 </div>

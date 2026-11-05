@@ -1,6 +1,7 @@
 import FornecedoresModal from '@/components/fornecedores/FornecedoresModal';
 import GruposModal from '@/components/grupos/GruposModal';
 import InputError from '@/components/input-error';
+import ProdutoCodigoDescricaoFields from '@/components/produtos/ProdutoCodigoDescricaoFields';
 import ProdutoPrecosFields from '@/components/produtos/ProdutoPrecosFields';
 import ProdutoStatusFields from '@/components/produtos/ProdutoStatusFields';
 import type { ProdutoItem, ProdutoNamed } from '@/components/produtos/types';
@@ -10,9 +11,10 @@ import { Dialog } from '@/components/ui/dialog';
 import { FormDialogBody, FormDialogCancel, FormDialogContent, FormDialogFooter, FormDialogForm, FormDialogHeader } from '@/components/ui/form-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { irParaNoEnter as irPara } from '@/lib/ir-para-no-enter';
 import { cn } from '@/lib/utils';
 import { useForm } from '@inertiajs/react';
-import { ChevronRight, Info, Plus } from 'lucide-react';
+import { ChevronRight, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 type Mode = 'create' | 'edit';
@@ -115,29 +117,40 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
     const detalhesComErro = Boolean(errors.codigo || errors.descricao || errors.fornecedor_id || errors.grupo_id);
     const detalhesVisiveis = detalhesAbertos || detalhesComErro || (mode === 'edit' && detalhesPreenchidos);
 
-    const loadFornecedores = async (q: string = ''): Promise<SelectOption[]> => {
-        const res = await fetch(`/fornecedores/autocomplete?q=${encodeURIComponent(q)}`);
-        if (!res.ok) {
-            return [];
-        }
+    const autocomplete =
+        (url: string) =>
+        async (q: string = ''): Promise<SelectOption[]> => {
+            const res = await fetch(`${url}?q=${encodeURIComponent(q)}`);
+            return res.ok ? res.json() : [];
+        };
+    const loadFornecedores = autocomplete('/fornecedores/autocomplete');
+    const loadGrupos = autocomplete('/grupos/autocomplete');
 
-        return res.json();
+    /** Volta o formulário ao estado de cadastro novo, mantendo o modal aberto. */
+    const limparParaNovo = (): void => {
+        reset();
+        clearErrors();
+        setSelectedFornecedor(null);
+        setSelectedGrupo(null);
+        setDetalhesAbertos(false);
+        document.getElementById('produto_nome')?.focus();
     };
 
-    const loadGrupos = async (q: string = ''): Promise<SelectOption[]> => {
-        const res = await fetch(`/grupos/autocomplete?q=${encodeURIComponent(q)}`);
-        if (!res.ok) {
-            return [];
-        }
-
-        return res.json();
-    };
-
-    const submit = (event: React.FormEvent): void => {
+    const submit = (event: React.FormEvent<HTMLFormElement>): void => {
         event.preventDefault();
 
+        // "Salvar e novo" é um segundo botão de envio: cadastra e já deixa o formulário pronto para o próximo.
+        const submitter = (event.nativeEvent as SubmitEvent).submitter;
+        const continuar = mode === 'create' && submitter?.getAttribute('value') === 'novo';
+
         const options = {
+            // Só o "Salvar e novo" precisa manter o modal montado com o estado atual.
+            ...(continuar ? { preserveScroll: true, preserveState: true } : {}),
             onSuccess: () => {
+                if (continuar) {
+                    limparParaNovo();
+                    return;
+                }
                 onOpenChange(false);
                 reset();
             },
@@ -171,6 +184,7 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                                     onChange={(e) => setData('nome', e.target.value)}
                                     placeholder="Nome do produto"
                                     enterKeyHint="next"
+                                    onKeyDown={irPara('produto_preco_venda')}
                                     disabled={processing}
                                 />
                                 <InputError message={errors.nome} />
@@ -183,6 +197,8 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                                 errors={errors}
                                 onPrecoVendaChange={(valor) => setData('preco_venda', valor)}
                                 onPrecoCompraChange={(valor) => setData('preco_compra', valor)}
+                                onVendaEnter={irPara('produto_preco_compra')}
+                                onCompraEnter={irPara(null)}
                             />
 
                             {/* No celular os campos opcionais ficam recolhidos; no desktop aparecem sempre. */}
@@ -198,43 +214,14 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                             </button>
 
                             <div id="produto_detalhes" className={cn('grid gap-5', !detalhesVisiveis && 'max-md:hidden')}>
-                                <div className="grid gap-5 md:grid-cols-2 md:gap-2">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="produto_codigo">Código</Label>
-                                        <Input
-                                            id="produto_codigo"
-                                            value={data.codigo}
-                                            onChange={(e) => setData('codigo', e.target.value)}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter') {
-                                                    e.preventDefault();
-                                                }
-                                            }}
-                                            placeholder="Automático ou EAN"
-                                            title="Em branco gera o próximo número. Aceita EAN e leitor de código de barras."
-                                            maxLength={50}
-                                            disabled={processing}
-                                        />
-                                        <InputError message={errors.codigo} />
-                                    </div>
-
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="produto_descricao" className="flex items-center gap-1">
-                                            Descrição
-                                            <Info className="text-muted-foreground size-3.5" aria-hidden="true" />
-                                            <span className="sr-only">(aparece no Menu Board da TV)</span>
-                                        </Label>
-                                        <Input
-                                            id="produto_descricao"
-                                            value={data.descricao}
-                                            onChange={(e) => setData('descricao', e.target.value)}
-                                            placeholder="Aparece no Menu Board da TV"
-                                            maxLength={160}
-                                            disabled={processing}
-                                        />
-                                        <InputError message={errors.descricao} />
-                                    </div>
-                                </div>
+                                <ProdutoCodigoDescricaoFields
+                                    codigo={data.codigo}
+                                    descricao={data.descricao}
+                                    disabled={processing}
+                                    errors={errors}
+                                    onCodigoChange={(codigo) => setData('codigo', codigo)}
+                                    onDescricaoChange={(descricao) => setData('descricao', descricao)}
+                                />
 
                                 <div className="grid gap-2 md:grid-cols-2">
                                     <div className="grid gap-2">
@@ -307,6 +294,7 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                                 ativo={data.ativo}
                                 favorito={data.favorito}
                                 disabled={processing}
+                                mostrarAtivo={mode === 'edit'}
                                 onAtivoChange={(ativo) => setData('ativo', ativo)}
                                 onFavoritoChange={(favorito) => setData('favorito', favorito)}
                             />
@@ -315,6 +303,18 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
 
                         <FormDialogFooter>
                             <FormDialogCancel className="w-full" disabled={processing} />
+                            {mode === 'create' ? (
+                                <Button
+                                    className="h-11 w-full md:h-10"
+                                    type="submit"
+                                    name="acao"
+                                    value="novo"
+                                    variant="secondary"
+                                    disabled={processing}
+                                >
+                                    Salvar e novo
+                                </Button>
+                            ) : null}
                             <Button className="h-11 w-full md:h-10" type="submit" variant="confirm" disabled={processing}>
                                 Salvar
                             </Button>
