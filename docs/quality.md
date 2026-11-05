@@ -28,15 +28,12 @@ O CI (`.github/workflows/lint.yml` e `tests.yml`) roda em push e PR para `master
 
 A regra está em `warn` enquanto houver legado. Ao mexer num desses arquivos, extraia um bloco coeso (subcomponente, hook ou utilitário do domínio) e baixe o número sem mudar comportamento. Quando a lista zerar, troque para `error` em `eslint.config.js`.
 
-| Arquivo | Linhas em 2026-11-02 |
+| Arquivo | Linhas em 2026-11-05 (contagem do ESLint) |
 |---|---|
-| `pages/welcome.tsx` | 790 |
-| `components/vendas/VendaModal.tsx` | 514 |
-| `components/menu-boards/MenuBoardsConteudo.tsx` | 441 |
-| `components/ui/AsyncSelect.tsx` | 376 |
-| `components/menu-boards/MenuBoardsForm.tsx` | 370 |
-| `pages/dashboard/index.tsx` | 363 |
-| `components/produtos/ProdutosForm.tsx` | 357 |
+| `pages/welcome.tsx` | 791 |
+| `components/vendas/VendaModal.tsx` | 504 |
+| `components/menu-boards/MenuBoardsConteudo.tsx` | 442 |
+| `components/menu-boards/MenuBoardsForm.tsx` | 371 |
 
 O PHP não tem gate de tamanho. Acima de 350 linhas estão `FinanceiroRepository` (429) e `IndicadoresInsightsService` (364); trate no mesmo espírito quando forem alterados.
 

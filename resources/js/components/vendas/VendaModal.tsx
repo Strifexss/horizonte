@@ -23,11 +23,12 @@ import VendaCatalogoMobile from '@/components/vendas/VendaCatalogoMobile';
 import VendaClienteCampo from '@/components/vendas/VendaClienteCampo';
 import VendaCorrecaoModal, { pendenciasDaVenda, temPendencias, type CorrecaoDaVenda } from '@/components/vendas/VendaCorrecaoModal';
 import VendaItensEditor from '@/components/vendas/VendaItensEditor';
+import VendaItensRecolhiveis from '@/components/vendas/VendaItensRecolhiveis';
 import VendaPagamentosEditor, { pagamentosComForma } from '@/components/vendas/VendaPagamentosEditor';
 import VendaResumo, { type VendaResumoLinha } from '@/components/vendas/VendaResumo';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useForm } from '@inertiajs/react';
-import { Ban, ChevronRight } from 'lucide-react';
+import { Ban } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 
 type VendaFormData = {
@@ -374,13 +375,8 @@ export default function VendaModal({
         etapa === 1 ? (
             <>
                 <VendaCatalogoMobile itens={data.itens} onChange={(itens) => setData('itens', itens)} grupos={grupos} disabled={processing} />
-                <InputError message={erros.itens} />
-                <DialogFooter className="flex flex-row gap-2 border-t pt-3">
-                    <DialogClose asChild>
-                        <Button type="button" variant="secondary" className="h-12 w-28 shrink-0">
-                            Cancelar
-                        </Button>
-                    </DialogClose>
+                <InputError message={erros.itens} className="mt-2" />
+                <DialogFooter className="flex shrink-0 flex-row gap-2 border-t pt-3 max-md:-mx-4 max-md:mt-3 max-md:px-4 max-md:pb-[max(0.75rem,env(safe-area-inset-bottom))]">
                     <Button
                         type="button"
                         variant="primary"
@@ -400,40 +396,27 @@ export default function VendaModal({
             <>
                 <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-2">
                     {campoCliente}
-                    <div className="rounded-lg border">
-                        <div className="flex items-center gap-2 py-1.5 pr-1.5 pl-3">
-                            <button
-                                type="button"
-                                aria-expanded={itensAbertos}
-                                onClick={() => setItensAbertos((aberto) => !aberto)}
-                                className="flex h-10 flex-1 items-center gap-1.5 text-left text-sm font-semibold"
-                            >
-                                <ChevronRight className={`text-muted-foreground h-4 w-4 transition-transform ${itensAbertos ? 'rotate-90' : ''}`} />
-                                Itens da venda ({data.itens.length})
-                            </button>
-                            <Button type="button" variant="outline" size="sm" className="border-blue-600 text-blue-700" onClick={() => setEtapa(1)}>
-                                + Adicionar itens
-                            </Button>
-                        </div>
-                        {itensAbertos ? (
-                            <div className="border-t p-2">
-                                <VendaItensEditor
-                                    itens={data.itens}
-                                    onChange={(itens) => setData('itens', itens)}
-                                    errors={erros}
-                                    disabled={processing}
-                                    somenteLinhas
-                                />
-                            </div>
-                        ) : null}
-                    </div>
+                    <VendaItensRecolhiveis
+                        quantidade={data.itens.length}
+                        aberto={itensAbertos}
+                        onAlternar={() => setItensAbertos((aberto) => !aberto)}
+                        onAdicionar={() => setEtapa(1)}
+                    >
+                        <VendaItensEditor
+                            itens={data.itens}
+                            onChange={(itens) => setData('itens', itens)}
+                            errors={erros}
+                            disabled={processing}
+                            somenteLinhas
+                        />
+                    </VendaItensRecolhiveis>
                     <VendaResumo linhas={[]} total={total} />
                     {campoPagamentos}
                     {avisoConta}
                     {campoObservacao}
                     {linkCancelar}
                 </div>
-                <DialogFooter className="flex flex-row gap-2 border-t pt-3">
+                <DialogFooter className="flex shrink-0 flex-row gap-2 border-t pt-3 max-md:-mx-4 max-md:mt-3 max-md:px-4 max-md:pb-[max(0.75rem,env(safe-area-inset-bottom))]">
                     <Button type="button" variant="secondary" className="h-12 w-28 shrink-0" onClick={() => setEtapa(1)}>
                         Voltar
                     </Button>
@@ -446,21 +429,22 @@ export default function VendaModal({
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>
                 <DialogContent
-                    className={`h-[100vh] w-[100vw] overflow-hidden md:max-w-full ${
+                    className={`h-[100dvh] w-[100vw] overflow-hidden max-md:gap-0 max-md:rounded-none max-md:p-0 md:max-w-full ${
                         somenteLeitura ? 'md:h-auto md:max-h-[90vh] md:w-[800px]' : 'md:h-[88vh] md:w-[1280px]'
                     }`}
                 >
-                    <DialogHeader>
-                        <DialogTitle>{titulo}</DialogTitle>
-                        <DialogDescription>{descricao}</DialogDescription>
+                    {/* No celular: cabeçalho compacto no padrão dos modais (título à esquerda, X à direita). */}
+                    <DialogHeader className="shrink-0 max-md:space-y-0.5 max-md:border-b max-md:py-3 max-md:pr-16 max-md:pl-4 max-md:text-left">
+                        <DialogTitle className="max-md:text-left max-md:text-lg">{titulo}</DialogTitle>
+                        <DialogDescription className="max-md:text-sm">{descricao}</DialogDescription>
                     </DialogHeader>
 
                     {somenteLeitura && venda ? (
                         <>
-                            <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+                            <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto max-md:px-4 max-md:pt-3">
                                 <VendaSomenteLeitura venda={venda} />
                             </div>
-                            <DialogFooter className="flex flex-row gap-2">
+                            <DialogFooter className="flex shrink-0 flex-row gap-2 max-md:border-t max-md:px-4 max-md:pt-3 max-md:pb-[max(0.75rem,env(safe-area-inset-bottom))]">
                                 <DialogClose asChild>
                                     <Button type="button" variant="secondary" className="w-full">
                                         Voltar
@@ -474,7 +458,12 @@ export default function VendaModal({
                             </DialogFooter>
                         </>
                     ) : (
-                        <form onSubmit={submit} onKeyDown={salvarComEnter} noValidate className="flex min-h-0 flex-1 flex-col gap-3">
+                        <form
+                            onSubmit={submit}
+                            onKeyDown={salvarComEnter}
+                            noValidate
+                            className="flex min-h-0 flex-1 flex-col gap-3 max-md:gap-0 max-md:px-4 max-md:pt-3"
+                        >
                             {isMobile ? conteudoMobile : conteudoDesktop}
                         </form>
                     )}
