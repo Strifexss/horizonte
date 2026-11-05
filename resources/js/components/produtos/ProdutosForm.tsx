@@ -1,19 +1,21 @@
 import FornecedoresModal from '@/components/fornecedores/FornecedoresModal';
 import GruposModal from '@/components/grupos/GruposModal';
 import InputError from '@/components/input-error';
+import ProdutoStatusFields from '@/components/produtos/ProdutoStatusFields';
 import type { ProdutoItem, ProdutoNamed } from '@/components/produtos/types';
 import AsyncSelect from '@/components/ui/AsyncSelect';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MoneyInput from '@/components/ui/money-input';
 import { useForm } from '@inertiajs/react';
-import { Plus, Star } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 type Mode = 'create' | 'edit';
+
+const SECTION_TITLE = 'text-muted-foreground text-xs font-semibold tracking-wide uppercase';
 
 type Props = {
     open: boolean;
@@ -146,189 +148,201 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
     return (
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent className="h-[100vh] w-[100vw] overflow-hidden md:h-auto md:w-[700px] md:max-w-full">
-                    <DialogHeader>
-                        <DialogTitle>{mode === 'edit' ? 'Editar produto' : 'Cadastrar produto'}</DialogTitle>
-                        <DialogDescription>
+                <DialogContent
+                    onOpenAutoFocus={(event) => {
+                        // No celular, focar o primeiro campo abre o teclado e cobre o formulário.
+                        if (window.innerWidth < 768) {
+                            event.preventDefault();
+                        }
+                    }}
+                    className="h-[100dvh] w-[100vw] gap-0 overflow-hidden p-0 md:h-auto md:max-h-[90dvh] md:w-[700px] md:max-w-full md:gap-4 md:p-6"
+                >
+                    <DialogHeader className="space-y-1 border-b py-3 pr-16 pl-4 text-left md:border-0 md:p-0">
+                        <DialogTitle className="text-left text-lg md:text-2xl">
+                            {mode === 'edit' ? 'Editar produto' : 'Cadastrar produto'}
+                        </DialogTitle>
+                        <DialogDescription className="text-sm md:text-base">
                             {mode === 'edit' ? 'Atualize os dados do produto.' : 'Preencha os dados para cadastrar um novo produto.'}
                         </DialogDescription>
                     </DialogHeader>
 
-                    <form onSubmit={submit} className="flex h-full flex-col gap-4 overflow-y-auto" noValidate>
-                        <div className="grid gap-2 md:grid-cols-3">
-                            <div className="grid gap-2 md:col-span-2">
-                                <Label htmlFor="produto_nome">Nome</Label>
-                                <Input
-                                    id="produto_nome"
-                                    value={data.nome}
-                                    onChange={(e) => setData('nome', e.target.value)}
-                                    placeholder="Nome do produto"
-                                    disabled={processing}
-                                />
-                                <InputError message={errors.nome} />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="produto_codigo">Código</Label>
-                                <Input
-                                    id="produto_codigo"
-                                    value={data.codigo}
-                                    onChange={(e) => setData('codigo', e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            e.preventDefault();
-                                        }
-                                    }}
-                                    placeholder="Automático"
-                                    maxLength={50}
-                                    disabled={processing}
-                                />
-                                <InputError message={errors.codigo} />
-                            </div>
-                        </div>
-                        <span className="text-muted-foreground -mt-2 text-xs">
-                            Código: deixe em branco para gerar o próximo número, ou use EAN / leitor de barras.
-                        </span>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="produto_descricao">Descrição</Label>
-                            <Input
-                                id="produto_descricao"
-                                value={data.descricao}
-                                onChange={(e) => setData('descricao', e.target.value)}
-                                placeholder="Ex.: Arroz, fritas e salada"
-                                maxLength={160}
-                                disabled={processing}
-                            />
-                            <span className="text-muted-foreground text-xs">Aparece no Menu Board da TV.</span>
-                            <InputError message={errors.descricao} />
-                        </div>
-
-                        <div className="grid gap-2 md:grid-cols-2">
-                            <div className="grid gap-2">
-                                <Label htmlFor="produto_preco_compra">Preço de compra</Label>
-                                <MoneyInput
-                                    id="produto_preco_compra"
-                                    value={data.preco_compra ? Number(data.preco_compra) : null}
-                                    onValueChange={(value) => setData('preco_compra', value === null ? '' : value.toFixed(2))}
-                                    placeholder="0,00"
-                                    disabled={processing}
-                                />
-                                <InputError message={errors.preco_compra} />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="produto_preco_venda">Preço de venda</Label>
-                                <MoneyInput
-                                    id="produto_preco_venda"
-                                    value={data.preco_venda ? Number(data.preco_venda) : null}
-                                    onValueChange={(value) => setData('preco_venda', value === null ? '' : value.toFixed(2))}
-                                    placeholder="0,00"
-                                    disabled={processing}
-                                />
-                                <InputError message={errors.preco_venda} />
-                            </div>
-                        </div>
-
-                        <div className="grid gap-2 md:grid-cols-2">
-                            <div className="grid gap-2">
-                                <Label>Fornecedor</Label>
-                                <div className="flex items-start gap-2">
-                                    <div className="min-w-0 flex-1">
-                                        <AsyncSelect
-                                            value={selectedFornecedor}
-                                            onChange={(val) => {
-                                                setSelectedFornecedor(val ? { id: val.id, nome: val.nome } : null);
-                                                setData('fornecedor_id', val ? Number(val.id) : null);
-                                            }}
-                                            loadOptions={loadFornecedores}
-                                            placeholder="Buscar fornecedor..."
-                                            isClearable
+                    <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col" noValidate>
+                        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-4 md:gap-5 md:p-0">
+                            <section className="grid gap-4" aria-labelledby="produto_secao_identificacao">
+                                <h3 id="produto_secao_identificacao" className={SECTION_TITLE}>
+                                    Identificação
+                                </h3>
+                                <div className="grid gap-2 md:grid-cols-3">
+                                    <div className="grid gap-2 md:col-span-2">
+                                        <Label htmlFor="produto_nome">Nome</Label>
+                                        <Input
+                                            id="produto_nome"
+                                            value={data.nome}
+                                            onChange={(e) => setData('nome', e.target.value)}
+                                            placeholder="Nome do produto"
+                                            disabled={processing}
                                         />
+                                        <InputError message={errors.nome} />
                                     </div>
-                                    <Button
-                                        type="button"
-                                        variant="secondary"
-                                        size="icon"
-                                        className="shrink-0"
-                                        aria-label="Cadastrar fornecedor"
-                                        title="Cadastrar fornecedor"
-                                        onClick={() => setFornecedoresModalOpen(true)}
-                                    >
-                                        <Plus className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                                <InputError message={errors.fornecedor_id} />
-                            </div>
 
-                            <div className="grid gap-2">
-                                <Label>Grupo</Label>
-                                <div className="flex items-start gap-2">
-                                    <div className="min-w-0 flex-1">
-                                        <AsyncSelect
-                                            value={selectedGrupo}
-                                            onChange={(val) => {
-                                                setSelectedGrupo(val ? { id: val.id, nome: val.nome } : null);
-                                                setData('grupo_id', val ? Number(val.id) : null);
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="produto_codigo">Código</Label>
+                                        <Input
+                                            id="produto_codigo"
+                                            value={data.codigo}
+                                            onChange={(e) => setData('codigo', e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    e.preventDefault();
+                                                }
                                             }}
-                                            loadOptions={loadGrupos}
-                                            placeholder="Buscar grupo..."
-                                            isClearable
+                                            placeholder="Automático"
+                                            maxLength={50}
+                                            disabled={processing}
                                         />
+                                        <InputError message={errors.codigo} />
                                     </div>
-                                    <Button
-                                        type="button"
-                                        variant="secondary"
-                                        size="icon"
-                                        className="shrink-0"
-                                        aria-label="Cadastrar grupo"
-                                        title="Cadastrar grupo"
-                                        onClick={() => setGruposModalOpen(true)}
-                                    >
-                                        <Plus className="h-4 w-4" />
-                                    </Button>
                                 </div>
-                                <InputError message={errors.grupo_id} />
-                            </div>
-                        </div>
+                                <span className="text-muted-foreground -mt-2 text-xs">
+                                    Código: deixe em branco para gerar o próximo número, ou use EAN / leitor de barras.
+                                </span>
 
-                        <div className="flex items-center gap-2">
-                            <Checkbox
-                                id="produto_ativo"
-                                checked={data.ativo}
-                                onCheckedChange={(checked) => setData('ativo', checked === true)}
-                                disabled={processing}
-                            />
-                            <Label htmlFor="produto_ativo">Produto ativo</Label>
-                        </div>
-                        <InputError message={errors.ativo} />
-
-                        <div className="grid gap-1">
-                            <div className="flex items-center gap-2">
-                                <Checkbox
-                                    id="produto_favorito"
-                                    checked={data.favorito}
-                                    onCheckedChange={(checked) => setData('favorito', checked === true)}
-                                    disabled={processing}
-                                />
-                                <Label htmlFor="produto_favorito" className="flex items-center gap-1">
-                                    Favorito na venda
-                                    <Star
-                                        className={`h-3.5 w-3.5 ${data.favorito ? 'fill-amber-400 text-amber-500' : 'text-muted-foreground'}`}
-                                        aria-hidden="true"
+                                <div className="grid gap-2">
+                                    <Label htmlFor="produto_descricao">Descrição</Label>
+                                    <Input
+                                        id="produto_descricao"
+                                        value={data.descricao}
+                                        onChange={(e) => setData('descricao', e.target.value)}
+                                        placeholder="Ex.: Arroz, fritas e salada"
+                                        maxLength={160}
+                                        disabled={processing}
                                     />
-                                </Label>
-                            </div>
-                            <span className="text-muted-foreground pl-6 text-xs">Aparece como atalho no topo da Nova Venda.</span>
+                                    <span className="text-muted-foreground text-xs">Aparece no Menu Board da TV.</span>
+                                    <InputError message={errors.descricao} />
+                                </div>
+                            </section>
+
+                            <section className="grid gap-4" aria-labelledby="produto_secao_precos">
+                                <h3 id="produto_secao_precos" className={SECTION_TITLE}>
+                                    Preços
+                                </h3>
+
+                                <div className="grid grid-cols-2 gap-3 md:gap-2">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="produto_preco_compra">Preço de compra</Label>
+                                        <MoneyInput
+                                            id="produto_preco_compra"
+                                            value={data.preco_compra ? Number(data.preco_compra) : null}
+                                            onValueChange={(value) => setData('preco_compra', value === null ? '' : value.toFixed(2))}
+                                            placeholder="0,00"
+                                            disabled={processing}
+                                        />
+                                        <InputError message={errors.preco_compra} />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="produto_preco_venda">Preço de venda</Label>
+                                        <MoneyInput
+                                            id="produto_preco_venda"
+                                            value={data.preco_venda ? Number(data.preco_venda) : null}
+                                            onValueChange={(value) => setData('preco_venda', value === null ? '' : value.toFixed(2))}
+                                            placeholder="0,00"
+                                            disabled={processing}
+                                        />
+                                        <InputError message={errors.preco_venda} />
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section className="grid gap-4" aria-labelledby="produto_secao_organizacao">
+                                <h3 id="produto_secao_organizacao" className={SECTION_TITLE}>
+                                    Organização
+                                </h3>
+
+                                <div className="grid gap-2 md:grid-cols-2">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="produto_fornecedor">Fornecedor</Label>
+                                        <div className="flex items-start gap-2">
+                                            <div className="min-w-0 flex-1">
+                                                <AsyncSelect
+                                                    value={selectedFornecedor}
+                                                    onChange={(val) => {
+                                                        setSelectedFornecedor(val ? { id: val.id, nome: val.nome } : null);
+                                                        setData('fornecedor_id', val ? Number(val.id) : null);
+                                                    }}
+                                                    loadOptions={loadFornecedores}
+                                                    placeholder="Buscar fornecedor..."
+                                                    label="Fornecedor"
+                                                    inputId="produto_fornecedor"
+                                                    isClearable
+                                                />
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                variant="secondary"
+                                                size="icon"
+                                                className="shrink-0"
+                                                aria-label="Cadastrar fornecedor"
+                                                title="Cadastrar fornecedor"
+                                                onClick={() => setFornecedoresModalOpen(true)}
+                                            >
+                                                <Plus className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                        <InputError message={errors.fornecedor_id} />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="produto_grupo">Grupo</Label>
+                                        <div className="flex items-start gap-2">
+                                            <div className="min-w-0 flex-1">
+                                                <AsyncSelect
+                                                    value={selectedGrupo}
+                                                    onChange={(val) => {
+                                                        setSelectedGrupo(val ? { id: val.id, nome: val.nome } : null);
+                                                        setData('grupo_id', val ? Number(val.id) : null);
+                                                    }}
+                                                    loadOptions={loadGrupos}
+                                                    placeholder="Buscar grupo..."
+                                                    label="Grupo"
+                                                    inputId="produto_grupo"
+                                                    isClearable
+                                                />
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                variant="secondary"
+                                                size="icon"
+                                                className="shrink-0"
+                                                aria-label="Cadastrar grupo"
+                                                title="Cadastrar grupo"
+                                                onClick={() => setGruposModalOpen(true)}
+                                            >
+                                                <Plus className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                        <InputError message={errors.grupo_id} />
+                                    </div>
+                                </div>
+                            </section>
+
+                            <ProdutoStatusFields
+                                ativo={data.ativo}
+                                favorito={data.favorito}
+                                disabled={processing}
+                                onAtivoChange={(ativo) => setData('ativo', ativo)}
+                                onFavoritoChange={(favorito) => setData('favorito', favorito)}
+                            />
+                            <InputError message={errors.ativo} />
                         </div>
 
-                        <DialogFooter className="flex flex-row gap-2">
+                        <DialogFooter className="flex shrink-0 flex-row gap-2 border-t px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:border-0 md:px-0 md:pt-2 md:pb-0">
                             <DialogClose asChild>
-                                <Button className="w-full" variant="secondary" type="button" disabled={processing}>
+                                <Button className="hidden w-full md:inline-flex" variant="secondary" type="button" disabled={processing}>
                                     Cancelar
                                 </Button>
                             </DialogClose>
-                            <Button className="w-full" type="submit" variant="confirm" disabled={processing}>
+                            <Button className="h-11 w-full md:h-10" type="submit" variant="confirm" disabled={processing}>
                                 Salvar
                             </Button>
                         </DialogFooter>

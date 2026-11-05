@@ -1,31 +1,8 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
+import React, { useCallback, useRef } from 'react';
 import Select, { components, MenuListProps, SelectInstance, StylesConfig } from 'react-select';
-
-const SEARCH_DEBOUNCE_MS = 800;
-
-type Option = { id: number | string; nome: string; [key: string]: unknown };
-
-interface AsyncSelectProps {
-  loadOptions: (input: string) => Promise<Option[]>;
-  value?: Option | null;
-  onChange: (option: Option | null) => void;
-  placeholder?: string;
-  isClearable?: boolean;
-  autoFocus?: boolean;
-  selectRef?: React.Ref<{ focus: () => void } | null>;
-  /** When set, prepends a "+ Cadastrar" option if the typed text has no exact match. */
-  creatable?: boolean;
-  formatCreateLabel?: (input: string) => string;
-  isDisabled?: boolean;
-  /** Enter com a busca ainda carregando (ex.: leitor de código de barras) escolhe o primeiro resultado. */
-  selectFirstOnEnter?: boolean;
-  /** Texto exibido na lista de opções; o valor selecionado continua usando `nome`. */
-  formatOptionText?: (option: Option) => string;
-  /** Limpa e mantém o foco após escolher, para adicionar vários itens em sequência. */
-  keepFocusOnSelect?: boolean;
-}
-
-type SelectOption = { value: number | string; label: string; __raw: Option; __isCreate?: boolean };
+import { type AsyncSelectProps, type SelectOption, toOption, useAsyncOptions } from './async-select-options';
+import AsyncSelectMobile from './AsyncSelectMobile';
 
 const EDGE_EPSILON_PX = 1;
 
@@ -203,7 +180,7 @@ const selectStyles: StylesConfig<SelectOption, false> = {
   }),
 };
 
-export default function AsyncSelect({
+function AsyncSelectDropdown({
   loadOptions,
   value,
   onChange,
@@ -212,97 +189,23 @@ export default function AsyncSelect({
   autoFocus = false,
   selectRef,
   creatable = false,
-  formatCreateLabel = (input: string) => `+ Cadastrar "${input}"`,
+  formatCreateLabel,
   isDisabled = false,
   selectFirstOnEnter = false,
   formatOptionText,
   keepFocusOnSelect = false,
+  inputId,
 }: AsyncSelectProps) {
-  const [options, setOptions] = useState<SelectOption[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const requestId = useRef(0);
-  const debounceTimer = useRef<number | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (debounceTimer.current !== null) {
-        window.clearTimeout(debounceTimer.current);
-      }
-      requestId.current += 1;
-    };
-  }, []);
-
+  const { options, isLoading, fetchOptions, scheduleFetch, cancelPending, hasPendingSearch } = useAsyncOptions({
+    loadOptions,
+    creatable,
+    formatCreateLabel,
+    formatOptionText,
+  });
   const inputValueRef = useRef('');
 
-  const fetchOptions = (inputValue: string, onLoaded?: (loaded: SelectOption[]) => void) => {
-    const id = ++requestId.current;
-    setIsLoading(true);
-
-    void (async () => {
-      try {
-        const opts = await loadOptions(inputValue);
-        if (id !== requestId.current) {
-          return;
-        }
-
-        const mapped = opts.map((o) => ({ value: o.id, label: formatOptionText ? formatOptionText(o) : o.nome, __raw: o }));
-        const trimmed = inputValue.trim();
-
-        if (
-          creatable &&
-          trimmed &&
-          !opts.some((o) => String(o.nome).trim().toLowerCase() === trimmed.toLowerCase())
-        ) {
-          const createOption: SelectOption = {
-            value: `__create__:${trimmed}`,
-            label: formatCreateLabel(trimmed),
-            __isCreate: true,
-            __raw: {
-              id: `__create__`,
-              nome: trimmed,
-              __create: true,
-              __createName: trimmed,
-            },
-          };
-          setOptions([...mapped, createOption]);
-          return;
-        }
-
-        setOptions(mapped);
-        onLoaded?.(mapped);
-      } catch {
-        if (id !== requestId.current) {
-          return;
-        }
-        setOptions([]);
-      } finally {
-        if (id === requestId.current) {
-          setIsLoading(false);
-        }
-      }
-    })();
-  };
-
-  const scheduleFetch = (inputValue: string) => {
-    if (debounceTimer.current !== null) {
-      window.clearTimeout(debounceTimer.current);
-    }
-
-    requestId.current += 1;
-    setIsLoading(false);
-
-    debounceTimer.current = window.setTimeout(() => {
-      debounceTimer.current = null;
-      fetchOptions(inputValue);
-    }, SEARCH_DEBOUNCE_MS);
-  };
-
   const handleChange = (selected: SelectOption | null) => {
-    if (!selected) {
-      onChange(null);
-      return;
-    }
-    onChange(selected.__raw ?? { id: selected.value, nome: selected.label });
+    onChange(selected ? toOption(selected) : null);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
@@ -315,16 +218,13 @@ export default function AsyncSelect({
       return;
     }
 
-    const buscaPendente = debounceTimer.current !== null || isLoading;
+    const buscaPendente = hasPendingSearch() || isLoading;
     if (!buscaPendente) {
       return;
     }
 
     event.preventDefault();
-    if (debounceTimer.current !== null) {
-      window.clearTimeout(debounceTimer.current);
-      debounceTimer.current = null;
-    }
+    cancelPending();
 
     fetchOptions(termo, (loaded) => {
       const [primeiro] = loaded.filter((option) => !option.__isCreate);
@@ -339,16 +239,14 @@ export default function AsyncSelect({
   return (
     <Select<SelectOption, false>
       ref={selectRef as React.Ref<SelectInstance<SelectOption, false>>}
+      inputId={inputId}
       classNamePrefix="app-select"
       options={options}
       isLoading={isLoading}
       filterOption={null}
       openMenuOnClick
       onMenuOpen={() => {
-        if (debounceTimer.current !== null) {
-          window.clearTimeout(debounceTimer.current);
-          debounceTimer.current = null;
-        }
+        cancelPending();
         fetchOptions('');
       }}
       onKeyDown={handleKeyDown}
@@ -373,4 +271,20 @@ export default function AsyncSelect({
       closeMenuOnSelect
     />
   );
+}
+
+/**
+ * Autocomplete assíncrono. No desktop é um dropdown (react-select); no celular abre uma
+ * tela de busca. Fluxos de leitura em sequência (`keepFocusOnSelect`, `selectFirstOnEnter`)
+ * ficam sempre no dropdown, para não abrir uma tela a cada item.
+ */
+export default function AsyncSelect(props: AsyncSelectProps) {
+  const isMobile = useIsMobile();
+  const usaTelaDeBusca = isMobile && !props.keepFocusOnSelect && !props.selectFirstOnEnter;
+
+  if (usaTelaDeBusca) {
+    return <AsyncSelectMobile {...props} />;
+  }
+
+  return <AsyncSelectDropdown {...props} />;
 }
