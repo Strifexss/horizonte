@@ -10,7 +10,7 @@ Chat do Copiloto, no módulo `copiloto`, que responde só dúvidas de uso do sis
 
 - Escopo: só ajuda de uso, sem tools de dados.
 - Ícone: headset sem a estrela.
-- Acesso: botão no header, ao lado de Novidades. No desktop abre um painel lateral; no celular, um Sheet de baixo com 85% da altura.
+- Acesso: botão no header, ao lado de Novidades. No desktop abre um painel lateral; no celular, um modal em tela cheia (contrato "Modal no mobile").
 - Conteúdo da ajuda: um Markdown por tela do menu em `resources/ajuda/`, versionado com o código.
 - Histórico: `RemembersConversations` do `laravel/ai`, enviando ao modelo só as últimas 20 mensagens. A conversa é sempre conferida contra o usuário logado.
 

@@ -39,7 +39,7 @@ Quem usa o Horizonte não tem onde tirar dúvida de uso dentro do app. O módulo
 - O `continue()` do SDK não confere o dono da conversa. O Service confere sempre.
 - Limites: 10 perguntas por minuto e 100 por dia por usuário (`config/copiloto.php`). O limite global da chave de IA é compartilhado com os insights (mesma chave do `RateLimited('insights-ia')`).
 - Configurações no admin: tabela `configuracao` (chave → valor) e tela "Configurações". Começa com o WhatsApp do suporte `83988003516` (10 ou 11 dígitos, aberto via `wa.me/55…`). Vazio: sem botão de suporte.
-- Acesso: headset no header, ao lado de Novidades. Desktop: painel lateral; celular: Sheet de baixo com 85% da altura.
+- Acesso: headset no header, ao lado de Novidades. Desktop: painel lateral; celular: modal em tela cheia (contrato "Modal no mobile").
 - Produção usa a chave do Gemini em plano pago, com orçamento e alerta. O gratuito serve só para piloto.
 
 ## Fora desta versão
