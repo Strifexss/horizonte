@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog } from '@/components/ui/dialog';
 import { FormDialogBody, FormDialogCancel, FormDialogContent, FormDialogFooter, FormDialogForm, FormDialogHeader } from '@/components/ui/form-dialog';
+import { FormDialogCorrecao, FormDialogField } from '@/components/ui/form-dialog-correcao';
 import { Label } from '@/components/ui/label';
 import { useForm } from '@inertiajs/react';
 import { FormEvent, useEffect, useState } from 'react';
@@ -131,84 +132,87 @@ export default function UsuariosTransferModal({ open, onOpenChange, urls }: Prop
                     title="Transferência de Dados entre Usuários"
                     description="Os dados selecionados são duplicados na conta de destino; a conta de origem continua com eles."
                 />
-
-                <FormDialogForm onSubmit={submit} noValidate>
-                    <FormDialogBody>
-                        <div className="grid items-start gap-4 md:grid-cols-2">
-                            <div className="grid gap-2">
-                                <Label>Transferir de</Label>
-                                <AsyncSelect
-                                    value={origem}
-                                    onChange={selecionarOrigem}
-                                    loadOptions={loadUsuarios}
-                                    placeholder="Buscar usuário de origem..."
-                                    isClearable
-                                />
-                                <InputError message={errors.origem_id} />
+                <FormDialogCorrecao errors={errors} formId="transferencia_form" processing={processing} titulo="Corrigir transferência">
+                    <FormDialogForm id="transferencia_form" onSubmit={submit} noValidate>
+                        <FormDialogBody>
+                            <div className="grid items-start gap-4 md:grid-cols-2">
+                                <FormDialogField name="origem_id">
+                                    <Label>Transferir de</Label>
+                                    <AsyncSelect
+                                        value={origem}
+                                        onChange={selecionarOrigem}
+                                        loadOptions={loadUsuarios}
+                                        placeholder="Buscar usuário de origem..."
+                                        isClearable
+                                    />
+                                    <InputError message={errors.origem_id} />
+                                </FormDialogField>
+                                <FormDialogField name="destino_id">
+                                    <Label>Transferir para</Label>
+                                    <AsyncSelect
+                                        value={destino}
+                                        onChange={selecionarDestino}
+                                        loadOptions={loadUsuarios}
+                                        placeholder="Buscar usuário de destino..."
+                                        isClearable
+                                    />
+                                    <InputError message={erroDestino ?? errors.destino_id} />
+                                </FormDialogField>
                             </div>
-                            <div className="grid gap-2">
-                                <Label>Transferir para</Label>
-                                <AsyncSelect
-                                    value={destino}
-                                    onChange={selecionarDestino}
-                                    loadOptions={loadUsuarios}
-                                    placeholder="Buscar usuário de destino..."
-                                    isClearable
-                                />
-                                <InputError message={erroDestino ?? errors.destino_id} />
-                            </div>
-                        </div>
 
-                        {usuariosSelecionados && (
-                            <div className="grid gap-3">
-                                <Label>Módulos disponíveis</Label>
-                                {MODULOS.map((modulo) => (
-                                    <div key={modulo.valor} className="flex items-center gap-2">
+                            {usuariosSelecionados && (
+                                <FormDialogField name="modulos" className="gap-3">
+                                    <Label>Módulos disponíveis</Label>
+                                    {MODULOS.map((modulo) => (
+                                        <div key={modulo.valor} className="flex items-center gap-2">
+                                            <Checkbox
+                                                id={`modulo_${modulo.valor}`}
+                                                checked={data.modulos.includes(modulo.valor)}
+                                                onCheckedChange={(marcado) => alternarModulo(modulo.valor, marcado === true)}
+                                            />
+                                            <Label htmlFor={`modulo_${modulo.valor}`} className="font-normal">
+                                                {modulo.rotulo} ({contagens[modulo.valor] ?? '—'})
+                                            </Label>
+                                        </div>
+                                    ))}
+                                    <InputError message={errors.modulos} />
+
+                                    <div className="flex items-center gap-2">
                                         <Checkbox
-                                            id={`modulo_${modulo.valor}`}
-                                            checked={data.modulos.includes(modulo.valor)}
-                                            onCheckedChange={(marcado) => alternarModulo(modulo.valor, marcado === true)}
+                                            id="migrar_relacionamentos"
+                                            checked={data.migrar_relacionamentos}
+                                            onCheckedChange={(marcado) => setData('migrar_relacionamentos', marcado === true)}
                                         />
-                                        <Label htmlFor={`modulo_${modulo.valor}`} className="font-normal">
-                                            {modulo.rotulo} ({contagens[modulo.valor] ?? '—'})
+                                        <Label htmlFor="migrar_relacionamentos" className="font-normal">
+                                            Manter/Migrar relacionamentos associados (ex.: fornecedor do produto)
                                         </Label>
                                     </div>
-                                ))}
-                                <InputError message={errors.modulos} />
+                                </FormDialogField>
+                            )}
 
+                            <FormDialogField name="confirmacao">
                                 <div className="flex items-center gap-2">
                                     <Checkbox
-                                        id="migrar_relacionamentos"
-                                        checked={data.migrar_relacionamentos}
-                                        onCheckedChange={(marcado) => setData('migrar_relacionamentos', marcado === true)}
+                                        id="confirmacao"
+                                        checked={data.confirmacao}
+                                        onCheckedChange={(marcado) => setData('confirmacao', marcado === true)}
                                     />
-                                    <Label htmlFor="migrar_relacionamentos" className="font-normal">
-                                        Manter/Migrar relacionamentos associados (ex.: fornecedor do produto)
+                                    <Label htmlFor="confirmacao" className="font-normal">
+                                        Estou ciente de que esta ação duplicará os dados selecionados na conta de destino
                                     </Label>
                                 </div>
-                            </div>
-                        )}
+                                <InputError message={errors.confirmacao} />
+                            </FormDialogField>
+                        </FormDialogBody>
 
-                        <div className="flex items-center gap-2">
-                            <Checkbox
-                                id="confirmacao"
-                                checked={data.confirmacao}
-                                onCheckedChange={(marcado) => setData('confirmacao', marcado === true)}
-                            />
-                            <Label htmlFor="confirmacao" className="font-normal">
-                                Estou ciente de que esta ação duplicará os dados selecionados na conta de destino
-                            </Label>
-                        </div>
-                        <InputError message={errors.confirmacao} />
-                    </FormDialogBody>
-
-                    <FormDialogFooter>
-                        <FormDialogCancel className="w-full" disabled={processing} />
-                        <Button className="w-full" type="submit" variant="confirm" disabled={!podeTransferir}>
-                            Confirmar e Transferir
-                        </Button>
-                    </FormDialogFooter>
-                </FormDialogForm>
+                        <FormDialogFooter>
+                            <FormDialogCancel className="w-full" disabled={processing} />
+                            <Button className="w-full" type="submit" variant="confirm" disabled={!podeTransferir}>
+                                Confirmar e Transferir
+                            </Button>
+                        </FormDialogFooter>
+                    </FormDialogForm>
+                </FormDialogCorrecao>
             </FormDialogContent>
         </Dialog>
     );

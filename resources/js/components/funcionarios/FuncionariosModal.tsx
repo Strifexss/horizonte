@@ -5,6 +5,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FORM_DIALOG_LIST, FORM_DIALOG_PANEL, FormDialogBody, FormDialogContent, FormDialogHeader } from '@/components/ui/form-dialog';
+import { FormDialogCorrecao, FormDialogField } from '@/components/ui/form-dialog-correcao';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MoneyInput, { parseMoneyValue } from '@/components/ui/money-input';
@@ -125,103 +126,107 @@ export default function FuncionariosModal({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <FormDialogContent>
                 <FormDialogHeader title="Funcionários" description="Gerencie os funcionários vinculados aos lançamentos de salário." />
-                <FormDialogBody>
-                    <div className={FORM_DIALOG_PANEL}>
-                        <form onSubmit={submit} noValidate className="grid gap-2">
-                            <div className="grid gap-2 md:grid-cols-2">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="funcionario_nome">Nome do Funcionário</Label>
-                                    <Input
-                                        id="funcionario_nome"
-                                        value={data.nome}
-                                        onChange={(e) => setData('nome', e.target.value)}
-                                        placeholder="Nome do funcionário"
-                                        disabled={processing}
-                                    />
-                                    <InputError message={errors.nome} />
+                <FormDialogCorrecao errors={errors} formId="funcionario_form" processing={processing} titulo="Corrigir funcionário">
+                    <FormDialogBody>
+                        <div className={FORM_DIALOG_PANEL}>
+                            <form id="funcionario_form" onSubmit={submit} noValidate className="grid gap-2">
+                                <div className="grid gap-2 md:grid-cols-2">
+                                    <FormDialogField name="nome">
+                                        <Label htmlFor="funcionario_nome">Nome do Funcionário</Label>
+                                        <Input
+                                            id="funcionario_nome"
+                                            value={data.nome}
+                                            onChange={(e) => setData('nome', e.target.value)}
+                                            placeholder="Nome do funcionário"
+                                            disabled={processing}
+                                        />
+                                        <InputError message={errors.nome} />
+                                    </FormDialogField>
+                                    <FormDialogField name="salario">
+                                        <Label htmlFor="salario">Salário / Remuneração</Label>
+                                        <MoneyInput
+                                            id="salario"
+                                            value={data.salario ? Number(data.salario) : null}
+                                            onValueChange={(v) => setData('salario', v === null ? '' : v.toFixed(2))}
+                                            placeholder="0,00"
+                                            disabled={processing}
+                                        />
+                                        <InputError message={errors.salario} />
+                                    </FormDialogField>
                                 </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="salario">Salário / Remuneração</Label>
-                                    <MoneyInput
-                                        id="salario"
-                                        value={data.salario ? Number(data.salario) : null}
-                                        onValueChange={(v) => setData('salario', v === null ? '' : v.toFixed(2))}
-                                        placeholder="0,00"
-                                        disabled={processing}
-                                    />
-                                    <InputError message={errors.salario} />
-                                </div>
-                            </div>
 
-                            <DialogFooter className="flex flex-row gap-2">
-                                <DialogClose asChild>
+                                <DialogFooter className="flex flex-row gap-2">
+                                    <DialogClose asChild>
+                                        <Button
+                                            className="hidden w-full md:inline-flex"
+                                            variant="secondary"
+                                            type="button"
+                                            onClick={() => {
+                                                reset();
+                                                setEditingId(null);
+                                            }}
+                                        >
+                                            Cancelar
+                                        </Button>
+                                    </DialogClose>
+                                    <Button type="submit" className="w-full" disabled={processing} variant="confirm">
+                                        {editingId ? 'Atualizar' : 'Adicionar'}
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+
+                            <div className={FORM_DIALOG_LIST}>
+                                {loading ? (
+                                    <div>Carregando...</div>
+                                ) : (
+                                    <div className="grid gap-2">
+                                        {funcionarios.map((f) => (
+                                            <FuncionarioRow key={f.id} funcionario={f} onEdit={() => startEdit(f)} onDelete={() => doDelete(f)} />
+                                        ))}
+                                        {funcionarios.length === 0 && (
+                                            <div className="text-muted-foreground text-sm">Nenhum funcionário encontrado.</div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Confirmar exclusão</DialogTitle>
+                                    <DialogDescription>
+                                        O funcionário &quot;{funcionarioToDelete?.nome ?? ''}&quot; será removido. Os lançamentos vinculados
+                                        permanecerão, mas sem o funcionário associado (o vínculo será limpo). Esta ação não pode ser desfeita.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <DialogFooter>
+                                    <DialogClose asChild>
+                                        <Button variant="secondary" onClick={() => setConfirmOpen(false)}>
+                                            Cancelar
+                                        </Button>
+                                    </DialogClose>
                                     <Button
-                                        className="hidden w-full md:inline-flex"
-                                        variant="secondary"
-                                        type="button"
+                                        variant="destructive"
+                                        className="ml-2"
                                         onClick={() => {
-                                            reset();
-                                            setEditingId(null);
+                                            if (!funcionarioToDelete) return;
+                                            destroy(route('funcionarios.destroy', funcionarioToDelete.id), {
+                                                onSuccess: () => {
+                                                    setConfirmOpen(false);
+                                                    setFuncionarioToDelete(null);
+                                                    router.reload({ only: ['funcionarios'] });
+                                                },
+                                            });
                                         }}
                                     >
-                                        Cancelar
+                                        Excluir
                                     </Button>
-                                </DialogClose>
-                                <Button type="submit" className="w-full" disabled={processing} variant="confirm">
-                                    {editingId ? 'Atualizar' : 'Adicionar'}
-                                </Button>
-                            </DialogFooter>
-                        </form>
-
-                        <div className={FORM_DIALOG_LIST}>
-                            {loading ? (
-                                <div>Carregando...</div>
-                            ) : (
-                                <div className="grid gap-2">
-                                    {funcionarios.map((f) => (
-                                        <FuncionarioRow key={f.id} funcionario={f} onEdit={() => startEdit(f)} onDelete={() => doDelete(f)} />
-                                    ))}
-                                    {funcionarios.length === 0 && <div className="text-muted-foreground text-sm">Nenhum funcionário encontrado.</div>}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Confirmar exclusão</DialogTitle>
-                                <DialogDescription>
-                                    O funcionário &quot;{funcionarioToDelete?.nome ?? ''}&quot; será removido. Os lançamentos vinculados permanecerão,
-                                    mas sem o funcionário associado (o vínculo será limpo). Esta ação não pode ser desfeita.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <DialogFooter>
-                                <DialogClose asChild>
-                                    <Button variant="secondary" onClick={() => setConfirmOpen(false)}>
-                                        Cancelar
-                                    </Button>
-                                </DialogClose>
-                                <Button
-                                    variant="destructive"
-                                    className="ml-2"
-                                    onClick={() => {
-                                        if (!funcionarioToDelete) return;
-                                        destroy(route('funcionarios.destroy', funcionarioToDelete.id), {
-                                            onSuccess: () => {
-                                                setConfirmOpen(false);
-                                                setFuncionarioToDelete(null);
-                                                router.reload({ only: ['funcionarios'] });
-                                            },
-                                        });
-                                    }}
-                                >
-                                    Excluir
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                </FormDialogBody>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </FormDialogBody>
+                </FormDialogCorrecao>
             </FormDialogContent>
         </Dialog>
     );

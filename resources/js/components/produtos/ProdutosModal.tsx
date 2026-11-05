@@ -6,6 +6,7 @@ import AsyncSelect from '@/components/ui/AsyncSelect';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FORM_DIALOG_LIST, FORM_DIALOG_PANEL, FormDialogBody, FormDialogContent, FormDialogHeader } from '@/components/ui/form-dialog';
+import { FormDialogCorrecao, FormDialogField } from '@/components/ui/form-dialog-correcao';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MoneyInput, { parseMoneyValue } from '@/components/ui/money-input';
@@ -178,120 +179,122 @@ export default function ProdutosModal({
             <Dialog open={open} onOpenChange={onOpenChange}>
                 <FormDialogContent>
                     <FormDialogHeader title="Produtos" description="Gerencie os produtos vinculados às despesas." />
-                    <FormDialogBody>
-                        <div className={FORM_DIALOG_PANEL}>
-                            <form onSubmit={submit} noValidate className="grid gap-2">
-                                <div className="grid gap-2 md:grid-cols-2">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="produto_nome">Nome do Produto</Label>
-                                        <Input
-                                            id="produto_nome"
-                                            value={data.nome}
-                                            onChange={(e) => setData('nome', e.target.value)}
-                                            placeholder="Nome do produto"
-                                            disabled={processing}
-                                        />
-                                        <InputError message={errors.nome} />
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="preco_compra">Preço de Compra</Label>
-                                        <MoneyInput
-                                            id="preco_compra"
-                                            value={data.preco_compra ? Number(data.preco_compra) : null}
-                                            onValueChange={(v) => setData('preco_compra', v === null ? '' : v.toFixed(2))}
-                                            placeholder="0,00"
-                                            disabled={processing}
-                                        />
-                                        <InputError message={errors.preco_compra} />
-                                    </div>
-                                    <div className="grid gap-2 md:col-span-2 md:grid-cols-2">
-                                        <div className="grid gap-2">
-                                            <Label>Fornecedor</Label>
-                                            <AsyncSelect
-                                                value={selectedFornecedor}
-                                                onChange={(val) => {
-                                                    setSelectedFornecedor(val ? { id: val.id, nome: val.nome } : null);
-                                                    setData('fornecedor_id', val ? Number(val.id) : null);
-                                                }}
-                                                loadOptions={loadFornecedores}
-                                                placeholder="Buscar fornecedor..."
-                                                isClearable
+                    <FormDialogCorrecao errors={errors} formId="produto_rapido_form" processing={processing} titulo="Corrigir produto">
+                        <FormDialogBody>
+                            <div className={FORM_DIALOG_PANEL}>
+                                <form id="produto_rapido_form" onSubmit={submit} noValidate className="grid gap-2">
+                                    <div className="grid gap-2 md:grid-cols-2">
+                                        <FormDialogField name="nome">
+                                            <Label htmlFor="produto_nome">Nome do Produto</Label>
+                                            <Input
+                                                id="produto_nome"
+                                                value={data.nome}
+                                                onChange={(e) => setData('nome', e.target.value)}
+                                                placeholder="Nome do produto"
+                                                disabled={processing}
                                             />
-                                            <InputError message={errors.fornecedor_id} />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label>Grupo</Label>
-                                            <div className="flex items-start gap-2">
-                                                <div className="min-w-0 flex-1">
-                                                    <AsyncSelect
-                                                        value={selectedGrupo}
-                                                        onChange={(val) => {
-                                                            setSelectedGrupo(val ? { id: val.id, nome: val.nome } : null);
-                                                            setData('grupo_id', val ? Number(val.id) : null);
-                                                        }}
-                                                        loadOptions={async (q: string = '') => {
-                                                            const res = await fetch(`/grupos?q=${encodeURIComponent(q)}`);
-                                                            if (!res.ok) return [];
-                                                            const payload = (await res.json()) as unknown;
-                                                            if (typeof payload !== 'object' || payload === null) return [];
-                                                            const grupos = (payload as { grupos?: unknown }).grupos;
-                                                            return Array.isArray(grupos) ? (grupos as NamedOption[]) : [];
-                                                        }}
-                                                        placeholder="Buscar grupo..."
-                                                        isClearable
-                                                    />
+                                            <InputError message={errors.nome} />
+                                        </FormDialogField>
+                                        <FormDialogField name="preco_compra">
+                                            <Label htmlFor="preco_compra">Preço de Compra</Label>
+                                            <MoneyInput
+                                                id="preco_compra"
+                                                value={data.preco_compra ? Number(data.preco_compra) : null}
+                                                onValueChange={(v) => setData('preco_compra', v === null ? '' : v.toFixed(2))}
+                                                placeholder="0,00"
+                                                disabled={processing}
+                                            />
+                                            <InputError message={errors.preco_compra} />
+                                        </FormDialogField>
+                                        <div className="grid gap-2 md:col-span-2 md:grid-cols-2">
+                                            <FormDialogField name="fornecedor_id">
+                                                <Label>Fornecedor</Label>
+                                                <AsyncSelect
+                                                    value={selectedFornecedor}
+                                                    onChange={(val) => {
+                                                        setSelectedFornecedor(val ? { id: val.id, nome: val.nome } : null);
+                                                        setData('fornecedor_id', val ? Number(val.id) : null);
+                                                    }}
+                                                    loadOptions={loadFornecedores}
+                                                    placeholder="Buscar fornecedor..."
+                                                    isClearable
+                                                />
+                                                <InputError message={errors.fornecedor_id} />
+                                            </FormDialogField>
+                                            <FormDialogField name="grupo_id">
+                                                <Label>Grupo</Label>
+                                                <div className="flex items-start gap-2">
+                                                    <div className="min-w-0 flex-1">
+                                                        <AsyncSelect
+                                                            value={selectedGrupo}
+                                                            onChange={(val) => {
+                                                                setSelectedGrupo(val ? { id: val.id, nome: val.nome } : null);
+                                                                setData('grupo_id', val ? Number(val.id) : null);
+                                                            }}
+                                                            loadOptions={async (q: string = '') => {
+                                                                const res = await fetch(`/grupos?q=${encodeURIComponent(q)}`);
+                                                                if (!res.ok) return [];
+                                                                const payload = (await res.json()) as unknown;
+                                                                if (typeof payload !== 'object' || payload === null) return [];
+                                                                const grupos = (payload as { grupos?: unknown }).grupos;
+                                                                return Array.isArray(grupos) ? (grupos as NamedOption[]) : [];
+                                                            }}
+                                                            placeholder="Buscar grupo..."
+                                                            isClearable
+                                                        />
+                                                    </div>
+                                                    <Button
+                                                        type="button"
+                                                        variant="secondary"
+                                                        size="icon"
+                                                        className="shrink-0"
+                                                        onClick={() => setGruposModalOpen(true)}
+                                                        aria-label="Cadastrar grupo"
+                                                        title="Cadastrar grupo"
+                                                    >
+                                                        <Plus className="h-4 w-4" />
+                                                    </Button>
                                                 </div>
-                                                <Button
-                                                    type="button"
-                                                    variant="secondary"
-                                                    size="icon"
-                                                    className="shrink-0"
-                                                    onClick={() => setGruposModalOpen(true)}
-                                                    aria-label="Cadastrar grupo"
-                                                    title="Cadastrar grupo"
-                                                >
-                                                    <Plus className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                            <InputError message={errors.grupo_id} />
+                                                <InputError message={errors.grupo_id} />
+                                            </FormDialogField>
                                         </div>
                                     </div>
-                                </div>
 
-                                <DialogFooter className="flex flex-row gap-2">
-                                    <DialogClose asChild>
-                                        <Button
-                                            className="hidden w-full md:inline-flex"
-                                            variant="secondary"
-                                            type="button"
-                                            onClick={() => {
-                                                reset();
-                                                setEditingId(null);
-                                            }}
-                                        >
-                                            Cancelar
+                                    <DialogFooter className="flex flex-row gap-2">
+                                        <DialogClose asChild>
+                                            <Button
+                                                className="hidden w-full md:inline-flex"
+                                                variant="secondary"
+                                                type="button"
+                                                onClick={() => {
+                                                    reset();
+                                                    setEditingId(null);
+                                                }}
+                                            >
+                                                Cancelar
+                                            </Button>
+                                        </DialogClose>
+                                        <Button type="submit" className="w-full" disabled={processing} variant="confirm">
+                                            {editingId ? 'Atualizar' : 'Adicionar'}
                                         </Button>
-                                    </DialogClose>
-                                    <Button type="submit" className="w-full" disabled={processing} variant="confirm">
-                                        {editingId ? 'Atualizar' : 'Adicionar'}
-                                    </Button>
-                                </DialogFooter>
-                            </form>
-                        </div>
+                                    </DialogFooter>
+                                </form>
+                            </div>
 
-                        <div className={FORM_DIALOG_LIST}>
-                            {loading ? (
-                                <div>Carregando...</div>
-                            ) : (
-                                <div className="grid gap-2">
-                                    {produtos.map((p) => (
-                                        <ProdutoRow key={p.id} produto={p} onEdit={() => startEdit(p)} onDelete={() => doDelete(p)} />
-                                    ))}
-                                    {produtos.length === 0 && <div className="text-muted-foreground text-sm">Nenhum produto encontrado.</div>}
-                                </div>
-                            )}
-                        </div>
-                    </FormDialogBody>
+                            <div className={FORM_DIALOG_LIST}>
+                                {loading ? (
+                                    <div>Carregando...</div>
+                                ) : (
+                                    <div className="grid gap-2">
+                                        {produtos.map((p) => (
+                                            <ProdutoRow key={p.id} produto={p} onEdit={() => startEdit(p)} onDelete={() => doDelete(p)} />
+                                        ))}
+                                        {produtos.length === 0 && <div className="text-muted-foreground text-sm">Nenhum produto encontrado.</div>}
+                                    </div>
+                                )}
+                            </div>
+                        </FormDialogBody>
+                    </FormDialogCorrecao>
                 </FormDialogContent>
             </Dialog>
 

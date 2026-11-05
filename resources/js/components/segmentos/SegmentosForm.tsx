@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog } from '@/components/ui/dialog';
 import { FormDialogBody, FormDialogCancel, FormDialogContent, FormDialogFooter, FormDialogForm, FormDialogHeader } from '@/components/ui/form-dialog';
+import { FormDialogCorrecao, FormDialogField } from '@/components/ui/form-dialog-correcao';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm } from '@inertiajs/react';
@@ -76,78 +77,88 @@ export default function SegmentosForm({ open, onOpenChange, segmento, storeUrl, 
                     title={segmento ? 'Editar segmento' : 'Adicionar segmento'}
                     description="O segmento define quais módulos opcionais as empresas dele recebem."
                 />
+                <FormDialogCorrecao errors={errors} formId="segmento_form" processing={processing} titulo="Corrigir segmento">
+                    <FormDialogForm id="segmento_form" onSubmit={submit}>
+                        <FormDialogBody className="gap-5">
+                            <FormDialogField name="nome">
+                                <Label htmlFor="segmento-nome">Nome</Label>
+                                <Input
+                                    id="segmento-nome"
+                                    value={data.nome}
+                                    onChange={(e) => setData('nome', e.target.value)}
+                                    maxLength={80}
+                                    disabled={processing}
+                                />
+                                <InputError message={errors.nome} />
+                            </FormDialogField>
 
-                <FormDialogForm onSubmit={submit}>
-                    <FormDialogBody className="gap-5">
-                        <div className="grid gap-2">
-                            <Label htmlFor="segmento-nome">Nome</Label>
-                            <Input
-                                id="segmento-nome"
-                                value={data.nome}
-                                onChange={(e) => setData('nome', e.target.value)}
-                                maxLength={80}
-                                disabled={processing}
-                            />
-                            <InputError message={errors.nome} />
-                        </div>
+                            <FormDialogField name="descricao">
+                                <Label htmlFor="segmento-descricao">Descrição</Label>
+                                <Input
+                                    id="segmento-descricao"
+                                    value={data.descricao}
+                                    onChange={(e) => setData('descricao', e.target.value)}
+                                    maxLength={255}
+                                    placeholder="Aparece no onboarding"
+                                    disabled={processing}
+                                />
+                                <InputError message={errors.descricao} />
+                            </FormDialogField>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="segmento-descricao">Descrição</Label>
-                            <Input
-                                id="segmento-descricao"
-                                value={data.descricao}
-                                onChange={(e) => setData('descricao', e.target.value)}
-                                maxLength={255}
-                                placeholder="Aparece no onboarding"
-                                disabled={processing}
-                            />
-                            <InputError message={errors.descricao} />
-                        </div>
+                            <FormDialogField name="modulos">
+                                <fieldset className="grid gap-3">
+                                    <legend className="mb-2 text-sm font-medium">Módulos opcionais</legend>
+                                    {catalogo.map((modulo) => (
+                                        <label
+                                            key={modulo.chave}
+                                            className="border-input flex cursor-pointer items-start gap-3 rounded-lg border p-3"
+                                        >
+                                            <Checkbox
+                                                checked={data.modulos.includes(modulo.chave)}
+                                                onCheckedChange={(marcado) => alternarModulo(modulo.chave, marcado === true)}
+                                                disabled={processing}
+                                                className="mt-0.5"
+                                            />
+                                            <span className="flex flex-col">
+                                                <span className="text-sm font-medium">{modulo.nome}</span>
+                                                <span className="text-muted-foreground text-xs">{modulo.descricao}</span>
+                                            </span>
+                                        </label>
+                                    ))}
+                                    <InputError message={errors.modulos} />
+                                </fieldset>
+                            </FormDialogField>
 
-                        <fieldset className="grid gap-3">
-                            <legend className="mb-2 text-sm font-medium">Módulos opcionais</legend>
-                            {catalogo.map((modulo) => (
-                                <label key={modulo.chave} className="border-input flex cursor-pointer items-start gap-3 rounded-lg border p-3">
-                                    <Checkbox
-                                        checked={data.modulos.includes(modulo.chave)}
-                                        onCheckedChange={(marcado) => alternarModulo(modulo.chave, marcado === true)}
-                                        disabled={processing}
-                                        className="mt-0.5"
-                                    />
-                                    <span className="flex flex-col">
-                                        <span className="text-sm font-medium">{modulo.nome}</span>
-                                        <span className="text-muted-foreground text-xs">{modulo.descricao}</span>
-                                    </span>
-                                </label>
-                            ))}
-                            <InputError message={errors.modulos} />
-                        </fieldset>
+                            <div className="grid gap-2">
+                                <p className="text-sm font-medium">Sempre incluídos</p>
+                                <ul className="text-muted-foreground grid grid-cols-1 gap-1 text-xs sm:grid-cols-2">
+                                    {obrigatorios.map((modulo) => (
+                                        <li key={modulo} className="flex items-center gap-1.5">
+                                            <Check className="h-3.5 w-3.5 text-emerald-600" />
+                                            {modulo}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
 
-                        <div className="grid gap-2">
-                            <p className="text-sm font-medium">Sempre incluídos</p>
-                            <ul className="text-muted-foreground grid grid-cols-1 gap-1 text-xs sm:grid-cols-2">
-                                {obrigatorios.map((modulo) => (
-                                    <li key={modulo} className="flex items-center gap-1.5">
-                                        <Check className="h-3.5 w-3.5 text-emerald-600" />
-                                        {modulo}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
+                            <label className="flex items-center gap-3 text-sm">
+                                <Checkbox
+                                    checked={data.ativo}
+                                    onCheckedChange={(marcado) => setData('ativo', marcado === true)}
+                                    disabled={processing}
+                                />
+                                Ativo (aparece no onboarding)
+                            </label>
+                        </FormDialogBody>
 
-                        <label className="flex items-center gap-3 text-sm">
-                            <Checkbox checked={data.ativo} onCheckedChange={(marcado) => setData('ativo', marcado === true)} disabled={processing} />
-                            Ativo (aparece no onboarding)
-                        </label>
-                    </FormDialogBody>
-
-                    <FormDialogFooter className="md:justify-end">
-                        <FormDialogCancel className="w-full md:w-auto" disabled={processing} />
-                        <Button type="submit" variant="confirm" className="w-full md:w-auto" disabled={processing}>
-                            Salvar
-                        </Button>
-                    </FormDialogFooter>
-                </FormDialogForm>
+                        <FormDialogFooter className="md:justify-end">
+                            <FormDialogCancel className="w-full md:w-auto" disabled={processing} />
+                            <Button type="submit" variant="confirm" className="w-full md:w-auto" disabled={processing}>
+                                Salvar
+                            </Button>
+                        </FormDialogFooter>
+                    </FormDialogForm>
+                </FormDialogCorrecao>
             </FormDialogContent>
         </Dialog>
     );

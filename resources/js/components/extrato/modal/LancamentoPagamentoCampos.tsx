@@ -1,5 +1,6 @@
 import type { FormaPagamentoItem } from '@/components/formas-pagamento/types';
 import InputError from '@/components/input-error';
+import { FormDialogField } from '@/components/ui/form-dialog-correcao';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -16,7 +17,7 @@ export default function LancamentoPagamentoCampos({ form, formasPagamento }: Pro
 
     return (
         <div className="grid gap-2 md:grid-cols-2">
-            <div className="grid gap-2">
+            <FormDialogField name="forma_pagamento_id">
                 <Label htmlFor="forma_pagamento_id">
                     Forma de pagamento <span className="text-red-500">*</span>
                 </Label>
@@ -44,8 +45,8 @@ export default function LancamentoPagamentoCampos({ form, formasPagamento }: Pro
                     </SelectContent>
                 </Select>
                 <InputError message={errors.forma_pagamento_id} />
-            </div>
-            <div className="grid gap-2">
+            </FormDialogField>
+            <FormDialogField name={['data_competencia', 'data_vencimento']}>
                 <Label htmlFor="data_competencia">
                     Data <span className="text-red-500">*</span>
                 </Label>
@@ -57,7 +58,7 @@ export default function LancamentoPagamentoCampos({ form, formasPagamento }: Pro
                     disabled={processing || ehLancamentoDeVenda}
                 />
                 <InputError message={errors.data_competencia || (errors as { data_vencimento?: string }).data_vencimento} />
-            </div>
+            </FormDialogField>
         </div>
     );
 }

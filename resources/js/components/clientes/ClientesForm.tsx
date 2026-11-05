@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog } from '@/components/ui/dialog';
 import { FormDialogBody, FormDialogCancel, FormDialogContent, FormDialogFooter, FormDialogForm, FormDialogHeader } from '@/components/ui/form-dialog';
+import { FormDialogCorrecao, FormDialogField } from '@/components/ui/form-dialog-correcao';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm } from '@inertiajs/react';
@@ -78,7 +79,7 @@ export default function ClientesForm({ open, onOpenChange, cliente, onCreated, o
 
     function campo(id: keyof Omit<ClienteFormValues, 'ativo'>, label: string, placeholder = '', type = 'text') {
         return (
-            <div className="grid gap-2">
+            <FormDialogField name={id}>
                 <Label htmlFor={`cliente_${id}`}>{label}</Label>
                 <Input
                     id={`cliente_${id}`}
@@ -89,7 +90,7 @@ export default function ClientesForm({ open, onOpenChange, cliente, onCreated, o
                     disabled={processing}
                 />
                 <InputError message={errors[id]} />
-            </div>
+            </FormDialogField>
         );
     }
 
@@ -100,35 +101,36 @@ export default function ClientesForm({ open, onOpenChange, cliente, onCreated, o
                     title={cliente ? 'Editar cliente' : 'Cadastrar cliente'}
                     description={cliente ? 'Atualize os dados do cliente.' : 'Preencha os dados para cadastrar um novo cliente.'}
                 />
+                <FormDialogCorrecao errors={errors} formId="cliente_form" processing={processing} titulo="Corrigir cliente">
+                    <FormDialogForm id="cliente_form" onSubmit={submit} noValidate>
+                        <FormDialogBody>
+                            {campo('nome', 'Nome', 'Nome do cliente')}
+                            <div className="grid gap-4 md:grid-cols-2">
+                                {campo('telefone', 'Telefone / WhatsApp', '(00) 00000-0000', 'tel')}
+                                {campo('documento', 'CPF / CNPJ', 'Opcional')}
+                            </div>
+                            {campo('email', 'E-mail', 'Opcional', 'email')}
+                            {campo('observacao', 'Observação', 'Ex.: endereço de entrega, preferências')}
 
-                <FormDialogForm onSubmit={submit} noValidate>
-                    <FormDialogBody>
-                        {campo('nome', 'Nome', 'Nome do cliente')}
-                        <div className="grid gap-4 md:grid-cols-2">
-                            {campo('telefone', 'Telefone / WhatsApp', '(00) 00000-0000', 'tel')}
-                            {campo('documento', 'CPF / CNPJ', 'Opcional')}
-                        </div>
-                        {campo('email', 'E-mail', 'Opcional', 'email')}
-                        {campo('observacao', 'Observação', 'Ex.: endereço de entrega, preferências')}
+                            <div className="flex items-center gap-2">
+                                <Checkbox
+                                    id="cliente_ativo"
+                                    checked={data.ativo}
+                                    onCheckedChange={(checked) => setData('ativo', checked === true)}
+                                    disabled={processing}
+                                />
+                                <Label htmlFor="cliente_ativo">Cliente ativo</Label>
+                            </div>
+                        </FormDialogBody>
 
-                        <div className="flex items-center gap-2">
-                            <Checkbox
-                                id="cliente_ativo"
-                                checked={data.ativo}
-                                onCheckedChange={(checked) => setData('ativo', checked === true)}
-                                disabled={processing}
-                            />
-                            <Label htmlFor="cliente_ativo">Cliente ativo</Label>
-                        </div>
-                    </FormDialogBody>
-
-                    <FormDialogFooter>
-                        <FormDialogCancel className="w-full" disabled={processing} />
-                        <Button className="w-full" type="submit" variant="confirm" disabled={processing}>
-                            Salvar
-                        </Button>
-                    </FormDialogFooter>
-                </FormDialogForm>
+                        <FormDialogFooter>
+                            <FormDialogCancel className="w-full" disabled={processing} />
+                            <Button className="w-full" type="submit" variant="confirm" disabled={processing}>
+                                Salvar
+                            </Button>
+                        </FormDialogFooter>
+                    </FormDialogForm>
+                </FormDialogCorrecao>
             </FormDialogContent>
         </Dialog>
     );

@@ -1,5 +1,6 @@
 import InputError from '@/components/input-error';
 import AsyncSelect from '@/components/ui/AsyncSelect';
+import { FormDialogField } from '@/components/ui/form-dialog-correcao';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { carregarFornecedores } from './buscaOpcoes';
@@ -17,7 +18,7 @@ export default function CampoFornecedor({ selecoes, cadastro, error }: Props) {
     const { rascunhoFornecedor: rascunho } = selecoes;
 
     return (
-        <div className="grid gap-2">
+        <FormDialogField name="fornecedor_id">
             <Label>Fornecedor</Label>
             <LinhaSelectComCadastro rotuloCadastrar="Cadastrar fornecedor" onCadastrar={selecoes.iniciarCadastroFornecedor}>
                 <AsyncSelect
@@ -57,6 +58,6 @@ export default function CampoFornecedor({ selecoes, cadastro, error }: Props) {
                 </PainelCadastroRapido>
             ) : null}
             <InputError message={error} />
-        </div>
+        </FormDialogField>
     );
 }

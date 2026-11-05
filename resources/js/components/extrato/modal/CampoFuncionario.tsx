@@ -1,5 +1,6 @@
 import InputError from '@/components/input-error';
 import AsyncSelect from '@/components/ui/AsyncSelect';
+import { FormDialogField } from '@/components/ui/form-dialog-correcao';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MoneyInput from '@/components/ui/money-input';
@@ -18,7 +19,7 @@ export default function CampoFuncionario({ selecoes, cadastro, error }: Props) {
     const { rascunhoFuncionario: rascunho } = selecoes;
 
     return (
-        <div className="grid gap-2">
+        <FormDialogField name="funcionario_id">
             <Label>Funcionário</Label>
             <LinhaSelectComCadastro rotuloCadastrar="Cadastrar funcionário" onCadastrar={selecoes.iniciarCadastroFuncionario}>
                 <AsyncSelect
@@ -64,6 +65,6 @@ export default function CampoFuncionario({ selecoes, cadastro, error }: Props) {
                 </PainelCadastroRapido>
             ) : null}
             <InputError message={error} />
-        </div>
+        </FormDialogField>
     );
 }

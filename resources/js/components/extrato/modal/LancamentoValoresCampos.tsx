@@ -1,4 +1,5 @@
 import InputError from '@/components/input-error';
+import { FormDialogField } from '@/components/ui/form-dialog-correcao';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MoneyInput from '@/components/ui/money-input';
@@ -37,7 +38,7 @@ export default function LancamentoValoresCampos({ form, tipo, mostrarQuantidade,
     return (
         <div className={`grid gap-2 ${tipo === 'RECEITA' ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
             {mostrarQuantidade && (
-                <div className="grid gap-2">
+                <FormDialogField name="quantidade">
                     <Label htmlFor="quantidade">Quantidade</Label>
                     <Input
                         id="quantidade"
@@ -48,9 +49,9 @@ export default function LancamentoValoresCampos({ form, tipo, mostrarQuantidade,
                         disabled={processing}
                     />
                     <InputError message={errors.quantidade} />
-                </div>
+                </FormDialogField>
             )}
-            <div className="grid gap-2">
+            <FormDialogField name="valor">
                 <Label>
                     Valor <span className="text-red-500">*</span>
                 </Label>
@@ -70,8 +71,8 @@ export default function LancamentoValoresCampos({ form, tipo, mostrarQuantidade,
                     disabled={processing || ehLancamentoDeVenda}
                 />
                 <InputError message={errors.valor} />
-            </div>
-            <div className="grid gap-2">
+            </FormDialogField>
+            <FormDialogField name="valor_pago">
                 <Label htmlFor="valor_pago">Valor pago</Label>
                 <MoneyInput
                     id="valor_pago"
@@ -81,7 +82,7 @@ export default function LancamentoValoresCampos({ form, tipo, mostrarQuantidade,
                     disabled={processing}
                 />
                 <InputError message={errors.valor_pago} />
-            </div>
+            </FormDialogField>
         </div>
     );
 }

@@ -1,5 +1,6 @@
 import InputError from '@/components/input-error';
 import AsyncSelect from '@/components/ui/AsyncSelect';
+import { FormDialogField } from '@/components/ui/form-dialog-correcao';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { carregarCategorias } from './buscaOpcoes';
@@ -21,7 +22,7 @@ export default function CampoCategoria({ selecoes, cadastro, tipo, disabled, err
     const { rascunhoCategoria: rascunho } = selecoes;
 
     return (
-        <div className="grid gap-2">
+        <FormDialogField name="categoria_id">
             <Label>
                 Categoria <span className="text-red-500">*</span>
             </Label>
@@ -67,6 +68,6 @@ export default function CampoCategoria({ selecoes, cadastro, tipo, disabled, err
                 </PainelCadastroRapido>
             ) : null}
             <InputError message={error} />
-        </div>
+        </FormDialogField>
     );
 }

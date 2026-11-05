@@ -5,6 +5,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FORM_DIALOG_LIST, FORM_DIALOG_PANEL, FormDialogBody, FormDialogContent, FormDialogHeader } from '@/components/ui/form-dialog';
+import { FormDialogCorrecao, FormDialogField } from '@/components/ui/form-dialog-correcao';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import CategoriaRow from './CategoriaRow';
@@ -110,108 +111,112 @@ export default function CategoriasModal({ open, onOpenChange }: { open: boolean;
         <Dialog open={open} onOpenChange={onOpenChange}>
             <FormDialogContent>
                 <FormDialogHeader title="Categorias" description="Gerencie categorias de receita e despesa." />
-                <FormDialogBody>
-                    <div className="flex gap-2">
-                        <button
-                            type="button"
-                            className={`rounded-md px-3 py-1 ${activeTab === 'receita' ? 'bg-primary text-primary-foreground' : 'bg-muted/5'}`}
-                            onClick={() => setActiveTab('receita')}
-                        >
-                            Receita
-                        </button>
-                        <button
-                            type="button"
-                            className={`rounded-md px-3 py-1 ${activeTab === 'despesa' ? 'bg-primary text-primary-foreground' : 'bg-muted/5'}`}
-                            onClick={() => setActiveTab('despesa')}
-                        >
-                            Despesa
-                        </button>
-                    </div>
+                <FormDialogCorrecao errors={errors} formId="categoria_form" processing={processing} titulo="Corrigir categoria">
+                    <FormDialogBody>
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                className={`rounded-md px-3 py-1 ${activeTab === 'receita' ? 'bg-primary text-primary-foreground' : 'bg-muted/5'}`}
+                                onClick={() => setActiveTab('receita')}
+                            >
+                                Receita
+                            </button>
+                            <button
+                                type="button"
+                                className={`rounded-md px-3 py-1 ${activeTab === 'despesa' ? 'bg-primary text-primary-foreground' : 'bg-muted/5'}`}
+                                onClick={() => setActiveTab('despesa')}
+                            >
+                                Despesa
+                            </button>
+                        </div>
 
-                    <div className={FORM_DIALOG_PANEL}>
-                        <form onSubmit={submit} className="grid gap-2">
-                            <div className="grid gap-2">
-                                <Label htmlFor="nome">Nome</Label>
-                                <Input
-                                    id="nome"
-                                    value={data.nome}
-                                    onChange={(e) => setData('nome', e.target.value)}
-                                    placeholder="Nome da categoria"
-                                    disabled={processing}
-                                />
-                                <InputError message={errors.nome} />
+                        <div className={FORM_DIALOG_PANEL}>
+                            <form id="categoria_form" onSubmit={submit} className="grid gap-2">
+                                <FormDialogField name="nome">
+                                    <Label htmlFor="nome">Nome</Label>
+                                    <Input
+                                        id="nome"
+                                        value={data.nome}
+                                        onChange={(e) => setData('nome', e.target.value)}
+                                        placeholder="Nome da categoria"
+                                        disabled={processing}
+                                    />
+                                    <InputError message={errors.nome} />
+                                </FormDialogField>
+
+                                <DialogFooter className="flex flex-row gap-2">
+                                    <DialogClose asChild>
+                                        <Button
+                                            className="hidden w-full md:inline-flex"
+                                            variant="secondary"
+                                            type="button"
+                                            onClick={() => {
+                                                reset();
+                                                setEditingId(null);
+                                            }}
+                                        >
+                                            Cancelar
+                                        </Button>
+                                    </DialogClose>
+                                    <Button type="submit" className="w-full" disabled={processing} variant="confirm">
+                                        {editingId ? 'Atualizar' : 'Adicionar'}
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+
+                            <div className={FORM_DIALOG_LIST}>
+                                {loading ? (
+                                    <div>Carregando...</div>
+                                ) : (
+                                    <div className="grid gap-2">
+                                        {categorias
+                                            .filter((c) => c.tipo === activeTab)
+                                            .map((c) => (
+                                                <CategoriaRow key={c.id} categoria={c} onEdit={() => startEdit(c)} onDelete={() => doDelete(c.id)} />
+                                            ))}
+                                        {categorias.filter((c) => c.tipo === activeTab).length === 0 && (
+                                            <div className="text-muted-foreground text-sm">Nenhuma categoria encontrada.</div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
-
-                            <DialogFooter className="flex flex-row gap-2">
-                                <DialogClose asChild>
+                        </div>
+                        {/* Delete confirmation dialog */}
+                        <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Confirmar exclusão</DialogTitle>
+                                    <DialogDescription>
+                                        Tem certeza que deseja excluir esta categoria? Esta ação não pode ser desfeita.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <DialogFooter>
+                                    <DialogClose asChild>
+                                        <Button variant="secondary" onClick={() => setConfirmOpen(false)}>
+                                            Cancelar
+                                        </Button>
+                                    </DialogClose>
                                     <Button
-                                        className="hidden w-full md:inline-flex"
-                                        variant="secondary"
-                                        type="button"
+                                        variant="destructive"
+                                        className="ml-2"
                                         onClick={() => {
-                                            reset();
-                                            setEditingId(null);
+                                            if (!categoriaToDelete) return;
+                                            destroy(route('categorias.destroy', categoriaToDelete), {
+                                                onSuccess: () => {
+                                                    setConfirmOpen(false);
+                                                    setCategoriaToDelete(null);
+                                                    router.reload({ only: ['categorias'] });
+                                                },
+                                            });
                                         }}
                                     >
-                                        Cancelar
+                                        Excluir
                                     </Button>
-                                </DialogClose>
-                                <Button type="submit" className="w-full" disabled={processing} variant="confirm">
-                                    {editingId ? 'Atualizar' : 'Adicionar'}
-                                </Button>
-                            </DialogFooter>
-                        </form>
-
-                        <div className={FORM_DIALOG_LIST}>
-                            {loading ? (
-                                <div>Carregando...</div>
-                            ) : (
-                                <div className="grid gap-2">
-                                    {categorias
-                                        .filter((c) => c.tipo === activeTab)
-                                        .map((c) => (
-                                            <CategoriaRow key={c.id} categoria={c} onEdit={() => startEdit(c)} onDelete={() => doDelete(c.id)} />
-                                        ))}
-                                    {categorias.filter((c) => c.tipo === activeTab).length === 0 && (
-                                        <div className="text-muted-foreground text-sm">Nenhuma categoria encontrada.</div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    {/* Delete confirmation dialog */}
-                    <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Confirmar exclusão</DialogTitle>
-                                <DialogDescription>Tem certeza que deseja excluir esta categoria? Esta ação não pode ser desfeita.</DialogDescription>
-                            </DialogHeader>
-                            <DialogFooter>
-                                <DialogClose asChild>
-                                    <Button variant="secondary" onClick={() => setConfirmOpen(false)}>
-                                        Cancelar
-                                    </Button>
-                                </DialogClose>
-                                <Button
-                                    variant="destructive"
-                                    className="ml-2"
-                                    onClick={() => {
-                                        if (!categoriaToDelete) return;
-                                        destroy(route('categorias.destroy', categoriaToDelete), {
-                                            onSuccess: () => {
-                                                setConfirmOpen(false);
-                                                setCategoriaToDelete(null);
-                                                router.reload({ only: ['categorias'] });
-                                            },
-                                        });
-                                    }}
-                                >
-                                    Excluir
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                </FormDialogBody>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </FormDialogBody>
+                </FormDialogCorrecao>
             </FormDialogContent>
         </Dialog>
     );

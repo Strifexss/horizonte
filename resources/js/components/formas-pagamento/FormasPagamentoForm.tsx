@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog } from '@/components/ui/dialog';
 import { FormDialogBody, FormDialogCancel, FormDialogContent, FormDialogFooter, FormDialogForm, FormDialogHeader } from '@/components/ui/form-dialog';
+import { FormDialogCorrecao, FormDialogField } from '@/components/ui/form-dialog-correcao';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm } from '@inertiajs/react';
@@ -81,55 +82,56 @@ export default function FormasPagamentoForm({ open, onOpenChange, forma, onCreat
                     title={forma ? 'Editar forma de pagamento' : 'Nova forma de pagamento'}
                     description="Formas cadastradas aqui aparecem só para você."
                 />
+                <FormDialogCorrecao errors={errors} formId="forma_pagamento_form" processing={processing} titulo="Corrigir forma de pagamento">
+                    <FormDialogForm id="forma_pagamento_form" onSubmit={submit} noValidate>
+                        <FormDialogBody>
+                            <FormDialogField name="nome">
+                                <Label htmlFor="forma_pagamento_nome">Nome</Label>
+                                <Input
+                                    id="forma_pagamento_nome"
+                                    value={data.nome}
+                                    onChange={(event) => setData('nome', event.target.value)}
+                                    placeholder="Ex.: Boleto, Vale refeição"
+                                    disabled={processing}
+                                    autoFocus
+                                />
+                                <InputError message={errors.nome} />
+                            </FormDialogField>
 
-                <FormDialogForm onSubmit={submit} noValidate>
-                    <FormDialogBody>
-                        <div className="grid gap-2">
-                            <Label htmlFor="forma_pagamento_nome">Nome</Label>
-                            <Input
-                                id="forma_pagamento_nome"
-                                value={data.nome}
-                                onChange={(event) => setData('nome', event.target.value)}
-                                placeholder="Ex.: Boleto, Vale refeição"
-                                disabled={processing}
-                                autoFocus
-                            />
-                            <InputError message={errors.nome} />
-                        </div>
+                            <div className="grid gap-1">
+                                <div className="flex items-center gap-2">
+                                    <Checkbox
+                                        id="forma_pagamento_baixa"
+                                        checked={data.baixa_automatica}
+                                        onCheckedChange={(checked) => setData('baixa_automatica', checked === true)}
+                                        disabled={processing}
+                                    />
+                                    <Label htmlFor="forma_pagamento_baixa">Baixa automática</Label>
+                                </div>
+                                <p className="text-muted-foreground text-xs">
+                                    Receitas de venda com esta forma já entram pagas. Sem ela, entram em aberto para baixar depois.
+                                </p>
+                            </div>
 
-                        <div className="grid gap-1">
                             <div className="flex items-center gap-2">
                                 <Checkbox
-                                    id="forma_pagamento_baixa"
-                                    checked={data.baixa_automatica}
-                                    onCheckedChange={(checked) => setData('baixa_automatica', checked === true)}
+                                    id="forma_pagamento_ativo"
+                                    checked={data.ativo}
+                                    onCheckedChange={(checked) => setData('ativo', checked === true)}
                                     disabled={processing}
                                 />
-                                <Label htmlFor="forma_pagamento_baixa">Baixa automática</Label>
+                                <Label htmlFor="forma_pagamento_ativo">Ativa</Label>
                             </div>
-                            <p className="text-muted-foreground text-xs">
-                                Receitas de venda com esta forma já entram pagas. Sem ela, entram em aberto para baixar depois.
-                            </p>
-                        </div>
+                        </FormDialogBody>
 
-                        <div className="flex items-center gap-2">
-                            <Checkbox
-                                id="forma_pagamento_ativo"
-                                checked={data.ativo}
-                                onCheckedChange={(checked) => setData('ativo', checked === true)}
-                                disabled={processing}
-                            />
-                            <Label htmlFor="forma_pagamento_ativo">Ativa</Label>
-                        </div>
-                    </FormDialogBody>
-
-                    <FormDialogFooter>
-                        <FormDialogCancel className="w-full" disabled={processing} />
-                        <Button className="w-full" type="submit" variant="confirm" disabled={processing}>
-                            Salvar
-                        </Button>
-                    </FormDialogFooter>
-                </FormDialogForm>
+                        <FormDialogFooter>
+                            <FormDialogCancel className="w-full" disabled={processing} />
+                            <Button className="w-full" type="submit" variant="confirm" disabled={processing}>
+                                Salvar
+                            </Button>
+                        </FormDialogFooter>
+                    </FormDialogForm>
+                </FormDialogCorrecao>
             </FormDialogContent>
         </Dialog>
     );

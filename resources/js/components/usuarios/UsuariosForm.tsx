@@ -2,6 +2,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { FormDialogBody, FormDialogCancel, FormDialogContent, FormDialogFooter, FormDialogForm, FormDialogHeader } from '@/components/ui/form-dialog';
+import { FormDialogCorrecao, FormDialogField } from '@/components/ui/form-dialog-correcao';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm } from '@inertiajs/react';
@@ -66,56 +67,57 @@ export default function UsuariosForm({ open, onOpenChange, mode, usuario, storeU
                     title={mode === 'edit' ? 'Editar usuário' : 'Adicionar usuário'}
                     description={mode === 'edit' ? 'Deixe a senha em branco para manter a atual.' : 'Preencha os dados do novo usuário.'}
                 />
+                <FormDialogCorrecao errors={errors} formId="usuario_form" processing={processing} titulo="Corrigir usuário">
+                    <FormDialogForm id="usuario_form" onSubmit={submit}>
+                        <FormDialogBody>
+                            <FormDialogField name="name">
+                                <Label htmlFor="usuario-name">Nome</Label>
+                                <Input
+                                    id="usuario-name"
+                                    value={data.name}
+                                    onChange={(e) => setData('name', e.target.value)}
+                                    autoComplete="off"
+                                    disabled={processing}
+                                />
+                                <InputError message={errors.name} />
+                            </FormDialogField>
 
-                <FormDialogForm onSubmit={submit}>
-                    <FormDialogBody>
-                        <div className="grid gap-2">
-                            <Label htmlFor="usuario-name">Nome</Label>
-                            <Input
-                                id="usuario-name"
-                                value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
-                                autoComplete="off"
-                                disabled={processing}
-                            />
-                            <InputError message={errors.name} />
-                        </div>
+                            <FormDialogField name="email">
+                                <Label htmlFor="usuario-email">E-mail</Label>
+                                <Input
+                                    id="usuario-email"
+                                    type="email"
+                                    value={data.email}
+                                    onChange={(e) => setData('email', e.target.value)}
+                                    autoComplete="off"
+                                    disabled={processing}
+                                />
+                                <InputError message={errors.email} />
+                            </FormDialogField>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="usuario-email">E-mail</Label>
-                            <Input
-                                id="usuario-email"
-                                type="email"
-                                value={data.email}
-                                onChange={(e) => setData('email', e.target.value)}
-                                autoComplete="off"
-                                disabled={processing}
-                            />
-                            <InputError message={errors.email} />
-                        </div>
+                            <FormDialogField name="password">
+                                <Label htmlFor="usuario-password">{mode === 'edit' ? 'Nova senha' : 'Senha'}</Label>
+                                <Input
+                                    id="usuario-password"
+                                    type="password"
+                                    value={data.password}
+                                    onChange={(e) => setData('password', e.target.value)}
+                                    autoComplete="new-password"
+                                    placeholder={mode === 'edit' ? 'Opcional' : ''}
+                                    disabled={processing}
+                                />
+                                <InputError message={errors.password} />
+                            </FormDialogField>
+                        </FormDialogBody>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="usuario-password">{mode === 'edit' ? 'Nova senha' : 'Senha'}</Label>
-                            <Input
-                                id="usuario-password"
-                                type="password"
-                                value={data.password}
-                                onChange={(e) => setData('password', e.target.value)}
-                                autoComplete="new-password"
-                                placeholder={mode === 'edit' ? 'Opcional' : ''}
-                                disabled={processing}
-                            />
-                            <InputError message={errors.password} />
-                        </div>
-                    </FormDialogBody>
-
-                    <FormDialogFooter className="md:justify-end">
-                        <FormDialogCancel className="w-full md:w-auto" disabled={processing} />
-                        <Button type="submit" variant="confirm" className="w-full md:w-auto" disabled={processing}>
-                            Salvar
-                        </Button>
-                    </FormDialogFooter>
-                </FormDialogForm>
+                        <FormDialogFooter className="md:justify-end">
+                            <FormDialogCancel className="w-full md:w-auto" disabled={processing} />
+                            <Button type="submit" variant="confirm" className="w-full md:w-auto" disabled={processing}>
+                                Salvar
+                            </Button>
+                        </FormDialogFooter>
+                    </FormDialogForm>
+                </FormDialogCorrecao>
             </FormDialogContent>
         </Dialog>
     );

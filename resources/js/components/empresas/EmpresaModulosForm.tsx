@@ -3,6 +3,7 @@ import type { ModuloOpcional, Segmento } from '@/components/segmentos/types';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { FormDialogBody, FormDialogCancel, FormDialogContent, FormDialogFooter, FormDialogForm, FormDialogHeader } from '@/components/ui/form-dialog';
+import { FormDialogCorrecao, FormDialogField } from '@/components/ui/form-dialog-correcao';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { useForm } from '@inertiajs/react';
@@ -64,86 +65,93 @@ export default function EmpresaModulosForm({ open, onOpenChange, empresa, segmen
                     title={empresa?.nome}
                     description="Escolha o segmento e, se precisar, ligue ou desligue módulos só para esta empresa."
                 />
-
-                <FormDialogForm onSubmit={submit}>
-                    <FormDialogBody className="gap-5">
-                        <div className="grid gap-2">
-                            <Label htmlFor="empresa-segmento">Segmento</Label>
-                            <select
-                                id="empresa-segmento"
-                                value={data.segmento_id}
-                                onChange={(e) => setData('segmento_id', Number(e.target.value))}
-                                disabled={processing}
-                                className="border-input bg-background h-9 rounded-md border px-3 text-sm"
-                            >
-                                {segmentos.map((segmento) => (
-                                    <option key={segmento.id} value={segmento.id}>
-                                        {segmento.nome}
-                                        {segmento.ativo ? '' : ' (inativo)'}
-                                    </option>
-                                ))}
-                            </select>
-                            <InputError message={errors.segmento_id} />
-                        </div>
-
-                        <fieldset className="grid gap-3">
-                            <legend className="mb-2 text-sm font-medium">Módulos opcionais</legend>
-                            {catalogo.map((modulo) => (
-                                <div
-                                    key={modulo.chave}
-                                    className="border-input flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between"
+                <FormDialogCorrecao errors={errors} formId="empresa_modulos_form" processing={processing} titulo="Corrigir módulos">
+                    <FormDialogForm id="empresa_modulos_form" onSubmit={submit}>
+                        <FormDialogBody className="gap-5">
+                            <FormDialogField name="segmento_id">
+                                <Label htmlFor="empresa-segmento">Segmento</Label>
+                                <select
+                                    id="empresa-segmento"
+                                    value={data.segmento_id}
+                                    onChange={(e) => setData('segmento_id', Number(e.target.value))}
+                                    disabled={processing}
+                                    className="border-input bg-background h-9 rounded-md border px-3 text-sm"
                                 >
-                                    <div className="flex flex-col">
-                                        <span className="flex items-center gap-2 text-sm font-medium">
-                                            {modulo.nome}
-                                            <span
-                                                className={cn(
-                                                    'rounded-full px-2 py-0.5 text-xs font-medium',
-                                                    disponivel(modulo.chave)
-                                                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
-                                                        : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300',
-                                                )}
+                                    {segmentos.map((segmento) => (
+                                        <option key={segmento.id} value={segmento.id}>
+                                            {segmento.nome}
+                                            {segmento.ativo ? '' : ' (inativo)'}
+                                        </option>
+                                    ))}
+                                </select>
+                                <InputError message={errors.segmento_id} />
+                            </FormDialogField>
+
+                            <FormDialogField name="ajustes">
+                                <fieldset className="grid gap-3">
+                                    <legend className="mb-2 text-sm font-medium">Módulos opcionais</legend>
+                                    {catalogo.map((modulo) => (
+                                        <div
+                                            key={modulo.chave}
+                                            className="border-input flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between"
+                                        >
+                                            <div className="flex flex-col">
+                                                <span className="flex items-center gap-2 text-sm font-medium">
+                                                    {modulo.nome}
+                                                    <span
+                                                        className={cn(
+                                                            'rounded-full px-2 py-0.5 text-xs font-medium',
+                                                            disponivel(modulo.chave)
+                                                                ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                                                                : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300',
+                                                        )}
+                                                    >
+                                                        {disponivel(modulo.chave) ? 'Disponível' : 'Indisponível'}
+                                                    </span>
+                                                </span>
+                                                <span className="text-muted-foreground text-xs">{modulo.descricao}</span>
+                                            </div>
+                                            <div
+                                                role="radiogroup"
+                                                aria-label={`Ajuste de ${modulo.nome}`}
+                                                className="bg-muted inline-flex rounded-md p-0.5"
                                             >
-                                                {disponivel(modulo.chave) ? 'Disponível' : 'Indisponível'}
-                                            </span>
-                                        </span>
-                                        <span className="text-muted-foreground text-xs">{modulo.descricao}</span>
-                                    </div>
-                                    <div role="radiogroup" aria-label={`Ajuste de ${modulo.nome}`} className="bg-muted inline-flex rounded-md p-0.5">
-                                        {ESTADOS.map((estado) => {
-                                            const marcado = (data.ajustes[modulo.chave] ?? 'herdar') === estado.valor;
+                                                {ESTADOS.map((estado) => {
+                                                    const marcado = (data.ajustes[modulo.chave] ?? 'herdar') === estado.valor;
 
-                                            return (
-                                                <button
-                                                    key={estado.valor}
-                                                    type="button"
-                                                    role="radio"
-                                                    aria-checked={marcado}
-                                                    onClick={() => setData('ajustes', { ...data.ajustes, [modulo.chave]: estado.valor })}
-                                                    disabled={processing}
-                                                    className={cn(
-                                                        'h-8 rounded px-2.5 text-xs font-medium',
-                                                        marcado ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground',
-                                                    )}
-                                                >
-                                                    {estado.rotulo}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            ))}
-                            <InputError message={errors.ajustes} />
-                        </fieldset>
-                    </FormDialogBody>
+                                                    return (
+                                                        <button
+                                                            key={estado.valor}
+                                                            type="button"
+                                                            role="radio"
+                                                            aria-checked={marcado}
+                                                            onClick={() => setData('ajustes', { ...data.ajustes, [modulo.chave]: estado.valor })}
+                                                            disabled={processing}
+                                                            className={cn(
+                                                                'h-8 rounded px-2.5 text-xs font-medium',
+                                                                marcado ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground',
+                                                            )}
+                                                        >
+                                                            {estado.rotulo}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <InputError message={errors.ajustes} />
+                                </fieldset>
+                            </FormDialogField>
+                        </FormDialogBody>
 
-                    <FormDialogFooter className="md:justify-end">
-                        <FormDialogCancel className="w-full md:w-auto" disabled={processing} />
-                        <Button type="submit" variant="confirm" className="w-full md:w-auto" disabled={processing}>
-                            Salvar
-                        </Button>
-                    </FormDialogFooter>
-                </FormDialogForm>
+                        <FormDialogFooter className="md:justify-end">
+                            <FormDialogCancel className="w-full md:w-auto" disabled={processing} />
+                            <Button type="submit" variant="confirm" className="w-full md:w-auto" disabled={processing}>
+                                Salvar
+                            </Button>
+                        </FormDialogFooter>
+                    </FormDialogForm>
+                </FormDialogCorrecao>
             </FormDialogContent>
         </Dialog>
     );
