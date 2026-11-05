@@ -15,7 +15,7 @@ final class Modulos
      */
     public const OPCIONAIS = [
         self::MENU_BOARD => ['nome' => 'Menu Board', 'descricao' => 'Cardápio na TV do balcão, pareamento e exibição.'],
-        self::COPILOTO => ['nome' => 'Copiloto', 'descricao' => 'Insights de IA no Dashboard.'],
+        self::COPILOTO => ['nome' => 'Copiloto Pro', 'descricao' => 'Insights de IA no Dashboard. O chat de ajuda do Copiloto é gratuito para todos.'],
     ];
 
     /**

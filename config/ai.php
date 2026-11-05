@@ -41,6 +41,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Conversations
+    |--------------------------------------------------------------------------
+    |
+    | generate_title: com true, o SDK faz uma chamada extra à IA em cada
+    | conversa nova só para gerar um título. O Copiloto não lista conversas,
+    | então o título é o começo da primeira pergunta.
+    |
+    */
+
+    'conversations' => [
+        'generate_title' => false,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | AI Providers
     |--------------------------------------------------------------------------
     |

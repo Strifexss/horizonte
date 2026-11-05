@@ -2,6 +2,10 @@
 titulo: Menu Board
 rota: menu-boards
 modulo: menu_board
+sugestoes:
+  - Como conecto a TV?
+  - Como coloco um board na TV?
+  - Por que a TV não atualizou?
 ---
 
 # Menu Board

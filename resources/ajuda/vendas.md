@@ -2,6 +2,10 @@
 titulo: Vendas
 rota: vendas
 modulo: null
+sugestoes:
+  - Como faço uma venda?
+  - Qual a diferença entre venda aberta e fechada?
+  - Como cancelo uma venda?
 ---
 
 # Vendas

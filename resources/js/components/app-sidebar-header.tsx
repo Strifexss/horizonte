@@ -1,4 +1,5 @@
 import { Breadcrumbs } from '@/components/breadcrumbs';
+import CopilotoPainel from '@/components/copiloto/CopilotoPainel';
 import NovidadesGaveta from '@/components/novidades/NovidadesGaveta';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { type BreadcrumbItem as BreadcrumbItemType } from '@/types';
@@ -10,8 +11,9 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
                 <SidebarTrigger className="-ml-1" />
                 <Breadcrumbs breadcrumbs={breadcrumbs} />
             </div>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-1">
                 <NovidadesGaveta />
+                <CopilotoPainel />
             </div>
         </header>
     );

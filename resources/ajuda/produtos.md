@@ -2,6 +2,10 @@
 titulo: Produtos
 rota: produtos
 modulo: null
+sugestoes:
+  - Como cadastro um produto?
+  - Como deixo um produto como favorito?
+  - Por que não consigo excluir um produto?
 ---
 
 # Produtos

@@ -59,6 +59,7 @@ class HandleInertiaRequests extends Middleware
                 'empresas' => route('admin.empresas'),
                 'segmentos' => route('admin.segmentos'),
                 'novidades' => route('admin.novidades'),
+                'configuracoes' => route('admin.configuracoes'),
             ] : null,
             'flash' => [
                 'success' => session('success'),

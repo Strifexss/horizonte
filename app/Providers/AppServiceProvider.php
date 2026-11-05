@@ -2,10 +2,18 @@
 
 namespace App\Providers;
 
+use App\Ai\Contracts\CopilotoAgenteInterface;
+use App\Ai\Contracts\LimitadorIaInterface;
+use App\Ai\Copiloto\FakeCopilotoAgente;
+use App\Ai\Copiloto\LaravelAiCopilotoAgente;
+use App\Ai\Copiloto\LimitadorIa;
 use App\Jobs\GerarAnaliseDashboard;
+use App\Repositories\AjudaRepository;
 use App\Repositories\CategoriaRepository;
 use App\Repositories\ClienteRepository;
+use App\Repositories\ConfiguracaoRepository;
 use App\Repositories\ContaRepository;
+use App\Repositories\CopilotoRepository;
 use App\Repositories\DashboardAnaliseRepository;
 use App\Repositories\EmpresaRepository;
 use App\Repositories\FinanceiroParcelaRepository;
@@ -15,9 +23,12 @@ use App\Repositories\FornecedorRepository;
 use App\Repositories\FuncionarioRepository;
 use App\Repositories\GrupoRepository;
 use App\Repositories\InsightAcaoRepository;
+use App\Repositories\Interfaces\AjudaRepositoryInterface;
 use App\Repositories\Interfaces\CategoriaRepositoryInterface;
 use App\Repositories\Interfaces\ClienteRepositoryInterface;
+use App\Repositories\Interfaces\ConfiguracaoRepositoryInterface;
 use App\Repositories\Interfaces\ContaRepositoryInterface;
+use App\Repositories\Interfaces\CopilotoRepositoryInterface;
 use App\Repositories\Interfaces\DashboardAnaliseRepositoryInterface;
 use App\Repositories\Interfaces\EmpresaRepositoryInterface;
 use App\Repositories\Interfaces\FinanceiroParcelaRepositoryInterface;
@@ -45,7 +56,9 @@ use App\Repositories\UsuarioRepository;
 use App\Repositories\VendaRepository;
 use App\Services\CategoriaService;
 use App\Services\ClientesService;
+use App\Services\ConfiguracoesService;
 use App\Services\ContasService;
+use App\Services\CopilotoService;
 use App\Services\DashboardInsightsService;
 use App\Services\DashboardService;
 use App\Services\EmpresasService;
@@ -59,7 +72,9 @@ use App\Services\IndicadoresInsightsService;
 use App\Services\InicioService;
 use App\Services\Interfaces\CategoriaServiceInterface;
 use App\Services\Interfaces\ClientesServiceInterface;
+use App\Services\Interfaces\ConfiguracoesServiceInterface;
 use App\Services\Interfaces\ContasServiceInterface;
+use App\Services\Interfaces\CopilotoServiceInterface;
 use App\Services\Interfaces\DashboardInsightsServiceInterface;
 use App\Services\Interfaces\DashboardServiceInterface;
 use App\Services\Interfaces\EmpresasServiceInterface;
@@ -88,6 +103,7 @@ use App\Services\UsuariosService;
 use App\Services\UsuariosTransferService;
 use App\Services\VendasService;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -140,6 +156,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(DashboardAnaliseRepositoryInterface::class, DashboardAnaliseRepository::class);
         $this->app->bind(IndicadoresInsightsServiceInterface::class, IndicadoresInsightsService::class);
         $this->app->bind(InsightAcaoRepositoryInterface::class, InsightAcaoRepository::class);
+        $this->app->bind(ConfiguracoesServiceInterface::class, ConfiguracoesService::class);
+        $this->app->bind(ConfiguracaoRepositoryInterface::class, ConfiguracaoRepository::class);
+        $this->app->bind(CopilotoServiceInterface::class, CopilotoService::class);
+        $this->app->bind(CopilotoRepositoryInterface::class, CopilotoRepository::class);
+        $this->app->bind(AjudaRepositoryInterface::class, AjudaRepository::class);
+        $this->app->bind(LimitadorIaInterface::class, LimitadorIa::class);
+        $this->app->bind(
+            CopilotoAgenteInterface::class,
+            fn ($app) => config('copiloto.agente') === 'fake' ? $app->make(FakeCopilotoAgente::class) : $app->make(LaravelAiCopilotoAgente::class)
+        );
     }
 
     /**
@@ -148,5 +174,14 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         RateLimiter::for(GerarAnaliseDashboard::LIMITADOR, fn (): Limit => Limit::perMinute(max(1, (int) config('insights.requisicoes_por_minuto'))));
+        RateLimiter::for('copiloto', function (Request $request): array {
+            $usuario = (string) $request->user()?->id;
+            $resposta = fn () => response()->json(['message' => 'Você fez muitas perguntas seguidas. Espere um pouco e tente de novo.'], 429);
+
+            return [
+                Limit::perMinute(max(1, (int) config('copiloto.perguntas_por_minuto')))->by('minuto:'.$usuario)->response($resposta),
+                Limit::perDay(max(1, (int) config('copiloto.perguntas_por_dia')))->by('dia:'.$usuario)->response($resposta),
+            ];
+        });
     }
 }

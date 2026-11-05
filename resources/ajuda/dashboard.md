@@ -2,6 +2,10 @@
 titulo: Dashboard
 rota: dashboard
 modulo: null
+sugestoes:
+  - O que é o Período de referência?
+  - O que mostra o Top 5?
+  - [copiloto] Como funciona a análise com IA?
 ---
 
 # Dashboard
@@ -25,7 +29,7 @@ Se um quadro mostrar "Sem lançamentos no mês", não há lançamentos no perío
 <!-- modulo: copiloto -->
 ## Analisar com IA
 
-Se a sua Empresa tiver o Copiloto, aparece o botão **Analisar com IA** no topo da tela. Ele lê os números do mês escolhido, compara com os três meses anteriores e escreve sugestões curtas, chamadas de insights.
+Se a sua Empresa tiver o Copiloto Pro, aparece o botão **Analisar com IA** no topo da tela. Ele lê os números do mês escolhido, compara com os três meses anteriores e escreve sugestões curtas, chamadas de insights.
 
 - Os insights são separados em **Mais receita e lucro**, **Custos a reduzir** e **Alertas**. Use o filtro para ver um grupo de cada vez.
 - Em cada insight, toque em **Vou fazer** para guardá-lo em **Minha lista**. O resultado é conferido na próxima análise.

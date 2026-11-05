@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ClientesController;
+use App\Http\Controllers\ConfiguracoesController;
 use App\Http\Controllers\ContasController;
+use App\Http\Controllers\CopilotoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardInsightsController;
 use App\Http\Controllers\EmpresaController;
@@ -44,6 +46,12 @@ Route::middleware(['auth', 'empresa'])->group(function () {
 
     Route::get('/inicio', [InicioController::class, 'index'])->name('inicio');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::prefix('copiloto')->name('copiloto.')->group(function () {
+        Route::get('/abertura', [CopilotoController::class, 'abertura'])->name('abertura');
+        Route::post('/mensagens', [CopilotoController::class, 'store'])->middleware('throttle:copiloto')->name('mensagens.store');
+        Route::delete('/conversa', [CopilotoController::class, 'destroy'])->name('conversa.destroy');
+        Route::post('/interesses', [CopilotoController::class, 'interesse'])->name('interesses.store');
+    });
     Route::middleware('modulo:copiloto')->group(function () {
         Route::post('/dashboard/insights', [DashboardInsightsController::class, 'store'])->name('dashboard.insights.store');
         Route::post('/dashboard/insights/{id}/acoes', [DashboardInsightsController::class, 'acaoStore'])->name('dashboard.insights.acoes.store');
@@ -180,6 +188,9 @@ if (filled(config('admin.path'))) {
             Route::post('/segmentos', [SegmentosController::class, 'store'])->name('segmentos.store');
             Route::put('/segmentos/{id}', [SegmentosController::class, 'update'])->name('segmentos.update');
             Route::delete('/segmentos/{id}', [SegmentosController::class, 'destroy'])->name('segmentos.destroy');
+
+            Route::get('/configuracoes', [ConfiguracoesController::class, 'index'])->name('configuracoes');
+            Route::put('/configuracoes', [ConfiguracoesController::class, 'update'])->name('configuracoes.update');
 
             Route::get('/novidades', [NovidadesController::class, 'index'])->name('novidades');
             Route::post('/novidades', [NovidadesController::class, 'store'])->name('novidades.store');

@@ -2,6 +2,10 @@
 titulo: Início
 rota: inicio
 modulo: null
+sugestoes:
+  - Como faço minha primeira venda?
+  - Como lanço uma despesa?
+  - Como cadastro um produto?
 ---
 
 # Início

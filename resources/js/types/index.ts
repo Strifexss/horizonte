@@ -10,6 +10,7 @@ export interface AdminNavegacao {
     empresas: string;
     segmentos: string;
     novidades: string;
+    configuracoes: string;
 }
 
 export interface EmpresaAtiva {

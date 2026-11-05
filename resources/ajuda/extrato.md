@@ -2,6 +2,10 @@
 titulo: Extrato
 rota: extrato.index
 modulo: null
+sugestoes:
+  - Como lanço uma despesa?
+  - Como dou baixa em um pagamento?
+  - Como gero o PDF do Extrato?
 ---
 
 # Extrato

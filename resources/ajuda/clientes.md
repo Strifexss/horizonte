@@ -2,6 +2,10 @@
 titulo: Clientes
 rota: clientes
 modulo: null
+sugestoes:
+  - Como cadastro um cliente?
+  - Por que não consigo excluir um cliente?
+  - O que é o cliente CONSUMIDOR?
 ---
 
 # Clientes

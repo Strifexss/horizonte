@@ -8,7 +8,7 @@ import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
 import { type AdminNavegacao, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { ArrowLeft, Building2, Layers, Megaphone, Menu, Users } from 'lucide-react';
+import { ArrowLeft, Building2, Layers, Megaphone, Menu, Settings, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 function pathOf(url: string): string {
@@ -25,6 +25,7 @@ export function AdminHeader() {
         { title: 'Empresas', url: navegacao.empresas, icon: Building2 },
         { title: 'Segmentos', url: navegacao.segmentos, icon: Layers },
         { title: 'Novidades', url: navegacao.novidades, icon: Megaphone },
+        { title: 'Configurações', url: navegacao.configuracoes, icon: Settings },
         { title: 'Voltar ao sistema', url: route('extrato.index'), icon: ArrowLeft },
     ];
 

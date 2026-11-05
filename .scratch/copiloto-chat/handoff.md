@@ -1,6 +1,6 @@
 # Copiloto — chat de ajuda (handoff)
 
-Status: needs-info
+Status: ready-for-human
 
 ## Objetivo
 
@@ -35,6 +35,12 @@ Chat do Copiloto, no módulo `copiloto`, que responde só dúvidas de uso do sis
 - Repetir a avaliação do harness (`docs/quality.md`), porque o `AGENTS.md` mudou. O toolkit não está nesta sessão.
 - Spec e issues da implementação: agente, AjudaService, rota com `modulo:copiloto`, tabelas de conversa, UI e testes.
 
+## Implementado (2026-11-05)
+
+- Issues 01 a 05 implementadas (spec em `spec.md`). Backend, front, admin "Configurações", limpeza agendada (`copiloto:apagar-conversas`).
+- Checks: `php artisan test --compact` 389 verdes (26 novos em `CopilotoTest` e `ConfiguracoesAdminTest`); Pint ok; `tsc`, ESLint (0 erros) e build ok. Prints com `COPILOTO_AGENTE=fake`.
+- Falta: teste com a chave real do Gemini; revisão independente do diff; migrations em banco real (exigem autorização); rodar a avaliação do harness.
+
 ## Próximo passo
 
-Aplicar as correções do responsável nos rascunhos e então escrever `spec.md` e as issues.
+Responsável envia a chave do Gemini; testar com `COPILOTO_AGENTE=laravel_ai` e ajustar as instruções do agente conforme as respostas reais.

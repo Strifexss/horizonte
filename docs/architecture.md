@@ -21,7 +21,8 @@ app/
 ├── Services/ (+Interfaces)       regra de negócio e transações
 ├── Repositories/ (+Interfaces)   único acesso a banco/Eloquent
 ├── Models/                Eloquent; trait PertenceAEmpresa preenche empresa_id
-├── Ai/Agents/, Jobs/      análise do Dashboard (laravel/ai)
+├── Ai/Agents/, Jobs/      análise do Dashboard e chat do Copiloto (laravel/ai)
+├── Ai/Contracts/, Ai/Copiloto/   interface do agente do Copiloto, implementação laravel/ai, fake e limitador
 └── Providers/AppServiceProvider.php   bind Interface → implementação
 resources/js/
 ├── pages/                 uma page Inertia por rota (orquestra)

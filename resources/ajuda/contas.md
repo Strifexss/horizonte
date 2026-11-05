@@ -2,6 +2,10 @@
 titulo: Contas e bancos
 rota: contas
 modulo: null
+sugestoes:
+  - Como adiciono uma conta?
+  - Para que serve a conta padrão?
+  - O que acontece se eu excluir uma conta?
 ---
 
 # Contas e bancos

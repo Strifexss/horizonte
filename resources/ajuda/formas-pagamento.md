@@ -2,6 +2,10 @@
 titulo: Formas de pagamento
 rota: formas-pagamento
 modulo: null
+sugestoes:
+  - Como cadastro uma forma de pagamento?
+  - O que é baixa automática?
+  - Por que não consigo alterar o Pix?
 ---
 
 # Formas de pagamento
@@ -10,13 +14,13 @@ As formas que você aceita para receber e usa para pagar: Pix, dinheiro, cartão
 
 ## Formas padrão e próprias
 
-- **Padrão**: já vêm prontas no sistema: Pix, Cartão de Crédito e Cartão de Débito. Não podem ser alteradas nem excluídas.
+- **Padrão**: já vêm prontas no sistema: Espécie (dinheiro), Pix, Cartão de Crédito e Cartão de Débito. Não podem ser alteradas nem excluídas.
 - **Própria**: as que você cadastra, como boleto ou vale-refeição.
 
 ## Cadastrar uma forma própria
 
 1. Toque em **+ Nova Forma**.
-2. Preencha o **Nome**, por exemplo "Dinheiro", "Boleto" ou "Vale refeição".
+2. Preencha o **Nome**, por exemplo "Boleto" ou "Vale refeição".
 3. Escolha se tem **Baixa automática**.
 4. Deixe marcado **Ativa**.
 5. Salve.
