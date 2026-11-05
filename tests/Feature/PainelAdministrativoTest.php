@@ -88,7 +88,7 @@ it('rejeita criar usuario com e-mail ja cadastrado', function () {
             'password' => 'senha-segura-123',
         ])
         ->assertRedirect(route('admin.usuarios'))
-        ->assertSessionHasErrors(['email' => 'The email has already been taken.']);
+        ->assertSessionHasErrors(['email' => 'Este e-mail já está em uso.']);
 
     expect(User::query()->where('email', 'maria@email.com')->count())->toBe(1);
 });
