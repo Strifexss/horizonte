@@ -20,6 +20,7 @@ Comandos PHP rodam dentro do container `laravel_app`, porque a máquina local n�
 
 ## Acordos de trabalho
 
+- Todo pedido que muda o repositório, inclusive ajuste pequeno ou incremental, começa pela skill `fluxo-harness` (intake → critério de aceite → implementação → checks e revisão → documentação → entrega). Os acordos abaixo são o que ela aplica.
 - Leia instruções e código relevante antes de editar; separe fato observado, suposição e decisão.
 - Defina critério de aceite e o comando que prova antes de implementar. Correção de bug começa reproduzindo e termina com teste de regressão quando viável.
 - Menor mudança completa; reuse padrões, componentes e dependências existentes. Não enfraqueça validação, autorização, testes ou regras de lint para passar um check.
