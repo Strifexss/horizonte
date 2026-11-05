@@ -22,7 +22,17 @@ Fontes de verdade (não as repita, consulte): `AGENTS.md` (acordos e comandos), 
 Antes de editar, escreva para o usuário:
 
 - **Critério:** o comportamento observável que prova que o pedido está feito (ex.: "no celular, o salvar com erro abre um modal só com os campos com erro").
-- **Prova:** o comando ou verificação que mostra o critério, escolhido de `docs/quality.md`: teste Pest filtrado, `npm run check`, ou verificação no navegador local em desktop e mobile.
+- **Prova:** o comando ou verificação que mostra o critério. Parta da prova padrão do tipo de mudança (detalhes dos comandos em `docs/quality.md`) e some o que o critério pedir:
+
+  | Mudança em | Prova padrão |
+  |---|---|
+  | PHP (`app/`, `routes/`, `database/`, `config/`) | teste Pest filtrado que cobre o comportamento + `composer check` (no container) |
+  | Front (`resources/js/`, `resources/css/`) | `npm run check` (no host) + verificação visual |
+  | PHP que muda o que uma tela recebe (props do Inertia, rota de página) | as duas linhas acima |
+  | Testes, build ou config (`tests/`, `bootstrap/`, `eslint-rules/`, `package.json`, `composer.json`, configs da raiz) | o check do lado afetado: `composer check` e/ou `npm run check` |
+  | Só documentação ou skill | releitura do diff + revisão independente |
+
+- **Verificação visual**: obrigatória sempre que a mudança altera o que alguma tela mostra ou como ela reage (inclui hooks, utilitários e props usados por telas). Prints de desktop (1280 px) e celular (390 px) de, no mínimo, o estado padrão de cada tela afetada, mais cada estado que o critério cita (vazio, preenchido, erro, aberto), com o console do navegador sem erros. Use a ferramenta de browser do cliente contra `http://localhost:8080`, nunca produção; sem ela, o Playwright já disponível no ambiente (não o adicione como dependência). Sem app rodando, renderize a tela ou o componente isolado e diga ao usuário que a verificação não foi no app real.
 - Correção de bug: reproduza primeiro e planeje o teste de regressão.
 
 **Pronto quando:** critério e prova estão escritos na conversa.
@@ -30,8 +40,8 @@ Antes de editar, escreva para o usuário:
 ## 3. Implementação
 
 - Menor mudança completa; reuse componentes, padrões e dependências existentes. Dependência nova pede aprovação.
-- Teste a mudança junto com ela (regra do `AGENTS.md`). Sem infraestrutura de teste para aquele código, diga isso e use a verificação no navegador como prova.
-- Formate só os arquivos que você alterou (`vendor/bin/pint --dirty --format agent` no container; `npx prettier --write <arquivos>` no host) e confira `git status` antes de seguir: formatador rodado em pasta inteira toca arquivos de terceiros.
+- Teste a mudança junto com ela (regra do `AGENTS.md`). Código sem infraestrutura de teste automatizado (hoje, o front) tem a verificação visual como prova principal; diga isso ao usuário.
+- Corrija a formatação só dos arquivos que você alterou (`vendor/bin/pint --dirty --format agent` no container; `npx prettier --write <arquivos>` no host) e confira `git status` antes de seguir: formatador rodado em pasta inteira toca arquivos de terceiros. Formatar é correção; a prova é o check da etapa 4.
 
 **Pronto quando:** o critério da etapa 2 está implementado e `git status` lista só arquivos do pedido.
 
@@ -41,7 +51,7 @@ Antes de editar, escreva para o usuário:
 - **Check bloqueado pelo ambiente** (dependência ausente, serviço fora): tente destravar uma vez; se não der, diga ao usuário qual check não rodou, por quê e o que ele precisa rodar. Um check que não rodou não conta como aprovado.
 - Mudança não trivial (componente compartilhado, vários arquivos, regra de negócio): revisão independente e somente leitura do diff exato e dos chamadores, por subagente. Resolva ou justifique por escrito cada achado relevante. Cada incremento não trivial recebe a sua revisão.
 
-**Pronto quando:** a prova passou (ou o bloqueio foi relatado), os achados da revisão estão resolvidos ou justificados, e você mostrou a evidência (saída do comando ou print).
+**Pronto quando:** cada item da prova padrão passou, ou falhou por bloqueio do ambiente depois de uma tentativa de destravar e foi relatado como descrito acima; os prints da verificação visual foram enviados ao usuário quando ela se aplica; os achados da revisão estão resolvidos ou justificados; e você mostrou a evidência.
 
 ## 5. Documentação
 

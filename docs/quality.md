@@ -46,7 +46,7 @@ Os avisos `react-hooks/exhaustive-deps` (14) são legado conhecido. Corrija só 
 
 - Feature tests Pest em `tests/Feature/`, com factories e estados existentes. Correção de bug ganha teste de regressão.
 - Datas: listagens filtram o mês atual. Fixe o relógio com `$this->travelTo(...)` e compare datas pelo model.
-- Fluxos de UI sem teste automatizado são verificados no navegador local (`http://localhost:8080`), desktop e mobile, com o console limpo.
+- Toda mudança que altera o que uma tela mostra ou como ela reage é verificada no navegador local (`http://localhost:8080`), em desktop (1280 px) e celular (390 px), com o console limpo e prints entregues ao usuário: no mínimo o estado padrão de cada tela afetada e os estados que o critério de aceite cita. Sem a app rodando, renderize a tela isolada e registre que a verificação não foi no app real. O fluxo completo, com a prova padrão por tipo de mudança, está na skill `fluxo-harness`.
 
 ## Revisão
 
