@@ -146,6 +146,7 @@ Revisão somente leitura do diff completo contra `c38cc88`, mais chamadores, con
 | Prettier em 45 arquivos | varredura adiada por decisão | decidir antes de pôr `format:check` no CI |
 | Instruções remotas sem versão fixa | `web-design-guidelines` e `writing-guidelines` baixam `command.md` do branch `main` a cada uso, fora do hash do `skills-lock.json` | fixar num commit ou copiar o arquivo; editar a skill desalinha o lock, então decida junto com a próxima atualização de skills |
 | Dependências sem uso | Spatie Laravel PDF, Browsershot e Puppeteer instalados sem uso (o PDF usa DomPDF) | decidir se remove; reduz o `npm ci` e parte do `npm audit` |
+| Sessões na nuvem (claude.ai/code) sem PHP completo | o proxy só libera o GitHub para os repositórios da sessão, e o Composer baixa os pacotes do `composer.lock` de `codeload.github.com`: `composer install` trava clonando por git. Sem `vendor/`, falta o `ziggy-js` e `npm run build` falha | ambiente pessoal `horizonte` roda `npm ci` no setup (lint, tipos e Playwright funcionam). `composer test`, `composer check` e `npm run build` continuam só no container local; a sessão na nuvem relata esses checks como bloqueados |
 | Licença das skills `vercel-labs/agent-skills` | repo sem arquivo LICENSE; 3 skills declaram MIT e `web-design-guidelines`/`writing-guidelines` não declaram | revisar antes de redistribuir |
 
 ## Repetir e manter
