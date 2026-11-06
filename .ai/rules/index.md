@@ -5,4 +5,5 @@ Antes de criar ou editar arquivos, leia as regras cujos globs cobrem o caminho e
 | Glob | Arquivo |
 |------|---------|
 | `**/*` | [git-workflow.md](./git-workflow.md) |
+| `resources/js/**/*.tsx` | [input-arquivo-oculto.md](./input-arquivo-oculto.md) |
 | `resources/js/**/*.tsx` | [modais.md](./modais.md) |

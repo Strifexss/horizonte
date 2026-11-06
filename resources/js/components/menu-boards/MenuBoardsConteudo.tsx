@@ -419,14 +419,14 @@ function SeletorImagem({ indice, pagina, imagemPrevia, erros, onImagem, dica }: 
             {imagem ? (
                 <div className="flex flex-wrap items-center gap-4">
                     <img src={imagem} alt={`Imagem da página ${indice + 1}`} className="aspect-video w-56 rounded-lg bg-slate-100 object-cover" />
-                    <label className="hover:bg-accent inline-flex h-11 cursor-pointer items-center gap-2 rounded-md border px-4 text-sm font-medium focus-within:ring-2 focus-within:ring-blue-600 md:h-10">
+                    <label className="hover:bg-accent relative inline-flex h-11 cursor-pointer items-center gap-2 rounded-md border px-4 text-sm font-medium focus-within:ring-2 focus-within:ring-blue-600 md:h-10">
                         {seletor}
                         <Upload className="size-4" />
                         Trocar imagem
                     </label>
                 </div>
             ) : (
-                <label className="text-muted-foreground flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-[1.5px] border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center focus-within:ring-2 focus-within:ring-blue-600 hover:border-blue-600 hover:bg-blue-50 dark:border-slate-600 dark:bg-slate-800">
+                <label className="text-muted-foreground relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-[1.5px] border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center focus-within:ring-2 focus-within:ring-blue-600 hover:border-blue-600 hover:bg-blue-50 dark:border-slate-600 dark:bg-slate-800">
                     {seletor}
                     <span className="flex size-12 items-center justify-center rounded-full bg-blue-100 text-blue-700">
                         <Upload className="size-5" />
