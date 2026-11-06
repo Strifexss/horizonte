@@ -18,7 +18,7 @@ const TOM_DA_CATEGORIA: Record<NovidadeCategoria, Tom> = {
 };
 
 export function NovidadesSelo({ children, tom }: { children: ReactNode; tom: Tom }) {
-    return <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${CORES[tom]}`}>{children}</span>;
+    return <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium md:text-[10px] ${CORES[tom]}`}>{children}</span>;
 }
 
 export function NovidadeCategoriaSelo({ categoria }: { categoria: NovidadeCategoria }) {

@@ -136,7 +136,7 @@ export default function DashboardPizza({
                                     />
                                     <div className="min-w-0 flex-1">
                                         <div className="text-xs leading-snug break-words">{item.rotulo}</div>
-                                        <div className="flex flex-wrap items-baseline gap-x-1.5 text-[11px] leading-snug">
+                                        <div className="flex flex-wrap items-baseline gap-x-1.5 text-xs md:text-[11px] leading-snug">
                                             <span className="text-muted-foreground">{formatarMoeda(item.valor)}</span>
                                             <span className="font-medium">{percent.toFixed(1)}%</span>
                                         </div>

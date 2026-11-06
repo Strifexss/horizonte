@@ -49,7 +49,7 @@ export default function MenuBoardsCard({ board, ativando, onAtivar, onDelete }: 
                     {board.paginas.slice(0, 5).map((pagina, indice) => (
                         <li key={indice} className="flex min-w-0 flex-col gap-1">
                             <MenuBoardsMiniatura layout={pagina.layout} />
-                            <span className="text-muted-foreground truncate text-[11px]">
+                            <span className="text-muted-foreground truncate text-xs md:text-[11px]">
                                 {pagina.nome || infoDoLayout(pagina.layout).nome} · {pagina.duracao_segundos} s
                             </span>
                         </li>

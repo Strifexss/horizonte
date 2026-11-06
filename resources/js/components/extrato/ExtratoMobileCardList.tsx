@@ -46,7 +46,7 @@ export function ExtratoCardContent({ item }: { item: ExtratoParcela }) {
                 <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden text-xs text-slate-500">
                     <span className="truncate">{metaParts.join(' • ')}</span>
                 </div>
-                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${statusMeta.className}`}>{statusMeta.label}</span>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium md:text-[10px] ${statusMeta.className}`}>{statusMeta.label}</span>
             </div>
         </>
     );

@@ -56,7 +56,7 @@ export default function InicioResumo({ resumo }: { resumo?: ResumoInicio }) {
                             aria-pressed={periodo === p.id}
                             onClick={() => setPeriodo(p.id)}
                             className={cn(
-                                'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                                'rounded-md px-3 py-1.5 text-sm font-medium transition-colors max-md:min-h-10 max-md:px-4',
                                 periodo === p.id
                                     ? 'text-foreground bg-white shadow-sm dark:bg-slate-900'
                                     : 'text-muted-foreground hover:text-foreground',

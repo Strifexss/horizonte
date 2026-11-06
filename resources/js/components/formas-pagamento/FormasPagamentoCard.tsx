@@ -9,7 +9,7 @@ export function Selo({ children, tom }: { children: ReactNode; tom: 'ambar' | 'v
         neutro: 'bg-muted text-muted-foreground',
     } as const;
 
-    return <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${cores[tom]}`}>{children}</span>;
+    return <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium md:text-[10px] ${cores[tom]}`}>{children}</span>;
 }
 
 /** Conteúdo do card do mobile; toque e ações ficam com o `MobileCardList`. */

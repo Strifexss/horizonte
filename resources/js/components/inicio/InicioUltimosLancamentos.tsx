@@ -28,7 +28,10 @@ export default function InicioUltimosLancamentos({ lancamentos }: { lancamentos?
                 toolbar={
                     <div className="flex items-center justify-between gap-3">
                         <h2 className="text-base font-semibold">Últimos lançamentos</h2>
-                        <Link href={route('extrato.index')} className="text-primary text-sm font-medium hover:underline">
+                        <Link
+                            href={route('extrato.index')}
+                            className="text-primary text-sm font-medium hover:underline max-md:inline-flex max-md:min-h-11 max-md:items-center"
+                        >
                             Ver Extrato completo
                         </Link>
                     </div>

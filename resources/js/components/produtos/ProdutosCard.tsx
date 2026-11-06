@@ -21,7 +21,7 @@ export default function ProdutosCard({ item }: { item: ProdutoItem }) {
                     Cód. {item.codigo ?? '—'} • Compra {formatCurrency(item.preco_compra)}
                 </span>
                 <span
-                    className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium md:text-[10px] ${
                         item.ativo ? 'bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300' : 'bg-muted text-muted-foreground'
                     }`}
                 >

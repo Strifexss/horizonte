@@ -27,7 +27,7 @@ export default function StatusChips<T extends string>({ chips, value, onChange, 
                             aria-pressed={active}
                             onClick={() => onChange(chip.id)}
                             className={cn(
-                                'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors',
+                                'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors max-md:min-h-11 max-md:px-4',
                                 active
                                     ? 'border-blue-600 bg-blue-600 text-white'
                                     : 'border-input text-foreground bg-white hover:bg-slate-50 dark:bg-slate-900',

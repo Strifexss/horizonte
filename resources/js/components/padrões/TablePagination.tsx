@@ -69,7 +69,7 @@ export default function TablePagination({
                     <span>Por página:</span>
                     <select
                         name="perPage"
-                        className="ml-1 rounded border px-2 py-1 text-sm"
+                        className="ml-1 rounded border px-2 py-1 text-sm max-md:h-11"
                         value={perPage}
                         onChange={(e) => onPerPageChange(Number(e.target.value))}
                     >
@@ -82,10 +82,10 @@ export default function TablePagination({
                 </div>
             </div>
 
-            <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex flex-wrap items-center gap-1 sm:gap-2">
                 <button
                     type="button"
-                    className="hover:bg-sidebar-border/20 rounded p-2 disabled:opacity-40"
+                    className="hover:bg-sidebar-border/20 rounded p-2 disabled:opacity-40 max-md:p-3"
                     aria-label="Página anterior"
                     disabled={currentPage <= 1}
                     onClick={() => onPageChange(currentPage - 1)}
@@ -101,7 +101,7 @@ export default function TablePagination({
                         <button
                             key={page}
                             type="button"
-                            className={`rounded px-3 py-1 ${page === currentPage ? 'bg-sidebar-border/10' : ''}`}
+                            className={`rounded px-3 py-1 max-md:min-h-11 ${page === currentPage ? 'bg-sidebar-border/10' : ''}`}
                             aria-current={page === currentPage ? 'page' : undefined}
                             onClick={() => onPageChange(page)}
                         >
@@ -111,7 +111,7 @@ export default function TablePagination({
                 )}
                 <button
                     type="button"
-                    className="hover:bg-sidebar-border/20 rounded p-2 disabled:opacity-40"
+                    className="hover:bg-sidebar-border/20 rounded p-2 disabled:opacity-40 max-md:p-3"
                     aria-label="Próxima página"
                     disabled={currentPage >= lastPage}
                     onClick={() => onPageChange(currentPage + 1)}

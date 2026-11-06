@@ -32,7 +32,7 @@ export default function DashboardRankingCabecalho({ criterio, onCriterioChange }
                     <SelectTrigger
                         id="ranking-criterio"
                         aria-label="Critério do ranking"
-                        className="h-auto w-auto max-w-full gap-2 border-none bg-transparent px-0 py-0 text-left text-sm font-medium tracking-wide uppercase shadow-none focus-visible:ring-0 dark:bg-transparent"
+                        className="h-auto w-auto max-w-full gap-2 border-none bg-transparent px-0 py-0 text-left text-sm font-medium tracking-wide uppercase shadow-none focus-visible:ring-0 max-md:min-h-11 dark:bg-transparent"
                     >
                         <span className="truncate">
                             Ranking de <SelectValue />

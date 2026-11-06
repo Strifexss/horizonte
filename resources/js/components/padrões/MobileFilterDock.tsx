@@ -152,18 +152,18 @@ export default function MobileFilterDock({
                 >
                     <button
                         type="button"
-                        className="mx-auto mb-2 flex w-full flex-col items-center py-1"
+                        className="mx-auto mb-1 flex w-full flex-col items-center py-2"
                         aria-label="Abrir filtros"
                         onClick={() => setSheetOpen(true)}
                     >
                         <span className="h-1 w-10 rounded-full bg-slate-300 dark:bg-slate-600" />
                     </button>
 
-                    <div className="grid min-w-0 grid-cols-2 gap-2">
-                        <div className="flex h-9 min-w-0 items-center justify-between rounded-full border border-slate-200/80 bg-white dark:border-slate-700 dark:bg-slate-800">
+                    <div className="grid min-w-0 grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-2">
+                        <div className="flex h-11 min-w-0 items-center justify-between rounded-full border border-slate-200/80 bg-white dark:border-slate-700 dark:bg-slate-800">
                             <button
                                 type="button"
-                                className="text-muted-foreground hover:bg-muted/40 rounded-l-full p-2"
+                                className="text-muted-foreground hover:bg-muted/40 flex h-full w-11 shrink-0 items-center justify-center rounded-l-full"
                                 aria-label="Mês anterior"
                                 onClick={() => shiftMonth(-1)}
                             >
@@ -171,7 +171,7 @@ export default function MobileFilterDock({
                             </button>
                             <button
                                 type="button"
-                                className="inline-flex min-w-0 items-center justify-center gap-1 px-1 py-1.5 text-xs font-medium"
+                                className="inline-flex h-full min-w-0 items-center justify-center gap-1 px-1 text-xs font-medium"
                                 onClick={() => setPeriodOpen(true)}
                             >
                                 <CalendarDays className="h-3.5 w-3.5 shrink-0 text-blue-700" />
@@ -179,7 +179,7 @@ export default function MobileFilterDock({
                             </button>
                             <button
                                 type="button"
-                                className="text-muted-foreground hover:bg-muted/40 rounded-r-full p-2"
+                                className="text-muted-foreground hover:bg-muted/40 flex h-full w-11 shrink-0 items-center justify-center rounded-r-full"
                                 aria-label="Próximo mês"
                                 onClick={() => shiftMonth(1)}
                             >
@@ -191,7 +191,7 @@ export default function MobileFilterDock({
                             type="button"
                             variant="outline"
                             size="sm"
-                            className="h-9 w-full justify-center gap-1 rounded-full border-slate-200/80 bg-white px-2.5 dark:border-slate-700 dark:bg-slate-800"
+                            className="h-11 w-full justify-center gap-1 rounded-full border-slate-200/80 bg-white px-2.5 dark:border-slate-700 dark:bg-slate-800"
                             onClick={() => setSheetOpen(true)}
                         >
                             <SlidersHorizontal className="h-3.5 w-3.5" />

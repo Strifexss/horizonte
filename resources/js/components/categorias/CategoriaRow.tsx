@@ -29,7 +29,7 @@ export default function CategoriaRow({
                     <div className="flex items-center gap-2 min-w-0">
                         <div className="font-medium truncate">{categoria.nome}</div>
                         {isSistema && (
-                            <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase text-muted-foreground">
+                            <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs font-medium md:text-[10px] uppercase text-muted-foreground">
                                 Sistema
                             </span>
                         )}

@@ -218,7 +218,7 @@ export default function Contas({ contas = [] }: { contas?: Account[] }) {
                                                 <div className="flex min-w-0 items-center gap-2">
                                                     <CardTitle className="truncate text-base">{acc.nome ?? acc.name}</CardTitle>
                                                     {Number(acc.padrao ?? 0) === 1 && (
-                                                        <span className="bg-muted text-muted-foreground shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium uppercase">
+                                                        <span className="bg-muted text-muted-foreground shrink-0 rounded px-1.5 py-0.5 text-xs font-medium md:text-[10px] uppercase">
                                                             Padrão
                                                         </span>
                                                     )}
