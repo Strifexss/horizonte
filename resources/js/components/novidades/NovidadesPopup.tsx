@@ -67,7 +67,7 @@ export default function NovidadesPopup() {
                         hideDescription
                     />
 
-                    <FormDialogBody className="md:max-h-[60vh]">
+                    <FormDialogBody key={atual.id} className="md:max-h-[60vh]">
                         <NovidadeConteudo novidade={atual} />
 
                         {fila.length > 1 ? (

@@ -1,7 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useConteudoAbaixo } from '@/hooks/use-conteudo-abaixo';
 import { useHideOnScroll } from '@/hooks/use-hide-on-scroll';
 import { cn } from '@/lib/utils';
+import { ChevronDown } from 'lucide-react';
 import * as React from 'react';
 
 const MOBILE_BREAKPOINT = 768;
@@ -107,20 +109,47 @@ function FormDialogHeader({
     );
 }
 
-/** Área que rola. É ela que comanda o recolhimento do cabeçalho. */
+/**
+ * Área que rola. É ela que comanda o recolhimento do cabeçalho.
+ * Com conteúdo escondido abaixo, a borda de baixo esmaece; no celular aparece também o selo
+ * "Mais campos", que some depois da primeira rolagem.
+ */
 const FormDialogBody = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, onScroll, ...props }, ref) => {
     const cabecalho = useFormDialog();
+    const abaixo = useConteudoAbaixo<HTMLDivElement>();
+
+    React.useImperativeHandle(ref, () => abaixo.ref.current as HTMLDivElement);
 
     return (
-        <div
-            ref={ref}
-            onScroll={(event) => {
-                cabecalho.onScroll(event);
-                onScroll?.(event);
-            }}
-            className={cn('flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain p-4 md:p-0', className)}
-            {...props}
-        />
+        <div className="relative flex min-h-0 flex-1 flex-col">
+            <div
+                ref={abaixo.ref}
+                onScroll={(event) => {
+                    cabecalho.onScroll(event);
+                    abaixo.onScroll(event);
+                    onScroll?.(event);
+                }}
+                className={cn('flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain p-4 md:p-0', className)}
+                {...props}
+            />
+            <div
+                aria-hidden="true"
+                className={cn(
+                    'from-background pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-linear-to-t to-transparent transition-opacity duration-200',
+                    abaixo.temMais ? 'opacity-100' : 'opacity-0',
+                )}
+            />
+            {abaixo.temMais && !abaixo.jaRolou ? (
+                <button
+                    type="button"
+                    onClick={abaixo.rolarParaBaixo}
+                    className="bg-background text-foreground absolute bottom-3 left-1/2 flex h-9 -translate-x-1/2 items-center gap-1.5 rounded-full border pr-3.5 pl-3 text-[13px] font-semibold shadow-md md:hidden"
+                >
+                    <ChevronDown className="size-4" aria-hidden="true" />
+                    Mais campos
+                </button>
+            ) : null}
+        </div>
     );
 });
 FormDialogBody.displayName = 'FormDialogBody';
