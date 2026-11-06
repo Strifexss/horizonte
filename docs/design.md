@@ -18,6 +18,7 @@ HTML semântico, navegação por teclado, foco visível e contraste adequado. Ca
 
 - Antes de concluir mudança de UI, revise com a skill `web-design-guidelines` e, em componentes shadcn, com a skill `shadcn` (rode `npx shadcn@latest info --json` para o contexto).
 - Verifique o fluxo no navegador local (`http://localhost:8080`) em largura de desktop e de celular.
+- No celular, alvo de toque de 44 px e texto de interface de 12 px no mínimo, com classes `max-md:`: regras e exceções em `.ai/rules/mobile.md`.
 - Nenhuma auditoria completa de acessibilidade foi registrada até agora.
 
 ## Manutenção

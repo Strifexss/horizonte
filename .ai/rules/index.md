@@ -7,3 +7,4 @@ Antes de criar ou editar arquivos, leia as regras cujos globs cobrem o caminho e
 | `**/*` | [git-workflow.md](./git-workflow.md) |
 | `resources/js/**/*.tsx` | [input-arquivo-oculto.md](./input-arquivo-oculto.md) |
 | `resources/js/**/*.tsx` | [modais.md](./modais.md) |
+| `resources/js/**/*.tsx` | [mobile.md](./mobile.md) |
