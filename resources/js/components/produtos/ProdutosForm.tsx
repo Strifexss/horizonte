@@ -4,7 +4,8 @@ import InputError from '@/components/input-error';
 import ProdutoCodigoDescricaoFields from '@/components/produtos/ProdutoCodigoDescricaoFields';
 import ProdutoPrecosFields from '@/components/produtos/ProdutoPrecosFields';
 import ProdutoStatusFields from '@/components/produtos/ProdutoStatusFields';
-import type { ProdutoItem, ProdutoNamed } from '@/components/produtos/types';
+import ProdutosFotoCampo from '@/components/produtos/ProdutosFotoCampo';
+import { PRODUTO_VAZIO, type ProdutoFormValues, type ProdutoItem, type ProdutoNamed } from '@/components/produtos/types';
 import AsyncSelect from '@/components/ui/AsyncSelect';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
@@ -27,18 +28,6 @@ type Props = {
     produto: ProdutoItem | null;
 };
 
-type ProdutoFormValues = {
-    nome: string;
-    codigo: string;
-    preco_compra: string;
-    preco_venda: string;
-    ativo: boolean;
-    favorito: boolean;
-    fornecedor_id: number | null;
-    grupo_id: number | null;
-    descricao: string;
-};
-
 type SelectOption = {
     id: number | string;
     nome: string;
@@ -59,17 +48,7 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
     const [gruposModalOpen, setGruposModalOpen] = useState(false);
     const [detalhesAbertos, setDetalhesAbertos] = useState(false);
 
-    const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm<ProdutoFormValues>({
-        nome: '',
-        codigo: '',
-        preco_compra: '',
-        preco_venda: '',
-        ativo: true,
-        favorito: false,
-        fornecedor_id: null,
-        grupo_id: null,
-        descricao: '',
-    });
+    const { data, setData, post, transform, processing, errors, reset, clearErrors } = useForm<ProdutoFormValues>(PRODUTO_VAZIO);
 
     useEffect(() => {
         if (!open) {
@@ -90,6 +69,8 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                 fornecedor_id: produto.fornecedor_id,
                 grupo_id: produto.grupo_id,
                 descricao: produto.descricao ?? '',
+                foto: null,
+                remover_foto: false,
             });
             setSelectedFornecedor(toNamed(produto.fornecedor));
             setSelectedGrupo(toNamed(produto.grupo));
@@ -97,25 +78,16 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
         }
 
         reset();
-        setData({
-            nome: '',
-            codigo: '',
-            preco_compra: '',
-            preco_venda: '',
-            ativo: true,
-            favorito: false,
-            fornecedor_id: null,
-            grupo_id: null,
-            descricao: '',
-        });
+        setData(PRODUTO_VAZIO);
         setSelectedFornecedor(null);
         setSelectedGrupo(null);
         // setData/reset/clearErrors vêm do useForm e são estáveis o bastante para este reset de abertura.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open, mode, produto]);
 
-    const detalhesPreenchidos = Boolean(data.codigo || data.descricao || data.fornecedor_id || data.grupo_id);
-    const detalhesComErro = Boolean(errors.codigo || errors.descricao || errors.fornecedor_id || errors.grupo_id);
+    const fotoAtualUrl = mode === 'edit' && !data.remover_foto ? (produto?.foto_url ?? null) : null;
+    const detalhesPreenchidos = Boolean(data.codigo || data.descricao || data.fornecedor_id || data.grupo_id || data.foto || fotoAtualUrl);
+    const detalhesComErro = Boolean(errors.codigo || errors.descricao || errors.fornecedor_id || errors.grupo_id || errors.foto);
     const detalhesVisiveis = detalhesAbertos || detalhesComErro || (mode === 'edit' && detalhesPreenchidos);
 
     const autocomplete =
@@ -157,11 +129,14 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
             },
         };
 
+        // Arquivo só sobe em POST multipart; a edição usa o _method do Laravel para chegar no PUT.
         if (mode === 'edit' && produto) {
-            put(route('produtos.update', produto.id), options);
+            transform((dados) => ({ ...dados, _method: 'put' }));
+            post(route('produtos.update', produto.id), options);
             return;
         }
 
+        transform((dados) => dados);
         post(route('produtos.store'), options);
     };
 
@@ -290,6 +265,15 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
                                             <InputError message={errors.grupo_id} />
                                         </FormDialogField>
                                     </div>
+
+                                    <ProdutosFotoCampo
+                                        fotoAtualUrl={fotoAtualUrl}
+                                        arquivo={data.foto}
+                                        erro={errors.foto}
+                                        disabled={processing}
+                                        onEscolher={(foto) => setData((atual) => ({ ...atual, foto, remover_foto: false }))}
+                                        onRemover={() => setData((atual) => ({ ...atual, foto: null, remover_foto: true }))}
+                                    />
                                 </div>
 
                                 <ProdutoStatusFields

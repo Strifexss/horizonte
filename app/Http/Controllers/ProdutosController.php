@@ -43,8 +43,11 @@ class ProdutosController extends Controller
     public function store(StoreProdutoRequest $request)
     {
         try {
-            $produto = $this->produtosService->store(
-                ProdutoDTO::fromArray($request->validated())
+            $produto = $this->produtosService->salvarComFoto(
+                null,
+                ProdutoDTO::fromArray($request->validated()),
+                $request->file('foto'),
+                $request->boolean('remover_foto'),
             );
 
             return $this->redirectAfterWrite($request, 'Produto criado com sucesso.')
@@ -61,9 +64,11 @@ class ProdutosController extends Controller
     public function update(StoreProdutoRequest $request, $id)
     {
         try {
-            $this->produtosService->update(
-                $id,
-                ProdutoDTO::fromArray($request->validated())
+            $this->produtosService->salvarComFoto(
+                (int) $id,
+                ProdutoDTO::fromArray($request->validated()),
+                $request->file('foto'),
+                $request->boolean('remover_foto'),
             );
 
             return $this->redirectAfterWrite($request, 'Produto atualizado com sucesso.');

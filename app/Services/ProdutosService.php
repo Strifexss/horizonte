@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DTO\ProdutoDTO;
 use App\DTO\ProdutoSearchDTO;
 use App\Exceptions\ProdutoEmUsoException;
 use App\Models\Produto;
@@ -10,6 +11,7 @@ use App\Services\Interfaces\ProdutosServiceInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class ProdutosService extends ServiceAbstract implements ProdutosServiceInterface
@@ -74,6 +76,27 @@ class ProdutosService extends ServiceAbstract implements ProdutosServiceInterfac
         $this->apagarArquivoFoto($fotoAnterior);
 
         return $produto;
+    }
+
+    public function salvarComFoto(?int $id, ProdutoDTO $dados, ?UploadedFile $foto, bool $removerFoto): Produto
+    {
+        return DB::transaction(function () use ($id, $dados, $foto, $removerFoto): Produto {
+            if ($id === null) {
+                $id = (int) $this->store($dados)->id;
+            } else {
+                $this->update($id, $dados);
+            }
+
+            if ($foto) {
+                return $this->salvarFoto($id, $foto);
+            }
+
+            if ($removerFoto) {
+                return $this->removerFoto($id);
+            }
+
+            return $this->produtoRepository->findDaEmpresa($id);
+        });
     }
 
     public function removerFoto(int $id): Produto

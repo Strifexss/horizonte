@@ -71,3 +71,32 @@ export function produtosDaPagina(produtos: unknown): {
 
     return { items: null, meta: null };
 }
+
+/** Campos do formulário de produto (modal de criar/editar). */
+export type ProdutoFormValues = {
+    nome: string;
+    codigo: string;
+    preco_compra: string;
+    preco_venda: string;
+    ativo: boolean;
+    favorito: boolean;
+    fornecedor_id: number | null;
+    grupo_id: number | null;
+    descricao: string;
+    foto: File | null;
+    remover_foto: boolean;
+};
+
+export const PRODUTO_VAZIO: ProdutoFormValues = {
+    nome: '',
+    codigo: '',
+    preco_compra: '',
+    preco_venda: '',
+    ativo: true,
+    favorito: false,
+    fornecedor_id: null,
+    grupo_id: null,
+    descricao: '',
+    foto: null,
+    remover_foto: false,
+};

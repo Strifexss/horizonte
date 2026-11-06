@@ -2,6 +2,7 @@
 
 namespace App\Services\Interfaces;
 
+use App\DTO\ProdutoDTO;
 use App\DTO\ProdutoSearchDTO;
 use App\Models\Produto;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -28,6 +29,12 @@ interface ProdutosServiceInterface extends AbstractServiceInterface
      * Remove a foto do produto do usuário autenticado.
      */
     public function removerFoto(int $id): Produto;
+
+    /**
+     * Cria (sem `$id`) ou atualiza o produto e aplica a foto do formulário numa transação só:
+     * arquivo novo substitui a foto; sem arquivo, `$removerFoto` apaga a atual.
+     */
+    public function salvarComFoto(?int $id, ProdutoDTO $dados, ?UploadedFile $foto, bool $removerFoto): Produto;
 
     /**
      * Marca ou desmarca o produto da Empresa como atalho da Nova Venda.
