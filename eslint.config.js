@@ -48,7 +48,7 @@ export default [
         },
     },
     {
-        files: ['eslint-rules/**/*.cjs'],
+        files: ['eslint-rules/**/*.cjs', 'tests/visual/**/*.cjs'],
         languageOptions: {
             sourceType: 'commonjs',
             globals: { ...globals.node },

@@ -18,6 +18,19 @@
 
 O CI (`.github/workflows/lint.yml` e `tests.yml`) roda em push e PR para `master` e `feature`, sem passos que reescrevem arquivos.
 
+## Verificação visual (Playwright)
+
+Prepara o app local e o usuário de teste (idempotente), depois sobe o servidor:
+
+```bash
+bash tests/visual/preparar.sh
+php artisan serve --port=8080
+```
+
+- `tests/visual/preparar.sh`: `.env` a partir do `.env.example`, `APP_URL` com a porta (sem ela as fotos do disco `public` não carregam), SQLite, migrations, `VerificacaoVisualSeeder` e `storage:link`.
+- `tests/visual/login.cjs`: `contextoLogado(browser, { viewport })` devolve um contexto já autenticado com `visual@horizonte.test`. A sessão fica em `storage/app/playwright-auth.json` (ignorado pelo git) e é renovada sozinha quando expira.
+- Só para banco local. O seeder não roda no `DatabaseSeeder`.
+
 ## Regras locais
 
 - `eslint-rules/` é cópia literal de `templates/eslint` do Vibe Coding Toolkit (revisão em [setup.md](setup.md)), com a licença MIT em `eslint-rules/LICENSE`. Para atualizar, substitua os quatro arquivos e rode `npm run quality:verify`.
