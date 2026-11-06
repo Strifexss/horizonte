@@ -56,7 +56,11 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
         }
 
         clearErrors();
-        setDetalhesAbertos(false);
+        // Ao editar, abre os detalhes uma vez se já houver algo neles; depois o botão manda.
+        setDetalhesAbertos(
+            mode === 'edit' &&
+                Boolean(produto && (produto.codigo || produto.descricao || produto.fornecedor_id || produto.grupo_id || produto.foto_url)),
+        );
 
         if (mode === 'edit' && produto) {
             setData({
@@ -86,9 +90,14 @@ export default function ProdutosForm({ open, onOpenChange, mode, produto }: Prop
     }, [open, mode, produto]);
 
     const fotoAtualUrl = mode === 'edit' && !data.remover_foto ? (produto?.foto_url ?? null) : null;
-    const detalhesPreenchidos = Boolean(data.codigo || data.descricao || data.fornecedor_id || data.grupo_id || data.foto || fotoAtualUrl);
     const detalhesComErro = Boolean(errors.codigo || errors.descricao || errors.fornecedor_id || errors.grupo_id || errors.foto);
-    const detalhesVisiveis = detalhesAbertos || detalhesComErro || (mode === 'edit' && detalhesPreenchidos);
+    const detalhesVisiveis = detalhesAbertos;
+
+    useEffect(() => {
+        if (detalhesComErro) {
+            setDetalhesAbertos(true);
+        }
+    }, [detalhesComErro]);
 
     const autocomplete =
         (url: string) =>
