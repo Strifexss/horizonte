@@ -21,9 +21,11 @@ function assignMenuListRef(ref: MenuListProps<SelectOption, false>['innerRef'], 
  * The menu is portaled to document.body, outside the Radix scroll lock.
  * That lock cancels touchmove on document, which is what blocks finger scrolling.
  * Stop the event while the list can still move, and cancel it at the edges so
- * the page behind does not pick up the leftover gesture. Wheel is left alone.
+ * the page behind does not pick up the leftover gesture. The same lock cancels wheel
+ * before it reaches the list (some browsers then do not scroll), so wheel scrolls the
+ * list by hand and always cancels the native scroll, which avoids scrolling twice.
  */
-function bindMenuTouchScroll(node: HTMLDivElement): () => void {
+function bindMenuScroll(node: HTMLDivElement): () => void {
   let lastY = 0;
 
   const onTouchStart = (event: TouchEvent) => {
@@ -61,12 +63,29 @@ function bindMenuTouchScroll(node: HTMLDivElement): () => void {
     }
   };
 
+  const onWheel = (event: WheelEvent) => {
+    event.stopPropagation();
+
+    if (event.ctrlKey || event.deltaY === 0) {
+      return;
+    }
+
+    if (event.cancelable) {
+      event.preventDefault();
+    }
+
+    const unidade = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? node.clientHeight : 1;
+    node.scrollTop += event.deltaY * unidade;
+  };
+
   node.addEventListener('touchstart', onTouchStart, { passive: true });
   node.addEventListener('touchmove', onTouchMove, { passive: false });
+  node.addEventListener('wheel', onWheel, { passive: false });
 
   return () => {
     node.removeEventListener('touchstart', onTouchStart);
     node.removeEventListener('touchmove', onTouchMove);
+    node.removeEventListener('wheel', onWheel);
   };
 }
 
@@ -84,7 +103,7 @@ function ScrollableMenuList(props: MenuListProps<SelectOption, false>) {
       return;
     }
 
-    cleanupRef.current = bindMenuTouchScroll(node);
+    cleanupRef.current = bindMenuScroll(node);
   }, []);
 
   return <components.MenuList {...props} innerRef={setListRef} />;
@@ -157,6 +176,7 @@ const selectStyles: StylesConfig<SelectOption, false> = {
   }),
   menuList: (base) => ({
     ...base,
+    overscrollBehavior: 'contain',
     padding: 4,
   }),
   option: (base, state) => ({
