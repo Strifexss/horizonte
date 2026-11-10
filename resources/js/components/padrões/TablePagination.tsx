@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export type TablePaginationProps = {
     from: number | null;
@@ -58,67 +58,116 @@ export default function TablePagination({
     itemLabel,
 }: TablePaginationProps) {
     const pageNumbers = buildPageNumbers(currentPage, Math.max(lastPage, 1));
+
     const showingLabel =
         total === 0 || from === null || to === null ? `Mostrando 0 de ${total} ${itemLabel}` : `Mostrando ${from}–${to} de ${total} ${itemLabel}`;
 
+    const safeLastPage = Math.max(lastPage, 1);
+    const compactRange = total === 0 || from === null || to === null ? `0 de ${total}` : `${from}–${to} de ${total}`;
+
     return (
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-wrap items-center gap-3">
-                <span className="text-muted-foreground text-sm">{showingLabel}</span>
-                <div className="text-muted-foreground flex items-center gap-2 text-sm">
-                    <span>Por página:</span>
-                    <select
-                        name="perPage"
-                        className="ml-1 rounded border px-2 py-1 text-sm max-md:h-11"
-                        value={perPage}
-                        onChange={(e) => onPerPageChange(Number(e.target.value))}
+        <>
+            <nav aria-label="Paginação" className="mt-4 flex flex-col gap-2 md:hidden">
+                <span className="text-muted-foreground text-center text-xs">{compactRange}</span>
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        className="flex size-11 shrink-0 items-center justify-center rounded-lg border disabled:opacity-40"
+                        aria-label="Página anterior"
+                        disabled={currentPage <= 1}
+                        onClick={() => onPageChange(currentPage - 1)}
                     >
-                        {PER_PAGE_OPTIONS.map((option) => (
-                            <option key={option} value={option}>
-                                {option}
-                            </option>
-                        ))}
-                    </select>
+                        <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <label className="relative flex h-11 min-w-0 flex-1">
+                        <span className="sr-only">Ir para a página</span>
+                        <select
+                            name="page"
+                            className="bg-primary/10 text-primary h-11 w-full appearance-none rounded-lg px-8 text-center text-sm font-semibold"
+                            value={currentPage}
+                            onChange={(e) => onPageChange(Number(e.target.value))}
+                        >
+                            {Array.from({ length: safeLastPage }, (_, index) => index + 1).map((page) => (
+                                <option key={page} value={page}>
+                                    Página {page} de {safeLastPage}
+                                </option>
+                            ))}
+                        </select>
+                        <ChevronDown
+                            className="text-primary pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2"
+                            aria-hidden="true"
+                        />
+                    </label>
+                    <button
+                        type="button"
+                        className="flex size-11 shrink-0 items-center justify-center rounded-lg border disabled:opacity-40"
+                        aria-label="Próxima página"
+                        disabled={currentPage >= lastPage}
+                        onClick={() => onPageChange(currentPage + 1)}
+                    >
+                        <ChevronRight className="h-5 w-5" />
+                    </button>
+                </div>
+            </nav>
+
+            <div className="mt-4 hidden flex-col gap-3 sm:flex-row sm:items-center sm:justify-between md:flex">
+                <div className="flex flex-wrap items-center gap-3">
+                    <span className="text-muted-foreground text-sm">{showingLabel}</span>
+                    <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                        <span>Por página:</span>
+                        <select
+                            name="perPage"
+                            className="ml-1 rounded border px-2 py-1 text-sm max-md:h-11"
+                            value={perPage}
+                            onChange={(e) => onPerPageChange(Number(e.target.value))}
+                        >
+                            {PER_PAGE_OPTIONS.map((option) => (
+                                <option key={option} value={option}>
+                                    {option}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                    <button
+                        type="button"
+                        className="hover:bg-sidebar-border/20 rounded p-2 disabled:opacity-40 max-md:p-3"
+                        aria-label="Página anterior"
+                        disabled={currentPage <= 1}
+                        onClick={() => onPageChange(currentPage - 1)}
+                    >
+                        <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    {pageNumbers.map((page, index) =>
+                        page === 'ellipsis' ? (
+                            <span key={`ellipsis-${index}`} className="text-soft px-1">
+                                ...
+                            </span>
+                        ) : (
+                            <button
+                                key={page}
+                                type="button"
+                                className={`rounded px-3 py-1 max-md:min-h-11 ${page === currentPage ? 'bg-sidebar-border/10' : ''}`}
+                                aria-current={page === currentPage ? 'page' : undefined}
+                                onClick={() => onPageChange(page)}
+                            >
+                                {page}
+                            </button>
+                        ),
+                    )}
+                    <button
+                        type="button"
+                        className="hover:bg-sidebar-border/20 rounded p-2 disabled:opacity-40 max-md:p-3"
+                        aria-label="Próxima página"
+                        disabled={currentPage >= lastPage}
+                        onClick={() => onPageChange(currentPage + 1)}
+                    >
+                        <ChevronRight className="h-5 w-5" />
+                    </button>
                 </div>
             </div>
-
-            <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-                <button
-                    type="button"
-                    className="hover:bg-sidebar-border/20 rounded p-2 disabled:opacity-40 max-md:p-3"
-                    aria-label="Página anterior"
-                    disabled={currentPage <= 1}
-                    onClick={() => onPageChange(currentPage - 1)}
-                >
-                    <ChevronLeft className="h-5 w-5" />
-                </button>
-                {pageNumbers.map((page, index) =>
-                    page === 'ellipsis' ? (
-                        <span key={`ellipsis-${index}`} className="text-soft px-1">
-                            ...
-                        </span>
-                    ) : (
-                        <button
-                            key={page}
-                            type="button"
-                            className={`rounded px-3 py-1 max-md:min-h-11 ${page === currentPage ? 'bg-sidebar-border/10' : ''}`}
-                            aria-current={page === currentPage ? 'page' : undefined}
-                            onClick={() => onPageChange(page)}
-                        >
-                            {page}
-                        </button>
-                    ),
-                )}
-                <button
-                    type="button"
-                    className="hover:bg-sidebar-border/20 rounded p-2 disabled:opacity-40 max-md:p-3"
-                    aria-label="Próxima página"
-                    disabled={currentPage >= lastPage}
-                    onClick={() => onPageChange(currentPage + 1)}
-                >
-                    <ChevronRight className="h-5 w-5" />
-                </button>
-            </div>
-        </div>
+        </>
     );
 }
