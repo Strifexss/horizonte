@@ -60,7 +60,7 @@ export default function MenuBoardsIndex() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Menu Board" />
-            <div className="flex h-full w-full max-w-full min-w-0 flex-1 flex-col gap-2 overflow-x-hidden rounded-xl p-4 pb-28 md:gap-4 md:pb-4">
+            <div className="flex h-full w-full max-w-full min-w-0 flex-1 flex-col gap-2 overflow-x-hidden rounded-xl p-4 pb-mobile-fab md:gap-4 md:pb-4">
                 <PageTitle
                     title="Meus Menu Boards"
                     mobileTitle="Menu Boards"

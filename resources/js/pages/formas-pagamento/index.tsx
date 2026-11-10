@@ -45,7 +45,7 @@ export default function FormasPagamentoIndex() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Formas de pagamento" />
-            <div className="flex h-full w-full max-w-full min-w-0 flex-1 flex-col gap-2 overflow-x-hidden rounded-xl p-4 pb-28 md:gap-4 md:pb-4">
+            <div className="flex h-full w-full max-w-full min-w-0 flex-1 flex-col gap-2 overflow-x-hidden rounded-xl p-4 pb-mobile-fab md:gap-4 md:pb-4">
                 <PageTitle
                     title="Formas de pagamento"
                     subtitle="As padrões valem para todos; as suas aparecem só para você"

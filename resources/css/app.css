@@ -200,3 +200,8 @@
         transform: scaleX(1);
     }
 }
+
+/* Espaço no fim das telas com FAB no celular: o FAB (bottom-24, 56 px) termina a 152 px do rodapé. */
+@utility pb-mobile-fab {
+    padding-bottom: --spacing(44);
+}

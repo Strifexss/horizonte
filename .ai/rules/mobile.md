@@ -9,3 +9,4 @@ Vale abaixo de 768 px (`md`). Use classes `max-md:` para não mudar o desktop.
   - Se o componente também aparece no desktop (tabela, card em grid), troque só no celular: `text-xs md:text-[10px]`.
   - Ficam de fora: números de eixo de gráfico, contadores dentro de bolinhas de 20 px e a prévia da TV no Menu Board (imita a TV).
 - **Como provar:** varredura com Playwright (`tests/visual/login.cjs`) a 390 px listando elementos interativos menores que 44 px e textos menores que 12 px, mais diff de pixels do desktop (1280 px) antes e depois, que deve dar zero.
+- **Tela com FAB flutuante** (`MobileFab`, `ExtratoFab2`): o container da página usa `pb-mobile-fab md:pb-4` (utilitário em `resources/css/app.css`), não um `pb-*` solto. O FAB ocupa até 152 px acima do rodapé; com menos espaço, ele cobre a seta › do paginador no fim da lista.
