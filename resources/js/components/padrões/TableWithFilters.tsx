@@ -2,7 +2,7 @@ import { useListaCarregando, useListaConclusao } from '@/components/padrões/lis
 import TablePagination, { type TablePaginationProps } from '@/components/padrões/TablePagination';
 import { cn } from '@/lib/utils';
 import { ArrowDown, ArrowUp } from 'lucide-react';
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 export type Column<T> = {
     key: string;
@@ -46,6 +46,22 @@ function TableSkeleton() {
         <div className="animate-pulse space-y-3">
             <div className="h-6 w-1/4 rounded bg-gray-200 dark:bg-slate-700" />
             <div className="h-48 rounded bg-gray-100 dark:bg-slate-800" />
+        </div>
+    );
+}
+
+/** Espera antes de trocar a lista pelo skeleton: resposta rápida não pisca. */
+const ATRASO_SKELETON_MS = 300;
+
+/** Skeleton da troca de página: mesma altura da lista atual, para a página não encolher. */
+function ListaSkeleton({ altura }: { altura: number }) {
+    const linhas = Math.max(3, Math.ceil(altura / 64));
+
+    return (
+        <div aria-hidden="true" className="flex flex-col gap-2 overflow-hidden p-3" style={{ height: altura }}>
+            {Array.from({ length: linhas }, (_, index) => (
+                <div key={index} className="h-14 shrink-0 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />
+            ))}
         </div>
     );
 }
@@ -117,6 +133,19 @@ export default function TableWithFilters<T>({
     const conclusao = useListaConclusao();
     const topoRef = useRef<HTMLDivElement>(null);
     const conclusaoInicial = useRef(conclusao);
+    const conteudoRef = useRef<HTMLDivElement>(null);
+    const [alturaSkeleton, setAlturaSkeleton] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (!carregando) {
+            setAlturaSkeleton(null);
+            return;
+        }
+
+        const altura = conteudoRef.current?.offsetHeight ?? 0;
+        const timer = window.setTimeout(() => setAlturaSkeleton(altura), ATRASO_SKELETON_MS);
+        return () => window.clearTimeout(timer);
+    }, [carregando]);
 
     useEffect(() => {
         if (conclusao === conclusaoInicial.current || !topoRef.current) {
@@ -133,61 +162,69 @@ export default function TableWithFilters<T>({
     }, [conclusao]);
 
     return (
-        <div
-            ref={topoRef}
-            aria-busy={carregando}
-            className={cn('scroll-mt-20 transition-opacity duration-200', carregando && 'pointer-events-none opacity-60')}
-        >
+        <div ref={topoRef} aria-busy={carregando} className="scroll-mt-20">
             {!loaded ? (
                 (skeleton ?? <TableSkeleton />)
             ) : (
                 <div className="border-sidebar-border/70 rounded-xl border bg-white shadow-sm dark:bg-slate-900">
                     {toolbar ? <div className="border-sidebar-border/70 border-b px-4 py-3">{toolbar}</div> : null}
-                    <div key={conclusao} className="animate-in fade-in-0 duration-200 motion-reduce:animate-none">
-                        {showEmpty ? (
-                            <div className="p-4">{empty}</div>
-                        ) : (
-                            <>
-                                {mobile ? <div className="p-3 md:hidden">{mobile}</div> : null}
-                                <div className={cn('overflow-x-auto p-4', mobile && 'hidden md:block')}>
-                                    <table className={cn('w-full border-collapse text-sm', fixedLayout ? 'table-fixed' : 'table-auto')}>
-                                        <thead>
-                                            <tr className="text-muted-foreground bg-transparent text-left text-xs">
-                                                {columns.map((column) => (
-                                                    <HeaderCell key={column.key} column={column} sort={sort} />
-                                                ))}
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {data.map((item, rowIndex) => (
-                                                <tr
-                                                    key={rowKey(item, rowIndex)}
-                                                    className={cn(
-                                                        'border-t hover:bg-slate-50/50 dark:hover:bg-slate-700/60',
-                                                        onRowClick && 'cursor-pointer',
-                                                    )}
-                                                    onClick={onRowClick ? () => onRowClick(item) : undefined}
-                                                >
+                    {alturaSkeleton !== null ? (
+                        <ListaSkeleton altura={alturaSkeleton} />
+                    ) : (
+                        <div
+                            ref={conteudoRef}
+                            key={conclusao}
+                            className={cn('animate-in fade-in-0 duration-200 motion-reduce:animate-none', carregando && 'pointer-events-none')}
+                        >
+                            {showEmpty ? (
+                                <div className="p-4">{empty}</div>
+                            ) : (
+                                <>
+                                    {mobile ? <div className="p-3 md:hidden">{mobile}</div> : null}
+                                    <div className={cn('overflow-x-auto p-4', mobile && 'hidden md:block')}>
+                                        <table className={cn('w-full border-collapse text-sm', fixedLayout ? 'table-fixed' : 'table-auto')}>
+                                            <thead>
+                                                <tr className="text-muted-foreground bg-transparent text-left text-xs">
                                                     {columns.map((column) => (
-                                                        <td
-                                                            key={column.key}
-                                                            className={cn('px-4 py-3 align-top', column.className ?? column.thClassName)}
-                                                        >
-                                                            {cellContent(column, item, rowIndex)}
-                                                        </td>
+                                                        <HeaderCell key={column.key} column={column} sort={sort} />
                                                     ))}
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </>
-                        )}
-                    </div>
+                                            </thead>
+                                            <tbody>
+                                                {data.map((item, rowIndex) => (
+                                                    <tr
+                                                        key={rowKey(item, rowIndex)}
+                                                        className={cn(
+                                                            'border-t hover:bg-slate-50/50 dark:hover:bg-slate-700/60',
+                                                            onRowClick && 'cursor-pointer',
+                                                        )}
+                                                        onClick={onRowClick ? () => onRowClick(item) : undefined}
+                                                    >
+                                                        {columns.map((column) => (
+                                                            <td
+                                                                key={column.key}
+                                                                className={cn('px-4 py-3 align-top', column.className ?? column.thClassName)}
+                                                            >
+                                                                {cellContent(column, item, rowIndex)}
+                                                            </td>
+                                                        ))}
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
 
-            {pagination ? <TablePagination {...pagination} /> : null}
+            {pagination ? (
+                <div className={cn(carregando && 'pointer-events-none opacity-60')}>
+                    <TablePagination {...pagination} />
+                </div>
+            ) : null}
         </div>
     );
 }
