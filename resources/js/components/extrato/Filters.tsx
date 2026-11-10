@@ -1,10 +1,8 @@
-import { Button } from '@/components/ui/button';
-import ExtratoFilterFields, {
-    type ExtratoFilterValues,
-    type FilterOption,
-} from '@/components/extrato/ExtratoFilterFields';
+import ExtratoFilterFields, { type ExtratoFilterValues, type FilterOption } from '@/components/extrato/ExtratoFilterFields';
 import ExtratoMobileFilterBar from '@/components/extrato/ExtratoMobileFilterBar';
-import { router, usePage } from '@inertiajs/react';
+import { visitLista } from '@/components/padrões/listaNavegacao';
+import { Button } from '@/components/ui/button';
+import { usePage } from '@inertiajs/react';
 import { Search } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 
@@ -49,10 +47,7 @@ function queryNome(key: string): string {
     return new URLSearchParams(window.location.search).get(key) ?? '';
 }
 
-function buildPayload(
-    values: ExtratoFilterValues,
-    extras: { busca?: string; per_page?: number } = {},
-): Record<string, string | number> {
+function buildPayload(values: ExtratoFilterValues, extras: { busca?: string; per_page?: number } = {}): Record<string, string | number> {
     const payload: Record<string, string | number> = {
         tipo_data: values.tipoData,
         data_inicio: values.dataInicio,
@@ -101,17 +96,17 @@ function buildPayload(
 
 export default function ExtratoFilters() {
     const { props } = usePage();
-    const filters = ((props as { filters?: FiltersProps & { busca?: string; per_page?: number } }).filters ??
-        {}) as FiltersProps & { busca?: string; per_page?: number };
+    const filters = ((props as { filters?: FiltersProps & { busca?: string; per_page?: number } }).filters ?? {}) as FiltersProps & {
+        busca?: string;
+        per_page?: number;
+    };
 
     const initialValues = useMemo<ExtratoFilterValues>(
         () => ({
             tipoData: filters.tipo_data ?? 'competencia',
             dataInicio: filters.data_inicio ?? inicioMesISO(),
             dataFim: filters.data_fim ?? fimMesISO(),
-            conta: filters.conta_id
-                ? { id: filters.conta_id, nome: queryNome('conta_nome') || String(filters.conta_id) }
-                : null,
+            conta: filters.conta_id ? { id: filters.conta_id, nome: queryNome('conta_nome') || String(filters.conta_id) } : null,
             categoria: filters.categoria_id
                 ? {
                       id: filters.categoria_id,
@@ -144,7 +139,18 @@ export default function ExtratoFilters() {
                 : null,
             status: filters.status ?? 'todos',
         }),
-        [filters.tipo_data, filters.data_inicio, filters.data_fim, filters.conta_id, filters.categoria_id, filters.produto_id, filters.grupo_id, filters.fornecedor_id, filters.forma_pagamento_id, filters.status],
+        [
+            filters.tipo_data,
+            filters.data_inicio,
+            filters.data_fim,
+            filters.conta_id,
+            filters.categoria_id,
+            filters.produto_id,
+            filters.grupo_id,
+            filters.fornecedor_id,
+            filters.forma_pagamento_id,
+            filters.status,
+        ],
     );
 
     const [values, setValues] = useState<ExtratoFilterValues>(initialValues);
@@ -210,7 +216,7 @@ export default function ExtratoFilters() {
 
     const apply = (override?: ExtratoFilterValues) => {
         const next = override ?? values;
-        router.get(route('extrato.index'), buildPayload(next, extras()), { preserveScroll: true });
+        visitLista(route('extrato.index'), buildPayload(next, extras()), ['parcelas', 'resumo']);
     };
 
     const clearAll = () => {
@@ -227,9 +233,7 @@ export default function ExtratoFilters() {
             status: 'todos',
         };
         setValues(next);
-        router.get(route('extrato.index'), buildPayload(next, { per_page: extras().per_page }), {
-            preserveScroll: true,
-        });
+        visitLista(route('extrato.index'), buildPayload(next, { per_page: extras().per_page }), ['parcelas', 'resumo']);
     };
 
     return (
@@ -247,7 +251,7 @@ export default function ExtratoFilters() {
                 loadFormasPagamento={loadFormasPagamento}
             />
 
-            <div className="hidden rounded-lg border border-sidebar-border/70 bg-white p-4 shadow-sm md:block dark:bg-slate-900">
+            <div className="border-sidebar-border/70 hidden rounded-lg border bg-white p-4 shadow-sm md:block dark:bg-slate-900">
                 <ExtratoFilterFields
                     values={values}
                     onChange={(patch) => setValues((prev) => ({ ...prev, ...patch }))}
@@ -259,13 +263,7 @@ export default function ExtratoFilters() {
                     loadFormasPagamento={loadFormasPagamento}
                 />
                 <div className="mt-3 flex justify-end md:col-span-8">
-                    <Button
-                        type="button"
-                        variant="primary"
-                        size="default"
-                        className="inline-flex items-center gap-2"
-                        onClick={() => apply()}
-                    >
+                    <Button type="button" variant="primary" size="default" className="inline-flex items-center gap-2" onClick={() => apply()}>
                         <Search />
                         Pesquisar
                     </Button>

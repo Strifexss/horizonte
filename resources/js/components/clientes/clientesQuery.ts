@@ -1,5 +1,5 @@
 import type { ClienteFilters, ClienteQueryOverride } from '@/components/clientes/types';
-import { router } from '@inertiajs/react';
+import { visitLista } from '@/components/padrões/listaNavegacao';
 
 export function buildClientesQuery(filters: ClienteFilters, override: ClienteQueryOverride = {}): Record<string, string | number> {
     const payload: Record<string, string | number> = {
@@ -18,9 +18,5 @@ export function buildClientesQuery(filters: ClienteFilters, override: ClienteQue
 }
 
 export function visitClientes(filters: ClienteFilters, override: ClienteQueryOverride = {}): void {
-    router.get(route('clientes'), buildClientesQuery(filters, override), {
-        preserveScroll: true,
-        preserveState: true,
-        replace: true,
-    });
+    visitLista(route('clientes'), buildClientesQuery(filters, override), ['clientes']);
 }

@@ -1,5 +1,5 @@
+import { visitLista } from '@/components/padrões/listaNavegacao';
 import type { ProdutoFilters, ProdutoQueryOverride } from '@/components/produtos/types';
-import { router } from '@inertiajs/react';
 
 export function buildProdutosQuery(filters: ProdutoFilters, override: ProdutoQueryOverride = {}): Record<string, string | number> {
     const payload: Record<string, string | number> = {
@@ -18,9 +18,5 @@ export function buildProdutosQuery(filters: ProdutoFilters, override: ProdutoQue
 }
 
 export function visitProdutos(filters: ProdutoFilters, override: ProdutoQueryOverride = {}): void {
-    router.get(route('produtos'), buildProdutosQuery(filters, override), {
-        preserveScroll: true,
-        preserveState: true,
-        replace: true,
-    });
+    visitLista(route('produtos'), buildProdutosQuery(filters, override), ['produtos']);
 }

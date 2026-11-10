@@ -1,5 +1,5 @@
 import type { ExtratoFilters, ExtratoQueryOverride } from '@/components/extrato/types';
-import { router } from '@inertiajs/react';
+import { visitLista } from '@/components/padrões/listaNavegacao';
 
 export function buildExtratoQuery(filters: ExtratoFilters, override: ExtratoQueryOverride = {}): Record<string, string | number> {
     const payload: Record<string, string | number> = {
@@ -13,8 +13,7 @@ export function buildExtratoQuery(filters: ExtratoFilters, override: ExtratoQuer
 
     const contaId = override.conta_id !== undefined ? override.conta_id : filters.conta_id;
     const categoriaId = override.categoria_id !== undefined ? override.categoria_id : filters.categoria_id;
-    const formaPagamentoId =
-        override.forma_pagamento_id !== undefined ? override.forma_pagamento_id : filters.forma_pagamento_id;
+    const formaPagamentoId = override.forma_pagamento_id !== undefined ? override.forma_pagamento_id : filters.forma_pagamento_id;
     const buscaValue = override.busca !== undefined ? override.busca : filters.busca;
     const sortValue = override.sort !== undefined ? override.sort : (filters.sort ?? 'data');
     const sortDirValue = override.sort_dir !== undefined ? override.sort_dir : (filters.sort_dir ?? 'desc');
@@ -42,9 +41,5 @@ export function buildExtratoQuery(filters: ExtratoFilters, override: ExtratoQuer
 }
 
 export function visitExtrato(filters: ExtratoFilters, override: ExtratoQueryOverride = {}): void {
-    router.get(route('extrato.index'), buildExtratoQuery(filters, override), {
-        preserveScroll: true,
-        preserveState: true,
-        replace: true,
-    });
+    visitLista(route('extrato.index'), buildExtratoQuery(filters, override), ['parcelas', 'resumo']);
 }

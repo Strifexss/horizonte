@@ -1,5 +1,5 @@
+import { visitLista } from '@/components/padrões/listaNavegacao';
 import type { VendaFilters, VendaQueryOverride } from '@/components/vendas/types';
-import { router } from '@inertiajs/react';
 
 export function buildVendasQuery(filters: VendaFilters, override: VendaQueryOverride = {}): Record<string, string | number> {
     const payload: Record<string, string | number> = {
@@ -24,9 +24,5 @@ export function buildVendasQuery(filters: VendaFilters, override: VendaQueryOver
 }
 
 export function visitVendas(filters: VendaFilters, override: VendaQueryOverride = {}): void {
-    router.get(route('vendas'), buildVendasQuery(filters, override), {
-        preserveScroll: true,
-        preserveState: true,
-        replace: true,
-    });
+    visitLista(route('vendas'), buildVendasQuery(filters, override), ['vendas', 'resumo']);
 }

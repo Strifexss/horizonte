@@ -1,7 +1,8 @@
+import { useListaCarregando, useListaConclusao } from '@/components/padrões/listaNavegacao';
 import TablePagination, { type TablePaginationProps } from '@/components/padrões/TablePagination';
 import { cn } from '@/lib/utils';
 import { ArrowDown, ArrowUp } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 
 export type Column<T> = {
     key: string;
@@ -112,57 +113,81 @@ export default function TableWithFilters<T>({
     fixedLayout = false,
 }: Props<T>) {
     const showEmpty = empty !== undefined && data.length === 0;
+    const carregando = useListaCarregando();
+    const conclusao = useListaConclusao();
+    const topoRef = useRef<HTMLDivElement>(null);
+    const conclusaoInicial = useRef(conclusao);
+
+    useEffect(() => {
+        if (conclusao === conclusaoInicial.current || !topoRef.current) {
+            return;
+        }
+
+        const topo = topoRef.current.getBoundingClientRect().top;
+        if (topo >= 0) {
+            return;
+        }
+
+        const reduzirMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        topoRef.current.scrollIntoView({ behavior: reduzirMovimento ? 'auto' : 'smooth', block: 'start' });
+    }, [conclusao]);
 
     return (
-        <>
+        <div
+            ref={topoRef}
+            aria-busy={carregando}
+            className={cn('scroll-mt-20 transition-opacity duration-200', carregando && 'pointer-events-none opacity-60')}
+        >
             {!loaded ? (
                 (skeleton ?? <TableSkeleton />)
             ) : (
                 <div className="border-sidebar-border/70 rounded-xl border bg-white shadow-sm dark:bg-slate-900">
                     {toolbar ? <div className="border-sidebar-border/70 border-b px-4 py-3">{toolbar}</div> : null}
-                    {showEmpty ? (
-                        <div className="p-4">{empty}</div>
-                    ) : (
-                        <>
-                            {mobile ? <div className="p-3 md:hidden">{mobile}</div> : null}
-                            <div className={cn('overflow-x-auto p-4', mobile && 'hidden md:block')}>
-                                <table className={cn('w-full border-collapse text-sm', fixedLayout ? 'table-fixed' : 'table-auto')}>
-                                    <thead>
-                                        <tr className="text-muted-foreground bg-transparent text-left text-xs">
-                                            {columns.map((column) => (
-                                                <HeaderCell key={column.key} column={column} sort={sort} />
-                                            ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {data.map((item, rowIndex) => (
-                                            <tr
-                                                key={rowKey(item, rowIndex)}
-                                                className={cn(
-                                                    'border-t hover:bg-slate-50/50 dark:hover:bg-slate-700/60',
-                                                    onRowClick && 'cursor-pointer',
-                                                )}
-                                                onClick={onRowClick ? () => onRowClick(item) : undefined}
-                                            >
+                    <div key={conclusao} className="animate-in fade-in-0 duration-200 motion-reduce:animate-none">
+                        {showEmpty ? (
+                            <div className="p-4">{empty}</div>
+                        ) : (
+                            <>
+                                {mobile ? <div className="p-3 md:hidden">{mobile}</div> : null}
+                                <div className={cn('overflow-x-auto p-4', mobile && 'hidden md:block')}>
+                                    <table className={cn('w-full border-collapse text-sm', fixedLayout ? 'table-fixed' : 'table-auto')}>
+                                        <thead>
+                                            <tr className="text-muted-foreground bg-transparent text-left text-xs">
                                                 {columns.map((column) => (
-                                                    <td
-                                                        key={column.key}
-                                                        className={cn('px-4 py-3 align-top', column.className ?? column.thClassName)}
-                                                    >
-                                                        {cellContent(column, item, rowIndex)}
-                                                    </td>
+                                                    <HeaderCell key={column.key} column={column} sort={sort} />
                                                 ))}
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </>
-                    )}
+                                        </thead>
+                                        <tbody>
+                                            {data.map((item, rowIndex) => (
+                                                <tr
+                                                    key={rowKey(item, rowIndex)}
+                                                    className={cn(
+                                                        'border-t hover:bg-slate-50/50 dark:hover:bg-slate-700/60',
+                                                        onRowClick && 'cursor-pointer',
+                                                    )}
+                                                    onClick={onRowClick ? () => onRowClick(item) : undefined}
+                                                >
+                                                    {columns.map((column) => (
+                                                        <td
+                                                            key={column.key}
+                                                            className={cn('px-4 py-3 align-top', column.className ?? column.thClassName)}
+                                                        >
+                                                            {cellContent(column, item, rowIndex)}
+                                                        </td>
+                                                    ))}
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </>
+                        )}
+                    </div>
                 </div>
             )}
 
             {pagination ? <TablePagination {...pagination} /> : null}
-        </>
+        </div>
     );
 }
