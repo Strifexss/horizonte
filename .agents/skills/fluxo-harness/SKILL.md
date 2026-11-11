@@ -13,6 +13,7 @@ Fontes de verdade (não as repita, consulte): `AGENTS.md` (acordos e comandos), 
 
 - Leia as regras de `.ai/rules/index.md` cujos globs cobrem os caminhos em escopo e rode `grep -rin '<palavra-chave>' .ai/rules`.
 - Rotina, CRUD ou tela nova: siga a skill `estrutura-padrao`. UI: `web-design-guidelines` e `shadcn`. React: `vercel-react-best-practices`. Auth, Empresa, admin, dinheiro ou upload: `differential-review` na etapa 4.
+- Leia os **últimos 4 commits** (`git log -4 --stat`, e o diff dos que tocam os arquivos em escopo ou os componentes que você vai reaproveitar ou imitar). Correção recente num vizinho costuma ser o bug que o código novo vai repetir.
 - Separe **fato observado** (lido no código), **suposição** e **decisão**. Pergunte ao usuário só o que muda o que você faz a seguir.
 
 **Pronto quando:** você sabe quais arquivos e regras estão em jogo e escreveu, para o usuário, o escopo em uma ou duas linhas, incluindo o que fica de fora.
@@ -33,6 +34,11 @@ Antes de editar, escreva para o usuário:
   | Só documentação ou skill | releitura do diff + revisão independente |
 
 - **Verificação visual**: obrigatória sempre que a mudança altera o que alguma tela mostra ou como ela reage (inclui hooks, utilitários e props usados por telas). Prints de desktop (1280 px) e celular (390 px) de, no mínimo, o estado padrão de cada tela afetada, mais cada estado que o critério cita (vazio, preenchido, erro, aberto), com o console do navegador sem erros. Use a ferramenta de browser do cliente contra `http://localhost:8080`, nunca produção; sem ela, o Playwright já disponível no ambiente (não o adicione como dependência). Sem app rodando, renderize a tela ou o componente isolado e diga ao usuário que a verificação não foi no app real.
+- **Lista, autocomplete, combobox ou menu**, quando a mudança afeta o comportamento ou o layout da lista: o critério e a verificação cobrem todos os modos de entrada, não só o que o pedido descreve; o que não for testado é dito ao usuário como não verificado.
+  - Dados: mais itens do que cabem na área visível, e itens com campos opcionais preenchidos e vazios (foto, grupo, descrição). Se o `VerificacaoVisualSeeder` não tiver, peça autorização ao usuário para criar na base local e apague depois.
+  - Mouse: clicar num item no topo e num item que só aparece depois de rolar; passar o mouse destaca o item, mas não rola nem desloca a lista; a roda do mouse rola a lista, inclusive dentro de modal.
+  - Teclado: ↑↓ navegam e rolam até o item, Enter escolhe, Esc fecha a lista (em modal, só a lista: o modal continua aberto), e o foco volta ao campo depois de escolher.
+  - Celular (390 px): toque escolhe o item e o dedo rola a lista.
 - Correção de bug: reproduza primeiro e planeje o teste de regressão.
 
 **Pronto quando:** critério e prova estão escritos na conversa.
