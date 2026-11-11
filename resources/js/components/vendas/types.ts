@@ -82,6 +82,14 @@ export type ProdutoParaVenda = VendaNamed & {
     preco_venda: string | number;
 };
 
+/** Sugestão do autocomplete da venda, com os dados do painel de detalhes. */
+export type ProdutoSugerido = ProdutoParaVenda & {
+    grupo?: string | null;
+    foto_url?: string | null;
+    descricao?: string | null;
+    favorito?: boolean;
+};
+
 /** Produto do catálogo da venda no celular (rolagem infinita). */
 export type ProdutoDoCatalogo = ProdutoParaVenda & {
     grupo: string | null;

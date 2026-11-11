@@ -486,6 +486,20 @@ it('busca so produtos ativos do usuario com o preco de venda', function (): void
         ->assertJsonFragment(['nome' => 'Café Premium', 'preco_venda' => '45.90']);
 });
 
+it('busca produto trazendo grupo, descricao, favorito e foto para o detalhe', function (): void {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    $grupo = Grupo::query()->create(['nome' => 'Bebidas', 'usuario_id' => $user->id]);
+    produtoParaVenda($user, ['grupo_id' => $grupo->id, 'descricao' => 'Grão arábica', 'favorito' => true]);
+
+    $this->getJson(route('vendas.produtos', ['q' => 'cafe']))
+        ->assertOk()
+        ->assertJsonPath('0.grupo', 'Bebidas')
+        ->assertJsonPath('0.descricao', 'Grão arábica')
+        ->assertJsonPath('0.favorito', true)
+        ->assertJsonPath('0.foto_url', null);
+});
+
 it('bloqueia exclusao de produto usado em venda', function (): void {
     $user = User::factory()->create();
     $cafe = produtoParaVenda($user);

@@ -3,7 +3,8 @@ import AsyncSelect from '@/components/ui/AsyncSelect';
 import { Input } from '@/components/ui/input';
 import MoneyInput from '@/components/ui/money-input';
 import { quantidadeTexto, somarProduto } from '@/components/vendas/itensDaVenda';
-import { formatCurrency, parseQuantidade, type ProdutoParaVenda, type VendaItemRascunho } from '@/components/vendas/types';
+import { formatCurrency, parseQuantidade, type ProdutoParaVenda, type ProdutoSugerido, type VendaItemRascunho } from '@/components/vendas/types';
+import VendaBuscaProduto from '@/components/vendas/VendaBuscaProduto';
 import { Minus, Plus, Star, X } from 'lucide-react';
 
 const QUANTIDADE_DIGITADA = /^\d*([.,]\d{0,3})?$/;
@@ -18,7 +19,7 @@ type Props = {
     somenteLinhas?: boolean;
 };
 
-async function loadProdutos(q: string): Promise<ProdutoParaVenda[]> {
+async function loadProdutos(q: string): Promise<ProdutoSugerido[]> {
     const res = await fetch(`${route('vendas.produtos')}?q=${encodeURIComponent(q)}`);
     if (!res.ok) {
         return [];
@@ -117,20 +118,11 @@ export default function VendaItensEditor({ itens, onChange, errors, disabled = f
 
             {somenteLinhas ? null : (
                 <div className="border-sidebar-border/70 rounded-lg border p-2">
-                    <AsyncSelect
-                        value={null}
-                        onChange={(produto) => {
-                            if (produto) {
-                                adicionarProduto(produto as ProdutoParaVenda);
-                            }
-                        }}
-                        loadOptions={loadProdutos}
-                        formatOptionText={rotuloComCodigo}
-                        placeholder="Adicionar produto (nome ou código)"
-                        isClearable={false}
-                        isDisabled={disabled}
-                        selectFirstOnEnter
-                        keepFocusOnSelect
+                    <VendaBuscaProduto
+                        loadProdutos={loadProdutos}
+                        onAdicionar={adicionarProduto}
+                        quantidadePorProduto={quantidadePorProduto}
+                        disabled={disabled}
                     />
                     <InputError message={errors.itens} className="mt-1" />
                 </div>

@@ -104,10 +104,21 @@ class VendasController extends Controller
         ]);
     }
 
-    public function produtosAutocomplete(Request $request)
+    public function produtosAutocomplete(Request $request): JsonResponse
     {
         return response()->json(
             $this->vendasService->produtosParaVenda((string) $request->query('q', ''))
+                ->map(fn (Produto $produto): array => [
+                    'id' => $produto->id,
+                    'nome' => $produto->nome,
+                    'codigo' => $produto->codigo,
+                    'preco_venda' => number_format((float) $produto->preco_venda, 2, '.', ''),
+                    'grupo' => $produto->grupo?->nome,
+                    'foto_url' => $produto->foto_url,
+                    'descricao' => $produto->descricao,
+                    'favorito' => (bool) $produto->favorito,
+                ])
+                ->values()
         );
     }
 

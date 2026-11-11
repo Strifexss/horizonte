@@ -119,7 +119,8 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
     {
         $query = $this->model->newQuery()
             ->where('empresa_id', Empresa::atualId())
-            ->where('ativo', true);
+            ->where('ativo', true)
+            ->with('grupo:id,nome');
 
         $q = trim((string) $q);
 
@@ -131,7 +132,7 @@ class ProdutoRepository extends AbstractRepository implements ProdutoRepositoryI
         return $query
             ->orderBy('nome')
             ->limit(20)
-            ->get(['id', 'nome', 'codigo', 'preco_venda']);
+            ->get(['id', 'nome', 'codigo', 'preco_venda', 'grupo_id', 'foto_path', 'descricao', 'favorito']);
     }
 
     public function catalogoParaVenda(?string $q, ?int $grupoId, bool $soFavoritos, int $page): Paginator
