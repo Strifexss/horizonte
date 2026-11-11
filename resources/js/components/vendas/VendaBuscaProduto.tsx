@@ -106,12 +106,6 @@ export default function VendaBuscaProduto({ loadProdutos, onAdicionar, quantidad
     function onKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
         const noFim = event.currentTarget.selectionStart === event.currentTarget.value.length;
 
-        if (event.key === 'Escape' && aberto) {
-            event.preventDefault();
-            setAberto(false);
-            return;
-        }
-
         if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             event.preventDefault();
             if (!aberto) {
@@ -199,13 +193,9 @@ export default function VendaBuscaProduto({ loadProdutos, onAdicionar, quantidad
                     />
                 </div>
             </PopoverAnchor>
-            {/*
-             * pointer-events-auto: o Dialog deixa o body com pointer-events none e o Popover usa outra
-             * cópia do DismissableLayer do Radix, então não se sabe acima do Dialog e herdaria o none.
-             */}
             <PopoverContent
                 align="start"
-                className="pointer-events-auto flex max-h-[min(26rem,var(--radix-popover-content-available-height))] overflow-hidden p-0"
+                className="flex max-h-[min(26rem,var(--radix-popover-content-available-height))] overflow-hidden p-0"
                 onOpenAutoFocus={(event) => event.preventDefault()}
                 onCloseAutoFocus={(event) => event.preventDefault()}
                 onInteractOutside={(event) => {

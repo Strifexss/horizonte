@@ -429,12 +429,6 @@ export default function VendaModal({
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>
                 <DialogContent
-                    onEscapeKeyDown={(event) => {
-                        // Esc com a lista de produtos aberta fecha só a lista (VendaBuscaProduto).
-                        if (document.activeElement?.matches('[role="combobox"][aria-expanded="true"]')) {
-                            event.preventDefault();
-                        }
-                    }}
                     className={`h-[100dvh] w-[100vw] overflow-hidden max-md:gap-0 max-md:rounded-none max-md:p-0 md:max-w-full ${
                         somenteLeitura ? 'md:h-auto md:max-h-[90vh] md:w-[800px]' : 'md:h-[88vh] md:w-[1280px]'
                     }`}
