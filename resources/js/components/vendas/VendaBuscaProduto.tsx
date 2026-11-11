@@ -16,9 +16,9 @@ type Props = {
 
 function lerDetalhesAbertos(): boolean {
     try {
-        return window.localStorage.getItem(CHAVE_DETALHES) === '1';
+        return window.localStorage.getItem(CHAVE_DETALHES) !== '0';
     } catch {
-        return false;
+        return true;
     }
 }
 
@@ -57,7 +57,7 @@ export default function VendaBuscaProduto({ loadProdutos, onAdicionar, quantidad
     const [termo, setTermo] = useState('');
     const [aberto, setAberto] = useState(false);
     const [ativo, setAtivo] = useState(0);
-    const [detalhes, setDetalhes] = useState(false);
+    const [detalhes, setDetalhes] = useState(true);
     const anchorRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const listaId = useId();
@@ -241,13 +241,15 @@ export default function VendaBuscaProduto({ loadProdutos, onAdicionar, quantidad
                         <button
                             type="button"
                             aria-expanded={detalhes}
-                            className="text-primary hover:bg-background ml-auto inline-flex h-8 items-center gap-1 rounded-md px-2 font-semibold"
+                            title="Atalho: Ctrl+Espaço"
+                            className="text-primary bg-background hover:bg-accent ml-auto inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border px-2.5 font-semibold transition-colors"
                             onMouseDown={(event) => event.preventDefault()}
                             onClick={() => alternarDetalhes(!detalhes)}
                         >
                             {detalhes ? <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" /> : null}
                             {detalhes ? 'Recolher detalhes' : 'Ver detalhes'}
                             {detalhes ? null : <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />}
+                            <Tecla>Ctrl+Espaço</Tecla>
                         </button>
                     </div>
                 </div>
