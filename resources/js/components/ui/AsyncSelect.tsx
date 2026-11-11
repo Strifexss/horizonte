@@ -25,7 +25,7 @@ function assignMenuListRef(ref: MenuListProps<SelectOption, false>['innerRef'], 
  * before it reaches the list (some browsers then do not scroll), so wheel scrolls the
  * list by hand and always cancels the native scroll, which avoids scrolling twice.
  */
-function bindMenuScroll(node: HTMLDivElement): () => void {
+export function bindMenuScroll(node: HTMLElement): () => void {
   let lastY = 0;
 
   const onTouchStart = (event: TouchEvent) => {

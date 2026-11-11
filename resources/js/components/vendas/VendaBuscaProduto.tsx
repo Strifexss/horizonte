@@ -1,9 +1,10 @@
 import { useAsyncOptions, type SelectOption } from '@/components/ui/async-select-options';
+import { bindMenuScroll } from '@/components/ui/AsyncSelect';
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
 import { quantidadeTexto } from '@/components/vendas/itensDaVenda';
 import { formatCurrency, type ProdutoSugerido } from '@/components/vendas/types';
 import { ChevronLeft, ChevronRight, ImageOff, Search, Star } from 'lucide-react';
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 
 const CHAVE_DETALHES = 'horizonte:venda-busca-detalhes';
 
@@ -64,7 +65,18 @@ export default function VendaBuscaProduto({ loadProdutos, onAdicionar, quantidad
 
     useEffect(() => setDetalhes(lerDetalhesAbertos()), []);
     useEffect(() => setAtivo(0), [options]);
+    const rolarAteAtivo = useRef(false);
+    const soltarRolagem = useRef<(() => void) | null>(null);
+    const listaRef = useCallback((node: HTMLUListElement | null) => {
+        soltarRolagem.current?.();
+        soltarRolagem.current = node ? bindMenuScroll(node) : null;
+    }, []);
+
     useEffect(() => {
+        if (!rolarAteAtivo.current) {
+            return;
+        }
+        rolarAteAtivo.current = false;
         document.getElementById(`${listaId}-${ativo}`)?.scrollIntoView({ block: 'nearest' });
     }, [ativo, listaId]);
 
@@ -101,6 +113,7 @@ export default function VendaBuscaProduto({ loadProdutos, onAdicionar, quantidad
                 return;
             }
             const passo = event.key === 'ArrowDown' ? 1 : -1;
+            rolarAteAtivo.current = true;
             setAtivo((atual) => (produtos.length === 0 ? 0 : (atual + passo + produtos.length) % produtos.length));
             return;
         }
@@ -192,7 +205,13 @@ export default function VendaBuscaProduto({ loadProdutos, onAdicionar, quantidad
                 }}
             >
                 <div className="flex w-[min(36rem,var(--radix-popover-trigger-width))] min-w-[28rem] flex-col">
-                    <ul id={listaId} role="listbox" aria-label="Sugestões de produto" className="min-h-0 flex-1 overflow-y-auto">
+                    <ul
+                        ref={listaRef}
+                        id={listaId}
+                        role="listbox"
+                        aria-label="Sugestões de produto"
+                        className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
+                    >
                         {produtos.map((produto, index) => {
                             const quantidade = quantidadePorProduto.get(produto.id) ?? 0;
                             const subtitulo = [
