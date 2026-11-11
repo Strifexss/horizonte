@@ -260,16 +260,26 @@ export default function VendaBuscaProduto({ loadProdutos, onAdicionar, quantidad
                             {destacado.codigo ? <span className="text-muted-foreground text-xs">Cód. {destacado.codigo}</span> : null}
                         </div>
                         <span className="text-2xl font-bold tabular-nums">{formatCurrency(Number(destacado.preco_venda))}</span>
-                        <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-sm">
-                            <dt className="text-muted-foreground">Grupo</dt>
-                            <dd className="font-semibold">{destacado.grupo ?? '—'}</dd>
-                            <dt className="text-muted-foreground">Na venda</dt>
-                            <dd className="font-semibold">{quantidadeDestacado > 0 ? `${quantidadeTexto(quantidadeDestacado)} un.` : '—'}</dd>
-                            <dt className="text-muted-foreground">Favorito</dt>
-                            <dd className="flex items-center gap-1 font-semibold">
-                                {destacado.favorito ? <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-500" aria-hidden="true" /> : null}
-                                {destacado.favorito ? 'Sim' : 'Não'}
-                            </dd>
+                        <dl className="flex flex-col gap-1.5 text-sm">
+                            <div className="flex justify-between gap-3">
+                                <dt className="text-muted-foreground">Grupo</dt>
+                                <dd className="truncate font-semibold">{destacado.grupo ?? '—'}</dd>
+                            </div>
+                            <div className="flex justify-between gap-3">
+                                <div className="flex gap-1.5">
+                                    <dt className="text-muted-foreground">Na venda</dt>
+                                    <dd className="font-semibold">{quantidadeDestacado > 0 ? `${quantidadeTexto(quantidadeDestacado)} un.` : '—'}</dd>
+                                </div>
+                                <div className="flex gap-1.5">
+                                    <dt className="text-muted-foreground">Favorito</dt>
+                                    <dd className="flex items-center gap-1 font-semibold">
+                                        {destacado.favorito ? (
+                                            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-500" aria-hidden="true" />
+                                        ) : null}
+                                        {destacado.favorito ? 'Sim' : 'Não'}
+                                    </dd>
+                                </div>
+                            </div>
                         </dl>
                         {destacado.descricao ? <p className="text-sm leading-relaxed whitespace-pre-line">{destacado.descricao}</p> : null}
                     </aside>
